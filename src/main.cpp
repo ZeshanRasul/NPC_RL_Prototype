@@ -167,7 +167,7 @@ int main()
 
         view = camera.GetViewMatrix();
 
-        projection = perspective(radians(camera.Zoom), (float)SCREEN_WIDTH / (float)SCREEN_HEIGHT, 0.1f, 100.0f);
+        projection = glm::perspective(glm::radians(camera.Zoom), (float)SCREEN_WIDTH / (float)SCREEN_HEIGHT, 0.1f, 100.0f);
 
         shader.setMat4("view", view);
         shader.setMat4("proj", projection);
@@ -179,6 +179,7 @@ int main()
         glBindVertexArray(VAO);
 
         glm::mat4 model = glm::mat4(1.0f);
+        model = glm::rotate(model, glm::radians(45.0f), glm::vec3(1.0f, 1.0f, 0.0f));
         shader.setMat4("model", model);
 
         glDrawArrays(GL_TRIANGLES, 0, 36);

@@ -1,8 +1,8 @@
 #include "Camera.h"
 
-Camera::Camera(vec3 position, vec3 up, float yaw, float pitch)
+Camera::Camera(glm::vec3 position, glm::vec3 up, float yaw, float pitch)
 	:
-	Front(vec3(0.0f, 0.0f, -1.0f)),
+	Front(glm::vec3(0.0f, 0.0f, -1.0f)),
 	MovementSpeed(SPEED),
 	MouseSensitivity(SENSITIVITY),
 	Zoom(ZOOM)
@@ -16,13 +16,13 @@ Camera::Camera(vec3 position, vec3 up, float yaw, float pitch)
 
 Camera::Camera(float posX, float posY, float posZ, float upX, float upY, float upZ, float yaw, float pitch)
 	:
-	Front(vec3(0.0f, 0.0f, -1.0f)),
+	Front(glm::vec3(0.0f, 0.0f, -1.0f)),
 	MovementSpeed(SPEED),
 	MouseSensitivity(SENSITIVITY),
 	Zoom(ZOOM)
 {
-	Position = vec3(posX, posY, posZ);
-	WorldUp = vec3(upX, upY, upZ);
+	Position = glm::vec3(posX, posY, posZ);
+	WorldUp = glm::vec3(upX, upY, upZ);
 	Yaw = yaw;
 	Pitch = pitch;
 	UpdateCameraVectors();
@@ -73,12 +73,12 @@ void Camera::ProcessMouseScroll(float yOffset)
 
 void Camera::UpdateCameraVectors()
 {
-	vec3 front;
-	front.x = cos(radians(Yaw)) * cos(radians(Pitch));
-	front.y = sin(radians(Pitch));
-	front.z = sin(radians(Yaw)) * cos(radians(Pitch));
+	glm::vec3 front;
+	front.x = glm::cos(glm::radians(Yaw)) * glm::cos(glm::radians(Pitch));
+	front.y = sin(glm::radians(Pitch));
+	front.z = glm::sin(glm::radians(Yaw)) * glm::cos(glm::radians(Pitch));
 
-	Front = normalize(front);
-	Right = normalize(cross(Front, WorldUp));
-	Up = normalize(cross(Right, Front));
+	Front = glm::normalize(front);
+	Right = glm::normalize(glm::cross(Front, WorldUp));
+	Up = glm::normalize(glm::cross(Right, Front));
 }
