@@ -21,7 +21,7 @@ float lastFrame = 0.0f;
 float currentFrame = 0.0f;
 
 
-Camera camera(glm::vec3(-2.0f, 2.0f, 25.0f));
+Camera camera(glm::vec3(2.0f, 3.0f, 25.0f));
 float lastX = SCREEN_WIDTH / 2.0f;
 float lastY = SCREEN_HEIGHT / 2.0f;
 bool firstMouse = true;
@@ -69,6 +69,20 @@ float vertices[] = {
     -0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
     -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f
 };
+
+float planeVertices[] = {
+    // Positions          // Normals           // Texture Coords
+    -0.5f, 0.0f, -0.5f,  0.0f, 1.0f, 0.0f,  0.0f, 0.0f,  // Bottom-left
+     0.5f, 0.0f, -0.5f,  0.0f, 1.0f, 0.0f,  1.0f, 0.0f,  // Bottom-right
+     0.5f, 0.0f,  0.5f,  0.0f, 1.0f, 0.0f,  1.0f, 1.0f,  // Top-right
+    -0.5f, 0.0f,  0.5f,  0.0f, 1.0f, 0.0f,  0.0f, 1.0f   // Top-left
+};
+
+GLuint planeIndices[] = {
+    0, 1, 2,  // First Triangle
+    2, 3, 0   // Second Triangle
+};
+
 
 struct Material {
     glm::vec3 ambient;
@@ -177,6 +191,36 @@ int main()
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
 
+    glBindVertexArray(0);
+
+    unsigned int planeVAO;
+    unsigned int planeVBO;
+    unsigned int EBO;
+
+    // Generate and bind the VAO
+    glGenVertexArrays(1, &planeVAO);
+    glBindVertexArray(planeVAO);
+
+    // Generate and bind the VBO
+    glGenBuffers(1, &planeVBO);
+    glBindBuffer(GL_ARRAY_BUFFER, planeVBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(planeVertices), planeVertices, GL_STATIC_DRAW);
+
+    glGenBuffers(1, &EBO);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(planeIndices), planeIndices, GL_STATIC_DRAW);
+
+
+    // Define the vertex attributes
+    // Position attribute
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid*)0);
+    glEnableVertexAttribArray(0);
+
+    // Texture coordinate attribute
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid*)(3 * sizeof(GLfloat)));
+    glEnableVertexAttribArray(1);
+
+    // Unbind the VAO
     glBindVertexArray(0);
 
 
@@ -289,7 +333,7 @@ int main()
 
 
         glm::mat4 model = glm::mat4(1.0f);
-        model = glm::translate(model, glm::vec3(-10.0f, 0.0f, 0.0f));
+        model = glm::translate(model, glm::vec3(-10.0f, 3.0f, 0.0f));
         //model = glm::rotate(model, glm::radians(15.0f), glm::vec3(0.0f, 1.0f, 0.0f));
         model = glm::scale(model, glm::vec3(1.0f, 3.0f, 1.0f));
         shader.setMat4("model", model);
@@ -302,8 +346,14 @@ int main()
 
         glBindVertexArray(0);
 
+        shader.setVec3("material.ambient", cubeMaterial.ambient);
+        shader.setVec3("material.diffuse", cubeMaterial.diffuse);
+        shader.setVec3("material.specular", cubeMaterial.specular);
+        shader.setFloat("material.shininess", cubeMaterial.shininess);
+
+
         glm::mat4 model2 = glm::mat4(1.0f);
-        model2 = glm::translate(model2, glm::vec3(5.0f, 0.0f, 0.0f));
+        model2 = glm::translate(model2, glm::vec3(5.0f, 3.0f, 0.0f));
         //model = glm::rotate(model, glm::radians(15.0f), glm::vec3(0.0f, 1.0f, 0.0f));
         model2 = glm::scale(model2, glm::vec3(1.0f, 3.0f, 1.0f));
         shader.setMat4("model", model2);
@@ -312,6 +362,24 @@ int main()
 
 
         glDrawArrays(GL_TRIANGLES, 0, 36);
+
+        glBindVertexArray(0);
+
+        shader.setVec3("material.ambient", cubeMaterial.ambient);
+        shader.setVec3("material.diffuse", cubeMaterial.diffuse);
+        shader.setVec3("material.specular", cubeMaterial.specular);
+        shader.setFloat("material.shininess", cubeMaterial.shininess);
+
+
+        glm::mat4 model3 = glm::mat4(1.0f);
+        model3 = glm::translate(model2, glm::vec3(-7.5f, -0.5f, -7.5f));
+        //model = glm::rotate(model, glm::radians(15.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+        model3 = glm::scale(model3, glm::vec3(50.0f, 1.0f, 50.0f));
+        shader.setMat4("model", model3);
+
+        glBindVertexArray(planeVAO);
+
+        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
         glBindVertexArray(0);
 
