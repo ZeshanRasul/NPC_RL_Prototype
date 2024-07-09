@@ -21,7 +21,7 @@ float lastFrame = 0.0f;
 float currentFrame = 0.0f;
 
 
-Camera camera(glm::vec3(0.0f, 3.0f, 15.0f));
+Camera camera(glm::vec3(-2.0f, 2.0f, 25.0f));
 float lastX = SCREEN_WIDTH / 2.0f;
 float lastY = SCREEN_HEIGHT / 2.0f;
 bool firstMouse = true;
@@ -289,9 +289,9 @@ int main()
 
 
         glm::mat4 model = glm::mat4(1.0f);
-        model = glm::translate(model, glm::vec3(0.0f));
+        model = glm::translate(model, glm::vec3(-10.0f, 0.0f, 0.0f));
         //model = glm::rotate(model, glm::radians(15.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-        model = glm::scale(model, glm::vec3(2.0f));
+        model = glm::scale(model, glm::vec3(1.0f, 3.0f, 1.0f));
         shader.setMat4("model", model);
 
 
@@ -303,9 +303,9 @@ int main()
         glBindVertexArray(0);
 
         glm::mat4 model2 = glm::mat4(1.0f);
-        model2 = glm::translate(model2, glm::vec3(0.0f, 0.0f, -10.5f));
+        model2 = glm::translate(model2, glm::vec3(5.0f, 0.0f, 0.0f));
         //model = glm::rotate(model, glm::radians(15.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-        model2 = glm::scale(model2, glm::vec3(2.0f));
+        model2 = glm::scale(model2, glm::vec3(1.0f, 3.0f, 1.0f));
         shader.setMat4("model", model2);
 
         glBindVertexArray(VAO);
