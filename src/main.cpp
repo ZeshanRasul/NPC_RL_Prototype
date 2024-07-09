@@ -234,19 +234,33 @@ int main()
     glm::mat4 view;
     glm::mat4 projection;
 
-    Material cubeMaterial = {
-        glm::vec3(1.0f, 0.5f, 0.31f),
-        glm::vec3(1.0f, 0.5f, 0.31f),
-        glm::vec3(0.5f, 0.5f, 0.5f),
-        32.0f
+    Material playerMaterial = {
+        glm::vec3(0.0f, 0.0f, 1.0f),
+        glm::vec3(0.0f, 0.2f, 0.87f),
+        glm::vec3(0.2f, 0.2f, 0.2f),
+        8.0f
+    };
+
+    Material enemyMaterial = {
+        glm::vec3(1.0f, 0.2f, 0.2f),
+        glm::vec3(1.0f, 0.2f, 0.2f),
+        glm::vec3(0.2f, 0.2f, 0.2f),
+        8.0f
+    };
+
+    Material groundMaterial = {
+        glm::vec3(0.1f, 0.85f, 0.12f),
+        glm::vec3(0.1f, 0.85f, 0.12f),
+        glm::vec3(0.2f, 0.2f, 0.2f),
+        8.0f
     };
 
     DirLight dirLight = {
             glm::vec3(-0.2f, -1.0f, -0.3f),
 
-            glm::vec3(0.05f, 0.05f, 0.05f),
-            glm::vec3(0.5f),
-            glm::vec3(0.5f, 0.5f, 0.5f)
+            glm::vec3(0.15f, 0.15f, 0.15f),
+            glm::vec3(0.4f),
+            glm::vec3(0.1f, 0.1f, 0.1f)
     };
 
     glm::vec3 pointLightPositions[] = {
@@ -277,10 +291,10 @@ int main()
         glClearColor(0.2f, 0.3f, 0.1f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        shader.setVec3("material.ambient", cubeMaterial.ambient);
-        shader.setVec3("material.diffuse", cubeMaterial.diffuse);
-        shader.setVec3("material.specular", cubeMaterial.specular);
-        shader.setFloat("material.shininess", cubeMaterial.shininess);
+        shader.setVec3("material.ambient", playerMaterial.ambient);
+        shader.setVec3("material.diffuse", playerMaterial.diffuse);
+        shader.setVec3("material.specular", playerMaterial.specular);
+        shader.setFloat("material.shininess", playerMaterial.shininess);
 
         shader.setVec3("dirLight.direction", dirLight.direction);
         shader.setVec3("dirLight.ambient", dirLight.ambient);
@@ -346,10 +360,10 @@ int main()
 
         glBindVertexArray(0);
 
-        shader.setVec3("material.ambient", cubeMaterial.ambient);
-        shader.setVec3("material.diffuse", cubeMaterial.diffuse);
-        shader.setVec3("material.specular", cubeMaterial.specular);
-        shader.setFloat("material.shininess", cubeMaterial.shininess);
+        shader.setVec3("material.ambient", enemyMaterial.ambient);
+        shader.setVec3("material.diffuse", enemyMaterial.diffuse);
+        shader.setVec3("material.specular", enemyMaterial.specular);
+        shader.setFloat("material.shininess", enemyMaterial.shininess);
 
 
         glm::mat4 model2 = glm::mat4(1.0f);
@@ -365,10 +379,10 @@ int main()
 
         glBindVertexArray(0);
 
-        shader.setVec3("material.ambient", cubeMaterial.ambient);
-        shader.setVec3("material.diffuse", cubeMaterial.diffuse);
-        shader.setVec3("material.specular", cubeMaterial.specular);
-        shader.setFloat("material.shininess", cubeMaterial.shininess);
+        shader.setVec3("material.ambient", groundMaterial.ambient);
+        shader.setVec3("material.diffuse", groundMaterial.diffuse);
+        shader.setVec3("material.specular", groundMaterial.specular);
+        shader.setFloat("material.shininess", groundMaterial.shininess);
 
 
         glm::mat4 model3 = glm::mat4(1.0f);
