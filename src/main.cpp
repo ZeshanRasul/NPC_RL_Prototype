@@ -205,8 +205,8 @@ int main()
         glm::vec3(0.0f,  0.0f, -3.0f)
     };
 
-    Player player(glm::vec3(-10.0f, 1.5f, 0.0f), glm::vec3(1.0f, 3.0f, 1.0f), playerMaterial.diffuse);
- //   Enemy enemy(glm::vec3(5.0f, 1.5f, 0.0f), glm::vec3(1.0f, 3.0f, 1.0f), enemyMaterial.diffuse);
+    Player player(glm::vec3(-10.0f, 0.0f, 0.0f), glm::vec3(0.02f, 0.02f, 0.02f), playerMaterial.diffuse);
+    Enemy enemy(glm::vec3(5.0f, 1.5f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f), enemyMaterial.diffuse);
 
 
     // Render loop
@@ -292,7 +292,7 @@ int main()
         shader.setFloat("material.shininess", enemyMaterial.shininess);
 
 
-//        enemy.Draw(shader);
+        enemy.Draw(shader);
 
         shader.setVec3("material.ambient", groundMaterial.ambient);
         shader.setVec3("material.diffuse", groundMaterial.diffuse);
@@ -301,9 +301,9 @@ int main()
 
 
         glm::mat4 model3 = glm::mat4(1.0f);
-        model3 = glm::translate(model3, glm::vec3(-7.5f, -0.5f, -7.5f));
+        model3 = glm::translate(model3, glm::vec3(-7.5f, 0.0f, -7.5f));
         //model = glm::rotate(model, glm::radians(15.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-        model3 = glm::scale(model3, glm::vec3(50.0f, 1.0f, 50.0f));
+        model3 = glm::scale(model3, glm::vec3(250.0f, 1.0f, 250.0f));
         shader.setMat4("model", model3);
 
         glBindVertexArray(planeVAO);

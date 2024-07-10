@@ -2,9 +2,11 @@
 
 void Enemy::Draw(Shader& shader)
 {
-	glm::mat4 model = glm::mat4(1.0f);
-	model = glm::translate(model, position);
-	model = glm::scale(model, scale);
-	shader.setMat4("model", model);
+	glm::mat4 modelMat = glm::mat4(1.0f);
+	modelMat = glm::translate(modelMat, position);
+	modelMat = glm::scale(modelMat, scale);
+	shader.setMat4("model", modelMat);
 	shader.setVec3("objectColor", color);
+
+	model.Draw(shader);
 }
