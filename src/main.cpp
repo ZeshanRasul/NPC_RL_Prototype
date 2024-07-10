@@ -19,15 +19,15 @@ void processInput(GLFWwindow *window);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 void scroll_callback(GLFWwindow* window, double xOffset, double yOffset);
 
-const unsigned int SCREEN_WIDTH = 800;
-const unsigned int SCREEN_HEIGHT = 600;
+const unsigned int SCREEN_WIDTH = 1280;
+const unsigned int SCREEN_HEIGHT = 720;
 
 float deltaTime = 0.0f;
 float lastFrame = 0.0f;
 float currentFrame = 0.0f;
 
 
-Camera camera(glm::vec3(2.0f, 3.0f, 25.0f));
+Camera camera(glm::vec3(0.0f, 3.0f, 30.0f));
 float lastX = SCREEN_WIDTH / 2.0f;
 float lastY = SCREEN_HEIGHT / 2.0f;
 bool firstMouse = true;
@@ -84,7 +84,7 @@ int main()
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
     // Create a windowed mode window and its OpenGL context
-    GLFWwindow* window = glfwCreateWindow(800, 600, "OpenGL Window", NULL, NULL);
+    GLFWwindow* window = glfwCreateWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "OpenGL Window", NULL, NULL);
     if (!window)
     {
         std::cerr << "Failed to create GLFW window" << std::endl;
@@ -205,8 +205,8 @@ int main()
         glm::vec3(0.0f,  0.0f, -3.0f)
     };
 
-    Player player(glm::vec3(-10.0f, 0.0f, 0.0f), glm::vec3(0.02f, 0.02f, 0.02f), playerMaterial.diffuse);
-    Enemy enemy(glm::vec3(5.0f, 1.5f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f), enemyMaterial.diffuse);
+    Player player(glm::vec3(10.0f, 0.0f, 0.0f), glm::vec3(0.02f, 0.02f, 0.02f), playerMaterial.diffuse);
+    Enemy enemy(glm::vec3(-17.5f, 0.0f, 0.0f), glm::vec3(0.02f, 0.02f, 0.02f), enemyMaterial.diffuse);
 
 
     // Render loop
@@ -301,9 +301,9 @@ int main()
 
 
         glm::mat4 model3 = glm::mat4(1.0f);
-        model3 = glm::translate(model3, glm::vec3(-7.5f, 0.0f, -7.5f));
+        model3 = glm::translate(model3, glm::vec3(-4.5f, 0.0f, -7.5f));
         //model = glm::rotate(model, glm::radians(15.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-        model3 = glm::scale(model3, glm::vec3(250.0f, 1.0f, 250.0f));
+        model3 = glm::scale(model3, glm::vec3(100.0f, 1.0f, 100.0f));
         shader.setMat4("model", model3);
 
         glBindVertexArray(planeVAO);
