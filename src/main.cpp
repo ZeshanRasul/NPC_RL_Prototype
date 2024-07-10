@@ -5,6 +5,9 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <iostream>
 
+#define STB_IMAGE_IMPLEMENTATION
+#include <stb_image.h>
+
 #include "Shader.h"
 #include "Camera.h"
 #include "GameObjects/Player.h"
@@ -203,7 +206,7 @@ int main()
     };
 
     Player player(glm::vec3(-10.0f, 1.5f, 0.0f), glm::vec3(1.0f, 3.0f, 1.0f), playerMaterial.diffuse);
-    Enemy enemy(glm::vec3(5.0f, 1.5f, 0.0f), glm::vec3(1.0f, 3.0f, 1.0f), enemyMaterial.diffuse);
+ //   Enemy enemy(glm::vec3(5.0f, 1.5f, 0.0f), glm::vec3(1.0f, 3.0f, 1.0f), enemyMaterial.diffuse);
 
 
     // Render loop
@@ -289,7 +292,7 @@ int main()
         shader.setFloat("material.shininess", enemyMaterial.shininess);
 
 
-        enemy.Draw(shader);
+//        enemy.Draw(shader);
 
         shader.setVec3("material.ambient", groundMaterial.ambient);
         shader.setVec3("material.diffuse", groundMaterial.diffuse);

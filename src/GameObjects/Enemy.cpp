@@ -7,8 +7,4 @@ void Enemy::Draw(Shader& shader)
 	model = glm::scale(model, scale);
 	shader.setMat4("model", model);
 	shader.setVec3("objectColor", color);
-	
-	glBindVertexArray(VAO);
-	glDrawArrays(GL_TRIANGLES, 0, 36);
-	glBindVertexArray(0);
 }
