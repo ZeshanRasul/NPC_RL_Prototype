@@ -7,6 +7,9 @@
 
 #include "Shader.h"
 #include "Camera.h"
+#include "GameObjects/Player.h"
+#include "GameObjects/Enemy.h"
+#include "Primitives.h"
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow *window);
@@ -25,64 +28,6 @@ Camera camera(glm::vec3(2.0f, 3.0f, 25.0f));
 float lastX = SCREEN_WIDTH / 2.0f;
 float lastY = SCREEN_HEIGHT / 2.0f;
 bool firstMouse = true;
-
-float vertices[] = {
-    -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
-     0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
-     0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
-     0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
-    -0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
-    -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
-
-    -0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
-     0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
-     0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
-     0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
-    -0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
-    -0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
-
-    -0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
-    -0.5f,  0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
-    -0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
-    -0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
-    -0.5f, -0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
-    -0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
-
-     0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
-     0.5f,  0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
-     0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
-     0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
-     0.5f, -0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
-     0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
-
-    -0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
-     0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
-     0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
-     0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
-    -0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
-    -0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
-
-    -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,
-     0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,
-     0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
-     0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
-    -0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
-    -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f
-};
-
-float planeVertices[] = {
-    // Positions          // Normals           // Texture Coords
-    -0.5f, 0.0f, -0.5f,  0.0f, 1.0f, 0.0f,  0.0f, 0.0f,  // Bottom-left
-     0.5f, 0.0f, -0.5f,  0.0f, 1.0f, 0.0f,  1.0f, 0.0f,  // Bottom-right
-     0.5f, 0.0f,  0.5f,  0.0f, 1.0f, 0.0f,  1.0f, 1.0f,  // Top-right
-    -0.5f, 0.0f,  0.5f,  0.0f, 1.0f, 0.0f,  0.0f, 1.0f   // Top-left
-};
-
-GLuint planeIndices[] = {
-    0, 1, 2,  // First Triangle
-    2, 3, 0   // Second Triangle
-};
-
 
 struct Material {
     glm::vec3 ambient;
@@ -164,9 +109,9 @@ int main()
 
     glfwSetScrollCallback(window, scroll_callback);
 
-    unsigned int VAO;
-    glGenVertexArrays(1, &VAO);
-    glBindVertexArray(VAO);
+    unsigned int lightVAO;
+    glGenVertexArrays(1, &lightVAO);
+    glBindVertexArray(lightVAO);
 
     unsigned int VBO;
     glGenBuffers(1, &VBO);
@@ -174,19 +119,6 @@ int main()
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), &vertices, GL_STATIC_DRAW);
 
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
-    glEnableVertexAttribArray(0);
-
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
-    glEnableVertexAttribArray(1);
-
-    glBindVertexArray(0);
-
-    unsigned int lightVAO;
-    glGenVertexArrays(1, &lightVAO);
-    glBindVertexArray(lightVAO);
-
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
 
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
@@ -270,6 +202,10 @@ int main()
         glm::vec3(0.0f,  0.0f, -3.0f)
     };
 
+    Player player(glm::vec3(-10.0f, 1.5f, 0.0f), glm::vec3(1.0f, 3.0f, 1.0f), playerMaterial.diffuse);
+    Enemy enemy(glm::vec3(5.0f, 1.5f, 0.0f), glm::vec3(1.0f, 3.0f, 1.0f), enemyMaterial.diffuse);
+
+
     // Render loop
     while (!glfwWindowShouldClose(window))
     {
@@ -345,20 +281,7 @@ int main()
         shader.setFloat("spotLight.outerCutOff", glm::cos(glm::radians(5.0f)));
         shader.setVec3("viewPos", camera.Position);
 
-
-        glm::mat4 model = glm::mat4(1.0f);
-        model = glm::translate(model, glm::vec3(-10.0f, 3.0f, 0.0f));
-        //model = glm::rotate(model, glm::radians(15.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-        model = glm::scale(model, glm::vec3(1.0f, 3.0f, 1.0f));
-        shader.setMat4("model", model);
-
-
-        glBindVertexArray(VAO);
-
-
-        glDrawArrays(GL_TRIANGLES, 0, 36);
-
-        glBindVertexArray(0);
+        player.Draw(shader);
 
         shader.setVec3("material.ambient", enemyMaterial.ambient);
         shader.setVec3("material.diffuse", enemyMaterial.diffuse);
@@ -366,18 +289,7 @@ int main()
         shader.setFloat("material.shininess", enemyMaterial.shininess);
 
 
-        glm::mat4 model2 = glm::mat4(1.0f);
-        model2 = glm::translate(model2, glm::vec3(5.0f, 3.0f, 0.0f));
-        //model = glm::rotate(model, glm::radians(15.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-        model2 = glm::scale(model2, glm::vec3(1.0f, 3.0f, 1.0f));
-        shader.setMat4("model", model2);
-
-        glBindVertexArray(VAO);
-
-
-        glDrawArrays(GL_TRIANGLES, 0, 36);
-
-        glBindVertexArray(0);
+        enemy.Draw(shader);
 
         shader.setVec3("material.ambient", groundMaterial.ambient);
         shader.setVec3("material.diffuse", groundMaterial.diffuse);
@@ -386,7 +298,7 @@ int main()
 
 
         glm::mat4 model3 = glm::mat4(1.0f);
-        model3 = glm::translate(model2, glm::vec3(-7.5f, -0.5f, -7.5f));
+        model3 = glm::translate(model3, glm::vec3(-7.5f, -0.5f, -7.5f));
         //model = glm::rotate(model, glm::radians(15.0f), glm::vec3(0.0f, 1.0f, 0.0f));
         model3 = glm::scale(model3, glm::vec3(50.0f, 1.0f, 50.0f));
         shader.setMat4("model", model3);

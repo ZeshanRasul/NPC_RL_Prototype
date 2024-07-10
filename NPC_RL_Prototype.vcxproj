@@ -134,12 +134,18 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="src\Camera.cpp" />
+    <ClCompile Include="src\GameObjects\Enemy.cpp" />
+    <ClCompile Include="src\GameObjects\Player.cpp" />
     <ClCompile Include="src\glad.c" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\Shader.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Camera.h" />
+    <ClInclude Include="src\GameObjects\Enemy.h" />
+    <ClInclude Include="src\GameObjects\GameObject.h" />
+    <ClInclude Include="src\GameObjects\Player.h" />
+    <ClInclude Include="src\Primitives.h" />
     <ClInclude Include="src\Shader.h" />
   </ItemGroup>
   <ItemGroup>
