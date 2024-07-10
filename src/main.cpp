@@ -12,6 +12,7 @@
 #include "Camera.h"
 #include "GameObjects/Player.h"
 #include "GameObjects/Enemy.h"
+#include "GameObjects/Ground.h"
 #include "Primitives.h"
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
@@ -128,37 +129,6 @@ int main()
 
     glBindVertexArray(0);
 
-    unsigned int planeVAO;
-    unsigned int planeVBO;
-    unsigned int EBO;
-
-    // Generate and bind the VAO
-    glGenVertexArrays(1, &planeVAO);
-    glBindVertexArray(planeVAO);
-
-    // Generate and bind the VBO
-    glGenBuffers(1, &planeVBO);
-    glBindBuffer(GL_ARRAY_BUFFER, planeVBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(planeVertices), planeVertices, GL_STATIC_DRAW);
-
-    glGenBuffers(1, &EBO);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(planeIndices), planeIndices, GL_STATIC_DRAW);
-
-
-    // Define the vertex attributes
-    // Position attribute
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid*)0);
-    glEnableVertexAttribArray(0);
-
-    // Texture coordinate attribute
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid*)(3 * sizeof(GLfloat)));
-    glEnableVertexAttribArray(1);
-
-    // Unbind the VAO
-    glBindVertexArray(0);
-
-
     Shader shader("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/vertex.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/fragment.glsl");
 
     Shader lightShader("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/lightVertex.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/lightFragment.glsl");
@@ -207,7 +177,7 @@ int main()
 
     Player player(glm::vec3(10.0f, 0.0f, 0.0f), glm::vec3(0.02f, 0.02f, 0.02f), playerMaterial.diffuse);
     Enemy enemy(glm::vec3(-17.5f, 0.0f, 0.0f), glm::vec3(0.02f, 0.02f, 0.02f), enemyMaterial.diffuse);
-
+    Ground ground(glm::vec3(-100.0f, -0.3f, 50.0f), glm::vec3(100.0f, 1.0f, 100.0f), glm::vec3(1.0f));
 
     // Render loop
     while (!glfwWindowShouldClose(window))
@@ -306,11 +276,7 @@ int main()
         model3 = glm::scale(model3, glm::vec3(100.0f, 1.0f, 100.0f));
         shader.setMat4("model", model3);
 
-        glBindVertexArray(planeVAO);
-
-        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-
-        glBindVertexArray(0);
+        ground.Draw(shader);
 
         //lightShader.use();
 
