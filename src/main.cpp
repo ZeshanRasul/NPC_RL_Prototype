@@ -73,6 +73,12 @@ struct SpotLight {
     glm::vec3 specular;
 };
 
+glm::vec3 snapToGrid(const glm::vec3& position) {
+    int gridX = static_cast<int>(position.x / CELL_SIZE);
+    int gridZ = static_cast<int>(position.z / CELL_SIZE);
+    return glm::vec3(gridX * CELL_SIZE + CELL_SIZE / 2.0f, position.y, gridZ * CELL_SIZE + CELL_SIZE / 2.0f);
+}
+
 int main()
 {
     // Initialize and configure GLFW
@@ -176,8 +182,8 @@ int main()
         glm::vec3(0.0f,  0.0f, -3.0f)
     };
 
-    Player player(glm::vec3(130.0f, 0.0f, 25.0f), glm::vec3(0.02f, 0.02f, 0.02f), playerMaterial.diffuse);
-    Enemy enemy(glm::vec3(25.0f, 0.0f, 20.0f), glm::vec3(0.02f, 0.02f, 0.02f), enemyMaterial.diffuse);
+    Player player(snapToGrid(glm::vec3(130.0f, 0.0f, 25.0f)), glm::vec3(0.02f, 0.02f, 0.02f), playerMaterial.diffuse);
+    Enemy enemy(snapToGrid(glm::vec3(13.0f, 0.0f, 13.0f)), glm::vec3(0.02f, 0.02f, 0.02f), enemyMaterial.diffuse);
     Ground ground(glm::vec3(-100.0f, -0.3f, 50.0f), glm::vec3(100.0f, 1.0f, 100.0f), glm::vec3(1.0f));
     Cell cell;
     cell.SetUpVAO();

@@ -10,7 +10,7 @@
 
 // Create a 100x100 grid
 const int GRID_SIZE = 100;
-const int CELL_SIZE = 10;
+const int CELL_SIZE = 7;
 extern std::vector<std::vector<Cell>> grid;
 
 void initializeGrid();

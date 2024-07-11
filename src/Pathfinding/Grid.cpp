@@ -96,33 +96,55 @@ std::vector<glm::ivec2> findPath(const glm::ivec2& start, const glm::ivec2& goal
     return {};
 }
 
-
 void moveEnemy(Enemy& enemy, const std::vector<glm::ivec2>& path, float deltaTime) {
     static size_t pathIndex = 0;
     if (path.empty()) return;
 
-    const float tolerance = 0.5f;
-    float speed = 5.0f;
+    const float tolerance = 0.1f; // Smaller tolerance for better alignment
+    const float agentRadius = 0.5f; // Adjust this value to match the agent's radius
+    float speed = 5.0f; // Ensure this speed is appropriate for the grid size and cell size
 
     // Calculate the target position from the current path node
-    glm::vec3 targetPos = glm::vec3(path[pathIndex].x * CELL_SIZE, enemy.getPosition().y, path[pathIndex].y * CELL_SIZE);
+    glm::vec3 targetPos = glm::vec3(path[pathIndex].x * CELL_SIZE + CELL_SIZE / 2.0f, enemy.getPosition().y, path[pathIndex].y * CELL_SIZE + CELL_SIZE / 2.0f);
 
     // Calculate the direction to the target position
     glm::vec3 direction = glm::normalize(targetPos - enemy.getPosition());
 
     // Calculate the new position
-    glm::vec3 newPos = (enemy.getPosition() + glm::vec3(0.5f, 0.0f, 0.5f))  + direction * speed * deltaTime;
+    glm::vec3 newPos = enemy.getPosition() + direction * speed * deltaTime;
 
-    // Ensure the new position is not within an obstacle
-    glm::ivec2 gridPos = glm::ivec2(newPos.x / CELL_SIZE, newPos.z / CELL_SIZE);
-    if (!grid[gridPos.x][gridPos.y].isObstacle) {
+    // Ensure the new position is not within an obstacle by checking the bounding box
+    bool isObstacleFree = true;
+    for (float xOffset = -agentRadius; xOffset <= agentRadius; xOffset += agentRadius * 2) {
+        for (float zOffset = -agentRadius; zOffset <= agentRadius; zOffset += agentRadius * 2) {
+            glm::ivec2 checkPos = glm::ivec2((newPos.x + xOffset) / CELL_SIZE, (newPos.z + zOffset) / CELL_SIZE);
+            if (checkPos.x < 0 || checkPos.x >= GRID_SIZE || checkPos.y < 0 || checkPos.y >= GRID_SIZE || grid[checkPos.x][checkPos.y].isObstacle) {
+                isObstacleFree = false;
+                break;
+            }
+        }
+        if (!isObstacleFree) break;
+    }
+
+    if (isObstacleFree) {
         enemy.setPosition(newPos);
     }
     else {
         // If the new position is within an obstacle, try to adjust the position slightly
-        newPos = enemy.getPosition() + direction * (speed * deltaTime * 0.1f);
-        gridPos = glm::ivec2(newPos.x / CELL_SIZE, newPos.z / CELL_SIZE);
-        if (!grid[gridPos.x][gridPos.y].isObstacle) {
+        newPos = enemy.getPosition() + direction * (speed * deltaTime * 0.5f);
+        isObstacleFree = true;
+        for (float xOffset = -agentRadius; xOffset <= agentRadius; xOffset += agentRadius * 2) {
+            for (float zOffset = -agentRadius; zOffset <= agentRadius; zOffset += agentRadius * 2) {
+                glm::ivec2 checkPos = glm::ivec2((newPos.x + xOffset) / CELL_SIZE, (newPos.z + zOffset) / CELL_SIZE);
+                if (checkPos.x < 0 || checkPos.x >= GRID_SIZE || checkPos.y < 0 || checkPos.y >= GRID_SIZE || grid[checkPos.x][checkPos.y].isObstacle) {
+                    isObstacleFree = false;
+                    break;
+                }
+            }
+            if (!isObstacleFree) break;
+        }
+
+        if (isObstacleFree) {
             enemy.setPosition(newPos);
         }
     }
@@ -135,10 +157,4 @@ void moveEnemy(Enemy& enemy, const std::vector<glm::ivec2>& path, float deltaTim
         }
     }
 }
-
-
-
-
-
-
 
