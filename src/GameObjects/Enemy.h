@@ -11,4 +11,12 @@ public:
     }
 
     void Draw(Shader& shader) override;
+
+    glm::vec3 getPosition() {
+        return position;
+    }
+
+    void setPosition(glm::vec3 newPos) {
+        position = newPos;
+    }
 };

@@ -8,13 +8,13 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
 
-#include "Pathfinding/Grid.h"
 #include "Shader.h"
 #include "Camera.h"
 #include "GameObjects/Player.h"
 #include "GameObjects/Enemy.h"
 #include "GameObjects/Ground.h"
 #include "GameObjects/Cell.h"
+#include "Pathfinding/Grid.h"
 #include "Primitives.h"
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
@@ -176,8 +176,8 @@ int main()
         glm::vec3(0.0f,  0.0f, -3.0f)
     };
 
-    Player player(glm::vec3(10.0f, 0.0f, 0.0f), glm::vec3(0.02f, 0.02f, 0.02f), playerMaterial.diffuse);
-    Enemy enemy(glm::vec3(-17.5f, 0.0f, 0.0f), glm::vec3(0.02f, 0.02f, 0.02f), enemyMaterial.diffuse);
+    Player player(glm::vec3(40.0f, 0.0f, 10.0f), glm::vec3(0.02f, 0.02f, 0.02f), playerMaterial.diffuse);
+    Enemy enemy(glm::vec3(5.0f, 0.0f, 10.0f), glm::vec3(0.02f, 0.02f, 0.02f), enemyMaterial.diffuse);
     Ground ground(glm::vec3(-100.0f, -0.3f, 50.0f), glm::vec3(100.0f, 1.0f, 100.0f), glm::vec3(1.0f));
     Cell cell;
     cell.SetUpVAO();
@@ -267,6 +267,13 @@ int main()
         shader.setVec3("material.diffuse", enemyMaterial.diffuse);
         shader.setVec3("material.specular", enemyMaterial.specular);
         shader.setFloat("material.shininess", enemyMaterial.shininess);
+
+        std::vector<glm::ivec2> path = findPath(
+            glm::ivec2(enemy.getPosition().x / CELL_SIZE, enemy.getPosition().z / CELL_SIZE),
+            glm::ivec2(player.getPosition().x / CELL_SIZE, player.getPosition().z / CELL_SIZE),
+            grid
+        );
+        moveEnemy(enemy, path, deltaTime);
 
 
         enemy.Draw(shader);
