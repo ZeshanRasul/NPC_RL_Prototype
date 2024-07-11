@@ -8,8 +8,8 @@
 #include "../Shader.h"
 
 // Create a 100x100 grid
-const int GRID_SIZE = 100;
-const int CELL_SIZE = 1;
+const int GRID_SIZE = 20;
+const int CELL_SIZE = 2;
 extern std::vector<std::vector<Cell>> grid;
 
 void initializeGrid();
