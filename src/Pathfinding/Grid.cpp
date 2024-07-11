@@ -102,7 +102,19 @@ void moveEnemy(Enemy& enemy, const std::vector<glm::ivec2>& path, float deltaTim
 
     const float tolerance = 0.1f; // Smaller tolerance for better alignment
     const float agentRadius = 0.5f; // Adjust this value to match the agent's radius
-    float speed = 5.0f; // Ensure this speed is appropriate for the grid size and cell size
+    float speed = 10.0f; // Ensure this speed is appropriate for the grid size and cell size
+
+    if (pathIndex >= path.size()) {
+        std::cout << "Agent has reached its destination." << std::endl;
+        return; // Stop moving if the agent has reached its destination
+    }
+
+    float cellOffset = 0.0f;
+
+    if (pathIndex < path.size())
+    {
+        cellOffset = CELL_SIZE / 2.0f;
+    }
 
     // Calculate the target position from the current path node
     glm::vec3 targetPos = glm::vec3(path[pathIndex].x * CELL_SIZE + CELL_SIZE / 2.0f, enemy.getPosition().y, path[pathIndex].y * CELL_SIZE + CELL_SIZE / 2.0f);
