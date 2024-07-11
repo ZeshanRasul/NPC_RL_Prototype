@@ -8,11 +8,13 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
 
+#include "Pathfinding/Grid.h"
 #include "Shader.h"
 #include "Camera.h"
 #include "GameObjects/Player.h"
 #include "GameObjects/Enemy.h"
 #include "GameObjects/Ground.h"
+#include "GameObjects/Cell.h"
 #include "Primitives.h"
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
@@ -133,8 +135,7 @@ int main()
 
     Shader lightShader("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/lightVertex.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/lightFragment.glsl");
 
-
-    shader.use();
+    Shader gridShader("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/gridVertex.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/gridFragment.glsl");
 
     glm::mat4 view;
     glm::mat4 projection;
@@ -178,6 +179,10 @@ int main()
     Player player(glm::vec3(10.0f, 0.0f, 0.0f), glm::vec3(0.02f, 0.02f, 0.02f), playerMaterial.diffuse);
     Enemy enemy(glm::vec3(-17.5f, 0.0f, 0.0f), glm::vec3(0.02f, 0.02f, 0.02f), enemyMaterial.diffuse);
     Ground ground(glm::vec3(-100.0f, -0.3f, 50.0f), glm::vec3(100.0f, 1.0f, 100.0f), glm::vec3(1.0f));
+    Cell cell;
+    cell.SetUpVAO();
+
+    initializeGrid();
 
     // Render loop
     while (!glfwWindowShouldClose(window))
@@ -192,6 +197,8 @@ int main()
         view = camera.GetViewMatrix();
 
         projection = glm::perspective(glm::radians(camera.Zoom), (float)SCREEN_WIDTH / (float)SCREEN_HEIGHT, 0.1f, 100.0f);
+
+        shader.use();
 
         shader.setMat4("view", view);
         shader.setMat4("proj", projection);
@@ -277,6 +284,16 @@ int main()
         shader.setMat4("model", model3);
 
         ground.Draw(shader);
+
+        gridShader.use();
+        gridShader.setMat4("view", view);
+        gridShader.setMat4("proj", projection);
+
+        cell.BindVAO();
+
+        drawGrid(gridShader);
+
+        glBindVertexArray(0);
 
         //lightShader.use();
 

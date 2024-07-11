@@ -141,11 +141,14 @@
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\Mesh.cpp" />
     <ClCompile Include="src\Model.cpp" />
+    <ClCompile Include="src\Pathfinding\Grid.cpp" />
+    <ClCompile Include="src\Pathfinding\Grid.h" />
     <ClCompile Include="src\Shader.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\stb_image.h" />
     <ClInclude Include="src\Camera.h" />
+    <ClInclude Include="src\GameObjects\Cell.h" />
     <ClInclude Include="src\GameObjects\Enemy.h" />
     <ClInclude Include="src\GameObjects\GameObject.h" />
     <ClInclude Include="src\GameObjects\Ground.h" />
@@ -158,6 +161,8 @@
   <ItemGroup>
     <None Include="src\Models\backpack\backpack.mtl" />
     <None Include="src\Shaders\fragment.glsl" />
+    <None Include="src\Shaders\gridFragment.glsl" />
+    <None Include="src\Shaders\gridVertex.glsl" />
     <None Include="src\Shaders\lightFragment.glsl" />
     <None Include="src\Shaders\lightVertex.glsl" />
     <None Include="src\Shaders\vertex.glsl" />
