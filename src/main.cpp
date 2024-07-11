@@ -176,7 +176,7 @@ int main()
         glm::vec3(0.0f,  0.0f, -3.0f)
     };
 
-    Player player(glm::vec3(90.0f, 0.0f, 10.0f), glm::vec3(0.02f, 0.02f, 0.02f), playerMaterial.diffuse);
+    Player player(glm::vec3(110.0f, 0.0f, 25.0f), glm::vec3(0.02f, 0.02f, 0.02f), playerMaterial.diffuse);
     Enemy enemy(glm::vec3(25.0f, 0.0f, 20.0f), glm::vec3(0.02f, 0.02f, 0.02f), enemyMaterial.diffuse);
     Ground ground(glm::vec3(-100.0f, -0.3f, 50.0f), glm::vec3(100.0f, 1.0f, 100.0f), glm::vec3(1.0f));
     Cell cell;

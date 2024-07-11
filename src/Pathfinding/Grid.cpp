@@ -7,7 +7,10 @@ std::vector<std::vector<Cell>> grid(GRID_SIZE, std::vector<Cell>(GRID_SIZE, { fa
 // Add some obstacles
 void initializeGrid() {
     for (int i = 5; i < 10; ++i) {
-        for (int j = 5; j < 10; ++j) {
+        for (int j = 0; j < 10; ++j) {
+            if (j >= 20 && j <= GRID_SIZE)
+            {
+            }
             grid[i][j].isObstacle = true;
             grid[i][j].color = glm::vec3(1.0f, 0.0f, 0.0f);
         }
