@@ -177,7 +177,7 @@ int main()
     };
 
     Player player(glm::vec3(40.0f, 0.0f, 10.0f), glm::vec3(0.02f, 0.02f, 0.02f), playerMaterial.diffuse);
-    Enemy enemy(glm::vec3(5.0f, 0.0f, 10.0f), glm::vec3(0.02f, 0.02f, 0.02f), enemyMaterial.diffuse);
+    Enemy enemy(glm::vec3(25.0f, 0.0f, 20.0f), glm::vec3(0.02f, 0.02f, 0.02f), enemyMaterial.diffuse);
     Ground ground(glm::vec3(-100.0f, -0.3f, 50.0f), glm::vec3(100.0f, 1.0f, 100.0f), glm::vec3(1.0f));
     Cell cell;
     cell.SetUpVAO();
@@ -290,7 +290,7 @@ int main()
         model3 = glm::scale(model3, glm::vec3(100.0f, 1.0f, 100.0f));
         shader.setMat4("model", model3);
 
-        ground.Draw(shader);
+//        ground.Draw(shader);
 
         gridShader.use();
         gridShader.setMat4("view", view);
