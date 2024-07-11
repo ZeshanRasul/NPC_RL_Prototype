@@ -10,9 +10,6 @@ std::vector<std::vector<Cell>> grid(GRID_SIZE, std::vector<Cell>(GRID_SIZE, { fa
 void initializeGrid() {
     for (int i = 5; i < 10; ++i) {
         for (int j = 0; j < 10; ++j) {
-            if (j >= 20 && j <= GRID_SIZE)
-            {
-            }
             grid[i][j].isObstacle = true;
             grid[i][j].color = glm::vec3(1.0f, 0.0f, 0.0f);
         }
@@ -48,7 +45,7 @@ struct Node {
 };
 
 float heuristic(const glm::ivec2& a, const glm::ivec2& b) {
-    return std::abs(a.x - b.x) + std::abs(a.y - b.y);
+    return (std::abs(a.x - b.x) + std::abs(a.y - b.y)) * glm::min((a.x - b.x), (a.y - b.y));
 }
 
 std::vector<glm::ivec2> findPath(const glm::ivec2& start, const glm::ivec2& goal, const std::vector<std::vector<Cell>>& grid) {
@@ -102,31 +99,43 @@ std::vector<glm::ivec2> findPath(const glm::ivec2& start, const glm::ivec2& goal
 
 void moveEnemy(Enemy& enemy, const std::vector<glm::ivec2>& path, float deltaTime) {
     static size_t pathIndex = 0;
-
     if (path.empty()) return;
 
-//    std::cout << path[pathIndex].x << ", " << path[pathIndex].y << std::endl;
-
-    glm::vec3 targetPos = glm::vec3(path[pathIndex].x * CELL_SIZE, enemy.getPosition().y, path[pathIndex].y * CELL_SIZE);
-    glm::vec3 direction = glm::normalize(targetPos - enemy.getPosition());
+    const float tolerance = 0.5f;
     float speed = 5.0f;
-    glm::vec3 newPos = enemy.getPosition() + direction * speed * deltaTime;
+
+    // Calculate the target position from the current path node
+    glm::vec3 targetPos = glm::vec3(path[pathIndex].x * CELL_SIZE, enemy.getPosition().y, path[pathIndex].y * CELL_SIZE);
+
+    // Calculate the direction to the target position
+    glm::vec3 direction = glm::normalize(targetPos - enemy.getPosition());
+
+    // Calculate the new position
+    glm::vec3 newPos = (enemy.getPosition() + glm::vec3(0.5f, 0.0f, 0.5f))  + direction * speed * deltaTime;
 
     // Ensure the new position is not within an obstacle
     glm::ivec2 gridPos = glm::ivec2(newPos.x / CELL_SIZE, newPos.z / CELL_SIZE);
     if (!grid[gridPos.x][gridPos.y].isObstacle) {
         enemy.setPosition(newPos);
     }
+    else {
+        // If the new position is within an obstacle, try to adjust the position slightly
+        newPos = enemy.getPosition() + direction * (speed * deltaTime * 0.1f);
+        gridPos = glm::ivec2(newPos.x / CELL_SIZE, newPos.z / CELL_SIZE);
+        if (!grid[gridPos.x][gridPos.y].isObstacle) {
+            enemy.setPosition(newPos);
+        }
+    }
 
-    float dist = glm::distance(enemy.getPosition(), targetPos);
-    // Check if the enemy has reached the current target position
-    if (glm::distance(enemy.getPosition(), targetPos) < 0.1f) {
+    // Check if the enemy has reached the current target position within a tolerance
+    if (glm::distance(enemy.getPosition(), targetPos) < tolerance) {
         pathIndex++;
         if (pathIndex >= path.size()) {
             pathIndex = 0; // Reset path index if the end is reached
         }
     }
 }
+
 
 
 
