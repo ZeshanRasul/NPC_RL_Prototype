@@ -2,6 +2,8 @@
 #include <queue>
 #include <unordered_map>
 
+#define GLM_ENABLE_EXPERIMENTAL
+
 std::vector<std::vector<Cell>> grid(GRID_SIZE, std::vector<Cell>(GRID_SIZE, { false, glm::vec3(0.0f, 1.0f, 0.0f) }));
 
 // Add some obstacles
@@ -32,31 +34,28 @@ void drawGrid(Shader& gridShader) {
     }
 }
 
-// Node structure for A*
+#include <unordered_set>
+#include <glm/gtx/hash.hpp>
+
 struct Node {
-    glm::ivec2 position; // The (x, y) position of the node in the grid
-    float gCost;         // Cost from the start node to this node
-    float hCost;         // Heuristic cost from this node to the goal
-    Node* parent;        // Pointer to the parent node to reconstruct the path
+    glm::ivec2 position;
+    float gCost;
+    float hCost;
+    Node* parent;
 
-    float fCost() const { return gCost + hCost; } // Total cost
-
-    bool operator<(const Node& other) const {
-        return fCost() > other.fCost(); // Priority queue needs the smallest fCost
-    }
+    float fCost() const { return gCost + hCost; }
+    bool operator<(const Node& other) const { return fCost() > other.fCost(); }
 };
 
-// Heuristic function to calculate Manhattan distance
 float heuristic(const glm::ivec2& a, const glm::ivec2& b) {
     return std::abs(a.x - b.x) + std::abs(a.y - b.y);
 }
 
-// Function to find the path using A* algorithm
 std::vector<glm::ivec2> findPath(const glm::ivec2& start, const glm::ivec2& goal, const std::vector<std::vector<Cell>>& grid) {
     std::priority_queue<Node> openSet;
     std::unordered_map<glm::ivec2, Node, ivec2_hash> allNodes;
+    std::unordered_set<glm::ivec2, ivec2_hash> closedSet;
 
-    // Initialize the start node
     Node startNode = { start, 0.0f, heuristic(start, goal), nullptr };
     openSet.push(startNode);
     allNodes[start] = startNode;
@@ -64,8 +63,8 @@ std::vector<glm::ivec2> findPath(const glm::ivec2& start, const glm::ivec2& goal
     while (!openSet.empty()) {
         Node current = openSet.top();
         openSet.pop();
+        closedSet.insert(current.position);
 
-        // If the goal is reached, reconstruct the path
         if (current.position == goal) {
             std::vector<glm::ivec2> path;
             for (Node* node = &current; node != nullptr; node = node->parent) {
@@ -75,7 +74,6 @@ std::vector<glm::ivec2> findPath(const glm::ivec2& start, const glm::ivec2& goal
             return path;
         }
 
-        // Explore neighbors
         std::vector<glm::ivec2> neighbors = {
             {current.position.x + 1, current.position.y},
             {current.position.x - 1, current.position.y},
@@ -84,16 +82,13 @@ std::vector<glm::ivec2> findPath(const glm::ivec2& start, const glm::ivec2& goal
         };
 
         for (const glm::ivec2& neighbor : neighbors) {
-            // Check if the neighbor is within the grid bounds
             if (neighbor.x < 0 || neighbor.y < 0 || neighbor.x >= GRID_SIZE || neighbor.y >= GRID_SIZE)
                 continue;
-            // Check if the neighbor is an obstacle
-            if (grid[neighbor.x][neighbor.y].isObstacle)
+            if (grid[neighbor.x][neighbor.y].isObstacle || closedSet.count(neighbor))
                 continue;
 
             float tentativeGCost = current.gCost + 1.0f;
             if (allNodes.find(neighbor) == allNodes.end() || tentativeGCost < allNodes[neighbor].gCost) {
-                // Update or add the neighbor node with new costs
                 Node neighborNode = { neighbor, tentativeGCost, heuristic(neighbor, goal), &allNodes[current.position] };
                 openSet.push(neighborNode);
                 allNodes[neighbor] = neighborNode;
@@ -101,17 +96,38 @@ std::vector<glm::ivec2> findPath(const glm::ivec2& start, const glm::ivec2& goal
         }
     }
 
-    return {}; // Return an empty path if no path is found
+    return {};
 }
+
 
 void moveEnemy(Enemy& enemy, const std::vector<glm::ivec2>& path, float deltaTime) {
+    static size_t pathIndex = 0;
+
     if (path.empty()) return;
 
-    glm::vec3 targetPos = glm::vec3(path[0].x * CELL_SIZE, enemy.getPosition().y, path[0].y * CELL_SIZE);
+//    std::cout << path[pathIndex].x << ", " << path[pathIndex].y << std::endl;
+
+    glm::vec3 targetPos = glm::vec3(path[pathIndex].x * CELL_SIZE, enemy.getPosition().y, path[pathIndex].y * CELL_SIZE);
     glm::vec3 direction = glm::normalize(targetPos - enemy.getPosition());
     float speed = 5.0f;
-    enemy.setPosition(enemy.getPosition() + direction * speed * deltaTime);
+    glm::vec3 newPos = enemy.getPosition() + direction * speed * deltaTime;
+
+    // Ensure the new position is not within an obstacle
+    glm::ivec2 gridPos = glm::ivec2(newPos.x / CELL_SIZE, newPos.z / CELL_SIZE);
+    if (!grid[gridPos.x][gridPos.y].isObstacle) {
+        enemy.setPosition(newPos);
+    }
+
+    float dist = glm::distance(enemy.getPosition(), targetPos);
+    // Check if the enemy has reached the current target position
+    if (glm::distance(enemy.getPosition(), targetPos) < 0.1f) {
+        pathIndex++;
+        if (pathIndex >= path.size()) {
+            pathIndex = 0; // Reset path index if the end is reached
+        }
+    }
 }
+
 
 
 
