@@ -21,9 +21,12 @@
 #include "Primitives.h"
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
-void processInput(GLFWwindow *window, bool isTabPressed);
+void processInput(GLFWwindow *window, bool isTabPressed, Player& player);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 void scroll_callback(GLFWwindow* window, double xOffset, double yOffset);
+
+void handlePlayerMovement(GLFWwindow* window, Player& player, Camera& camera, float deltaTime);
+
 
 const unsigned int SCREEN_WIDTH = 1280;
 const unsigned int SCREEN_HEIGHT = 720;
@@ -45,12 +48,34 @@ bool spaceKeyPressed = false;
 
 bool tabKeyPressed = false;
 
+float xOfst = 0.0f;
+
 struct Material {
     glm::vec3 ambient;
     glm::vec3 diffuse;
     glm::vec3 specular;
     float shininess;
 };
+
+Material playerMaterial = {
+    glm::vec3(0.0f, 0.0f, 1.0f),
+    glm::vec3(0.0f, 0.2f, 0.87f),
+    glm::vec3(0.2f, 0.2f, 0.2f),
+    8.0f
+};
+
+Material enemyMaterial = {
+    glm::vec3(1.0f, 0.2f, 0.2f),
+    glm::vec3(1.0f, 0.2f, 0.2f),
+    glm::vec3(0.2f, 0.2f, 0.2f),
+    8.0f
+};
+
+glm::vec3 snapToGrid(const glm::vec3& position) {
+    int gridX = static_cast<int>(position.x / CELL_SIZE);
+    int gridZ = static_cast<int>(position.z / CELL_SIZE);
+    return glm::vec3(gridX * CELL_SIZE + CELL_SIZE / 2.0f, position.y, gridZ * CELL_SIZE + CELL_SIZE / 2.0f);
+}
 
 struct DirLight {
     glm::vec3 direction;
@@ -85,12 +110,6 @@ struct SpotLight {
     glm::vec3 diffuse;
     glm::vec3 specular;
 };
-
-glm::vec3 snapToGrid(const glm::vec3& position) {
-    int gridX = static_cast<int>(position.x / CELL_SIZE);
-    int gridZ = static_cast<int>(position.z / CELL_SIZE);
-    return glm::vec3(gridX * CELL_SIZE + CELL_SIZE / 2.0f, position.y, gridZ * CELL_SIZE + CELL_SIZE / 2.0f);
-}
 
 DirLight dirLight = {
         glm::vec3(-0.2f, -1.0f, -0.3f),
@@ -136,7 +155,7 @@ int main()
 
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
-    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_CAPTURED);
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
     glfwSetCursorPosCallback(window, mouse_callback);
 
@@ -179,20 +198,6 @@ int main()
     glm::mat4 view;
     glm::mat4 projection;
 
-    Material playerMaterial = {
-        glm::vec3(0.0f, 0.0f, 1.0f),
-        glm::vec3(0.0f, 0.2f, 0.87f),
-        glm::vec3(0.2f, 0.2f, 0.2f),
-        8.0f
-    };
-
-    Material enemyMaterial = {
-        glm::vec3(1.0f, 0.2f, 0.2f),
-        glm::vec3(1.0f, 0.2f, 0.2f),
-        glm::vec3(0.2f, 0.2f, 0.2f),
-        8.0f
-    };
-
     Material groundMaterial = {
         glm::vec3(0.1f, 0.85f, 0.12f),
         glm::vec3(0.1f, 0.85f, 0.12f),
@@ -208,8 +213,14 @@ int main()
     };
 
     Player player(snapToGrid(glm::vec3(130.0f, 0.0f, 25.0f)), glm::vec3(0.02f, 0.02f, 0.02f), playerMaterial.diffuse);
+    float playerCamRearOffset = 5.0f;
+    float playerCamHeightOffset = 5.0f;
+
     Enemy enemy(snapToGrid(glm::vec3(13.0f, 0.0f, 13.0f)), glm::vec3(0.02f, 0.02f, 0.02f), enemyMaterial.diffuse);
-    Ground ground(glm::vec3(-100.0f, -0.3f, 50.0f), glm::vec3(100.0f, 1.0f, 100.0f), glm::vec3(1.0f));
+    float enemyCamRearOffset = 5.0f;
+    float enemyCamHeightOffset = 5.0f;
+
+    Ground ground(glm::vec3(-100.0f, -0.3f, 50.0f), glm::vec3(100.0f, 1.0f, 100.0f), groundMaterial.diffuse);
     Cell cell;
     cell.SetUpVAO();
 
@@ -233,7 +244,9 @@ int main()
 
 
         // Input
-        processInput(window, tabKeyCurrentlyPressed);
+        processInput(window, tabKeyCurrentlyPressed, player);
+
+     
 
         tabKeyPressed = tabKeyCurrentlyPressed;
 
@@ -244,13 +257,29 @@ int main()
         ShowLightControlWindow(dirLight);
         ShowCameraControlWindow(camera);
 
+        ImGui::Begin("Player");
+
+        ImGui::InputFloat3("Position", &player.getPosition()[0]);
+
+        ImGui::End();
+
         if (camera.Mode == PLAYER_FOLLOW)
-            camera.FollowTarget(player.getPosition(), glm::vec3(1.0f, 0.0f, 0.0f), 5.0f, 5.0f);
+            player.PlayerProcessMouseMovement(xOfst);
+
+        handlePlayerMovement(window, player, camera, deltaTime);
+
+        if (camera.Mode == PLAYER_FOLLOW)
+        {
+            camera.FollowTarget(player.getPosition(), player.PlayerFront, playerCamRearOffset, playerCamHeightOffset);
+            view = camera.GetViewMatrixPlayerFollow(player.getPosition(), glm::vec3(0.0f, 1.0f, 0.0f));
+        }
         else if (camera.Mode == ENEMY_FOLLOW)
-            camera.FollowTarget(enemy.getPosition(), glm::vec3(1.0f, 0.0f, 0.0f), 5.0f, 5.0f);
-
-
-        view = camera.GetViewMatrix();
+        {
+            camera.FollowTarget(enemy.getPosition(), glm::vec3(1.0f, 0.0f, 0.0f), enemyCamRearOffset, enemyCamHeightOffset);
+            view = camera.GetViewMatrixPlayerFollow(enemy.getPosition(), glm::vec3(0.0f, 1.0f, 0.0f));
+        }
+        else if (camera.Mode == FLY)
+            view = camera.GetViewMatrix();
 
         projection = glm::perspective(glm::radians(camera.Zoom), (float)SCREEN_WIDTH / (float)SCREEN_HEIGHT, 0.1f, 100.0f);
 
@@ -324,12 +353,6 @@ int main()
         shader.setVec3("material.specular", enemyMaterial.specular);
         shader.setFloat("material.shininess", enemyMaterial.shininess);
 
-        //std::vector<glm::ivec2> path = findPath(
-        //    glm::ivec2(player.getPosition().x / CELL_SIZE, player.getPosition().z / CELL_SIZE),
-        //    glm::ivec2(enemy.getPosition().x / CELL_SIZE, enemy.getPosition().z / CELL_SIZE),
-        //    grid
-        //);
-
         std::vector<glm::ivec2> path = findPath(
             glm::ivec2(enemy.getPosition().x / CELL_SIZE, enemy.getPosition().z / CELL_SIZE),
             glm::ivec2(player.getPosition().x / CELL_SIZE, player.getPosition().z / CELL_SIZE),
@@ -393,30 +416,27 @@ int main()
     glfwTerminate();
     return 0;
 }
-void processInput(GLFWwindow* window, bool isTabPressed)
+void processInput(GLFWwindow* window, bool isTabPressed, Player& player)
 {
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
 
-    if (controlCamera)
+    if (!tabKeyPressed && isTabPressed)
     {
-        if (!tabKeyPressed && isTabPressed)
-        {
-            if (glfwGetKey(window, GLFW_KEY_TAB) == GLFW_PRESS)
-                camera.Mode = static_cast<CameraMode>((camera.Mode + 1) % MODE_COUNT);
-        }
+        if (glfwGetKey(window, GLFW_KEY_TAB) == GLFW_PRESS)
+            camera.Mode = static_cast<CameraMode>((camera.Mode + 1) % MODE_COUNT);
+    }
 
-        if (camera.Mode == FLY)
-        {
-            if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-                camera.ProcessKeyboard(FORWARD, deltaTime);
-            if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-                camera.ProcessKeyboard(BACKWARD, deltaTime);
-            if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-                camera.ProcessKeyboard(LEFT, deltaTime);
-            if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-                camera.ProcessKeyboard(RIGHT, deltaTime);
-        }
+    if (controlCamera && camera.Mode == FLY)
+    {
+        if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+            camera.ProcessKeyboard(FORWARD, deltaTime);
+        if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+            camera.ProcessKeyboard(BACKWARD, deltaTime);
+        if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+            camera.ProcessKeyboard(LEFT, deltaTime);
+        if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+            camera.ProcessKeyboard(RIGHT, deltaTime);
     }
 }
 
@@ -449,6 +469,9 @@ void mouse_callback(GLFWwindow* window, double xPosIn, double yPosIn)
 
     if (controlCamera)
         camera.ProcessMouseMovement(xOffset, yOffset);
+    
+
+    xOfst = xOffset;
 }
 
 void scroll_callback(GLFWwindow* window, double xOffset, double yOffset)
@@ -483,7 +506,12 @@ void ShowCameraControlWindow(Camera& cam)
     std::string modeText = "";
 
     if (camera.Mode == FLY)
+    {
         modeText = "Flycam";
+ 
+
+        camera.UpdateCameraVectors();
+    }
     else if (camera.Mode == PLAYER_FOLLOW)
         modeText = "Player Follow";
     else if (camera.Mode == ENEMY_FOLLOW)
@@ -497,7 +525,25 @@ void ShowCameraControlWindow(Camera& cam)
     ImGui::InputFloat("Yaw", (float*)&cam.Yaw);
     ImGui::InputFloat("Zoom", (float*)&cam.Zoom);
 
-    camera.UpdateCameraVectors();
-
     ImGui::End();
+}
+
+void handlePlayerMovement(GLFWwindow* window, Player& player, Camera& camera, float deltaTime)
+{
+    if (camera.Mode == PLAYER_FOLLOW)
+    {
+        if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+        {
+            player.PlayerYaw = camera.Yaw;
+            player.UpdatePlayerVectors();
+            player.PlayerProcessKeyboard(FORWARD, deltaTime);
+        }
+        if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+            player.PlayerProcessKeyboard(BACKWARD, deltaTime);
+        if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+            player.PlayerProcessKeyboard(LEFT, deltaTime);
+        if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+            player.PlayerProcessKeyboard(RIGHT, deltaTime);
+
+    }
 }
