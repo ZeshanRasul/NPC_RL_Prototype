@@ -4,6 +4,9 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <iostream>
+#include "imgui/imgui.h"
+#include "imgui/backend/imgui_impl_glfw.h"
+#include "imgui/backend/imgui_impl_opengl3.h"
 
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
@@ -115,11 +118,23 @@ int main()
 
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
-    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_CAPTURED);
 
     glfwSetCursorPosCallback(window, mouse_callback);
 
     glfwSetScrollCallback(window, scroll_callback);
+
+    // Setup Dear ImGui context
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+    ImGuiIO& io = ImGui::GetIO();
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
+
+    // Setup Platform/Renderer backends
+    ImGui_ImplGlfw_InitForOpenGL(window, true);          // Second param install_callback=true will install GLFW callbacks and chain to existing ones.
+    ImGui_ImplOpenGL3_Init();
+
 
     unsigned int lightVAO;
     glGenVertexArrays(1, &lightVAO);
@@ -199,6 +214,13 @@ int main()
 
         // Input
         processInput(window);
+
+        // Start the Dear ImGui frame
+        ImGui_ImplOpenGL3_NewFrame();
+        ImGui_ImplGlfw_NewFrame();
+        ImGui::NewFrame();
+        ImGui::ShowDemoWindow(); // Show demo window! :)
+
 
         view = camera.GetViewMatrix();
 
@@ -326,30 +348,18 @@ int main()
 
         glBindVertexArray(0);
 
-        //lightShader.use();
-
-        //lightShader.setMat4("view", view);
-        //lightShader.setMat4("proj", projection);
-
-        //for (unsigned int i = 0; i < 4; i++)
-        //{
-        //    glm::mat4 lightModel = glm::mat4(1.0f);
-        //    lightModel = glm::translate(lightModel, pointLightPositions[i]);
-        //    lightModel = glm::scale(lightModel, glm::vec3(0.2f));
-        //    lightShader.setMat4("model", lightModel);
-
-        //    lightShader.setVec3("lightColor", 0.8f, 0.8f, 0.8f);
-        //    glBindVertexArray(lightVAO);
-
-        //    glDrawArrays(GL_TRIANGLES, 0, 36);
-        //}
-
-        //glBindVertexArray(0);
-
         // Swap buffers and poll IO events
+
+        ImGui::Render();
+        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
+
+    ImGui_ImplOpenGL3_Shutdown();
+    ImGui_ImplGlfw_Shutdown();
+    ImGui::DestroyContext();
 
     // Terminate GLFW
     glfwTerminate();
