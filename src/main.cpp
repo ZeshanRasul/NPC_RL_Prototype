@@ -28,6 +28,8 @@ void scroll_callback(GLFWwindow* window, double xOffset, double yOffset);
 void handlePlayerMovement(GLFWwindow* window, Player& player, Camera& camera, float deltaTime);
 
 
+Player* g_player = nullptr;
+
 const unsigned int SCREEN_WIDTH = 1280;
 const unsigned int SCREEN_HEIGHT = 720;
 
@@ -213,11 +215,13 @@ int main()
     };
 
     Player player(snapToGrid(glm::vec3(130.0f, 0.0f, 25.0f)), glm::vec3(0.02f, 0.02f, 0.02f), playerMaterial.diffuse);
-    float playerCamRearOffset = 5.0f;
+    float playerCamRearOffset = 15.0f;
     float playerCamHeightOffset = 5.0f;
 
+    g_player = &player;
+
     Enemy enemy(snapToGrid(glm::vec3(13.0f, 0.0f, 13.0f)), glm::vec3(0.02f, 0.02f, 0.02f), enemyMaterial.diffuse);
-    float enemyCamRearOffset = 5.0f;
+    float enemyCamRearOffset = 15.0f;
     float enemyCamHeightOffset = 5.0f;
 
     Ground ground(glm::vec3(-100.0f, -0.3f, 50.0f), glm::vec3(100.0f, 1.0f, 100.0f), groundMaterial.diffuse);
@@ -260,11 +264,12 @@ int main()
         ImGui::Begin("Player");
 
         ImGui::InputFloat3("Position", &player.getPosition()[0]);
+        ImGui::InputFloat("Yaw", &player.PlayerYaw);
 
         ImGui::End();
 
-        if (camera.Mode == PLAYER_FOLLOW)
-            player.PlayerProcessMouseMovement(xOfst);
+        //if (camera.Mode == PLAYER_FOLLOW)
+        //    player.PlayerProcessMouseMovement(xOfst);
 
         handlePlayerMovement(window, player, camera, deltaTime);
 
@@ -471,7 +476,8 @@ void mouse_callback(GLFWwindow* window, double xPosIn, double yPosIn)
         camera.ProcessMouseMovement(xOffset, yOffset);
     
 
-    xOfst = xOffset;
+//    xOfst = xOffset;
+    g_player->PlayerProcessMouseMovement(xOffset);
 }
 
 void scroll_callback(GLFWwindow* window, double xOffset, double yOffset)
