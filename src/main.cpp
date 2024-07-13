@@ -472,12 +472,17 @@ void mouse_callback(GLFWwindow* window, double xPosIn, double yPosIn)
     lastX = xPos;
     lastY = yPos;
 
+    g_player->PlayerProcessMouseMovement(xOffset);
     if (controlCamera)
+    {
         camera.ProcessMouseMovement(xOffset, yOffset);
+        g_player->PlayerYaw = camera.Yaw;
+        g_player->UpdatePlayerVectors();
+
+    }
     
 
 //    xOfst = xOffset;
-    g_player->PlayerProcessMouseMovement(xOffset);
 }
 
 void scroll_callback(GLFWwindow* window, double xOffset, double yOffset)
