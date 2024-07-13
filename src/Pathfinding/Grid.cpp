@@ -105,7 +105,7 @@ void moveEnemy(Enemy& enemy, const std::vector<glm::ivec2>& path, float deltaTim
     float speed = 10.0f; // Ensure this speed is appropriate for the grid size and cell size
 
     if (pathIndex >= path.size()) {
-        std::cout << "Agent has reached its destination." << std::endl;
+//        std::cout << "Agent has reached its destination." << std::endl;
         return; // Stop moving if the agent has reached its destination
     }
 

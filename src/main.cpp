@@ -38,6 +38,11 @@ float lastX = SCREEN_WIDTH / 2.0f;
 float lastY = SCREEN_HEIGHT / 2.0f;
 bool firstMouse = true;
 
+void ShowCameraControlWindow(Camera& cam);
+
+bool controlCamera = true;
+bool spaceKeyPressed = false;
+
 struct Material {
     glm::vec3 ambient;
     glm::vec3 diffuse;
@@ -215,6 +220,13 @@ int main()
         deltaTime = currentFrame - lastFrame;
         lastFrame = currentFrame;
 
+        bool spaceKeyCurrentlyPressed = glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS;
+
+        if (spaceKeyCurrentlyPressed && !spaceKeyPressed)
+            controlCamera = !controlCamera;
+
+        spaceKeyPressed = spaceKeyCurrentlyPressed;
+
         // Input
         processInput(window);
 
@@ -223,6 +235,8 @@ int main()
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
         ShowLightControlWindow(dirLight);
+        ShowCameraControlWindow(camera);
+
 
         view = camera.GetViewMatrix();
 
@@ -310,16 +324,16 @@ int main()
             grid
         );
 
-        if (path.empty()) {
-            std::cerr << "No path found" << std::endl;
-        }
-        else {
-            std::cout << "Path found: ";
-            for (const auto& step : path) {
-                std::cout << "(" << step.x << ", " << step.y << ") ";
-            }
-            std::cout << std::endl;
-        }
+        //if (path.empty()) {
+        //    std::cerr << "No path found" << std::endl;
+        //}
+        //else {
+        //    std::cout << "Path found: ";
+        //    for (const auto& step : path) {
+        //        std::cout << "(" << step.x << ", " << step.y << ") ";
+        //    }
+        //    std::cout << std::endl;
+        //}
 
         moveEnemy(enemy, path, deltaTime);
 
@@ -338,7 +352,7 @@ int main()
         model3 = glm::scale(model3, glm::vec3(100.0f, 1.0f, 100.0f));
         shader.setMat4("model", model3);
 
-//        ground.Draw(shader);
+        //        ground.Draw(shader);
 
         gridShader.use();
         gridShader.setMat4("view", view);
@@ -372,14 +386,17 @@ void processInput(GLFWwindow* window)
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
 
-    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-        camera.ProcessKeyboard(FORWARD, deltaTime);
-    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-        camera.ProcessKeyboard(BACKWARD, deltaTime);
-    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-        camera.ProcessKeyboard(LEFT, deltaTime);
-    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-        camera.ProcessKeyboard(RIGHT, deltaTime);
+    if (controlCamera)
+    {
+        if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+            camera.ProcessKeyboard(FORWARD, deltaTime);
+        if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+            camera.ProcessKeyboard(BACKWARD, deltaTime);
+        if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+            camera.ProcessKeyboard(LEFT, deltaTime);
+        if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+            camera.ProcessKeyboard(RIGHT, deltaTime);
+    }
 }
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
@@ -389,6 +406,10 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 
 void mouse_callback(GLFWwindow* window, double xPosIn, double yPosIn)
 {
+    if (ImGui::GetIO().WantCaptureMouse) {
+        return;
+    }
+
     float xPos = static_cast<float>(xPosIn);
     float yPos = static_cast<float>(yPosIn);
 
@@ -405,7 +426,8 @@ void mouse_callback(GLFWwindow* window, double xPosIn, double yPosIn)
     lastX = xPos;
     lastY = yPos;
 
-    camera.ProcessMouseMovement(xOffset, yOffset);
+    if (controlCamera)
+        camera.ProcessMouseMovement(xOffset, yOffset);
 }
 
 void scroll_callback(GLFWwindow* window, double xOffset, double yOffset)
@@ -429,6 +451,20 @@ void ShowLightControlWindow(DirLight& light)
 
     // Specular color picker
     ImGui::ColorEdit4("Specular", (float*)&light.specular);
+
+    ImGui::End();
+}
+
+void ShowCameraControlWindow(Camera& cam)
+{
+    ImGui::Begin("Camera Control");
+    ImGui::InputFloat3("Position", (float*)&cam.Position);
+
+    ImGui::InputFloat("Pitch", (float*)&cam.Pitch);
+    ImGui::InputFloat("Yaw", (float*)&cam.Yaw);
+    ImGui::InputFloat("Zoom", (float*)&cam.Zoom);
+
+    camera.UpdateCameraVectors();
 
     ImGui::End();
 }
