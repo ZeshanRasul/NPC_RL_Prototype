@@ -53,6 +53,9 @@ struct DirLight {
     glm::vec3 specular;
 };
 
+void ShowLightControlWindow(DirLight& light);
+
+
 struct PointLight {
     glm::vec3 position;
 
@@ -81,6 +84,14 @@ glm::vec3 snapToGrid(const glm::vec3& position) {
     int gridZ = static_cast<int>(position.z / CELL_SIZE);
     return glm::vec3(gridX * CELL_SIZE + CELL_SIZE / 2.0f, position.y, gridZ * CELL_SIZE + CELL_SIZE / 2.0f);
 }
+
+DirLight dirLight = {
+        glm::vec3(-0.2f, -1.0f, -0.3f),
+
+        glm::vec3(0.15f, 0.15f, 0.15f),
+        glm::vec3(0.4f),
+        glm::vec3(0.1f, 0.1f, 0.1f)
+};
 
 int main()
 {
@@ -182,14 +193,6 @@ int main()
         8.0f
     };
 
-    DirLight dirLight = {
-            glm::vec3(-0.2f, -1.0f, -0.3f),
-
-            glm::vec3(0.15f, 0.15f, 0.15f),
-            glm::vec3(0.4f),
-            glm::vec3(0.1f, 0.1f, 0.1f)
-    };
-
     glm::vec3 pointLightPositions[] = {
         glm::vec3(0.7f,  0.2f,  2.0f),
         glm::vec3(2.3f, -3.3f, -4.0f),
@@ -219,8 +222,7 @@ int main()
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
-        ImGui::ShowDemoWindow(); // Show demo window! :)
-
+        ShowLightControlWindow(dirLight);
 
         view = camera.GetViewMatrix();
 
@@ -409,4 +411,24 @@ void mouse_callback(GLFWwindow* window, double xPosIn, double yPosIn)
 void scroll_callback(GLFWwindow* window, double xOffset, double yOffset)
 {
     camera.ProcessMouseScroll(static_cast<float>(yOffset));
+}
+
+void ShowLightControlWindow(DirLight& light)
+{
+    ImGui::Begin("Directional Light Control");
+
+    // Light direction control
+    ImGui::Text("Light Direction");
+    ImGui::DragFloat3("Direction", (float*)&light.direction, dirLight.direction.x, dirLight.direction.y, dirLight.direction.z);
+
+    // Ambient color picker
+    ImGui::ColorEdit4("Ambient", (float*)&light.ambient);
+
+    // Diffuse color picker
+    ImGui::ColorEdit4("Diffuse", (float*)&light.diffuse);
+
+    // Specular color picker
+    ImGui::ColorEdit4("Specular", (float*)&light.specular);
+
+    ImGui::End();
 }
