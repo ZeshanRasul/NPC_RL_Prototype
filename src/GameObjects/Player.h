@@ -9,6 +9,7 @@ public:
         : GameObject(pos, scale, color), PlayerYaw(yaw)
     {
         model.LoadModel("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Models/MaleMercenary/MaleMercenary.obj");
+        UpdatePlayerVectors();
     }
 
     void Draw(Shader& shader) override;
