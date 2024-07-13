@@ -21,7 +21,7 @@
 #include "Primitives.h"
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
-void processInput(GLFWwindow *window);
+void processInput(GLFWwindow *window, bool isTabPressed);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 void scroll_callback(GLFWwindow* window, double xOffset, double yOffset);
 
@@ -42,6 +42,8 @@ void ShowCameraControlWindow(Camera& cam);
 
 bool controlCamera = true;
 bool spaceKeyPressed = false;
+
+bool tabKeyPressed = false;
 
 struct Material {
     glm::vec3 ambient;
@@ -227,8 +229,13 @@ int main()
 
         spaceKeyPressed = spaceKeyCurrentlyPressed;
 
+        bool tabKeyCurrentlyPressed = glfwGetKey(window, GLFW_KEY_TAB) == GLFW_PRESS;
+
+
         // Input
-        processInput(window);
+        processInput(window, tabKeyCurrentlyPressed);
+
+        tabKeyPressed = tabKeyCurrentlyPressed;
 
         // Start the Dear ImGui frame
         ImGui_ImplOpenGL3_NewFrame();
@@ -236,6 +243,11 @@ int main()
         ImGui::NewFrame();
         ShowLightControlWindow(dirLight);
         ShowCameraControlWindow(camera);
+
+        if (camera.Mode == PLAYER_FOLLOW)
+            camera.FollowTarget(player.getPosition(), glm::vec3(1.0f, 0.0f, 0.0f), 5.0f, 5.0f);
+        else if (camera.Mode == ENEMY_FOLLOW)
+            camera.FollowTarget(enemy.getPosition(), glm::vec3(1.0f, 0.0f, 0.0f), 5.0f, 5.0f);
 
 
         view = camera.GetViewMatrix();
@@ -381,21 +393,30 @@ int main()
     glfwTerminate();
     return 0;
 }
-void processInput(GLFWwindow* window)
+void processInput(GLFWwindow* window, bool isTabPressed)
 {
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
 
     if (controlCamera)
     {
-        if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-            camera.ProcessKeyboard(FORWARD, deltaTime);
-        if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-            camera.ProcessKeyboard(BACKWARD, deltaTime);
-        if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-            camera.ProcessKeyboard(LEFT, deltaTime);
-        if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-            camera.ProcessKeyboard(RIGHT, deltaTime);
+        if (!tabKeyPressed && isTabPressed)
+        {
+            if (glfwGetKey(window, GLFW_KEY_TAB) == GLFW_PRESS)
+                camera.Mode = static_cast<CameraMode>((camera.Mode + 1) % MODE_COUNT);
+        }
+
+        if (camera.Mode == FLY)
+        {
+            if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+                camera.ProcessKeyboard(FORWARD, deltaTime);
+            if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+                camera.ProcessKeyboard(BACKWARD, deltaTime);
+            if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+                camera.ProcessKeyboard(LEFT, deltaTime);
+            if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+                camera.ProcessKeyboard(RIGHT, deltaTime);
+        }
     }
 }
 
@@ -458,6 +479,18 @@ void ShowLightControlWindow(DirLight& light)
 void ShowCameraControlWindow(Camera& cam)
 {
     ImGui::Begin("Camera Control");
+
+    std::string modeText = "";
+
+    if (camera.Mode == FLY)
+        modeText = "Flycam";
+    else if (camera.Mode == PLAYER_FOLLOW)
+        modeText = "Player Follow";
+    else if (camera.Mode == ENEMY_FOLLOW)
+        modeText = "Enemy Follow";
+
+    ImGui::Text(modeText.c_str());
+
     ImGui::InputFloat3("Position", (float*)&cam.Position);
 
     ImGui::InputFloat("Pitch", (float*)&cam.Pitch);

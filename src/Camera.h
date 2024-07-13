@@ -11,6 +11,13 @@ enum CameraMovement {
 	RIGHT
 };
 
+enum CameraMode {
+	FLY,
+	PLAYER_FOLLOW,
+	ENEMY_FOLLOW,
+	MODE_COUNT
+};
+
 const float YAW = -90.0f;
 const float PITCH = 0.0f;
 const float SPEED = 7.5f;
@@ -25,6 +32,9 @@ public:
 	glm::vec3 Up;
 	glm::vec3 Right;
 	glm::vec3 WorldUp;
+	glm::vec3 Offset;
+
+	CameraMode Mode;
 
 	float Yaw;
 	float Pitch;
@@ -37,6 +47,8 @@ public:
 	Camera(float posX, float posY, float posZ, float upX, float upY, float upZ, float yaw, float pitch);
 
 	glm::mat4 GetViewMatrix() const { return lookAt(Position, Position + Front, Up); }
+
+	void FollowTarget(const glm::vec3& targetPosition, const glm::vec3& playerFront, float distanceBehind, float heightOffset);
 
 	void ProcessKeyboard(CameraMovement direction, float deltaTime);
 	void ProcessMouseMovement(float xOffset, float yOffset, GLboolean constrainPitch = true);

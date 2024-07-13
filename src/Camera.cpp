@@ -29,6 +29,14 @@ Camera::Camera(float posX, float posY, float posZ, float upX, float upY, float u
 
 }
 
+void Camera::FollowTarget(const glm::vec3& targetPosition, const glm::vec3& targetFront, float distanceBehind, float heightOffset)
+{
+	glm::vec3 offset = -targetFront * distanceBehind;
+	offset.y += heightOffset;
+	Position = targetPosition + offset;
+	UpdateCameraVectors();
+}
+
 void Camera::ProcessKeyboard(CameraMovement direction, float deltaTime)
 {
 	float velocity = MovementSpeed * deltaTime;
@@ -64,11 +72,19 @@ void Camera::ProcessMouseMovement(float xOffset, float yOffset, GLboolean constr
 
 void Camera::ProcessMouseScroll(float yOffset)
 {
-	Zoom -= (float)yOffset;
-	if (Zoom < 1.0f)
-		Zoom = 1.0f;
-	if (Zoom > 45.0f)
-		Zoom = 45.0f;
+	if (Mode == FLY)
+	{
+		Zoom -= (float)yOffset;
+		if (Zoom < 1.0f)
+			Zoom = 1.0f;
+		if (Zoom > 45.0f)
+			Zoom = 45.0f;
+	}
+	else if (Mode == PLAYER_FOLLOW || Mode == ENEMY_FOLLOW)
+	{
+		Offset -= (float)yOffset;
+	}
+
 }
 
 void Camera::UpdateCameraVectors()
