@@ -15,19 +15,28 @@ void Enemy::Draw(Shader& shader)
 void Enemy::UpdateEnemyCameraVectors()
 {
 	glm::vec3 front = glm::vec3(1.0f);
-	front.x = cos(glm::radians(EnemyCameraYaw));
-	front.y = 0.0f;
-	front.z = sin(glm::radians(EnemyCameraYaw));
+	front.x = glm::cos(glm::radians(EnemyCameraYaw)) * glm::cos(glm::radians(EnemyCameraPitch));
+	front.y = glm::sin(glm::radians(EnemyCameraPitch));
+	front.z = glm::sin(glm::radians(EnemyCameraYaw)) * glm::cos(glm::radians(EnemyCameraPitch));
 	EnemyFront = glm::normalize(front);
 	EnemyRight = glm::normalize(glm::cross(EnemyFront, glm::vec3(0.0f, 1.0f, 0.0f)));
 	EnemyUp = glm::normalize(glm::cross(EnemyRight, EnemyFront));
 }
 
-void Enemy::EnemyProcessMouseMovement(float xOffset)
+void Enemy::EnemyProcessMouseMovement(float xOffset, float yOffset, bool constrainPitch)
 {
 	//    xOffset *= SENSITIVITY;  
 
 	EnemyCameraYaw += xOffset;
+	EnemyCameraPitch += yOffset;
+
+	if (constrainPitch)
+	{
+		if (EnemyCameraPitch > 13.0f)
+			EnemyCameraPitch = 13.0f;
+		if (EnemyCameraPitch < -89.0f)
+			EnemyCameraPitch = -89.0f;
+	}
 
 	UpdateEnemyCameraVectors();
 }

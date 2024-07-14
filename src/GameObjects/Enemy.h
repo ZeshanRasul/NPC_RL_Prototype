@@ -29,12 +29,13 @@ public:
 
     void UpdateEnemyCameraVectors();
 
-    void EnemyProcessMouseMovement(float xOffset);
+    void EnemyProcessMouseMovement(float xOffset, float yOffset, bool constrainPitch = true);
 
 
 
     float Yaw;
     float EnemyCameraYaw;
+    float EnemyCameraPitch;
     glm::vec3 EnemyFront;
     glm::vec3 EnemyRight;
     glm::vec3 EnemyUp;

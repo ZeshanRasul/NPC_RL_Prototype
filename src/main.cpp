@@ -271,6 +271,13 @@ int main()
 
         ImGui::End();
 
+        ImGui::Begin("Enemy");
+
+        ImGui::InputFloat3("Position", &enemy.getPosition()[0]);
+        ImGui::InputFloat("EnemyCamPitch", &enemy.EnemyCameraPitch);
+
+        ImGui::End();
+
         //if (camera.Mode == PLAYER_FOLLOW)
         //    player.PlayerProcessMouseMovement(xOfst);
 
@@ -478,7 +485,7 @@ void mouse_callback(GLFWwindow* window, double xPosIn, double yPosIn)
     if (camera.Mode == PLAYER_FOLLOW)
         g_player->PlayerProcessMouseMovement(xOffset);
     else if (camera.Mode == ENEMY_FOLLOW)
-        g_enemy->EnemyProcessMouseMovement(xOffset);
+        g_enemy->EnemyProcessMouseMovement(xOffset, yOffset, true);
 
     camera.ProcessMouseMovement(xOffset, yOffset);
 
