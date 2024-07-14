@@ -29,6 +29,7 @@ void handlePlayerMovement(GLFWwindow* window, Player& player, Camera& camera, fl
 
 
 Player* g_player = nullptr;
+Enemy* g_enemy = nullptr;
 
 const unsigned int SCREEN_WIDTH = 1280;
 const unsigned int SCREEN_HEIGHT = 720;
@@ -224,6 +225,8 @@ int main()
     float enemyCamRearOffset = 15.0f;
     float enemyCamHeightOffset = 5.0f;
 
+    g_enemy = &enemy;
+
     Ground ground(glm::vec3(-100.0f, -0.3f, 50.0f), glm::vec3(100.0f, 1.0f, 100.0f), groundMaterial.diffuse);
     Cell cell;
     cell.SetUpVAO();
@@ -280,8 +283,8 @@ int main()
         }
         else if (camera.Mode == ENEMY_FOLLOW)
         {
-            camera.FollowTarget(enemy.getPosition(), glm::vec3(1.0f, 0.0f, 0.0f), enemyCamRearOffset, enemyCamHeightOffset);
-            view = camera.GetViewMatrixPlayerFollow(enemy.getPosition(), glm::vec3(0.0f, 1.0f, 0.0f));
+            camera.FollowTarget(enemy.getPosition(), enemy.EnemyFront, enemyCamRearOffset, enemyCamHeightOffset);
+            view = camera.GetViewMatrixEnemyFollow(enemy.getPosition(), glm::vec3(0.0f, 1.0f, 0.0f));
         }
         else if (camera.Mode == FLY)
             view = camera.GetViewMatrix();
@@ -472,16 +475,22 @@ void mouse_callback(GLFWwindow* window, double xPosIn, double yPosIn)
     lastX = xPos;
     lastY = yPos;
 
-    g_player->PlayerProcessMouseMovement(xOffset);
-    if (controlCamera)
+    if (camera.Mode == PLAYER_FOLLOW)
+        g_player->PlayerProcessMouseMovement(xOffset);
+    else if (camera.Mode == ENEMY_FOLLOW)
+        g_enemy->EnemyProcessMouseMovement(xOffset);
+
+    camera.ProcessMouseMovement(xOffset, yOffset);
+
+    if (camera.Mode == PLAYER_FOLLOW)
     {
-        camera.ProcessMouseMovement(xOffset, yOffset);
         g_player->PlayerYaw = camera.Yaw;
         g_player->UpdatePlayerVectors();
-
     }
-    
-
+    else if (camera.Mode == ENEMY_FOLLOW)
+    {
+        g_enemy->UpdateEnemyCameraVectors();
+    }
 //    xOfst = xOffset;
 }
 

@@ -34,7 +34,7 @@ public:
 	glm::vec3 WorldUp;
 	glm::vec3 Offset;
 
-	CameraMode Mode;
+	CameraMode Mode = ENEMY_FOLLOW;
 
 	float Yaw;
 	float Pitch;
@@ -49,6 +49,7 @@ public:
 	glm::mat4 GetViewMatrix() const { return lookAt(Position, Position + Front, Up); }
 
 	glm::mat4 GetViewMatrixPlayerFollow(const glm::vec3& targetPos, const glm::vec3& targetUp) const { return lookAt(Position, targetPos, targetUp); }
+	glm::mat4 GetViewMatrixEnemyFollow(const glm::vec3& targetPos, const glm::vec3& targetUp) const { return lookAt(Position, targetPos, targetUp); }
 
 	void FollowTarget(const glm::vec3& targetPosition, const glm::vec3& playerFront, float distanceBehind, float heightOffset);
 
