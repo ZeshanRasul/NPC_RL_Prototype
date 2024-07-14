@@ -31,8 +31,11 @@ public:
 
     void EnemyProcessMouseMovement(float xOffset, float yOffset, bool constrainPitch = true);
 
+    EnemyState GetEnemyState() const { return state; }
 
+    void SetEnemyState(EnemyState newState) { state = newState; }
 
+    EnemyState state = PATROL;
     float Yaw;
     float EnemyCameraYaw;
     float EnemyCameraPitch;

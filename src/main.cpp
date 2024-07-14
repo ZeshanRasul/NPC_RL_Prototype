@@ -16,6 +16,7 @@
 #include "GameObjects/Player.h"
 #include "GameObjects/Enemy.h"
 #include "GameObjects/Ground.h"
+#include "GameObjects/Waypoint.h"
 #include "GameObjects/Cell.h"
 #include "Pathfinding/Grid.h"
 #include "Primitives.h"
@@ -215,6 +216,13 @@ int main()
         glm::vec3(0.0f,  0.0f, -3.0f)
     };
 
+    glm::vec3 waypointPositions[] = {
+        glm::vec3(0.0f, 0.0f, 0.0f),
+        glm::vec3(0.0f, 0.0f, 100.0f),
+        glm::vec3(30.0f, 0.0f, 0.0f),
+        glm::vec3(30.0f, 0.0f, 100.0f)
+    };
+
     Player player(snapToGrid(glm::vec3(130.0f, 0.0f, 25.0f)), glm::vec3(0.02f, 0.02f, 0.02f), playerMaterial.diffuse);
     float playerCamRearOffset = 15.0f;
     float playerCamHeightOffset = 5.0f;
@@ -226,6 +234,11 @@ int main()
     float enemyCamHeightOffset = 5.0f;
 
     g_enemy = &enemy;
+
+    Waypoint waypoint1(snapToGrid(waypointPositions[0]), glm::vec3(5.0f, 10.0f, 5.0f), glm::vec3(1.0f, 1.0f, 1.0f));
+    Waypoint waypoint2(snapToGrid(waypointPositions[1]), glm::vec3(5.0f, 10.0f, 5.0f), glm::vec3(1.0f, 1.0f, 1.0f));
+    Waypoint waypoint3(snapToGrid(waypointPositions[2]), glm::vec3(5.0f, 10.0f, 5.0f), glm::vec3(1.0f, 1.0f, 1.0f));
+    Waypoint waypoint4(snapToGrid(waypointPositions[3]), glm::vec3(5.0f, 10.0f, 5.0f), glm::vec3(1.0f, 1.0f, 1.0f));
 
     Ground ground(glm::vec3(-100.0f, -0.3f, 50.0f), glm::vec3(100.0f, 1.0f, 100.0f), groundMaterial.diffuse);
     Cell cell;
@@ -360,6 +373,11 @@ int main()
         shader.setFloat("spotLight.cutOff", glm::cos(glm::radians(1.5f)));
         shader.setFloat("spotLight.outerCutOff", glm::cos(glm::radians(5.0f)));
         shader.setVec3("viewPos", camera.Position);
+
+        waypoint1.Draw(shader);
+        waypoint2.Draw(shader);
+        waypoint3.Draw(shader);
+        waypoint4.Draw(shader);
 
         player.Draw(shader);
 
