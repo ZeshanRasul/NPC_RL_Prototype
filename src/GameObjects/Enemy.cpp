@@ -4,7 +4,7 @@ void Enemy::Draw(Shader& shader)
 {
 	glm::mat4 modelMat = glm::mat4(1.0f);
 	modelMat = glm::translate(modelMat, position);
-	modelMat = glm::rotate(modelMat, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+	modelMat = glm::rotate(modelMat, glm::radians(-Yaw + 90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 	modelMat = glm::scale(modelMat, scale);
 	shader.setMat4("model", modelMat);
 	shader.setVec3("objectColor", color);
@@ -21,6 +21,18 @@ void Enemy::UpdateEnemyCameraVectors()
 	EnemyFront = glm::normalize(front);
 	EnemyRight = glm::normalize(glm::cross(EnemyFront, glm::vec3(0.0f, 1.0f, 0.0f)));
 	EnemyUp = glm::normalize(glm::cross(EnemyRight, EnemyFront));
+}
+
+void Enemy::UpdateEnemyVectors()
+{
+	glm::vec3 front = glm::vec3(1.0f);
+	front.x = glm::cos(glm::radians(Yaw));
+	front.y = 0.0f;
+	front.z = glm::sin(glm::radians(Yaw));
+	Front = glm::normalize(front);
+	Right = glm::normalize(glm::cross(Front, glm::vec3(0.0f, 1.0f, 0.0f)));
+	Up = glm::normalize(glm::cross(Right, Front));
+
 }
 
 void Enemy::EnemyProcessMouseMovement(float xOffset, float yOffset, bool constrainPitch)

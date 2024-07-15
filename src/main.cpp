@@ -310,6 +310,9 @@ int main()
 
         ImGui::InputFloat3("Position", &enemy.getPosition()[0]);
         ImGui::InputFloat("EnemyCamPitch", &enemy.EnemyCameraPitch);
+        ImGui::InputFloat("EnemyYaw", &enemy.Yaw);
+        ImGui::InputFloat3("EnemyFront", &enemy.Front[0]);
+
 
         ImGui::End();
 

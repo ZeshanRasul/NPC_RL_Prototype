@@ -123,6 +123,11 @@ void moveEnemy(Enemy& enemy, const std::vector<glm::ivec2>& path, float deltaTim
     // Calculate the direction to the target position
     glm::vec3 direction = glm::normalize(targetPos - enemy.getPosition());
 
+    //enemy.Yaw = glm::degrees(glm::acos(glm::dot(glm::normalize(enemy.Front), direction)));
+    enemy.Yaw = glm::degrees(glm::atan(direction.z, direction.x));
+
+    enemy.UpdateEnemyVectors();
+    
     // Calculate the new position
     glm::vec3 newPos = enemy.getPosition() + direction * speed * deltaTime;
 
