@@ -335,6 +335,17 @@ int main()
 
         shader.use();
 
+        float playerEnemyDistance = glm::distance(enemy.getPosition(), player.getPosition());
+
+        if (playerEnemyDistance < 15.0f)
+        {
+            enemy.SetEnemyState(ATTACK);
+        }
+        else
+        {
+            enemy.SetEnemyState(PATROL);
+        }
+
         switch (enemy.GetEnemyState())
         {
         case PATROL:
@@ -381,7 +392,17 @@ int main()
         }
         case ATTACK:
         {
-                break;
+            std::vector<glm::ivec2> path = findPath(
+                glm::ivec2(enemy.getPosition().x / CELL_SIZE, enemy.getPosition().z / CELL_SIZE),
+                glm::ivec2(player.getPosition().x / CELL_SIZE, player.getPosition().z / CELL_SIZE),
+                grid
+            );
+
+            std::cout << "Moving to Player destination" << std::endl;
+
+            moveEnemy(enemy, path, deltaTime);
+
+            break;
         }
         default:
             break;
