@@ -2,13 +2,13 @@
 
 #include "GameObject.h"
 
+enum EnemyState {
+    PATROL,
+    ATTACK
+};
+
 class Enemy : public GameObject {
 public:
-
-    enum EnemyState {
-        PATROL,
-        ATTACK
-    };
 
     Enemy(glm::vec3 pos, glm::vec3 scale, glm::vec3 color, float yaw = 90.0f)
         : GameObject(pos, scale, color), Yaw(yaw)
@@ -42,5 +42,6 @@ public:
     glm::vec3 EnemyFront;
     glm::vec3 EnemyRight;
     glm::vec3 EnemyUp;
+    bool reachedDestination = false;
 
 };

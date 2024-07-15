@@ -4,6 +4,10 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <iostream>
+#include <vector>
+#include <algorithm>
+#include <cstdlib>
+#include <ctime>
 #include "imgui/imgui.h"
 #include "imgui/backend/imgui_impl_glfw.h"
 #include "imgui/backend/imgui_impl_opengl3.h"
@@ -123,6 +127,27 @@ DirLight dirLight = {
         glm::vec3(0.1f, 0.1f, 0.1f)
 };
 
+std::vector<glm::vec3> waypointPositions = {
+    snapToGrid(glm::vec3(0.0f, 0.0f, 0.0f)),
+    snapToGrid(glm::vec3(0.0f, 0.0f, 90.0f)),
+    snapToGrid(glm::vec3(30.0f, 0.0f, 0.0f)),
+    snapToGrid(glm::vec3(30.0f, 0.0f, 90.0f))
+};
+
+static glm::vec3 selectRandomWaypoint(const glm::vec3& currentWaypoint, const std::vector<glm::vec3>& allWaypoints) {
+
+    std::vector<glm::vec3> availableWaypoints;
+    for (const auto& wp : allWaypoints) {
+        if (wp != currentWaypoint) {
+            availableWaypoints.push_back(wp);
+        }
+    }
+
+    // Select a random waypoint from the available waypoints
+    int randomIndex = std::rand() % availableWaypoints.size();
+    return availableWaypoints[randomIndex];
+}
+
 int main()
 {
     // Initialize and configure GLFW
@@ -216,13 +241,6 @@ int main()
         glm::vec3(0.0f,  0.0f, -3.0f)
     };
 
-    glm::vec3 waypointPositions[] = {
-        glm::vec3(0.0f, 0.0f, 0.0f),
-        glm::vec3(0.0f, 0.0f, 100.0f),
-        glm::vec3(30.0f, 0.0f, 0.0f),
-        glm::vec3(30.0f, 0.0f, 100.0f)
-    };
-
     Player player(snapToGrid(glm::vec3(130.0f, 0.0f, 25.0f)), glm::vec3(0.02f, 0.02f, 0.02f), playerMaterial.diffuse);
     float playerCamRearOffset = 15.0f;
     float playerCamHeightOffset = 5.0f;
@@ -245,6 +263,10 @@ int main()
     cell.SetUpVAO();
 
     initializeGrid();
+
+    std::srand(static_cast<unsigned int>(std::time(nullptr)));
+
+    glm::vec3 currentWaypoint = waypointPositions[std::rand() % waypointPositions.size()];
 
     // Render loop
     while (!glfwWindowShouldClose(window))
@@ -312,6 +334,58 @@ int main()
         projection = glm::perspective(glm::radians(camera.Zoom), (float)SCREEN_WIDTH / (float)SCREEN_HEIGHT, 0.1f, 100.0f);
 
         shader.use();
+
+        switch (enemy.GetEnemyState())
+        {
+        case PATROL:
+        {
+            if (enemy.reachedDestination == false)
+            {
+                std::vector<glm::ivec2> path = findPath(
+                    glm::ivec2(enemy.getPosition().x / CELL_SIZE, enemy.getPosition().z / CELL_SIZE),
+                    glm::ivec2(currentWaypoint.x / CELL_SIZE, currentWaypoint.z / CELL_SIZE),
+                    grid
+                );
+
+                if (path.empty()) {
+                    std::cerr << "No path found" << std::endl;
+                }
+                else {
+                    std::cout << "Path found: ";
+                    for (const auto& step : path) {
+                        std::cout << "(" << step.x << ", " << step.y << ") ";
+                    }
+                    std::cout << std::endl;
+                }
+
+                moveEnemy(enemy, path, deltaTime);
+            }
+            else
+            {
+                currentWaypoint = selectRandomWaypoint(currentWaypoint, waypointPositions);
+                
+                std::vector<glm::ivec2> path = findPath(
+                    glm::ivec2(enemy.getPosition().x / CELL_SIZE, enemy.getPosition().z / CELL_SIZE),
+                    glm::ivec2(currentWaypoint.x / CELL_SIZE, currentWaypoint.z / CELL_SIZE),
+                    grid
+                );
+
+                std::cout << "Finding new waypoint destination" << std::endl;
+
+                enemy.reachedDestination = false;
+
+                moveEnemy(enemy, path, deltaTime);
+            }
+            
+            break;
+        }
+        case ATTACK:
+        {
+                break;
+        }
+        default:
+            break;
+        }
 
         shader.setMat4("view", view);
         shader.setMat4("proj", projection);
@@ -385,26 +459,6 @@ int main()
         shader.setVec3("material.diffuse", enemyMaterial.diffuse);
         shader.setVec3("material.specular", enemyMaterial.specular);
         shader.setFloat("material.shininess", enemyMaterial.shininess);
-
-        std::vector<glm::ivec2> path = findPath(
-            glm::ivec2(enemy.getPosition().x / CELL_SIZE, enemy.getPosition().z / CELL_SIZE),
-            glm::ivec2(player.getPosition().x / CELL_SIZE, player.getPosition().z / CELL_SIZE),
-            grid
-        );
-
-        //if (path.empty()) {
-        //    std::cerr << "No path found" << std::endl;
-        //}
-        //else {
-        //    std::cout << "Path found: ";
-        //    for (const auto& step : path) {
-        //        std::cout << "(" << step.x << ", " << step.y << ") ";
-        //    }
-        //    std::cout << std::endl;
-        //}
-
-        moveEnemy(enemy, path, deltaTime);
-
 
         enemy.Draw(shader);
 
