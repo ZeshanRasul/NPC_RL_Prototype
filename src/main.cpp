@@ -268,6 +268,8 @@ int main()
 
     glm::vec3 currentWaypoint = waypointPositions[std::rand() % waypointPositions.size()];
 
+    int currentStateIndex = 0;
+
     // Render loop
     while (!glfwWindowShouldClose(window))
     {
@@ -324,6 +326,16 @@ int main()
         ImGui::InputFloat("EnemyYaw", &enemy.Yaw);
         ImGui::InputFloat3("EnemyFront", &enemy.Front[0]);
 
+
+        if (enemy.state == PATROL)
+            currentStateIndex = 0;
+        if (enemy.state == ATTACK)
+            currentStateIndex = 1;
+
+        if (ImGui::Combo("Enemy States", &currentStateIndex, EnemyStateNames, 2))
+        {
+            enemy.state = static_cast<EnemyState>(currentStateIndex);
+        }
 
         ImGui::End();
 

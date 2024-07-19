@@ -7,6 +7,11 @@ enum EnemyState {
     ATTACK
 };
 
+static const char* EnemyStateNames[] = {
+    "Patrol",
+    "Attack"
+};
+
 class Enemy : public GameObject {
 public:
 
