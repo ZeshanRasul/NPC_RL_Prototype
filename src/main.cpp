@@ -278,7 +278,18 @@ int main()
         bool spaceKeyCurrentlyPressed = glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS;
 
         if (spaceKeyCurrentlyPressed && !spaceKeyPressed)
+        {
             controlCamera = !controlCamera;
+
+            if (controlCamera == false)
+            {
+                glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+            }
+            else
+            {
+                glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+            }
+        }
 
         spaceKeyPressed = spaceKeyCurrentlyPressed;
 
