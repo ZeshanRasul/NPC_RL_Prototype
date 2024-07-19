@@ -282,7 +282,7 @@ int main()
 
         spaceKeyPressed = spaceKeyCurrentlyPressed;
 
-        bool tabKeyCurrentlyPressed = glfwGetKey(window, GLFW_KEY_TAB) == GLFW_PRESS;
+        bool tabKeyCurrentlyPressed = glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS;
 
 
         // Input
@@ -534,7 +534,7 @@ void processInput(GLFWwindow* window, bool isTabPressed, Player& player)
 
     if (!tabKeyPressed && isTabPressed)
     {
-        if (glfwGetKey(window, GLFW_KEY_TAB) == GLFW_PRESS)
+        if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS)
             camera.Mode = static_cast<CameraMode>((camera.Mode + 1) % MODE_COUNT);
     }
 
