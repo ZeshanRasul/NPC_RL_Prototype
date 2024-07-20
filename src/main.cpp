@@ -15,6 +15,8 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
 
+#include "Window/Window.h"
+#include "Tools/Logger.h"
 #include "Shader.h"
 #include "Camera.h"
 #include "GameObjects/Player.h"
@@ -25,18 +27,11 @@
 #include "Pathfinding/Grid.h"
 #include "Primitives.h"
 
-void framebuffer_size_callback(GLFWwindow* window, int width, int height);
-void processInput(GLFWwindow *window, bool isTabPressed, Player& player);
-void mouse_callback(GLFWwindow* window, double xpos, double ypos);
-void scroll_callback(GLFWwindow* window, double xOffset, double yOffset);
 
 void handlePlayerMovement(GLFWwindow* window, Player& player, Camera& camera, float deltaTime);
 
 
-Player* g_player = nullptr;
-Enemy* g_enemy = nullptr;
-
-const unsigned int SCREEN_WIDTH = 1280;
+const unsigned int SCREEN_WIDTH = 960;
 const unsigned int SCREEN_HEIGHT = 720;
 
 float deltaTime = 0.0f;
@@ -45,16 +40,8 @@ float currentFrame = 0.0f;
 
 
 Camera camera(glm::vec3(50.0f, 3.0f, 80.0f));
-float lastX = SCREEN_WIDTH / 2.0f;
-float lastY = SCREEN_HEIGHT / 2.0f;
-bool firstMouse = true;
 
 void ShowCameraControlWindow(Camera& cam);
-
-bool controlCamera = true;
-bool spaceKeyPressed = false;
-
-bool tabKeyPressed = false;
 
 float xOfst = 0.0f;
 
@@ -150,56 +137,14 @@ static glm::vec3 selectRandomWaypoint(const glm::vec3& currentWaypoint, const st
 
 int main()
 {
-    // Initialize and configure GLFW
-    if (!glfwInit())
-    {
-        std::cerr << "Failed to initialize GLFW" << std::endl;
+
+    // TODO: window init
+    std::unique_ptr<Window> window = std::make_unique<Window>();
+
+    if (!window->init(SCREEN_WIDTH, SCREEN_HEIGHT, "NPC AI System")) {
+        Logger::log(1, "%s error: Window init error\n", __FUNCTION__);
         return -1;
     }
-
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-
-    // Create a windowed mode window and its OpenGL context
-    GLFWwindow* window = glfwCreateWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "OpenGL Window", NULL, NULL);
-    if (!window)
-    {
-        std::cerr << "Failed to create GLFW window" << std::endl;
-        glfwTerminate();
-        return -1;
-    }
-    glfwMakeContextCurrent(window);
-
-    // Load all OpenGL function pointers with GLAD
-    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
-    {
-        std::cerr << "Failed to initialize GLAD" << std::endl;
-        return -1;
-    }
-
-    glViewport(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
-
-    glEnable(GL_DEPTH_TEST);
-
-    glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
-
-    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-
-    glfwSetCursorPosCallback(window, mouse_callback);
-
-    glfwSetScrollCallback(window, scroll_callback);
-
-    // Setup Dear ImGui context
-    IMGUI_CHECKVERSION();
-    ImGui::CreateContext();
-    ImGuiIO& io = ImGui::GetIO();
-    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
-    io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
-
-    // Setup Platform/Renderer backends
-    ImGui_ImplGlfw_InitForOpenGL(window, true);          // Second param install_callback=true will install GLFW callbacks and chain to existing ones.
-    ImGui_ImplOpenGL3_Init();
 
 
     unsigned int lightVAO;
@@ -361,6 +306,8 @@ int main()
 
         shader.use();
 
+        // TODO: Begin move to Enemy Update
+
         float playerEnemyDistance = glm::distance(enemy.getPosition(), player.getPosition());
 
         if (playerEnemyDistance < 15.0f)
@@ -433,6 +380,10 @@ int main()
         default:
             break;
         }
+
+        // TODO: End move to Enemy Update
+
+        // TODO: Begin move to Renderer Draw
 
         shader.setMat4("view", view);
         shader.setMat4("proj", projection);
@@ -533,97 +484,27 @@ int main()
 
         glBindVertexArray(0);
 
+        // TODO: End move to Renderer Draw
+
+
         // Swap buffers and poll IO events
+
+        // TODO: Begin move to Window Main Loop
 
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
         glfwSwapBuffers(window);
         glfwPollEvents();
+
+        // TODO: End move to Window Main Loop
+
     }
 
-    ImGui_ImplOpenGL3_Shutdown();
-    ImGui_ImplGlfw_Shutdown();
-    ImGui::DestroyContext();
-
-    // Terminate GLFW
-    glfwTerminate();
+    window->cleanup();
     return 0;
 }
-void processInput(GLFWwindow* window, bool isTabPressed, Player& player)
-{
-    if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
-        glfwSetWindowShouldClose(window, true);
 
-    if (!tabKeyPressed && isTabPressed)
-    {
-        if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS)
-            camera.Mode = static_cast<CameraMode>((camera.Mode + 1) % MODE_COUNT);
-    }
-
-    if (controlCamera && camera.Mode == FLY)
-    {
-        if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-            camera.ProcessKeyboard(FORWARD, deltaTime);
-        if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-            camera.ProcessKeyboard(BACKWARD, deltaTime);
-        if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-            camera.ProcessKeyboard(LEFT, deltaTime);
-        if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-            camera.ProcessKeyboard(RIGHT, deltaTime);
-    }
-}
-
-void framebuffer_size_callback(GLFWwindow* window, int width, int height)
-{
-    glViewport(0, 0, width, height);
-}
-
-void mouse_callback(GLFWwindow* window, double xPosIn, double yPosIn)
-{
-    if (ImGui::GetIO().WantCaptureMouse) {
-        return;
-    }
-
-    float xPos = static_cast<float>(xPosIn);
-    float yPos = static_cast<float>(yPosIn);
-
-    if (firstMouse)
-    {
-        lastX = xPos;
-        lastY = yPos;
-        firstMouse = false;
-    }
-
-    float xOffset = xPos - lastX;
-    float yOffset = lastY - yPos;
-
-    lastX = xPos;
-    lastY = yPos;
-
-    if (camera.Mode == PLAYER_FOLLOW)
-        g_player->PlayerProcessMouseMovement(xOffset);
-    else if (camera.Mode == ENEMY_FOLLOW)
-        g_enemy->EnemyProcessMouseMovement(xOffset, yOffset, true);
-
-    camera.ProcessMouseMovement(xOffset, yOffset);
-
-    if (camera.Mode == PLAYER_FOLLOW)
-    {
-        g_player->PlayerYaw = camera.Yaw;
-        g_player->UpdatePlayerVectors();
-    }
-    else if (camera.Mode == ENEMY_FOLLOW)
-    {
-        g_enemy->UpdateEnemyCameraVectors();
-    }
-//    xOfst = xOffset;
-}
-
-void scroll_callback(GLFWwindow* window, double xOffset, double yOffset)
-{
-    camera.ProcessMouseScroll(static_cast<float>(yOffset));
-}
 
 void ShowLightControlWindow(DirLight& light)
 {
