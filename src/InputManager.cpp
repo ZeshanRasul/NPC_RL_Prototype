@@ -76,7 +76,7 @@ void InputManager::processInput(GLFWwindow* window, float deltaTime)
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
 
-    if (!tabBeenPressed && isTabPressed)
+    if (!tabBeenPressed && tabKeyCurrentlyPressed)
     {
         if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS)
             camera->Mode = static_cast<CameraMode>((camera->Mode + 1) % MODE_COUNT);
