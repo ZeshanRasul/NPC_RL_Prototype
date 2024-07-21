@@ -4,17 +4,18 @@
 App::App(unsigned int screenWidth, unsigned int screenHeight)
     : width(screenWidth), height(screenHeight)
 {
-    if (!mWindow->init(width, height, "NPC AI System")) {
+    mWindow = new Window();
+
+    if (!mWindow->init(screenWidth, screenHeight, "NPC AI System")) {
         Logger::log(1, "%s error: Window init error\n", __FUNCTION__);
     }
     
-    mGameManager = new GameManager(mWindow, width, height);
+    mGameManager = new GameManager(mWindow, screenWidth, screenHeight);
 }
 
 App::~App()
 {
     mWindow->cleanup();
-    delete mWindow;
     delete mGameManager;
 }
 
@@ -27,6 +28,7 @@ void App::run()
 
         mWindow->clear();
 
+        mGameManager->showDebugUI();
         mGameManager->setupCamera(width, height);
         mGameManager->update(deltaTime);
         mGameManager->render();

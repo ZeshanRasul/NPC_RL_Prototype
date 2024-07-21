@@ -1,10 +1,10 @@
 #pragma once
 #include <string>
 #include <memory>
-#include <GLFW/glfw3.h>
 
 #include "src/OpenGL/Renderer.h"
 #include "src/InputManager.h"
+#include <GLFW/glfw3.h>
 
 class Window {
 public:
@@ -21,7 +21,7 @@ public:
 	void cleanup();
 
 private:
-	GLFWwindow* mWindow = nullptr;
+	GLFWwindow* mWindow;
 
 	Renderer* mRenderer;
 };

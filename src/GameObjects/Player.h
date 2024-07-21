@@ -8,7 +8,7 @@ public:
     Player(glm::vec3 pos, glm::vec3 scale, Shader* shdr, float yaw = -90.0f)
         : GameObject(pos, scale, shdr), PlayerYaw(yaw)
     {
-        model.LoadModel("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Models/MaleMercenary/MaleMercenary.obj");
+//        model.LoadModel("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Models/MaleMercenary/MaleMercenary.obj");
         UpdatePlayerVectors();
     }
 

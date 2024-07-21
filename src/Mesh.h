@@ -12,11 +12,11 @@
 //	glm::vec2 TexCoords;
 //};
 
-struct Texture {
-	unsigned int id;
-	std::string type;
-	std::string path;
-};
+//struct Texture {
+//	unsigned int id;
+//	std::string type;
+//	std::string path;
+//};
 
 //class Mesh {
 //public:

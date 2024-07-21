@@ -1,9 +1,9 @@
 #pragma once
-#include "GLFW/glfw3.h"
 
 #include "src/Camera.h"
 #include "src/GameObjects/Player.h"
 #include "src/GameObjects/Enemy.h"
+#include "GLFW/glfw3.h"
 
 class InputManager {
 public:

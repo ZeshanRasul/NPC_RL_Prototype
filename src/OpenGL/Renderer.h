@@ -1,10 +1,10 @@
 #pragma once
-#include <GLFW/glfw3.h>
-
 #include "RenderData.h"
 #include "src/Camera.h"
 #include "src/GameObjects/GameObject.h"
 #include "Shader.h"
+
+#include <GLFW/glfw3.h>
 
 class Renderer {
 public:

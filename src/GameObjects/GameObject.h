@@ -25,6 +25,6 @@ protected:
 
     glm::vec3 position;
     glm::vec3 scale;
-    Model model;
+ //   Model model;
     Shader* shader;
 };

@@ -2,6 +2,7 @@
 
 #include "GameObject.h"
 #include "Player.h"
+#include "src/Pathfinding/Grid.h"
 
 enum EnemyState {
     PATROL,
@@ -13,12 +14,9 @@ static const char* EnemyStateNames[] = {
     "Attack"
 };
 
-std::vector<glm::vec3> waypointPositions = {
-    snapToGrid(glm::vec3(0.0f, 0.0f, 0.0f)),
-    snapToGrid(glm::vec3(0.0f, 0.0f, 90.0f)),
-    snapToGrid(glm::vec3(30.0f, 0.0f, 0.0f)),
-    snapToGrid(glm::vec3(30.0f, 0.0f, 90.0f))
-};
+static std::vector<glm::vec3> waypointPositions = {};
+
+static glm::vec3 snapToGrid(const glm::vec3& position);
 
 static glm::vec3 selectRandomWaypoint(const glm::vec3& currentWaypoint, const std::vector<glm::vec3>& allWaypoints) {
 
@@ -40,9 +38,16 @@ public:
     Enemy(glm::vec3 pos, glm::vec3 scale, Shader* sdr, float yaw = 0.0f)
         : GameObject(pos, scale, sdr), Yaw(yaw)
     {
-        model.LoadModel("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Models/MaleMilitary/MaleMilitary.obj");
+//        model.LoadModel("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Models/MaleMilitary/MaleMilitary.obj");
         UpdateEnemyCameraVectors();
         UpdateEnemyVectors();
+
+        waypointPositions = { 
+            snapToGrid(glm::vec3(0.0f, 0.0f, 0.0f)),
+            snapToGrid(glm::vec3(0.0f, 0.0f, 90.0f)),
+            snapToGrid(glm::vec3(30.0f, 0.0f, 0.0f)),
+            snapToGrid(glm::vec3(30.0f, 0.0f, 90.0f))
+        }; 
 
         currentWaypoint = waypointPositions[std::rand() % waypointPositions.size()];
     }
@@ -68,6 +73,9 @@ public:
     EnemyState GetEnemyState() const { return state; }
 
     void SetEnemyState(EnemyState newState) { state = newState; }
+
+    void moveEnemy(const std::vector<glm::ivec2>& path, float deltaTime);
+
 
     EnemyState state = PATROL;
     float Yaw;

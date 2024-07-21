@@ -12,20 +12,6 @@
 #include "GameObjects/Waypoint.h"
 #include "src/Pathfinding/Grid.h"
 
-DirLight dirLight = {
-        glm::vec3(-0.2f, -1.0f, -0.3f),
-
-        glm::vec3(0.15f, 0.15f, 0.15f),
-        glm::vec3(0.4f),
-        glm::vec3(0.1f, 0.1f, 0.1f)
-};
-
-glm::vec3 snapToGrid(const glm::vec3& position) {
-    int gridX = static_cast<int>(position.x / CELL_SIZE);
-    int gridZ = static_cast<int>(position.z / CELL_SIZE);
-    return glm::vec3(gridX * CELL_SIZE + CELL_SIZE / 2.0f, position.y, gridZ * CELL_SIZE + CELL_SIZE / 2.0f);
-}
-
 class GameManager {
 public:
     GameManager(Window* window, unsigned int width, unsigned int height);
@@ -45,8 +31,8 @@ public:
 
     void render();
 
-private:
     void showDebugUI();
+private:
     void ShowCameraControlWindow(Camera& cam);
     void ShowLightControlWindow(DirLight& light);
 

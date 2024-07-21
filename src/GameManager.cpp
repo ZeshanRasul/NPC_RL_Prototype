@@ -3,13 +3,19 @@
 #include "imgui/backend/imgui_impl_glfw.h"
 #include "imgui/backend/imgui_impl_opengl3.h"
 
+DirLight dirLight = {
+        glm::vec3(-0.2f, -1.0f, -0.3f),
+
+        glm::vec3(0.15f, 0.15f, 0.15f),
+        glm::vec3(0.4f),
+        glm::vec3(0.1f, 0.1f, 0.1f)
+};
+
 GameManager::GameManager(Window* window, unsigned int width, unsigned int height)
     : window(window)
 {
     inputManager = new InputManager();
-    
-    inputManager->setContext(camera, player, enemy, width, height);
-    
+        
     window->setInputManager(inputManager);
     
     renderer = window->getRenderer();
@@ -26,6 +32,8 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
     camera = new Camera(glm::vec3(50.0f, 3.0f, 80.0f));
     player = new Player(snapToGrid(glm::vec3(130.0f, 0.0f, 25.0f)), glm::vec3(0.02f, 0.02f, 0.02f), &playerShader);
     enemy = new Enemy(snapToGrid(glm::vec3(13.0f, 0.0f, 13.0f)), glm::vec3(0.02f, 0.02f, 0.02f), &enemyShader);
+
+    inputManager->setContext(camera, player, enemy, width, height);
 
     waypoint1 = new Waypoint(snapToGrid(waypointPositions[0]), glm::vec3(5.0f, 10.0f, 5.0f), &gridShader);
     waypoint2 = new Waypoint(snapToGrid(waypointPositions[1]), glm::vec3(5.0f, 10.0f, 5.0f), &gridShader);

@@ -16,6 +16,13 @@ extern std::vector<std::vector<Cell>> grid;
 void initializeGrid();
 void drawGrid(Shader& gridShader);
 
+static glm::vec3 snapToGrid(const glm::vec3& position)
+{
+    int gridX = static_cast<int>(position.x / CELL_SIZE);
+    int gridZ = static_cast<int>(position.z / CELL_SIZE);
+    return glm::vec3(gridX * CELL_SIZE + CELL_SIZE / 2.0f, position.y, gridZ * CELL_SIZE + CELL_SIZE / 2.0f);
+}
+
 // Custom hash function for glm::ivec2
 struct ivec2_hash {
     std::size_t operator()(const glm::ivec2& v) const {
@@ -24,4 +31,3 @@ struct ivec2_hash {
 };
 std::vector<glm::ivec2> findPath(const glm::ivec2& start, const glm::ivec2& goal, const std::vector<std::vector<Cell>>& grid);
 
-void moveEnemy(Enemy& enemy, const std::vector<glm::ivec2>& path, float deltaTime);

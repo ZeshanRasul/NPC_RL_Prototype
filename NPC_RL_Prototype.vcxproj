@@ -104,7 +104,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(ProjectDir)include; $(ProjectDir)include/imgui;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)include; $(ProjectDir)include/imgui; $(ProjectDir);</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -121,7 +121,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(ProjectDir)include; $(ProjectDir)include/imgui;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)include; $(ProjectDir)include/imgui; $(ProjectDir);</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -140,18 +140,29 @@
     <ClCompile Include="include\imgui\imgui_draw.cpp" />
     <ClCompile Include="include\imgui\imgui_tables.cpp" />
     <ClCompile Include="include\imgui\imgui_widgets.cpp" />
+    <ClCompile Include="src\App.cpp" />
     <ClCompile Include="src\Camera.cpp" />
+    <ClCompile Include="src\GameManager.cpp" />
     <ClCompile Include="src\GameObjects\Enemy.cpp" />
     <ClCompile Include="src\GameObjects\Ground.cpp" />
     <ClCompile Include="src\GameObjects\Player.cpp" />
     <ClCompile Include="src\GameObjects\Waypoint.cpp" />
     <ClCompile Include="src\glad.c" />
+    <ClCompile Include="src\InputManager.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\Mesh.cpp" />
     <ClCompile Include="src\Model.cpp" />
+    <ClCompile Include="src\OpenGL\Framebuffer.cpp" />
+    <ClCompile Include="src\OpenGL\Renderer.cpp" />
+    <ClCompile Include="src\OpenGL\Shader.cpp" />
+    <ClCompile Include="src\OpenGL\Texture.cpp" />
+    <ClCompile Include="src\OpenGL\UniformBuffer.cpp" />
+    <ClCompile Include="src\OpenGL\VertexBuffer.cpp" />
     <ClCompile Include="src\Pathfinding\Grid.cpp" />
     <ClCompile Include="src\Pathfinding\Grid.h" />
-    <ClCompile Include="src\Shader.cpp" />
+    <ClCompile Include="src\ShaderOld.cpp" />
+    <ClCompile Include="src\Tools\Logger.cpp" />
+    <ClCompile Include="src\Window\Window.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\imgui\backend\imgui_impl_glfw.h" />
@@ -164,17 +175,29 @@
     <ClInclude Include="include\imgui\imstb_textedit.h" />
     <ClInclude Include="include\imgui\imstb_truetype.h" />
     <ClInclude Include="include\stb_image.h" />
+    <ClInclude Include="src\App.h" />
     <ClInclude Include="src\Camera.h" />
+    <ClInclude Include="src\GameManager.h" />
     <ClInclude Include="src\GameObjects\Cell.h" />
     <ClInclude Include="src\GameObjects\Enemy.h" />
     <ClInclude Include="src\GameObjects\GameObject.h" />
     <ClInclude Include="src\GameObjects\Ground.h" />
     <ClInclude Include="src\GameObjects\Player.h" />
     <ClInclude Include="src\GameObjects\Waypoint.h" />
+    <ClInclude Include="src\InputManager.h" />
     <ClInclude Include="src\Mesh.h" />
     <ClInclude Include="src\Model.h" />
+    <ClInclude Include="src\OpenGL\Framebuffer.h" />
+    <ClInclude Include="src\OpenGL\RenderData.h" />
+    <ClInclude Include="src\OpenGL\Renderer.h" />
+    <ClInclude Include="src\OpenGL\Shader.h" />
+    <ClInclude Include="src\OpenGL\Texture.h" />
+    <ClInclude Include="src\OpenGL\UniformBuffer.h" />
+    <ClInclude Include="src\OpenGL\VertexBuffer.h" />
     <ClInclude Include="src\Primitives.h" />
-    <ClInclude Include="src\Shader.h" />
+    <ClInclude Include="src\ShaderOld.h" />
+    <ClInclude Include="src\Tools\Logger.h" />
+    <ClInclude Include="src\Window\Window.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="src\Models\backpack\backpack.mtl" />

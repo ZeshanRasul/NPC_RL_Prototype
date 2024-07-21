@@ -33,7 +33,7 @@ bool Renderer::init(unsigned int width, unsigned int height)
 	glEnable(GL_CULL_FACE);
 	glEnable(GL_DEPTH_TEST);
 
-	return false;
+	return true;
 }
 
 void Renderer::setScene(glm::mat4 viewMat, glm::mat4 proj, DirLight light)

@@ -34,77 +34,13 @@
 const unsigned int SCREEN_WIDTH = 960;
 const unsigned int SCREEN_HEIGHT = 720;
 
-
-
-
-
-
-
-
-
 int main()
 {
-
     // TODO: App init
     App app(SCREEN_WIDTH, SCREEN_HEIGHT);
 
     app.run();
 
-
-
-
-
-    // TODO: Begin move to Window Main Loop
-
-
-    // Render loop
-    while (!glfwWindowShouldClose(window))
-    {
-        
-
-
-
-
-        // Input
-        // 
-        // TODO: Check this can be removed
-        //processInput(window, tabKeyCurrentlyPressed, player);
-
-     
-
-
-        // TODO: Begin move to Renderer Draw
-
-
-
-
-        // TODO: End move to Renderer Draw
-
-
-
-
-
-
-        // TODO: Begin move to Enemy Update
-
-
-
-        // TODO: End move to Enemy Update
-
-
-        // TODO: End move to Renderer Draw
-
-
-        // Swap buffers and poll IO events
-
-        // TODO: Begin move to Window Main Loop
-
-
-
-        // TODO: End move to Window Main Loop
-
-    }
-    
     return 0;
 }
 
