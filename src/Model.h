@@ -15,7 +15,7 @@ public:
 	Model();
 
 	void LoadModel(std::string path);
-	void Draw(Shader& shader);
+	void Draw(ShaderOld& shader);
 
 private:
 	std::vector<Mesh> meshes;

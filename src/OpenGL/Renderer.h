@@ -9,6 +9,7 @@ public:
 
 	bool init(unsigned int width, unsigned int height);
 	void draw();
+	void clear();
 
 	void cleanup();
 

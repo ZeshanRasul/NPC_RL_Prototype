@@ -15,9 +15,11 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
 
+#include "App.h"
+
 #include "Window/Window.h"
 #include "Tools/Logger.h"
-#include "Shader.h"
+#include "ShaderOld.h"
 #include "Camera.h"
 #include "GameObjects/Player.h"
 #include "GameObjects/Enemy.h"
@@ -50,20 +52,6 @@ struct Material {
     glm::vec3 diffuse;
     glm::vec3 specular;
     float shininess;
-};
-
-Material playerMaterial = {
-    glm::vec3(0.0f, 0.0f, 1.0f),
-    glm::vec3(0.0f, 0.2f, 0.87f),
-    glm::vec3(0.2f, 0.2f, 0.2f),
-    8.0f
-};
-
-Material enemyMaterial = {
-    glm::vec3(1.0f, 0.2f, 0.2f),
-    glm::vec3(1.0f, 0.2f, 0.2f),
-    glm::vec3(0.2f, 0.2f, 0.2f),
-    8.0f
 };
 
 glm::vec3 snapToGrid(const glm::vec3& position) {
@@ -138,36 +126,17 @@ static glm::vec3 selectRandomWaypoint(const glm::vec3& currentWaypoint, const st
 int main()
 {
 
-    // TODO: window init
-    std::unique_ptr<Window> window = std::make_unique<Window>();
+    // TODO: App init
+    App app(SCREEN_WIDTH, SCREEN_HEIGHT);
 
-    if (!window->init(SCREEN_WIDTH, SCREEN_HEIGHT, "NPC AI System")) {
-        Logger::log(1, "%s error: Window init error\n", __FUNCTION__);
-        return -1;
-    }
+    app.run();
 
 
-    unsigned int lightVAO;
-    glGenVertexArrays(1, &lightVAO);
-    glBindVertexArray(lightVAO);
+    ShaderOld shader("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/vertex.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/fragment.glsl");
 
-    unsigned int VBO;
-    glGenBuffers(1, &VBO);
+    ShaderOld lightShader("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/lightVertex.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/lightFragment.glsl");
 
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), &vertices, GL_STATIC_DRAW);
-
-
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
-    glEnableVertexAttribArray(0);
-
-    glBindVertexArray(0);
-
-    Shader shader("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/vertex.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/fragment.glsl");
-
-    Shader lightShader("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/lightVertex.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/lightFragment.glsl");
-
-    Shader gridShader("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/gridVertex.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/gridFragment.glsl");
+    ShaderOld gridShader("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/gridVertex.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/gridFragment.glsl");
 
     glm::mat4 view;
     glm::mat4 projection;
@@ -215,6 +184,9 @@ int main()
 
     int currentStateIndex = 0;
 
+    // TODO: Begin move to Window Main Loop
+
+
     // Render loop
     while (!glfwWindowShouldClose(window))
     {
@@ -222,33 +194,22 @@ int main()
         deltaTime = currentFrame - lastFrame;
         lastFrame = currentFrame;
 
-        bool spaceKeyCurrentlyPressed = glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS;
 
-        if (spaceKeyCurrentlyPressed && !spaceKeyPressed)
-        {
-            controlCamera = !controlCamera;
-
-            if (controlCamera == false)
-            {
-                glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
-            }
-            else
-            {
-                glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-            }
-        }
-
-        spaceKeyPressed = spaceKeyCurrentlyPressed;
-
-        bool tabKeyCurrentlyPressed = glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS;
 
 
         // Input
-        processInput(window, tabKeyCurrentlyPressed, player);
+        // 
+        // TODO: Check this can be removed
+        //processInput(window, tabKeyCurrentlyPressed, player);
 
      
 
-        tabKeyPressed = tabKeyCurrentlyPressed;
+
+        // TODO: Begin move to Window  Main Loop
+
+
+        // TODO: Begin move to Renderer Draw
+
 
         // Start the Dear ImGui frame
         ImGui_ImplOpenGL3_NewFrame();
@@ -284,10 +245,16 @@ int main()
 
         ImGui::End();
 
+        // TODO: End move to Renderer Draw
+
+
         //if (camera.Mode == PLAYER_FOLLOW)
         //    player.PlayerProcessMouseMovement(xOfst);
 
         handlePlayerMovement(window, player, camera, deltaTime);
+
+        // TODO: Begin move to Renderer Draw
+
 
         if (camera.Mode == PLAYER_FOLLOW)
         {
@@ -305,6 +272,9 @@ int main()
         projection = glm::perspective(glm::radians(camera.Zoom), (float)SCREEN_WIDTH / (float)SCREEN_HEIGHT, 0.1f, 100.0f);
 
         shader.use();
+
+        // TODO: End move to Renderer Draw
+
 
         // TODO: Begin move to Enemy Update
 

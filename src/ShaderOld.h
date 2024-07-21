@@ -9,12 +9,12 @@
 #include <sstream>
 #include <iostream>
 
-class Shader
+class ShaderOld
 {
 public:
 	unsigned int ID;
 
-	Shader(const char* vertexPath, const char* fragmentPath);
+	ShaderOld(const char* vertexPath, const char* fragmentPath);
 
 	void use();
 
