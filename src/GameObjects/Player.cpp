@@ -12,6 +12,10 @@ void Player::drawObject() const
 //    model.Draw(shader);
 }
 
+void Player::Update(float dt) 
+{}
+
+
 void Player::UpdatePlayerVectors()
 {
     glm::vec3 front = glm::vec3(1.0f);

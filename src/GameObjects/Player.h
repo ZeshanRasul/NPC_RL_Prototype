@@ -14,6 +14,8 @@ public:
 
     void drawObject() const override;
 
+    void Update(float dt);
+
     glm::vec3 getPosition() {
         return position;
     }

@@ -1,4 +1,5 @@
 #include "Enemy.h"
+#include "src/Pathfinding/Grid.h"
 
 void Enemy::drawObject() const
 {
@@ -10,6 +11,82 @@ void Enemy::drawObject() const
 
 	// Draw TODO: Update for GLTF
 	//model.Draw(shader);
+}
+
+void Enemy::Update(float dt, Player& player)
+{
+    float playerEnemyDistance = glm::distance(getPosition(), player.getPosition());
+
+    if (playerEnemyDistance < 15.0f)
+    {
+        SetEnemyState(ATTACK);
+    }
+    else
+    {
+        SetEnemyState(PATROL);
+    }
+
+    switch (GetEnemyState())
+    {
+    case PATROL:
+    {
+        if (reachedDestination == false)
+        {
+            std::vector<glm::ivec2> path = findPath(
+                glm::ivec2(getPosition().x / CELL_SIZE, getPosition().z / CELL_SIZE),
+                glm::ivec2(currentWaypoint.x / CELL_SIZE, currentWaypoint.z / CELL_SIZE),
+                grid
+            );
+
+            if (path.empty()) {
+                std::cerr << "No path found" << std::endl;
+            }
+            else {
+                std::cout << "Path found: ";
+                for (const auto& step : path) {
+                    std::cout << "(" << step.x << ", " << step.y << ") ";
+                }
+                std::cout << std::endl;
+            }
+
+            moveEnemy(*this, path, dt);
+        }
+        else
+        {
+            currentWaypoint = selectRandomWaypoint(currentWaypoint, waypointPositions);
+
+            std::vector<glm::ivec2> path = findPath(
+                glm::ivec2(getPosition().x / CELL_SIZE, getPosition().z / CELL_SIZE),
+                glm::ivec2(currentWaypoint.x / CELL_SIZE, currentWaypoint.z / CELL_SIZE),
+                grid
+            );
+
+            std::cout << "Finding new waypoint destination" << std::endl;
+
+            reachedDestination = false;
+
+            moveEnemy(*this, path, dt);
+        }
+
+        break;
+    }
+    case ATTACK:
+    {
+        std::vector<glm::ivec2> path = findPath(
+            glm::ivec2(getPosition().x / CELL_SIZE, getPosition().z / CELL_SIZE),
+            glm::ivec2(getPosition().x / CELL_SIZE, player.getPosition().z / CELL_SIZE),
+            grid
+        );
+
+        std::cout << "Moving to Player destination" << std::endl;
+
+        moveEnemy(*this, path, dt);
+
+        break;
+    }
+    default:
+        break;
+    }
 }
 
 void Enemy::UpdateEnemyCameraVectors()

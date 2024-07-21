@@ -1,6 +1,7 @@
 #pragma once
 
 #include "GameObject.h"
+#include "Player.h"
 
 enum EnemyState {
     PATROL,
@@ -12,6 +13,27 @@ static const char* EnemyStateNames[] = {
     "Attack"
 };
 
+std::vector<glm::vec3> waypointPositions = {
+    snapToGrid(glm::vec3(0.0f, 0.0f, 0.0f)),
+    snapToGrid(glm::vec3(0.0f, 0.0f, 90.0f)),
+    snapToGrid(glm::vec3(30.0f, 0.0f, 0.0f)),
+    snapToGrid(glm::vec3(30.0f, 0.0f, 90.0f))
+};
+
+static glm::vec3 selectRandomWaypoint(const glm::vec3& currentWaypoint, const std::vector<glm::vec3>& allWaypoints) {
+
+    std::vector<glm::vec3> availableWaypoints;
+    for (const auto& wp : allWaypoints) {
+        if (wp != currentWaypoint) {
+            availableWaypoints.push_back(wp);
+        }
+    }
+
+    // Select a random waypoint from the available waypoints
+    int randomIndex = std::rand() % availableWaypoints.size();
+    return availableWaypoints[randomIndex];
+}
+
 class Enemy : public GameObject {
 public:
 
@@ -21,9 +43,13 @@ public:
         model.LoadModel("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Models/MaleMilitary/MaleMilitary.obj");
         UpdateEnemyCameraVectors();
         UpdateEnemyVectors();
+
+        currentWaypoint = waypointPositions[std::rand() % waypointPositions.size()];
     }
 
     void drawObject() const override;
+
+    void Update(float dt, Player& player);
 
     glm::vec3 getPosition() {
         return position;
@@ -54,5 +80,5 @@ public:
     glm::vec3 Right;
     glm::vec3 Up;
     bool reachedDestination = false;
-
+    glm::vec3 currentWaypoint;
 };

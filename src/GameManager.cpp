@@ -42,9 +42,6 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 
     std::srand(static_cast<unsigned int>(std::time(nullptr)));
 
-    currentWaypoint = waypointPositions[std::rand() % waypointPositions.size()];
-
-
     gameObjects.push_back(player);
     gameObjects.push_back(enemy);  
     gameObjects.push_back(waypoint1);
@@ -171,9 +168,7 @@ void GameManager::update(float deltaTime)
     inputManager->processInput(window->getWindow(), deltaTime);
 
     // TODO: Update Game Objects
-    /*for (auto obj : gameObjects) {
-        obj->update();
-    }*/
+    enemy->Update(deltaTime, *player);
 }
 
 void GameManager::render()

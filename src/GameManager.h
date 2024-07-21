@@ -26,28 +26,6 @@ glm::vec3 snapToGrid(const glm::vec3& position) {
     return glm::vec3(gridX * CELL_SIZE + CELL_SIZE / 2.0f, position.y, gridZ * CELL_SIZE + CELL_SIZE / 2.0f);
 }
 
-std::vector<glm::vec3> waypointPositions = {
-    snapToGrid(glm::vec3(0.0f, 0.0f, 0.0f)),
-    snapToGrid(glm::vec3(0.0f, 0.0f, 90.0f)),
-    snapToGrid(glm::vec3(30.0f, 0.0f, 0.0f)),
-    snapToGrid(glm::vec3(30.0f, 0.0f, 90.0f))
-};
-
-static glm::vec3 selectRandomWaypoint(const glm::vec3& currentWaypoint, const std::vector<glm::vec3>& allWaypoints) {
-
-    std::vector<glm::vec3> availableWaypoints;
-    for (const auto& wp : allWaypoints) {
-        if (wp != currentWaypoint) {
-            availableWaypoints.push_back(wp);
-        }
-    }
-
-    // Select a random waypoint from the available waypoints
-    int randomIndex = std::rand() % availableWaypoints.size();
-    return availableWaypoints[randomIndex];
-}
-
-
 class GameManager {
 public:
     GameManager(Window* window, unsigned int width, unsigned int height);
@@ -88,8 +66,6 @@ private:
     glm::mat4 projection = glm::mat4(1.0f);
 
     Cell cell;
-
-    glm::vec3 currentWaypoint;
 
     Waypoint* waypoint1;
     Waypoint* waypoint2;
