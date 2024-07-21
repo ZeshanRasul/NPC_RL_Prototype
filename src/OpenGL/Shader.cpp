@@ -20,11 +20,11 @@ bool Shader::loadShaders(std::string vertexShaderFileName, std::string fragmentS
     return true;
 }
 
-void Shader::cleanup() {
+void Shader::cleanup() const {
     glDeleteProgram(mShaderProgram);
 }
 
-void Shader::use() {
+void Shader::use() const {
     glUseProgram(mShaderProgram);
 }
 
@@ -156,4 +156,34 @@ std::string Shader::loadFileToString(std::string fileName) {
     inFile.close();
     Logger::log(1, "%s: file %s successfully read to string\n", __FUNCTION__, fileName.c_str());
     return str;
+}
+
+void Shader::setBool(const std::string& name, bool value) const
+{
+    glUniform1i(glGetUniformLocation(mShaderProgram, name.c_str()), int(value));
+}
+
+void Shader::setInt(const std::string& name, int value) const
+{
+    glUniform1i(glGetUniformLocation(mShaderProgram, name.c_str()), value);
+}
+
+void Shader::setFloat(const std::string& name, float value) const
+{
+    glUniform1f(glGetUniformLocation(mShaderProgram, name.c_str()), value);
+}
+
+void Shader::setMat4(const std::string& name, glm::mat4 value) const
+{
+    glUniformMatrix4fv(glGetUniformLocation(mShaderProgram, name.c_str()), 1, GL_FALSE, value_ptr(value));
+}
+
+void Shader::setVec3(const std::string& name, glm::vec3& value) const
+{
+    glUniform3fv(glGetUniformLocation(mShaderProgram, name.c_str()), 1, &value[0]);
+}
+
+void Shader::setVec3(const std::string& name, float x, float y, float z) const
+{
+    glUniform3f(glGetUniformLocation(mShaderProgram, name.c_str()), x, y, z);
 }

@@ -4,20 +4,27 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-#include "../Shader.h"
+#include "src/OpenGL/Shader.h"
 #include "../Primitives.h"
 #include "../Model.h"
 
 class GameObject {
 public:
-    GameObject(glm::vec3 pos, glm::vec3 scale, glm::vec3 color)
-        : position(pos), scale(scale), color(color) {}
+    GameObject(glm::vec3 pos, glm::vec3 scale, Shader* shdr)
+        : position(pos), scale(scale), shader(shdr) {}
 
-    virtual void Draw(Shader& shader) = 0;
+    virtual void Draw() const {
+        shader->use();
+        drawObject();
+    }
+
+    virtual Shader* GetShader() const { return shader; }
 
 protected:
+    virtual void drawObject() const = 0;
+
     glm::vec3 position;
     glm::vec3 scale;
-    glm::vec3 color;
     Model model;
+    Shader* shader;
 };

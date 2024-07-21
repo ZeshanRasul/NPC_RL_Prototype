@@ -15,15 +15,15 @@ static const char* EnemyStateNames[] = {
 class Enemy : public GameObject {
 public:
 
-    Enemy(glm::vec3 pos, glm::vec3 scale, glm::vec3 color, float yaw = 0.0f)
-        : GameObject(pos, scale, color), Yaw(yaw)
+    Enemy(glm::vec3 pos, glm::vec3 scale, Shader* sdr, float yaw = 0.0f)
+        : GameObject(pos, scale, sdr), Yaw(yaw)
     {
         model.LoadModel("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Models/MaleMilitary/MaleMilitary.obj");
         UpdateEnemyCameraVectors();
         UpdateEnemyVectors();
     }
 
-    void Draw(Shader& shader) override;
+    void drawObject() const override;
 
     glm::vec3 getPosition() {
         return position;

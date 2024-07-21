@@ -5,7 +5,7 @@
 #include <glad/glad.h>
 
 #include "../GameObjects/Cell.h"
-#include "../Shader.h"
+#include "src/OpenGL/Shader.h"
 #include "../GameObjects/Enemy.h"
 
 // Create a 100x100 grid

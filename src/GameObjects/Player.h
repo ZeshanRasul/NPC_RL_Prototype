@@ -5,14 +5,14 @@
 
 class Player : public GameObject {
 public:
-    Player(glm::vec3 pos, glm::vec3 scale, glm::vec3 color, float yaw = -90.0f)
-        : GameObject(pos, scale, color), PlayerYaw(yaw)
+    Player(glm::vec3 pos, glm::vec3 scale, Shader* shdr, float yaw = -90.0f)
+        : GameObject(pos, scale, shdr), PlayerYaw(yaw)
     {
         model.LoadModel("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Models/MaleMercenary/MaleMercenary.obj");
         UpdatePlayerVectors();
     }
 
-    void Draw(Shader& shader) override;
+    void drawObject() const override;
 
     glm::vec3 getPosition() {
         return position;

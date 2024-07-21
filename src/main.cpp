@@ -38,27 +38,9 @@ const unsigned int SCREEN_HEIGHT = 720;
 
 
 
-void ShowCameraControlWindow(Camera& cam);
 
 
 
-
-void ShowLightControlWindow(DirLight& light);
-
-
-static glm::vec3 selectRandomWaypoint(const glm::vec3& currentWaypoint, const std::vector<glm::vec3>& allWaypoints) {
-
-    std::vector<glm::vec3> availableWaypoints;
-    for (const auto& wp : allWaypoints) {
-        if (wp != currentWaypoint) {
-            availableWaypoints.push_back(wp);
-        }
-    }
-
-    // Select a random waypoint from the available waypoints
-    int randomIndex = std::rand() % availableWaypoints.size();
-    return availableWaypoints[randomIndex];
-}
 
 int main()
 {
@@ -69,52 +51,8 @@ int main()
     app.run();
 
 
-    ShaderOld shader("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/vertex.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/fragment.glsl");
 
-    ShaderOld lightShader("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/lightVertex.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/lightFragment.glsl");
 
-    ShaderOld gridShader("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/gridVertex.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/gridFragment.glsl");
-
-    
-
-    Material groundMaterial = {
-        glm::vec3(0.1f, 0.85f, 0.12f),
-        glm::vec3(0.1f, 0.85f, 0.12f),
-        glm::vec3(0.2f, 0.2f, 0.2f),
-        8.0f
-    };
-
-    glm::vec3 pointLightPositions[] = {
-        glm::vec3(0.7f,  0.2f,  2.0f),
-        glm::vec3(2.3f, -3.3f, -4.0f),
-        glm::vec3(-4.0f,  2.0f, -12.0f),
-        glm::vec3(0.0f,  0.0f, -3.0f)
-    };
-
-    Player player(snapToGrid(glm::vec3(130.0f, 0.0f, 25.0f)), glm::vec3(0.02f, 0.02f, 0.02f), playerMaterial.diffuse);
-
-    g_player = &player;
-
-    Enemy enemy(snapToGrid(glm::vec3(13.0f, 0.0f, 13.0f)), glm::vec3(0.02f, 0.02f, 0.02f), enemyMaterial.diffuse);
-
-    g_enemy = &enemy;
-
-    Waypoint waypoint1(snapToGrid(waypointPositions[0]), glm::vec3(5.0f, 10.0f, 5.0f), glm::vec3(1.0f, 1.0f, 1.0f));
-    Waypoint waypoint2(snapToGrid(waypointPositions[1]), glm::vec3(5.0f, 10.0f, 5.0f), glm::vec3(1.0f, 1.0f, 1.0f));
-    Waypoint waypoint3(snapToGrid(waypointPositions[2]), glm::vec3(5.0f, 10.0f, 5.0f), glm::vec3(1.0f, 1.0f, 1.0f));
-    Waypoint waypoint4(snapToGrid(waypointPositions[3]), glm::vec3(5.0f, 10.0f, 5.0f), glm::vec3(1.0f, 1.0f, 1.0f));
-
-    Ground ground(glm::vec3(-100.0f, -0.3f, 50.0f), glm::vec3(100.0f, 1.0f, 100.0f), groundMaterial.diffuse);
-    Cell cell;
-    cell.SetUpVAO();
-
-    initializeGrid();
-
-    std::srand(static_cast<unsigned int>(std::time(nullptr)));
-
-    glm::vec3 currentWaypoint = waypointPositions[std::rand() % waypointPositions.size()];
-
-    int currentStateIndex = 0;
 
     // TODO: Begin move to Window Main Loop
 
@@ -135,60 +73,16 @@ int main()
      
 
 
-        // TODO: Begin move to Window  Main Loop
-
-
-        // TODO: Begin move to Renderer Draw
-
-
-        // Start the Dear ImGui frame
-        ImGui_ImplOpenGL3_NewFrame();
-        ImGui_ImplGlfw_NewFrame();
-        ImGui::NewFrame();
-        ShowLightControlWindow(dirLight);
-        ShowCameraControlWindow(camera);
-
-        ImGui::Begin("Player");
-
-        ImGui::InputFloat3("Position", &player.getPosition()[0]);
-        ImGui::InputFloat("Yaw", &player.PlayerYaw);
-
-        ImGui::End();
-
-        ImGui::Begin("Enemy");
-
-        ImGui::InputFloat3("Position", &enemy.getPosition()[0]);
-        ImGui::InputFloat("EnemyCamPitch", &enemy.EnemyCameraPitch);
-        ImGui::InputFloat("EnemyYaw", &enemy.Yaw);
-        ImGui::InputFloat3("EnemyFront", &enemy.Front[0]);
-
-
-        if (enemy.state == PATROL)
-            currentStateIndex = 0;
-        if (enemy.state == ATTACK)
-            currentStateIndex = 1;
-
-        if (ImGui::Combo("Enemy States", &currentStateIndex, EnemyStateNames, 2))
-        {
-            enemy.state = static_cast<EnemyState>(currentStateIndex);
-        }
-
-        ImGui::End();
-
-        // TODO: End move to Renderer Draw
-
-
-        //if (camera.Mode == PLAYER_FOLLOW)
-        //    player.PlayerProcessMouseMovement(xOfst);
-
-
         // TODO: Begin move to Renderer Draw
 
 
 
-        shader.use();
 
         // TODO: End move to Renderer Draw
+
+
+
+
 
 
         // TODO: Begin move to Enemy Update
@@ -268,106 +162,6 @@ int main()
 
         // TODO: End move to Enemy Update
 
-        // TODO: Begin move to Renderer Draw
-
-        shader.setMat4("view", view);
-        shader.setMat4("proj", projection);
-
-        // Render
-        glClearColor(0.2f, 0.3f, 0.1f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-        shader.setVec3("material.ambient", playerMaterial.ambient);
-        shader.setVec3("material.diffuse", playerMaterial.diffuse);
-        shader.setVec3("material.specular", playerMaterial.specular);
-        shader.setFloat("material.shininess", playerMaterial.shininess);
-
-        shader.setVec3("dirLight.direction", dirLight.direction);
-        shader.setVec3("dirLight.ambient", dirLight.ambient);
-        shader.setVec3("dirLight.diffuse", dirLight.diffuse);
-        shader.setVec3("dirLight.specular", dirLight.specular);
-
-        shader.setVec3("pointLights[0].position", pointLightPositions[0]);
-        shader.setVec3("pointLights[0].ambient", 0.05f, 0.05f, 0.05f);
-        shader.setVec3("pointLights[0].diffuse", 0.8f, 0.8f, 0.8f);
-        shader.setVec3("pointLights[0].specular", 1.0f, 1.0f, 1.0f);
-        shader.setFloat("pointLights[0].constant", 1.0f);
-        shader.setFloat("pointLights[0].linear", 0.09f);
-        shader.setFloat("pointLights[0].quadratic", 0.032f);
-
-        shader.setVec3("pointLights[1].position", pointLightPositions[1]);
-        shader.setVec3("pointLights[1].ambient", 0.05f, 0.05f, 0.05f);
-        shader.setVec3("pointLights[1].diffuse", 0.8f, 0.8f, 0.8f);
-        shader.setVec3("pointLights[1].specular", 1.0f, 1.0f, 1.0f);
-        shader.setFloat("pointLights[1].constant", 1.0f);
-        shader.setFloat("pointLights[1].linear", 0.09f);
-        shader.setFloat("pointLights[1].quadratic", 0.032f);
-
-        shader.setVec3("pointLights[2].position", pointLightPositions[2]);
-        shader.setVec3("pointLights[2].ambient", 0.05f, 0.05f, 0.05f);
-        shader.setVec3("pointLights[2].diffuse", 0.8f, 0.8f, 0.8f);
-        shader.setVec3("pointLights[2].specular", 1.0f, 1.0f, 1.0f);
-        shader.setFloat("pointLights[2].constant", 1.0f);
-        shader.setFloat("pointLights[2].linear", 0.09f);
-        shader.setFloat("pointLights[2].quadratic", 0.032f);
-
-        shader.setVec3("pointLights[3].position", pointLightPositions[3]);
-        shader.setVec3("pointLights[3].ambient", 0.05f, 0.05f, 0.05f);
-        shader.setVec3("pointLights[3].diffuse", 0.8f, 0.8f, 0.8f);
-        shader.setVec3("pointLights[3].specular", 1.0f, 1.0f, 1.0f);
-        shader.setFloat("pointLights[3].constant", 1.0f);
-        shader.setFloat("pointLights[3].linear", 0.09f);
-        shader.setFloat("pointLights[3].quadratic", 0.032f);
-
-        shader.setVec3("spotLight.position", camera.Position);
-        shader.setVec3("spotLight.direction", camera.Front);
-        shader.setVec3("spotLight.ambient", 0.0f, 0.0f, 0.0f);
-        shader.setVec3("spotLight.diffuse", 1.0f, 1.0f, 1.0f);
-        shader.setVec3("spotLight.specular", 1.0f, 1.0f, 1.0f);
-        shader.setFloat("spotLight.constant", 1.0f);
-        shader.setFloat("spotLight.linear", 0.09f);
-        shader.setFloat("spotLight.quadratic", 0.032f);
-        shader.setFloat("spotLight.cutOff", glm::cos(glm::radians(1.5f)));
-        shader.setFloat("spotLight.outerCutOff", glm::cos(glm::radians(5.0f)));
-        shader.setVec3("viewPos", camera.Position);
-
-        waypoint1.Draw(shader);
-        waypoint2.Draw(shader);
-        waypoint3.Draw(shader);
-        waypoint4.Draw(shader);
-
-        player.Draw(shader);
-
-        shader.setVec3("material.ambient", enemyMaterial.ambient);
-        shader.setVec3("material.diffuse", enemyMaterial.diffuse);
-        shader.setVec3("material.specular", enemyMaterial.specular);
-        shader.setFloat("material.shininess", enemyMaterial.shininess);
-
-        enemy.Draw(shader);
-
-        shader.setVec3("material.ambient", groundMaterial.ambient);
-        shader.setVec3("material.diffuse", groundMaterial.diffuse);
-        shader.setVec3("material.specular", groundMaterial.specular);
-        shader.setFloat("material.shininess", groundMaterial.shininess);
-
-
-        glm::mat4 model3 = glm::mat4(1.0f);
-        model3 = glm::translate(model3, glm::vec3(-4.5f, 0.0f, -7.5f));
-        //model = glm::rotate(model, glm::radians(15.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-        model3 = glm::scale(model3, glm::vec3(100.0f, 1.0f, 100.0f));
-        shader.setMat4("model", model3);
-
-        //        ground.Draw(shader);
-
-        gridShader.use();
-        gridShader.setMat4("view", view);
-        gridShader.setMat4("proj", projection);
-
-        cell.BindVAO();
-
-        drawGrid(gridShader);
-
-        glBindVertexArray(0);
 
         // TODO: End move to Renderer Draw
 
@@ -376,67 +170,15 @@ int main()
 
         // TODO: Begin move to Window Main Loop
 
-        ImGui::Render();
-        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
-        glfwSwapBuffers(window);
-        glfwPollEvents();
 
         // TODO: End move to Window Main Loop
 
     }
-
-    window->cleanup();
+    
     return 0;
 }
 
 
-void ShowLightControlWindow(DirLight& light)
-{
-    ImGui::Begin("Directional Light Control");
 
-    // Light direction control
-    ImGui::Text("Light Direction");
-    ImGui::DragFloat3("Direction", (float*)&light.direction, dirLight.direction.x, dirLight.direction.y, dirLight.direction.z);
-
-    // Ambient color picker
-    ImGui::ColorEdit4("Ambient", (float*)&light.ambient);
-
-    // Diffuse color picker
-    ImGui::ColorEdit4("Diffuse", (float*)&light.diffuse);
-
-    // Specular color picker
-    ImGui::ColorEdit4("Specular", (float*)&light.specular);
-
-    ImGui::End();
-}
-
-void ShowCameraControlWindow(Camera& cam)
-{
-    ImGui::Begin("Camera Control");
-
-    std::string modeText = "";
-
-    if (camera.Mode == FLY)
-    {
-        modeText = "Flycam";
- 
-
-        camera.UpdateCameraVectors();
-    }
-    else if (camera.Mode == PLAYER_FOLLOW)
-        modeText = "Player Follow";
-    else if (camera.Mode == ENEMY_FOLLOW)
-        modeText = "Enemy Follow";
-
-    ImGui::Text(modeText.c_str());
-
-    ImGui::InputFloat3("Position", (float*)&cam.Position);
-
-    ImGui::InputFloat("Pitch", (float*)&cam.Pitch);
-    ImGui::InputFloat("Yaw", (float*)&cam.Yaw);
-    ImGui::InputFloat("Zoom", (float*)&cam.Zoom);
-
-    ImGui::End();
-}
 

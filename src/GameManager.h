@@ -9,6 +9,7 @@
 #include "src/Camera.h"
 #include "GameObjects/Player.h"
 #include "GameObjects/Enemy.h"
+#include "GameObjects/Waypoint.h"
 #include "src/Pathfinding/Grid.h"
 
 DirLight dirLight = {
@@ -32,6 +33,21 @@ std::vector<glm::vec3> waypointPositions = {
     snapToGrid(glm::vec3(30.0f, 0.0f, 90.0f))
 };
 
+static glm::vec3 selectRandomWaypoint(const glm::vec3& currentWaypoint, const std::vector<glm::vec3>& allWaypoints) {
+
+    std::vector<glm::vec3> availableWaypoints;
+    for (const auto& wp : allWaypoints) {
+        if (wp != currentWaypoint) {
+            availableWaypoints.push_back(wp);
+        }
+    }
+
+    // Select a random waypoint from the available waypoints
+    int randomIndex = std::rand() % availableWaypoints.size();
+    return availableWaypoints[randomIndex];
+}
+
+
 class GameManager {
 public:
     GameManager(Window* window, unsigned int width, unsigned int height);
@@ -44,12 +60,18 @@ public:
     }
 
     void setupCamera(unsigned int width, unsigned int height);
+    void setSceneData();
+
 
     void update(float deltaTime);
 
     void render();
 
 private:
+    void showDebugUI();
+    void ShowCameraControlWindow(Camera& cam);
+    void ShowLightControlWindow(DirLight& light);
+
     Renderer* renderer;
     Window* window;
     Camera* camera;
@@ -58,6 +80,21 @@ private:
     InputManager* inputManager;
     std::vector<GameObject*> gameObjects;
 
+    Shader playerShader{};
+    Shader enemyShader{};
+    Shader gridShader{};
+
     glm::mat4 view = glm::mat4(1.0f);
     glm::mat4 projection = glm::mat4(1.0f);
+
+    Cell cell;
+
+    glm::vec3 currentWaypoint;
+
+    Waypoint* waypoint1;
+    Waypoint* waypoint2;
+    Waypoint* waypoint3;
+    Waypoint* waypoint4;
+
+    int currentStateIndex = 0;
 };

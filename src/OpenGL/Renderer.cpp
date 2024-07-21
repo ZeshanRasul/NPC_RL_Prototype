@@ -36,17 +36,30 @@ bool Renderer::init(unsigned int width, unsigned int height)
 	return false;
 }
 
-void Renderer::setupCamera(Camera& camera)
+void Renderer::setScene(glm::mat4 viewMat, glm::mat4 proj, DirLight light)
 {
-
+	view = viewMat;
+	projection = proj;
+	sun = light;
 }
 
 void Renderer::draw(GameObject* gameObj)
 {
+	Shader* shader = gameObj->GetShader();
+	shader->use();
+	shader->setMat4("view", view);
+	shader->setMat4("projection", projection);
+	shader->setVec3("dirLight.direction", sun.direction);
+	shader->setVec3("dirLight.ambient", sun.ambient);
+	shader->setVec3("dirLight.diffuse", sun.diffuse);
+	shader->setVec3("dirLight.specular", sun.specular);
+
+	gameObj->Draw();
 }
 
 void Renderer::clear()
 {
+	glClearColor(0.2f, 0.3f, 0.1f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
