@@ -82,12 +82,15 @@ void GameManager::setSceneData()
     renderer->setScene(view, projection, dirLight);
 }
 
-void GameManager::showDebugUI()
+void GameManager::setUpDebugUI()
 {
-    // Start the Dear ImGui frame
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
+}
+
+void GameManager::showDebugUI()
+{
     ShowLightControlWindow(dirLight);
     ShowCameraControlWindow(*camera);
 
@@ -120,6 +123,12 @@ void GameManager::showDebugUI()
 
     ShowLightControlWindow(dirLight);
     ShowCameraControlWindow(*camera);
+}
+
+void GameManager::renderDebugUI()
+{
+    ImGui::Render();
+    ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
 
 void GameManager::ShowLightControlWindow(DirLight& light)

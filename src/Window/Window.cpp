@@ -64,9 +64,6 @@ void Window::mainLoop()
 {
     glfwSwapBuffers(mWindow);
     glfwPollEvents();
-
-    ImGui::Render();
-    ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
 
 void Window::setInputManager(InputManager* inputManager)

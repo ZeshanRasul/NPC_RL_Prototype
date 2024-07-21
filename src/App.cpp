@@ -26,13 +26,15 @@ void App::run()
         deltaTime = currentFrame - lastFrame;
         lastFrame = currentFrame;
 
+        mGameManager->setUpDebugUI();
+        mGameManager->showDebugUI();
         mWindow->clear();
 
-        mGameManager->showDebugUI();
         mGameManager->setupCamera(width, height);
         mGameManager->update(deltaTime);
         mGameManager->render();
 
+        mGameManager->renderDebugUI();
         mWindow->mainLoop();
     }
 }

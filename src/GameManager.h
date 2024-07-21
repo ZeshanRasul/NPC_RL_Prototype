@@ -31,7 +31,9 @@ public:
 
     void render();
 
+    void setUpDebugUI();
     void showDebugUI();
+    void renderDebugUI();
 private:
     void ShowCameraControlWindow(Camera& cam);
     void ShowLightControlWindow(DirLight& light);

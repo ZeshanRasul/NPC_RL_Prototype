@@ -14,10 +14,15 @@ static const char* EnemyStateNames[] = {
     "Attack"
 };
 
-static std::vector<glm::vec3> waypointPositions = {};
 
 static glm::vec3 snapToGrid(const glm::vec3& position);
 
+static std::vector<glm::vec3> waypointPositions = {
+            snapToGrid(glm::vec3(0.0f, 0.0f, 0.0f)),
+            snapToGrid(glm::vec3(0.0f, 0.0f, 90.0f)),
+            snapToGrid(glm::vec3(30.0f, 0.0f, 0.0f)),
+            snapToGrid(glm::vec3(30.0f, 0.0f, 90.0f))
+};
 static glm::vec3 selectRandomWaypoint(const glm::vec3& currentWaypoint, const std::vector<glm::vec3>& allWaypoints) {
 
     std::vector<glm::vec3> availableWaypoints;
@@ -40,14 +45,7 @@ public:
     {
 //        model.LoadModel("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Models/MaleMilitary/MaleMilitary.obj");
         UpdateEnemyCameraVectors();
-        UpdateEnemyVectors();
-
-        waypointPositions = { 
-            snapToGrid(glm::vec3(0.0f, 0.0f, 0.0f)),
-            snapToGrid(glm::vec3(0.0f, 0.0f, 90.0f)),
-            snapToGrid(glm::vec3(30.0f, 0.0f, 0.0f)),
-            snapToGrid(glm::vec3(30.0f, 0.0f, 90.0f))
-        }; 
+        UpdateEnemyVectors(); 
 
         currentWaypoint = waypointPositions[std::rand() % waypointPositions.size()];
     }
