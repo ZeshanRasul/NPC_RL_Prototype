@@ -30,84 +30,21 @@
 #include "Primitives.h"
 
 
-void handlePlayerMovement(GLFWwindow* window, Player& player, Camera& camera, float deltaTime);
-
 
 const unsigned int SCREEN_WIDTH = 960;
 const unsigned int SCREEN_HEIGHT = 720;
 
-float deltaTime = 0.0f;
-float lastFrame = 0.0f;
-float currentFrame = 0.0f;
 
 
-Camera camera(glm::vec3(50.0f, 3.0f, 80.0f));
+
 
 void ShowCameraControlWindow(Camera& cam);
 
-float xOfst = 0.0f;
 
-struct Material {
-    glm::vec3 ambient;
-    glm::vec3 diffuse;
-    glm::vec3 specular;
-    float shininess;
-};
 
-glm::vec3 snapToGrid(const glm::vec3& position) {
-    int gridX = static_cast<int>(position.x / CELL_SIZE);
-    int gridZ = static_cast<int>(position.z / CELL_SIZE);
-    return glm::vec3(gridX * CELL_SIZE + CELL_SIZE / 2.0f, position.y, gridZ * CELL_SIZE + CELL_SIZE / 2.0f);
-}
-
-struct DirLight {
-    glm::vec3 direction;
-
-    glm::vec3 ambient;
-    glm::vec3 diffuse;
-    glm::vec3 specular;
-};
 
 void ShowLightControlWindow(DirLight& light);
 
-
-struct PointLight {
-    glm::vec3 position;
-
-    float constant;
-    float linear;
-    float quadratic;
-
-    glm::vec3 ambient;
-    glm::vec3 diffuse;
-    glm::vec3 specular;
-};
-
-struct SpotLight {
-    glm::vec3 position;
-    glm::vec3 direction;
-    float cutoff;
-    float outerCutoff;
-
-    glm::vec3 ambient;
-    glm::vec3 diffuse;
-    glm::vec3 specular;
-};
-
-DirLight dirLight = {
-        glm::vec3(-0.2f, -1.0f, -0.3f),
-
-        glm::vec3(0.15f, 0.15f, 0.15f),
-        glm::vec3(0.4f),
-        glm::vec3(0.1f, 0.1f, 0.1f)
-};
-
-std::vector<glm::vec3> waypointPositions = {
-    snapToGrid(glm::vec3(0.0f, 0.0f, 0.0f)),
-    snapToGrid(glm::vec3(0.0f, 0.0f, 90.0f)),
-    snapToGrid(glm::vec3(30.0f, 0.0f, 0.0f)),
-    snapToGrid(glm::vec3(30.0f, 0.0f, 90.0f))
-};
 
 static glm::vec3 selectRandomWaypoint(const glm::vec3& currentWaypoint, const std::vector<glm::vec3>& allWaypoints) {
 
@@ -138,8 +75,7 @@ int main()
 
     ShaderOld gridShader("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/gridVertex.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/gridFragment.glsl");
 
-    glm::mat4 view;
-    glm::mat4 projection;
+    
 
     Material groundMaterial = {
         glm::vec3(0.1f, 0.85f, 0.12f),
@@ -156,14 +92,10 @@ int main()
     };
 
     Player player(snapToGrid(glm::vec3(130.0f, 0.0f, 25.0f)), glm::vec3(0.02f, 0.02f, 0.02f), playerMaterial.diffuse);
-    float playerCamRearOffset = 15.0f;
-    float playerCamHeightOffset = 5.0f;
 
     g_player = &player;
 
     Enemy enemy(snapToGrid(glm::vec3(13.0f, 0.0f, 13.0f)), glm::vec3(0.02f, 0.02f, 0.02f), enemyMaterial.diffuse);
-    float enemyCamRearOffset = 15.0f;
-    float enemyCamHeightOffset = 5.0f;
 
     g_enemy = &enemy;
 
@@ -190,9 +122,7 @@ int main()
     // Render loop
     while (!glfwWindowShouldClose(window))
     {
-        currentFrame = (float)glfwGetTime();
-        deltaTime = currentFrame - lastFrame;
-        lastFrame = currentFrame;
+        
 
 
 
@@ -251,25 +181,10 @@ int main()
         //if (camera.Mode == PLAYER_FOLLOW)
         //    player.PlayerProcessMouseMovement(xOfst);
 
-        handlePlayerMovement(window, player, camera, deltaTime);
 
         // TODO: Begin move to Renderer Draw
 
 
-        if (camera.Mode == PLAYER_FOLLOW)
-        {
-            camera.FollowTarget(player.getPosition(), player.PlayerFront, playerCamRearOffset, playerCamHeightOffset);
-            view = camera.GetViewMatrixPlayerFollow(player.getPosition(), glm::vec3(0.0f, 1.0f, 0.0f));
-        }
-        else if (camera.Mode == ENEMY_FOLLOW)
-        {
-            camera.FollowTarget(enemy.getPosition(), enemy.EnemyFront, enemyCamRearOffset, enemyCamHeightOffset);
-            view = camera.GetViewMatrixEnemyFollow(enemy.getPosition(), glm::vec3(0.0f, 1.0f, 0.0f));
-        }
-        else if (camera.Mode == FLY)
-            view = camera.GetViewMatrix();
-
-        projection = glm::perspective(glm::radians(camera.Zoom), (float)SCREEN_WIDTH / (float)SCREEN_HEIGHT, 0.1f, 100.0f);
 
         shader.use();
 
@@ -525,22 +440,3 @@ void ShowCameraControlWindow(Camera& cam)
     ImGui::End();
 }
 
-void handlePlayerMovement(GLFWwindow* window, Player& player, Camera& camera, float deltaTime)
-{
-    if (camera.Mode == PLAYER_FOLLOW)
-    {
-        if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-        {
-            player.PlayerYaw = camera.Yaw;
-            player.UpdatePlayerVectors();
-            player.PlayerProcessKeyboard(FORWARD, deltaTime);
-        }
-        if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-            player.PlayerProcessKeyboard(BACKWARD, deltaTime);
-        if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-            player.PlayerProcessKeyboard(LEFT, deltaTime);
-        if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-            player.PlayerProcessKeyboard(RIGHT, deltaTime);
-
-    }
-}

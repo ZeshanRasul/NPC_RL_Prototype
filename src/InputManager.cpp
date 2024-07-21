@@ -95,6 +95,8 @@ void InputManager::processInput(GLFWwindow* window, float deltaTime)
         if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
             camera->ProcessKeyboard(RIGHT, deltaTime);
     }
+
+    handlePlayerMovement(window, *player, *camera, deltaTime);
 }
 
 void InputManager::setContext(Camera* cam, Player* plyr, Enemy* enmy, unsigned int width, unsigned int height)
@@ -105,4 +107,24 @@ void InputManager::setContext(Camera* cam, Player* plyr, Enemy* enmy, unsigned i
 
     lastX = width / 2.0f;
     lastY = height / 2.0f;
+}
+
+void InputManager::handlePlayerMovement(GLFWwindow* window, Player& player, Camera& camera, float deltaTime)
+{
+    if (camera.Mode == PLAYER_FOLLOW)
+    {
+        if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+        {
+            player.PlayerYaw = camera.Yaw;
+            player.UpdatePlayerVectors();
+            player.PlayerProcessKeyboard(FORWARD, deltaTime);
+        }
+        if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+            player.PlayerProcessKeyboard(BACKWARD, deltaTime);
+        if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+            player.PlayerProcessKeyboard(LEFT, deltaTime);
+        if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+            player.PlayerProcessKeyboard(RIGHT, deltaTime);
+
+    }
 }

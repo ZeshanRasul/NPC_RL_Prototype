@@ -21,10 +21,14 @@ App::~App()
 void App::run()
 {
     while (mWindow->isOpen()) {
+        currentFrame = (float)glfwGetTime();
+        deltaTime = currentFrame - lastFrame;
+        lastFrame = currentFrame;
+
         mWindow->clear();
 
-        // TODO: Update deltaTime arg
-        mGameManager->update(1.0f/60.0f);
+        mGameManager->setupCamera(width, height);
+        mGameManager->update(deltaTime);
         mGameManager->render();
 
         mWindow->mainLoop();

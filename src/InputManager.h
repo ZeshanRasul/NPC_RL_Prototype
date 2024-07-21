@@ -29,6 +29,8 @@ public:
     void handleMouseMovement(double xpos, double ypos);
     void handleMouseScroll(double xOffset, double yOffset);
     void processInput(GLFWwindow* window, float deltaTime);
+    void handlePlayerMovement(GLFWwindow* window, Player& player, Camera& camera, float deltaTime);
+
 
     void setContext(Camera* cam, Player* plyr, Enemy* enmy, unsigned int width, unsigned int height);
 

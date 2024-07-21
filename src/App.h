@@ -18,4 +18,8 @@ private:
 
 	unsigned int width;
 	unsigned int height;
+
+	float deltaTime = 0.0f;
+	float lastFrame = 0.0f;
+	float currentFrame = 0.0f;
 };

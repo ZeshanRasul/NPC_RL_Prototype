@@ -36,7 +36,12 @@ bool Renderer::init(unsigned int width, unsigned int height)
 	return false;
 }
 
-void Renderer::draw()
+void Renderer::setupCamera(Camera& camera)
+{
+
+}
+
+void Renderer::draw(GameObject* gameObj)
 {
 }
 
