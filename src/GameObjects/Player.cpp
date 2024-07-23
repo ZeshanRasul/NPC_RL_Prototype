@@ -8,6 +8,9 @@ void Player::drawObject() const
     modelMat = glm::scale(modelMat, scale);
     shader->setMat4("model", modelMat);
 
+    model->uploadVertexBuffers();
+    model->draw();
+
     // Draw TODO: Update for GLTF
 //    model.Draw(shader);
 }

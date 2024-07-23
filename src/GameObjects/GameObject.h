@@ -7,6 +7,8 @@
 #include "src/OpenGL/Shader.h"
 #include "../Primitives.h"
 #include "../Model.h"
+#include "Model/GltfModel.h"
+#include "RenderData.h"
 
 class GameObject {
 public:
@@ -26,5 +28,7 @@ protected:
     glm::vec3 position;
     glm::vec3 scale;
  //   Model model;
-    Shader* shader;
+    std::shared_ptr<GltfModel> model = nullptr;;
+    Shader* shader = nullptr;
+    RenderData renderData;
 };

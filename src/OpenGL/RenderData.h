@@ -58,4 +58,6 @@ struct RenderData {
 
 	int rdWidth = 0;
 	int rdHeight = 0;
+
+	unsigned int rdGltfTriangleCount = 0;
 };

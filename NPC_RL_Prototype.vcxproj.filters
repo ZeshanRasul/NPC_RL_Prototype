@@ -15,9 +15,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\glad.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\ShaderOld.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -103,6 +100,15 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\InputManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Model\GltfModel.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\tinygltf\tiny_gltf.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\glad.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -206,21 +212,33 @@
     <ClInclude Include="src\InputManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\Model\GltfModel.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\tinygltf\tiny_gltf.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\tinygltf\json.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\stb_image_write.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="src\Shaders\vertex.glsl" />
     <None Include="src\Shaders\fragment.glsl" />
     <None Include="src\Shaders\lightVertex.glsl" />
     <None Include="src\Shaders\lightFragment.glsl" />
-    <None Include="src\Models\backpack\backpack.mtl" />
+    <None Include="src\Assets\Models\backpack\backpack.mtl" />
     <None Include="src\Shaders\gridVertex.glsl" />
     <None Include="src\Shaders\gridFragment.glsl" />
   </ItemGroup>
   <ItemGroup>
-    <Image Include="src\Models\backpack\specular.jpg">
+    <Image Include="src\Assets\Models\backpack\specular.jpg">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="src\Models\backpack\diffuse.jpg">
+    <Image Include="src\Assets\Models\backpack\diffuse.jpg">
       <Filter>Resource Files</Filter>
     </Image>
   </ItemGroup>

@@ -12,9 +12,6 @@
 #include "imgui/backend/imgui_impl_glfw.h"
 #include "imgui/backend/imgui_impl_opengl3.h"
 
-#define STB_IMAGE_IMPLEMENTATION
-#include <stb_image.h>
-
 #include "App.h"
 
 #include "Window/Window.h"
