@@ -31,7 +31,7 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 
     camera = new Camera(glm::vec3(50.0f, 3.0f, 80.0f));
     player = new Player(snapToGrid(glm::vec3(130.0f, 0.0f, 25.0f)), glm::vec3(1.0f), &playerShader);
-    enemy = new Enemy(snapToGrid(glm::vec3(13.0f, 0.0f, 13.0f)), glm::vec3(0.02f, 0.02f, 0.02f), &enemyShader);
+    enemy = new Enemy(snapToGrid(glm::vec3(13.0f, 0.0f, 13.0f)), glm::vec3(1.0f), &enemyShader);
 
     inputManager->setContext(camera, player, enemy, width, height);
 

@@ -10,9 +10,6 @@ void Player::drawObject() const
 
     model->uploadVertexBuffers();
     model->draw();
-
-    // Draw TODO: Update for GLTF
-//    model.Draw(shader);
 }
 
 void Player::Update(float dt) 

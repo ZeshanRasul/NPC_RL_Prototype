@@ -34,7 +34,7 @@ public:
 	glm::vec3 WorldUp;
 	glm::vec3 Offset;
 
-	CameraMode Mode = PLAYER_FOLLOW;
+	CameraMode Mode = ENEMY_FOLLOW;
 
 	float Yaw;
 	float Pitch;

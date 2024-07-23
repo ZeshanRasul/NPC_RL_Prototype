@@ -43,11 +43,27 @@ public:
     Enemy(glm::vec3 pos, glm::vec3 scale, Shader* sdr, float yaw = 0.0f)
         : GameObject(pos, scale, sdr), Yaw(yaw)
     {
-//        model.LoadModel("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Models/MaleMilitary/MaleMilitary.obj");
+        model = std::make_shared<GltfModel>();
+
+        std::string modelFilename = "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Models/GLTF/Woman/Woman.gltf";
+        std::string modelTextureFilename = "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Models/GLTF/Woman/Woman2.png";
+
+        if (!model->loadModel(renderData, modelFilename, modelTextureFilename)) {
+            Logger::log(1, "%s: loading glTF model '%s' failed\n", __FUNCTION__, modelFilename.c_str());
+        }
+
+        model->uploadIndexBuffer();
+        Logger::log(1, "%s: glTF model '%s' succesfully loaded\n", __FUNCTION__, modelFilename.c_str());
+
         UpdateEnemyCameraVectors();
         UpdateEnemyVectors(); 
 
         currentWaypoint = waypointPositions[std::rand() % waypointPositions.size()];
+    }
+
+    ~Enemy() 
+    {
+        model->cleanup();
     }
 
     void drawObject() const override;
