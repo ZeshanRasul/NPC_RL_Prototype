@@ -8,6 +8,7 @@
 #include "Texture.h"
 
 #include "src/OpenGL/RenderData.h"
+#include "Model/GltfNode.h"
 
 class GltfModel {
 public:
@@ -23,6 +24,7 @@ private:
     void createIndexBuffer();
     int getTriangleCount();
 
+    std::shared_ptr<GltfNode> mRootNode = nullptr;
     std::shared_ptr<tinygltf::Model> mModel = nullptr;
 
     GLuint mVAO = 0;

@@ -26,14 +26,11 @@
 #include "Pathfinding/Grid.h"
 #include "Primitives.h"
 
-
-
 const unsigned int SCREEN_WIDTH = 1280;
 const unsigned int SCREEN_HEIGHT = 960;
 
 int main()
 {
-    // TODO: App init
     App app(SCREEN_WIDTH, SCREEN_HEIGHT);
 
     app.run();
