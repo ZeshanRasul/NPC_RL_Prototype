@@ -5,11 +5,12 @@ void Enemy::drawObject() const
 {
 	glm::mat4 modelMat = glm::mat4(1.0f);
 	modelMat = glm::translate(modelMat, position);
-	modelMat = glm::rotate(modelMat, glm::radians(-Yaw), glm::vec3(0.0f, 1.0f, 0.0f));
+	modelMat = glm::rotate(modelMat, glm::radians(-Yaw + 90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 	modelMat = glm::scale(modelMat, scale);
 	shader->setMat4("model", modelMat);
 
     model->uploadVertexBuffers();
+    model->uploadPositionBuffer();
     model->draw();
 }
 
@@ -17,7 +18,7 @@ void Enemy::Update(float dt, Player& player)
 {
     float playerEnemyDistance = glm::distance(getPosition(), player.getPosition());
 
-    if (playerEnemyDistance < 15.0f)
+    if (playerEnemyDistance < 35.0f)
     {
         SetEnemyState(ATTACK);
     }
@@ -78,7 +79,7 @@ void Enemy::Update(float dt, Player& player)
             grid
         );
 
-        //std::cout << "Moving to Player destination" << std::endl;
+        std::cout << "Moving to Player destination" << std::endl;
 
         moveEnemy(path, dt);
 

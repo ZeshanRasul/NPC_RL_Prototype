@@ -12,8 +12,10 @@
 
 class GameObject {
 public:
-    GameObject(glm::vec3 pos, glm::vec3 scale, Shader* shdr)
-        : position(pos), scale(scale), shader(shdr) {}
+    GameObject(glm::vec3 pos, glm::vec3 scale, Shader* shdr, bool applySkinning)
+        : position(pos), scale(scale), shader(shdr), toSkin(applySkinning) {}
+
+    void ApplySkinning() { model->applyVertexSkinning(toSkin); }
 
     virtual void Draw() const {
         shader->use();
@@ -27,7 +29,7 @@ protected:
 
     glm::vec3 position;
     glm::vec3 scale;
- //   Model model;
+    bool toSkin;
     std::shared_ptr<GltfModel> model = nullptr;;
     Shader* shader = nullptr;
     RenderData renderData;

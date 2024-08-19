@@ -54,6 +54,7 @@ void Renderer::draw(GameObject* gameObj)
 	shader->setVec3("dirLight.diffuse", sun.diffuse);
 	shader->setVec3("dirLight.specular", sun.specular);
 
+	gameObj->ApplySkinning();
 	gameObj->Draw();
 }
 

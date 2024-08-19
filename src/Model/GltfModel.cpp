@@ -42,7 +42,6 @@ bool GltfModel::loadModel(RenderData& renderData,
     glGenVertexArrays(1, &mVAO);
     glBindVertexArray(mVAO);
 
-    /* extract position, normal, texture coords, and indices */
     createVertexBuffers();
     createIndexBuffer();
 
@@ -71,6 +70,7 @@ bool GltfModel::loadModel(RenderData& renderData,
 void GltfModel::createVertexBuffers() {
     const tinygltf::Primitive& primitives = mModel->meshes.at(0).primitives.at(0);
     mVertexVBO.resize(primitives.attributes.size());
+    mAttribAccessors.resize(primitives.attributes.size());
 
     for (const auto& attrib : primitives.attributes) {
         const std::string attribType = attrib.first;
@@ -85,6 +85,17 @@ void GltfModel::createVertexBuffers() {
             Logger::log(1, "%s: skipping attribute type %s\n", __FUNCTION__, attribType.c_str());
             continue;
         }
+
+        Logger::log(1, "%s: data for %s uses accessor %i\n", __FUNCTION__, attribType.c_str(),
+            accessorNum);
+        if (attribType.compare("POSITION") == 0) {
+            int numPositionEntries = accessor.count;
+            mAlteredPositions.resize(numPositionEntries);
+            Logger::log(1, "%s: loaded %i vertices from glTF file\n", __FUNCTION__,
+                numPositionEntries);
+        }
+
+        mAttribAccessors.at(attributes.at(attribType)) = accessorNum;
 
         int dataSize = 1;
         switch (accessor.type) {
@@ -148,6 +159,17 @@ void GltfModel::uploadVertexBuffers() {
             &buffer.data.at(0) + bufferView.byteOffset, GL_STATIC_DRAW);
         glBindBuffer(GL_ARRAY_BUFFER, 0);
     }
+}
+
+void GltfModel::uploadPositionBuffer() {
+    const tinygltf::Accessor& accessor = mModel->accessors.at(mAttribAccessors.at(0));
+    const tinygltf::BufferView& bufferView = mModel->bufferViews.at(accessor.bufferView);
+    const tinygltf::Buffer& buffer = mModel->buffers.at(bufferView.buffer);
+
+    glBindBuffer(GL_ARRAY_BUFFER, mVertexVBO.at(0));
+    glBufferData(GL_ARRAY_BUFFER, bufferView.byteLength,
+        mAlteredPositions.data(), GL_STATIC_DRAW);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
 void GltfModel::uploadIndexBuffer() {

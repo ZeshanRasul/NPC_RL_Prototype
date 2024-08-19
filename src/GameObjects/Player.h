@@ -8,8 +8,8 @@
 
 class Player : public GameObject {
 public:
-    Player(glm::vec3 pos, glm::vec3 scale, Shader* shdr, float yaw = -90.0f)
-        : GameObject(pos, scale, shdr), PlayerYaw(yaw)
+    Player(glm::vec3 pos, glm::vec3 scale, Shader* shdr, bool applySkinning, float yaw = -90.0f)
+        : GameObject(pos, scale, shdr, applySkinning), PlayerYaw(yaw)
     {
         model = std::make_shared<GltfModel>();
 

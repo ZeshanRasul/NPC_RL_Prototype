@@ -30,15 +30,15 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
     // TODO: Initialise Game Objects
 
     camera = new Camera(glm::vec3(50.0f, 3.0f, 80.0f));
-    player = new Player(snapToGrid(glm::vec3(130.0f, 0.0f, 25.0f)), glm::vec3(1.0f), &playerShader);
-    enemy = new Enemy(snapToGrid(glm::vec3(13.0f, 0.0f, 13.0f)), glm::vec3(1.0f), &enemyShader);
+    player = new Player(snapToGrid(glm::vec3(130.0f, 0.0f, 25.0f)), glm::vec3(1.0f), &playerShader, true);
+    enemy = new Enemy(snapToGrid(glm::vec3(13.0f, 0.0f, 13.0f)), glm::vec3(1.0f), &enemyShader, true);
 
     inputManager->setContext(camera, player, enemy, width, height);
 
-    waypoint1 = new Waypoint(snapToGrid(waypointPositions[0]), glm::vec3(5.0f, 10.0f, 5.0f), &gridShader);
-    waypoint2 = new Waypoint(snapToGrid(waypointPositions[1]), glm::vec3(5.0f, 10.0f, 5.0f), &gridShader);
-    waypoint3 = new Waypoint(snapToGrid(waypointPositions[2]), glm::vec3(5.0f, 10.0f, 5.0f), &gridShader);
-    waypoint4 = new Waypoint(snapToGrid(waypointPositions[3]), glm::vec3(5.0f, 10.0f, 5.0f), &gridShader);
+ /*   waypoint1 = new Waypoint(snapToGrid(waypointPositions[0]), glm::vec3(5.0f, 10.0f, 5.0f), &gridShader, false);
+    waypoint2 = new Waypoint(snapToGrid(waypointPositions[1]), glm::vec3(5.0f, 10.0f, 5.0f), &gridShader, false);
+    waypoint3 = new Waypoint(snapToGrid(waypointPositions[2]), glm::vec3(5.0f, 10.0f, 5.0f), &gridShader, false);
+    waypoint4 = new Waypoint(snapToGrid(waypointPositions[3]), glm::vec3(5.0f, 10.0f, 5.0f), &gridShader, false);*/
 
 //  TODO: Render Ground
 // 
@@ -52,10 +52,10 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 
     gameObjects.push_back(player);
     gameObjects.push_back(enemy);  
-    gameObjects.push_back(waypoint1);
+ /*   gameObjects.push_back(waypoint1);
     gameObjects.push_back(waypoint2);
     gameObjects.push_back(waypoint3);
-    gameObjects.push_back(waypoint4);
+    gameObjects.push_back(waypoint4);*/
 }
 
 void GameManager::setupCamera(unsigned int width, unsigned int height)
