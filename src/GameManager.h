@@ -43,6 +43,9 @@ private:
     Camera* camera;
     Player* player;
     Enemy* enemy;
+    Enemy* enemy2;
+    Enemy* enemy3;
+    Enemy* enemy4;
     InputManager* inputManager;
     std::vector<GameObject*> gameObjects;
 
