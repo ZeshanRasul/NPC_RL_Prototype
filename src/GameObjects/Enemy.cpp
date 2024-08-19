@@ -75,7 +75,7 @@ void Enemy::Update(float dt, Player& player)
     {
         std::vector<glm::ivec2> path = findPath(
             glm::ivec2(getPosition().x / CELL_SIZE, getPosition().z / CELL_SIZE),
-            glm::ivec2(getPosition().x / CELL_SIZE, player.getPosition().z / CELL_SIZE),
+            glm::ivec2(player.getPosition().x / CELL_SIZE, player.getPosition().z / CELL_SIZE),
             grid
         );
 
