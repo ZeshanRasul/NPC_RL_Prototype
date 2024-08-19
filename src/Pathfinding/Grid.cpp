@@ -2,8 +2,6 @@
 #include <queue>
 #include <unordered_map>
 
-#define GLM_ENABLE_EXPERIMENTAL
-
 std::vector<std::vector<Cell>> grid(GRID_SIZE, std::vector<Cell>(GRID_SIZE, { false, glm::vec3(0.0f, 1.0f, 0.0f) }));
 
 // Add some obstacles

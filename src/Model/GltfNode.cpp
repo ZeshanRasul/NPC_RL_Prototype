@@ -43,7 +43,7 @@ void GltfNode::setTranslation(glm::vec3 translation)
 	mTranslation = translation;
 }
 
-void GltfNode::setRotation(glm::vec3 rotation)
+void GltfNode::setRotation(glm::quat rotation)
 {
 	mRotation = rotation;
 }

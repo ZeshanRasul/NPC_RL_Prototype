@@ -16,7 +16,7 @@ public:
 	void setNodeName(std::string name);
 	void setScale(glm::vec3 scale);
 	void setTranslation(glm::vec3 translation);
-	void setRotation(glm::vec3 rotation);
+	void setRotation(glm::quat rotation);
 
 	void calculateLocalTRSMatrix();
 	void calculateNodeMatrix(glm::mat4 parentNodeMatrix);
