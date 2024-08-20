@@ -23,6 +23,10 @@ public:
         model->uploadIndexBuffer();
         Logger::log(1, "%s: glTF model '%s' succesfully loaded\n", __FUNCTION__, modelFilename.c_str());
 
+        size_t playerJointMatrixSize = model->getJointMatrixSize() * sizeof(glm::mat4);
+
+        mPlayerUniformBuffer.init(playerJointMatrixSize);
+        Logger::log(1, "%s: glTF joint matrix uniform buffer (size %i bytes) successfully created\n", __FUNCTION__, mPlayerUniformBuffer);
 
         UpdatePlayerVectors();
     }
@@ -55,4 +59,6 @@ public:
     glm::vec3 PlayerRight;
     glm::vec3 PlayerUp;
     float MovementSpeed = 7.5f;
+
+    UniformBuffer mPlayerUniformBuffer{};
 };

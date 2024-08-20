@@ -21,7 +21,8 @@ public:
     void uploadPositionBuffer();
     void uploadIndexBuffer();
     std::shared_ptr<Mesh> getSkeleton(bool enableSkinning);
-
+    int getJointMatrixSize();
+    std::vector<glm::mat4> getJointMatrices();
 
 private:
     void createVertexBuffers();

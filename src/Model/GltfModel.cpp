@@ -184,6 +184,14 @@ void GltfModel::uploadIndexBuffer() {
         &indexBuffer.data.at(0) + indexBufferView.byteOffset, GL_STATIC_DRAW);
 }
 
+int GltfModel::getJointMatrixSize() {
+    return mJointMatrices.size();
+}
+
+std::vector<glm::mat4> GltfModel::getJointMatrices() {
+    return mJointMatrices;
+}
+
 int GltfModel::getTriangleCount() {
     const tinygltf::Primitive& primitives = mModel->meshes.at(0).primitives.at(0);
     const tinygltf::Accessor& indexAccessor = mModel->accessors.at(primitives.indices);

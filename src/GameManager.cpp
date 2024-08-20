@@ -20,9 +20,9 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
     
     renderer = window->getRenderer();
 
-    playerShader.loadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/vertex.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/fragment.glsl");
+    playerShader.loadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/vertex_gpu.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/fragment_gpu.glsl");
 
-    enemyShader.loadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/vertex.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/fragment.glsl");
+    enemyShader.loadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/vertex_gpu.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/fragment_gpu.glsl");
 
     gridShader.loadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/gridVertex.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/gridFragment.glsl");
 
@@ -35,6 +35,21 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
     enemy2 = new Enemy(snapToGrid(glm::vec3(23.0f, 0.0f, 13.0f)), glm::vec3(1.0f), &enemyShader, true);
     enemy3 = new Enemy(snapToGrid(glm::vec3(3.0f, 0.0f, 63.0f)), glm::vec3(1.0f), &enemyShader, true);
     enemy4 = new Enemy(snapToGrid(glm::vec3(11.0f, 0.0f, 23.0f)), glm::vec3(1.0f), &enemyShader, true);
+
+    size_t enemyJointMatrixSize = enemy->model->getJointMatrixSize() * sizeof(glm::mat4);
+    size_t enemy2JointMatrixSize = enemy2->model->getJointMatrixSize() * sizeof(glm::mat4);
+    size_t enemy3JointMatrixSize = enemy3->model->getJointMatrixSize() * sizeof(glm::mat4);
+    size_t enemy4JointMatrixSize = enemy4->model->getJointMatrixSize() * sizeof(glm::mat4);
+
+    mEnemyUniformBuffer.init(enemyJointMatrixSize);
+    Logger::log(1, "%s: glTF joint matrix uniform buffer (size %i bytes) successfully created\n", __FUNCTION__, mEnemyUniformBuffer);
+    mEnemy2UniformBuffer.init(enemy2JointMatrixSize);
+    Logger::log(1, "%s: glTF joint matrix uniform buffer (size %i bytes) successfully created\n", __FUNCTION__, mEnemy2UniformBuffer);
+    mEnemy3UniformBuffer.init(enemy3JointMatrixSize);
+    Logger::log(1, "%s: glTF joint matrix uniform buffer (size %i bytes) successfully created\n", __FUNCTION__, mEnemy3UniformBuffer);
+    mEnemy4UniformBuffer.init(enemy4JointMatrixSize);
+    Logger::log(1, "%s: glTF joint matrix uniform buffer (size %i bytes) successfully created\n", __FUNCTION__, mEnemy4UniformBuffer);
+
 
     inputManager->setContext(camera, player, enemy, width, height);
 
@@ -200,6 +215,11 @@ void GameManager::update(float deltaTime)
 void GameManager::render()
 {
     // TODO:: Render Game Objects
+
+    mEnemyUniformBuffer.uploadUboData(enemy->model->getJointMatrices(), 1);
+    mEnemy2UniformBuffer.uploadUboData(enemy2->model->getJointMatrices(), 1);
+    mEnemy3UniformBuffer.uploadUboData(enemy3->model->getJointMatrices(), 1);
+    mEnemy4UniformBuffer.uploadUboData(enemy4->model->getJointMatrices(), 1);
 
     for (auto obj : gameObjects) {
        renderer->draw(obj);
