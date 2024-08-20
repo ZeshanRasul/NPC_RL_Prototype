@@ -10,5 +10,5 @@ public:
 //        model.LoadModel("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Models/Barrel/Barrel.obj");
     }
 
-    void drawObject() override;
+    void drawObject(glm::mat4 viewMat, glm::mat4 proj) override;
 };

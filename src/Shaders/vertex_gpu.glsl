@@ -8,9 +8,11 @@ layout (location = 4) in vec4 aJointWeight;
 layout (location = 0) out vec3 normal;
 layout (location = 1) out vec2 texCoord;
 
-uniform mat4 view;
-uniform mat4 proj;
-uniform mat4 model;
+layout (std140, binding = 0) uniform Matrices {
+    mat4 view;
+    mat4 projection;
+	mat4 model;
+};
 
 layout (std430, binding = 5) readonly buffer JointMatrices {
     mat4 jointMat[];
@@ -23,7 +25,7 @@ void main() {
 		aJointWeight.z * jointMat[int(aJointNum.z)] +
 		aJointWeight.w * jointMat[int(aJointNum.w)];
 	
-	gl_Position = proj * view * model * skinMat * vec4(aPos, 1.0);
+	gl_Position = projection * view * model * skinMat * vec4(aPos, 1.0);
 	normal = aNormal;
 	texCoord = aTexCoord;
 }

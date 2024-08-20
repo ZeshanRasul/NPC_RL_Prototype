@@ -66,7 +66,7 @@ public:
         model->cleanup();
     }
 
-    void drawObject() override;
+    void drawObject(glm::mat4 viewMat, glm::mat4 proj) override;
 
     void Update(float dt, Player& player);
 

@@ -1,12 +1,17 @@
 #include "Ground.h"
 
-void Ground::drawObject()
+void Ground::drawObject(glm::mat4 viewMat, glm::mat4 proj)
 {
 	glm::mat4 modelMat = glm::mat4(1.0f);
 	modelMat = glm::translate(modelMat, position);
 //	modelMat = glm::rotate(modelMat, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 	modelMat = glm::scale(modelMat, scale);
-	shader->setMat4("model", modelMat);
+	std::vector<glm::mat4> matrixData;
+	matrixData.push_back(viewMat);
+	matrixData.push_back(proj);
+	matrixData.push_back(modelMat);
+	mUniformBuffer.uploadUboData(matrixData, 0);
+
 
 	// TODO: Update for GLTF
 //	model.Draw(shader);

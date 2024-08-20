@@ -63,6 +63,7 @@ private:
     glm::mat4 projection = glm::mat4(1.0f);
 
     Cell cell;
+    Grid gameGrid;
 
     Waypoint* waypoint1;
     Waypoint* waypoint2;

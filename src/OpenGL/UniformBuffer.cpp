@@ -25,6 +25,16 @@ void UniformBuffer::uploadUboData(std::vector<glm::mat4> bufferData, int binding
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 }
 
+void UniformBuffer::uploadColorUboData(std::vector<glm::vec3> bufferData, int bindingPoint) {
+	if (bufferData.size() == 0) {
+		return;
+	}
+	size_t bufferSize = bufferData.size() * sizeof(glm::vec3);
+	glBindBuffer(GL_UNIFORM_BUFFER, mUboBuffer);
+	glBufferSubData(GL_UNIFORM_BUFFER, 0, bufferSize, bufferData.data());
+	glBindBufferRange(GL_UNIFORM_BUFFER, bindingPoint, mUboBuffer, 0, bufferSize);
+	glBindBuffer(GL_UNIFORM_BUFFER, 0);
+}
 
 void UniformBuffer::cleanup() {
 	glDeleteBuffers(1, &mUboBuffer);

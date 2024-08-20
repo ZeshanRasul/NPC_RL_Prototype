@@ -8,13 +8,20 @@
 #include "src/OpenGL/Shader.h"
 #include "../GameObjects/Enemy.h"
 
+class Grid {
+public:
+    void initializeGrid();
+    void drawGrid(Shader& gridShader, glm::mat4 viewMat, glm::mat4 projMat);
+
+    UniformBuffer mGridUniformBuffer{};
+    UniformBuffer mGridColorUniformBuffer{};
+};
+
 // Create a 100x100 grid
 const int GRID_SIZE = 100;
 const int CELL_SIZE = 7;
 extern std::vector<std::vector<Cell>> grid;
 
-void initializeGrid();
-void drawGrid(Shader& gridShader);
 
 static glm::vec3 snapToGrid(const glm::vec3& position)
 {
@@ -30,4 +37,4 @@ struct ivec2_hash {
     }
 };
 std::vector<glm::ivec2> findPath(const glm::ivec2& start, const glm::ivec2& goal, const std::vector<std::vector<Cell>>& grid);
-
+ 

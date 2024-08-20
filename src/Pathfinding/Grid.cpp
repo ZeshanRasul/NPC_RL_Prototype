@@ -5,23 +5,37 @@
 std::vector<std::vector<Cell>> grid(GRID_SIZE, std::vector<Cell>(GRID_SIZE, { false, glm::vec3(0.0f, 1.0f, 0.0f) }));
 
 // Add some obstacles
-void initializeGrid() {
+void Grid::initializeGrid() {
     for (int i = 5; i < 10; ++i) {
         for (int j = 0; j < 10; ++j) {
             grid[i][j].isObstacle = true;
             grid[i][j].color = glm::vec3(1.0f, 0.0f, 0.0f);
         }
     }
+    size_t uniformMatrixBufferSize = 3 * sizeof(glm::mat4);
+    mGridUniformBuffer.init(uniformMatrixBufferSize);
+    Logger::log(1, "%s: matrix uniform buffer (size %i bytes) successfully created\n", __FUNCTION__, uniformMatrixBufferSize);
+    uniformMatrixBufferSize = 1 * sizeof(glm::vec3);
+    mGridColorUniformBuffer.init(uniformMatrixBufferSize);
+    Logger::log(1, "%s: matrix uniform buffer (size %i bytes) successfully created\n", __FUNCTION__, uniformMatrixBufferSize);
+
 }
 
-void drawGrid(Shader& gridShader) {
+void Grid::drawGrid(Shader& gridShader, glm::mat4 viewMat, glm::mat4 projMat) {
+
     for (int i = 0; i < GRID_SIZE; ++i) {
         for (int j = 0; j < GRID_SIZE; ++j) {
             glm::vec3 position = glm::vec3(i * CELL_SIZE, 0.0f, j * CELL_SIZE);
             glm::mat4 model = glm::translate(glm::mat4(1.0f), position);
             model = glm::scale(model, glm::vec3(CELL_SIZE, 1.0f, CELL_SIZE));
-            gridShader.setMat4("model", model);
-            gridShader.setVec3("color", grid[i][j].color);
+            std::vector<glm::mat4> matrixData;
+            matrixData.push_back(viewMat);
+            matrixData.push_back(projMat);
+            matrixData.push_back(model);
+            mGridUniformBuffer.uploadUboData(matrixData, 0);
+            std::vector<glm::vec3> colorData;
+            colorData.push_back(grid[i][j].color);
+            mGridColorUniformBuffer.uploadColorUboData(colorData, 1);
             // Render cell
             glDrawArrays(GL_TRIANGLES, 0, 6);
         }

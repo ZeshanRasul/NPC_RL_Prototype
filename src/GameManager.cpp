@@ -60,7 +60,7 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 
     cell.SetUpVAO();
 
-    initializeGrid();
+    gameGrid.initializeGrid();
 
     std::srand(static_cast<unsigned int>(std::time(nullptr)));
 
@@ -218,14 +218,10 @@ void GameManager::render()
     mEnemyUniformBuffer.uploadSsboData(enemy->model->getJointMatrices(), 5);
 
     for (auto obj : gameObjects) {
-       renderer->draw(obj);
+       renderer->draw(obj, view, projection);
     }
-
-    gridShader.use();
-    gridShader.setMat4("view", view);
-    gridShader.setMat4("proj", projection);
 
     cell.BindVAO();
 
-    drawGrid(gridShader);
+    gameGrid.drawGrid(gridShader, view, projection);
 }

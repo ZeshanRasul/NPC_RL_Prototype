@@ -43,19 +43,14 @@ void Renderer::setScene(glm::mat4 viewMat, glm::mat4 proj, DirLight light)
 	sun = light;
 }
 
-void Renderer::draw(GameObject* gameObj)
+void Renderer::draw(GameObject* gameObj, glm::mat4 viewMat, glm::mat4 proj)
 {
 	Shader* shader = gameObj->GetShader();
 	shader->use();
-	shader->setMat4("view", view);
-	shader->setMat4("proj", projection);
-	shader->setVec3("dirLight.direction", sun.direction);
-	shader->setVec3("dirLight.ambient", sun.ambient);
-	shader->setVec3("dirLight.diffuse", sun.diffuse);
-	shader->setVec3("dirLight.specular", sun.specular);
+
 
 //	gameObj->ApplySkinning();
-	gameObj->Draw();
+	gameObj->Draw(viewMat, proj);
 }
 
 void Renderer::clear()
