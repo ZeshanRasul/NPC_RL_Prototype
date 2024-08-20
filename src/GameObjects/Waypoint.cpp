@@ -1,6 +1,6 @@
 #include "Waypoint.h"
 
-void Waypoint::drawObject() const
+void Waypoint::drawObject()
 {
 	glm::mat4 modelMat = glm::mat4(1.0f);
 	modelMat = glm::translate(modelMat, position);

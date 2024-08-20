@@ -114,6 +114,9 @@
     <ClCompile Include="src\Model\GltfNode.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\OpenGL\ShaderStorageBuffer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\ShaderOld.h">
@@ -228,6 +231,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Model\GltfNode.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\OpenGL\ShaderStorageBuffer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

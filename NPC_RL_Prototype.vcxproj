@@ -108,7 +108,7 @@
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <GenerateDebugInformation>DebugFull</GenerateDebugInformation>
       <AdditionalDependencies>glfw3.lib;opengl32.lib;assimp-vc143-mt.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(ProjectDir)lib;</AdditionalLibraryDirectories>
     </Link>
@@ -127,7 +127,7 @@
       <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <GenerateDebugInformation>DebugFull</GenerateDebugInformation>
       <AdditionalDependencies>glfw3.lib;opengl32.lib;assimp-vc143-mt.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(ProjectDir)lib;</AdditionalLibraryDirectories>
     </Link>
@@ -157,6 +157,7 @@
     <ClCompile Include="src\OpenGL\Framebuffer.cpp" />
     <ClCompile Include="src\OpenGL\Renderer.cpp" />
     <ClCompile Include="src\OpenGL\Shader.cpp" />
+    <ClCompile Include="src\OpenGL\ShaderStorageBuffer.cpp" />
     <ClCompile Include="src\OpenGL\Texture.cpp" />
     <ClCompile Include="src\OpenGL\UniformBuffer.cpp" />
     <ClCompile Include="src\OpenGL\VertexBuffer.cpp" />
@@ -197,6 +198,7 @@
     <ClInclude Include="src\OpenGL\RenderData.h" />
     <ClInclude Include="src\OpenGL\Renderer.h" />
     <ClInclude Include="src\OpenGL\Shader.h" />
+    <ClInclude Include="src\OpenGL\ShaderStorageBuffer.h" />
     <ClInclude Include="src\OpenGL\Texture.h" />
     <ClInclude Include="src\OpenGL\UniformBuffer.h" />
     <ClInclude Include="src\OpenGL\VertexBuffer.h" />

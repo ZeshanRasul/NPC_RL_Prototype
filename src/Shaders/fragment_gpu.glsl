@@ -13,11 +13,9 @@ struct DirLight {
 };
 
 uniform DirLight dirLight;
-
-vec3 CalcDirLight(DirLight light, vec3 normal);
-
 uniform sampler2D tex;
 
+vec3 CalcDirLight(DirLight light, vec3 normal);
 
 void main() {
 	vec3 norm = normalize(normal);

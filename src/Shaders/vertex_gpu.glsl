@@ -8,13 +8,13 @@ layout (location = 4) in vec4 aJointWeight;
 layout (location = 0) out vec3 normal;
 layout (location = 1) out vec2 texCoord;
 
-layout (std140, binding = 0) uniform JointMatrices {
-	mat4 jointMat[42];
-}
-
-uniform mat4 proj;
 uniform mat4 view;
+uniform mat4 proj;
 uniform mat4 model;
+
+layout (std430, binding = 5) readonly buffer JointMatrices {
+    mat4 jointMat[];
+};
 
 void main() {
 	  mat4 skinMat =

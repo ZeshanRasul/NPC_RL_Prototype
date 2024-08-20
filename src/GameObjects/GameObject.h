@@ -19,7 +19,7 @@ public:
 
     bool isSkinned() const { return toSkin; }
 
-    virtual void Draw() const {
+    virtual void Draw() {
         shader->use();
         drawObject();
     }
@@ -28,7 +28,7 @@ public:
 
     std::shared_ptr<GltfModel> model = nullptr;;
 protected:
-    virtual void drawObject() const = 0;
+    virtual void drawObject() = 0;
 
     glm::vec3 position;
     glm::vec3 scale;

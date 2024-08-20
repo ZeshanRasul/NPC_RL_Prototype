@@ -2,7 +2,7 @@
 
 #include "src/OpenGL/Renderer.h"
 #include "src/OpenGL/RenderData.h"
-#include "src/OpenGL/UniformBuffer.h"
+#include "src/OpenGL/ShaderStorageBuffer.h"
 #include "src/Window/Window.h"
 
 #include "src/InputManager.h"
@@ -53,14 +53,11 @@ private:
     Shader playerShader{};
     Shader enemyShader{};
     Shader gridShader{};
-    UniformBuffer mEnemyUniformBuffer{};
-    UniformBuffer mEnemy2UniformBuffer{};
-    UniformBuffer mEnemy3UniformBuffer{};
-    UniformBuffer mEnemy4UniformBuffer{};
-    int enemyJointMatrixSize;
-    int enemy2JointMatrixSize;
-    int enemy3JointMatrixSize;
-    int enemy4JointMatrixSize;
+    ShaderStorageBuffer mPlayerUniformBuffer{};
+    ShaderStorageBuffer mEnemyUniformBuffer{};
+    size_t mPlayerJointMatrixSize;
+    size_t mEnemyJointMatrixSize;
+
 
     glm::mat4 view = glm::mat4(1.0f);
     glm::mat4 projection = glm::mat4(1.0f);

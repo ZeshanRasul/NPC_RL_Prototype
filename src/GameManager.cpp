@@ -32,26 +32,22 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
     camera = new Camera(glm::vec3(50.0f, 3.0f, 80.0f));
     player = new Player(snapToGrid(glm::vec3(130.0f, 0.0f, 25.0f)), glm::vec3(1.0f), &playerShader, true);
     enemy = new Enemy(snapToGrid(glm::vec3(13.0f, 0.0f, 13.0f)), glm::vec3(1.0f), &enemyShader, true);
-    enemy2 = new Enemy(snapToGrid(glm::vec3(23.0f, 0.0f, 13.0f)), glm::vec3(1.0f), &enemyShader, true);
-    enemy3 = new Enemy(snapToGrid(glm::vec3(3.0f, 0.0f, 63.0f)), glm::vec3(1.0f), &enemyShader, true);
-    enemy4 = new Enemy(snapToGrid(glm::vec3(11.0f, 0.0f, 23.0f)), glm::vec3(1.0f), &enemyShader, true);
+    //enemy2 = new Enemy(snapToGrid(glm::vec3(23.0f, 0.0f, 13.0f)), glm::vec3(1.0f), &enemyShader, true);
+    //enemy3 = new Enemy(snapToGrid(glm::vec3(3.0f, 0.0f, 63.0f)), glm::vec3(1.0f), &enemyShader, true);
+    //enemy4 = new Enemy(snapToGrid(glm::vec3(11.0f, 0.0f, 23.0f)), glm::vec3(1.0f), &enemyShader, true);
 
+    inputManager->setContext(camera, player, enemy, width, height);
+
+    size_t playerJointMatrixSize = player->model->getJointMatrixSize() * sizeof(glm::mat4);
+
+    mPlayerUniformBuffer.init(playerJointMatrixSize);
+    Logger::log(1, "%s: glTF joint matrix uniform buffer (size %i bytes) successfully created\n", __FUNCTION__, mPlayerUniformBuffer);
+    
     size_t enemyJointMatrixSize = enemy->model->getJointMatrixSize() * sizeof(glm::mat4);
-    size_t enemy2JointMatrixSize = enemy2->model->getJointMatrixSize() * sizeof(glm::mat4);
-    size_t enemy3JointMatrixSize = enemy3->model->getJointMatrixSize() * sizeof(glm::mat4);
-    size_t enemy4JointMatrixSize = enemy4->model->getJointMatrixSize() * sizeof(glm::mat4);
 
     mEnemyUniformBuffer.init(enemyJointMatrixSize);
     Logger::log(1, "%s: glTF joint matrix uniform buffer (size %i bytes) successfully created\n", __FUNCTION__, mEnemyUniformBuffer);
-    mEnemy2UniformBuffer.init(enemy2JointMatrixSize);
-    Logger::log(1, "%s: glTF joint matrix uniform buffer (size %i bytes) successfully created\n", __FUNCTION__, mEnemy2UniformBuffer);
-    mEnemy3UniformBuffer.init(enemy3JointMatrixSize);
-    Logger::log(1, "%s: glTF joint matrix uniform buffer (size %i bytes) successfully created\n", __FUNCTION__, mEnemy3UniformBuffer);
-    mEnemy4UniformBuffer.init(enemy4JointMatrixSize);
-    Logger::log(1, "%s: glTF joint matrix uniform buffer (size %i bytes) successfully created\n", __FUNCTION__, mEnemy4UniformBuffer);
 
-
-    inputManager->setContext(camera, player, enemy, width, height);
 
  /*   waypoint1 = new Waypoint(snapToGrid(waypointPositions[0]), glm::vec3(5.0f, 10.0f, 5.0f), &gridShader, false);
     waypoint2 = new Waypoint(snapToGrid(waypointPositions[1]), glm::vec3(5.0f, 10.0f, 5.0f), &gridShader, false);
@@ -70,9 +66,10 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 
     gameObjects.push_back(player);
     gameObjects.push_back(enemy);  
-    gameObjects.push_back(enemy2);  
-    gameObjects.push_back(enemy3);  
-    gameObjects.push_back(enemy4);  
+
+    //gameObjects.push_back(enemy2);  
+    //gameObjects.push_back(enemy3);  
+    //gameObjects.push_back(enemy4);  
  /*   gameObjects.push_back(waypoint1);
     gameObjects.push_back(waypoint2);
     gameObjects.push_back(waypoint3);
@@ -207,19 +204,18 @@ void GameManager::update(float deltaTime)
 
     // TODO: Update Game Objects
     enemy->Update(deltaTime, *player);
-    enemy2->Update(deltaTime, *player);
-    enemy3->Update(deltaTime, *player);
-    enemy4->Update(deltaTime, *player);
+    //enemy2->Update(deltaTime, *player);
+    //enemy3->Update(deltaTime, *player);
+    //enemy4->Update(deltaTime, *player);
 }
 
 void GameManager::render()
 {
     // TODO:: Render Game Objects
-
-    mEnemyUniformBuffer.uploadUboData(enemy->model->getJointMatrices(), 1);
-    mEnemy2UniformBuffer.uploadUboData(enemy2->model->getJointMatrices(), 1);
-    mEnemy3UniformBuffer.uploadUboData(enemy3->model->getJointMatrices(), 1);
-    mEnemy4UniformBuffer.uploadUboData(enemy4->model->getJointMatrices(), 1);
+    player->GetShader()->use();
+    mPlayerUniformBuffer.uploadSsboData(player->model->getJointMatrices(), 5);
+    enemy->GetShader()->use();
+    mEnemyUniformBuffer.uploadSsboData(enemy->model->getJointMatrices(), 5);
 
     for (auto obj : gameObjects) {
        renderer->draw(obj);

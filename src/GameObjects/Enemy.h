@@ -66,7 +66,7 @@ public:
         model->cleanup();
     }
 
-    void drawObject() const override;
+    void drawObject() override;
 
     void Update(float dt, Player& player);
 
