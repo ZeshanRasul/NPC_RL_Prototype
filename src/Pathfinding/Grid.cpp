@@ -33,9 +33,7 @@ void Grid::drawGrid(Shader& gridShader, glm::mat4 viewMat, glm::mat4 projMat) {
             matrixData.push_back(projMat);
             matrixData.push_back(model);
             mGridUniformBuffer.uploadUboData(matrixData, 0);
-            std::vector<glm::vec3> colorData;
-            colorData.push_back(grid[i][j].color);
-            mGridColorUniformBuffer.uploadColorUboData(colorData, 1);
+            gridShader.setVec3("color", grid[i][j].color);
             // Render cell
             glDrawArrays(GL_TRIANGLES, 0, 6);
         }

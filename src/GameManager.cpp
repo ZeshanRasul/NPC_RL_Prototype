@@ -220,7 +220,7 @@ void GameManager::render()
     for (auto obj : gameObjects) {
        renderer->draw(obj, view, projection);
     }
-
+    gridShader.use();
     cell.BindVAO();
 
     gameGrid.drawGrid(gridShader, view, projection);
