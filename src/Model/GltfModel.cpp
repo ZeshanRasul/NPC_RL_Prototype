@@ -153,7 +153,7 @@ void GltfModel::createIndexBuffer() {
 }
 
 void GltfModel::uploadVertexBuffers() {
-    for (int i = 0; i < 3; ++i) {
+    for (int i = 0; i < 5; ++i) {
         const tinygltf::Accessor& accessor = mModel->accessors.at(i);
         const tinygltf::BufferView& bufferView = mModel->bufferViews.at(accessor.bufferView);
         const tinygltf::Buffer& buffer = mModel->buffers.at(bufferView.buffer);

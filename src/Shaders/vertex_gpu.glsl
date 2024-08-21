@@ -14,7 +14,7 @@ layout (std140, binding = 0) uniform Matrices {
 	mat4 model;
 };
 
-layout (std430, binding = 5) readonly buffer JointMatrices {
+layout (std430, binding = 1) readonly buffer JointMatrices {
     mat4 jointMat[];
 };
 

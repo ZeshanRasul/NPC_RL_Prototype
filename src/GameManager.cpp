@@ -213,9 +213,9 @@ void GameManager::render()
 {
     // TODO:: Render Game Objects
     player->GetShader()->use();
-    mPlayerUniformBuffer.uploadSsboData(player->model->getJointMatrices(), 5);
+    mPlayerUniformBuffer.uploadSsboData(player->model->getJointMatrices(), 1);
     enemy->GetShader()->use();
-    mEnemyUniformBuffer.uploadSsboData(enemy->model->getJointMatrices(), 5);
+    mEnemyUniformBuffer.uploadSsboData(enemy->model->getJointMatrices(), 1);
 
     for (auto obj : gameObjects) {
        renderer->draw(obj, view, projection);
