@@ -103,4 +103,6 @@ public:
     glm::vec3 Up;
     bool reachedDestination = false;
     glm::vec3 currentWaypoint;
+
+    bool uploadVertexBuffer = true;
 };

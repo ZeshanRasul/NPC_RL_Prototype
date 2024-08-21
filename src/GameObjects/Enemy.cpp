@@ -13,7 +13,11 @@ void Enemy::drawObject(glm::mat4 viewMat, glm::mat4 proj)
     matrixData.push_back(modelMat);
     mUniformBuffer.uploadUboData(matrixData, 0);
 
-    model->uploadVertexBuffers();
+    if (uploadVertexBuffer)
+    {
+        model->uploadVertexBuffers();
+		uploadVertexBuffer = false;
+    }
     //model->uploadPositionBuffer();
     model->draw();
 }

@@ -56,4 +56,6 @@ public:
     glm::vec3 PlayerRight;
     glm::vec3 PlayerUp;
     float MovementSpeed = 7.5f;
+
+    bool uploadVertexBuffer = true;
 };
