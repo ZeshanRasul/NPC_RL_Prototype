@@ -73,6 +73,6 @@ mat4 skinMat() {
 void main() {
     mat4 skinMatrix = skinMat();
 	gl_Position = projection * view * model * skinMatrix * vec4(aPos, 1.0);
-	normal = aNormal;
+    normal = vec3(transpose(inverse(skinMatrix)) * vec4(aNormal, 1.0));
 	texCoord = aTexCoord;
 }

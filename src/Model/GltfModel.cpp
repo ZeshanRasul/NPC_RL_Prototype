@@ -73,7 +73,7 @@ bool GltfModel::loadModel(RenderData& renderData,
     mRootNode->printTree();
 
     getAnimations();
-    animClipsSize = mAnimClips.size();
+    renderData.animClipsSize = mAnimClips.size();
 
     renderData.rdGltfTriangleCount = getTriangleCount();
 
@@ -102,6 +102,12 @@ void GltfModel::createVertexBuffers() {
 
         Logger::log(1, "%s: data for %s uses accessor %i\n", __FUNCTION__, attribType.c_str(),
             accessorNum);
+
+        if (attribType.compare("POSITION") == 0) {
+            int numPositionEntries = accessor.count;
+            Logger::log(1, "%s: loaded %i vertices from glTF file\n", __FUNCTION__,
+                numPositionEntries);
+        }
 
         mAttribAccessors.at(attributes.at(attribType)) = accessorNum;
 

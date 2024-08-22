@@ -12,12 +12,18 @@ void Player::drawObject(glm::mat4 viewMat, glm::mat4 proj)
     matrixData.push_back(modelMat);
     mUniformBuffer.uploadUboData(matrixData, 0);
 
+//    model->playAnimation(0, 0.8f);
+
+
     if (uploadVertexBuffer)
     {
         model->uploadVertexBuffers();
         uploadVertexBuffer = false;
     }
     //model->uploadPositionBuffer();
+
+
+
 
     model->draw();
 }

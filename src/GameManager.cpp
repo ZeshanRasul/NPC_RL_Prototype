@@ -222,7 +222,9 @@ void GameManager::render()
 {
     // TODO:: Render Game Objects
 
-    player->SetAnimation(8, 1.0f);
+    player->model->playAnimation(5, 1.0f);
+
+	std::vector<glm::mat2x4> playerJointDualQuats = player->model->getJointDualQuats();
 
     player->GetShader()->use();
     mPlayerDualQuatSSBuffer.uploadSsboData(player->model->getJointDualQuats(), 1);

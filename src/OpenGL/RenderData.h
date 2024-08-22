@@ -60,4 +60,5 @@ struct RenderData {
 	int rdHeight = 0;
 
 	unsigned int rdGltfTriangleCount = 0;
+	size_t animClipsSize = 0;
 };
