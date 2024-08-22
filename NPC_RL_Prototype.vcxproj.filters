@@ -247,6 +247,8 @@
     <None Include="src\Shaders\gridFragment.glsl" />
     <None Include="src\Shaders\fragment_gpu.glsl" />
     <None Include="src\Shaders\vertex_gpu.glsl" />
+    <None Include="src\Shaders\vertex_gpu_dquat.glsl" />
+    <None Include="src\Shaders\fragment_gpu_dquat.glsl" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="src\Assets\Models\backpack\specular.jpg">

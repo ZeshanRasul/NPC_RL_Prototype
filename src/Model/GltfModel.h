@@ -23,6 +23,8 @@ public:
     std::shared_ptr<Mesh> getSkeleton(bool enableSkinning);
     int getJointMatrixSize();
     std::vector<glm::mat4> getJointMatrices();
+    int getJointDualQuatsSize();
+    std::vector<glm::mat2x4> getJointDualQuats();
 
 private:
     void createVertexBuffers();
@@ -40,6 +42,7 @@ private:
     std::vector<glm::vec4> mWeightVec{};
     std::vector<glm::mat4> mInverseBindMatrices{};
     std::vector<glm::mat4> mJointMatrices{};
+    std::vector<glm::mat2x4> mJointDualQuats{};
 
     std::vector<int> mAttribAccessors{};
     std::vector<int> mNodeToJoint{};

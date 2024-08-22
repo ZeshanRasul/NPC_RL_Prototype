@@ -20,9 +20,9 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
     
     renderer = window->getRenderer();
 
-    playerShader.loadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/vertex_gpu.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/fragment_gpu.glsl");
+    playerShader.loadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/vertex_gpu_dquat.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/fragment_gpu_dquat.glsl");
 
-    enemyShader.loadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/vertex_gpu.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/fragment_gpu.glsl");
+    enemyShader.loadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/vertex_gpu_dquat.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/fragment_gpu_dquat.glsl");
 
     gridShader.loadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/gridVertex.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/gridFragment.glsl");
 
@@ -40,13 +40,23 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 
     size_t playerJointMatrixSize = player->model->getJointMatrixSize() * sizeof(glm::mat4);
 
-    mPlayerUniformBuffer.init(playerJointMatrixSize);
-    Logger::log(1, "%s: glTF joint matrix uniform buffer (size %i bytes) successfully created\n", __FUNCTION__, mPlayerUniformBuffer);
+    mPlayerSSBuffer.init(playerJointMatrixSize);
+    Logger::log(1, "%s: glTF joint matrix uniform buffer (size %i bytes) successfully created\n", __FUNCTION__, mPlayerSSBuffer);
     
     size_t enemyJointMatrixSize = enemy->model->getJointMatrixSize() * sizeof(glm::mat4);
 
-    mEnemyUniformBuffer.init(enemyJointMatrixSize);
-    Logger::log(1, "%s: glTF joint matrix uniform buffer (size %i bytes) successfully created\n", __FUNCTION__, mEnemyUniformBuffer);
+    mEnemySSBuffer.init(enemyJointMatrixSize);
+    Logger::log(1, "%s: glTF joint matrix uniform buffer (size %i bytes) successfully created\n", __FUNCTION__, mEnemySSBuffer);
+
+    size_t playerModelJointDualQuatBufferSize = player->model->getJointDualQuatsSize() *
+        sizeof(glm::mat2x4);
+    mPlayerDualQuatSSBuffer.init(playerModelJointDualQuatBufferSize);
+    Logger::log(1, "%s: glTF joint dual quaternions shader storage buffer (size %i bytes) successfully created\n", __FUNCTION__, playerModelJointDualQuatBufferSize);
+
+    size_t enemyModelJointDualQuatBufferSize = enemy->model->getJointDualQuatsSize() *
+        sizeof(glm::mat2x4);
+    mEnemyDualQuatSSBuffer.init(enemyModelJointDualQuatBufferSize);
+    Logger::log(1, "%s: glTF joint dual quaternions shader storage buffer (size %i bytes) successfully created\n", __FUNCTION__, enemyModelJointDualQuatBufferSize);
 
 
  /*   waypoint1 = new Waypoint(snapToGrid(waypointPositions[0]), glm::vec3(5.0f, 10.0f, 5.0f), &gridShader, false);
@@ -212,9 +222,9 @@ void GameManager::render()
 {
     // TODO:: Render Game Objects
     player->GetShader()->use();
-    mPlayerUniformBuffer.uploadSsboData(player->model->getJointMatrices(), 1);
+    mPlayerDualQuatSSBuffer.uploadSsboData(player->model->getJointDualQuats(), 1);
     enemy->GetShader()->use();
-    mEnemyUniformBuffer.uploadSsboData(enemy->model->getJointMatrices(), 1);
+    mEnemyDualQuatSSBuffer.uploadSsboData(enemy->model->getJointDualQuats(), 1);
 
     for (auto obj : gameObjects) {
        renderer->draw(obj, view, projection);

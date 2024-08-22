@@ -53,8 +53,10 @@ private:
     Shader playerShader{};
     Shader enemyShader{};
     Shader gridShader{};
-    ShaderStorageBuffer mPlayerUniformBuffer{};
-    ShaderStorageBuffer mEnemyUniformBuffer{};
+    ShaderStorageBuffer mPlayerSSBuffer{};
+    ShaderStorageBuffer mEnemySSBuffer{};
+    ShaderStorageBuffer mPlayerDualQuatSSBuffer{};
+    ShaderStorageBuffer mEnemyDualQuatSSBuffer{};
     size_t mPlayerJointMatrixSize;
     size_t mEnemyJointMatrixSize;
 
