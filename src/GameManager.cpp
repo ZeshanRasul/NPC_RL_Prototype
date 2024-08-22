@@ -222,7 +222,11 @@ void GameManager::render()
 {
     // TODO:: Render Game Objects
 
-    player->model->playAnimation(0, 1.0f);
+    int animNumber = 4;
+    if (player->GetVelocity() >= 0.1f)
+        animNumber = 0;
+
+    player->model->playAnimation(animNumber, 1.0f);
 
     playerJointDualQuatsVec = player->model->getJointDualQuats();
 

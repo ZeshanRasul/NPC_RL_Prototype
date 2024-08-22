@@ -58,6 +58,8 @@ public:
 
     void SetAnimation(int animNum, float speedDivider);
 
+    float GetVelocity() const { return mVelocity; }
+
 public:
     float PlayerYaw;
     glm::vec3 PlayerFront;

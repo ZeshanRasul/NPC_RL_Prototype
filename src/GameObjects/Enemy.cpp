@@ -81,15 +81,22 @@ void Enemy::Update(float dt, Player& player)
     }
     case ATTACK:
     {
-        std::vector<glm::ivec2> path = findPath(
-            glm::ivec2(getPosition().x / CELL_SIZE, getPosition().z / CELL_SIZE),
-            glm::ivec2(player.getPosition().x / CELL_SIZE, player.getPosition().z / CELL_SIZE),
-            grid
-        );
+        if (reachedPlayer)
+        {
+            SetAnimation(4, 1.0f);
+        }
+        else
+        {
+            std::vector<glm::ivec2> path = findPath(
+                glm::ivec2(getPosition().x / CELL_SIZE, getPosition().z / CELL_SIZE),
+                glm::ivec2(player.getPosition().x / CELL_SIZE, player.getPosition().z / CELL_SIZE),
+                grid
+            );
 
-        std::cout << "Moving to Player destination" << std::endl;
+            std::cout << "Moving to Player destination" << std::endl;
 
-        moveEnemy(path, dt);
+            moveEnemy(path, dt);
+        }
 
         break;
     }
@@ -147,13 +154,20 @@ void Enemy::moveEnemy(const std::vector<glm::ivec2>& path, float deltaTime) {
     const float tolerance = 0.1f; // Smaller tolerance for better alignment
     const float agentRadius = 0.5f; // Adjust this value to match the agent's radius
     float speed = 10.0f; // Ensure this speed is appropriate for the grid size and cell size
-
-//    SetAnimation(0, 1.0f);
+    
+    if (!reachedPlayer)
+        SetAnimation(0, 1.0f);
 
     if (pathIndex >= path.size()) {
         std::cout << "Agent has reached its destination." << std::endl;
-        reachedDestination = true;
-//        SetAnimation(4, 1.0f);
+		if (state == PATROL)
+		{
+			reachedDestination = true;
+		}
+		else if (state == ATTACK)
+		{
+			reachedPlayer = true;
+		}
         return; // Stop moving if the agent has reached its destination
     }
 
