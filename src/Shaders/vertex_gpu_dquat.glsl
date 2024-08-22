@@ -14,7 +14,7 @@ layout (std140, binding = 0) uniform Matrices {
 	mat4 model;
 };
 
-layout (std430, binding = 1) readonly buffer JointDualQuats {
+layout (std430, binding = 2) readonly buffer JointDualQuats {
     mat2x4 jointDQs[];
 };
 

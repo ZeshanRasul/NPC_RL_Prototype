@@ -6,6 +6,7 @@
 #include "../Camera.h"
 #include "Logger.h"
 #include "UniformBuffer.h"
+#include "ShaderStorageBuffer.h"
 
 class Player : public GameObject {
 public:
@@ -23,6 +24,11 @@ public:
 
         model->uploadIndexBuffer();
         Logger::log(1, "%s: glTF model '%s' succesfully loaded\n", __FUNCTION__, modelFilename.c_str());
+
+        size_t playerModelJointDualQuatBufferSize = model->getJointDualQuatsSize() *
+            sizeof(glm::mat2x4);
+        mPlayerDualQuatSSBuffer.init(playerModelJointDualQuatBufferSize);
+        Logger::log(1, "%s: glTF joint dual quaternions shader storage buffer (size %i bytes) successfully created\n", __FUNCTION__, playerModelJointDualQuatBufferSize);
 
 
         UpdatePlayerVectors();
@@ -61,4 +67,5 @@ public:
     float mVelocity = 0.0f;
 
     bool uploadVertexBuffer = true;
+    ShaderStorageBuffer mPlayerDualQuatSSBuffer{};
 };

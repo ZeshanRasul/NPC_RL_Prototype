@@ -424,6 +424,8 @@ void GltfModel::updateJointMatricesAndQuats(std::shared_ptr<GltfNode> treeNode) 
         dq[0] = orientation;
         dq[1] = glm::quat(0.0, translation.x, translation.y, translation.z) * orientation * 0.5f;
         mJointDualQuats.at(mNodeToJoint.at(nodeNum)) = glm::mat2x4_cast(dq);
+		glm::mat2x4 newDq = mJointDualQuats.at(mNodeToJoint.at(nodeNum));
+        newDq;
     }
     else {
         Logger::log(1, "%s error: could not decompose matrix for node %i\n", __FUNCTION__,

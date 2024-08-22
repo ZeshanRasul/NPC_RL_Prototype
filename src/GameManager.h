@@ -59,7 +59,7 @@ private:
     ShaderStorageBuffer mEnemyDualQuatSSBuffer{};
     size_t mPlayerJointMatrixSize;
     size_t mEnemyJointMatrixSize;
-
+	std::vector<glm::mat2x4> playerJointDualQuatsVec;
 
     glm::mat4 view = glm::mat4(1.0f);
     glm::mat4 projection = glm::mat4(1.0f);

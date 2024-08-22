@@ -48,10 +48,10 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
     mEnemySSBuffer.init(enemyJointMatrixSize);
     Logger::log(1, "%s: glTF joint matrix uniform buffer (size %i bytes) successfully created\n", __FUNCTION__, mEnemySSBuffer);
 
-    size_t playerModelJointDualQuatBufferSize = player->model->getJointDualQuatsSize() *
-        sizeof(glm::mat2x4);
-    mPlayerDualQuatSSBuffer.init(playerModelJointDualQuatBufferSize);
-    Logger::log(1, "%s: glTF joint dual quaternions shader storage buffer (size %i bytes) successfully created\n", __FUNCTION__, playerModelJointDualQuatBufferSize);
+    //size_t playerModelJointDualQuatBufferSize = player->model->getJointDualQuatsSize() *
+    //    sizeof(glm::mat2x4);
+    //mPlayerDualQuatSSBuffer.init(playerModelJointDualQuatBufferSize);
+    //Logger::log(1, "%s: glTF joint dual quaternions shader storage buffer (size %i bytes) successfully created\n", __FUNCTION__, playerModelJointDualQuatBufferSize);
 
     size_t enemyModelJointDualQuatBufferSize = enemy->model->getJointDualQuatsSize() *
         sizeof(glm::mat2x4);
@@ -222,14 +222,14 @@ void GameManager::render()
 {
     // TODO:: Render Game Objects
 
-    player->model->playAnimation(5, 1.0f);
+    player->model->playAnimation(0, 1.0f);
 
-	std::vector<glm::mat2x4> playerJointDualQuats = player->model->getJointDualQuats();
+    playerJointDualQuatsVec = player->model->getJointDualQuats();
 
-    player->GetShader()->use();
-    mPlayerDualQuatSSBuffer.uploadSsboData(player->model->getJointDualQuats(), 1);
+    //player->GetShader()->use();
+    //mPlayerDualQuatSSBuffer.uploadSsboData(playerJointDualQuatsVec, 2);
     enemy->GetShader()->use();
-    mEnemyDualQuatSSBuffer.uploadSsboData(enemy->model->getJointDualQuats(), 1);
+    mEnemyDualQuatSSBuffer.uploadSsboData(enemy->model->getJointDualQuats(), 2);
 
     for (auto obj : gameObjects) {
        renderer->draw(obj, view, projection);
