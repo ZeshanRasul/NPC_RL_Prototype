@@ -50,12 +50,15 @@ public:
     void PlayerProcessKeyboard(CameraMovement direction, float deltaTime);
     void PlayerProcessMouseMovement(float xOffset);
 
+    void SetAnimation(int animNum, float speedDivider);
+
 public:
     float PlayerYaw;
     glm::vec3 PlayerFront;
     glm::vec3 PlayerRight;
     glm::vec3 PlayerUp;
     float MovementSpeed = 7.5f;
+    float mVelocity = 0.0f;
 
     bool uploadVertexBuffer = true;
 };

@@ -18,6 +18,7 @@ void Player::drawObject(glm::mat4 viewMat, glm::mat4 proj)
         uploadVertexBuffer = false;
     }
     //model->uploadPositionBuffer();
+
     model->draw();
 }
 
@@ -38,15 +39,16 @@ void Player::UpdatePlayerVectors()
 
 void Player::PlayerProcessKeyboard(CameraMovement direction, float deltaTime)
 {
-    float velocity = MovementSpeed * deltaTime; 
+    mVelocity = MovementSpeed * deltaTime;
+
     if (direction == FORWARD)
-        position += PlayerFront * velocity;
+        position += PlayerFront * mVelocity;
     if (direction == BACKWARD)
-        position -= PlayerFront * velocity;
+        position -= PlayerFront * mVelocity;
     if (direction == LEFT)
-        position -= PlayerRight * velocity;
+        position -= PlayerRight * mVelocity;
     if (direction == RIGHT)
-        position += PlayerRight * velocity;
+        position += PlayerRight * mVelocity;
 }
 
 void Player::PlayerProcessMouseMovement(float xOffset)
@@ -57,3 +59,9 @@ void Player::PlayerProcessMouseMovement(float xOffset)
 
     UpdatePlayerVectors();
 }
+
+void Player::SetAnimation(int animNum, float speedDivider)
+{
+    model->playAnimation(animNum, speedDivider);
+}
+

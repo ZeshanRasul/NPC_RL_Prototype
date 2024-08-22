@@ -152,6 +152,8 @@
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\Mesh.cpp" />
     <ClCompile Include="src\Model.cpp" />
+    <ClCompile Include="src\Model\GltfAnimationChannel.cpp" />
+    <ClCompile Include="src\Model\GltfAnimationClip.cpp" />
     <ClCompile Include="src\Model\GltfModel.cpp" />
     <ClCompile Include="src\Model\GltfNode.cpp" />
     <ClCompile Include="src\OpenGL\Framebuffer.cpp" />
@@ -192,6 +194,8 @@
     <ClInclude Include="src\InputManager.h" />
     <ClInclude Include="src\Mesh.h" />
     <ClInclude Include="src\Model.h" />
+    <ClInclude Include="src\Model\GltfAnimationChannel.h" />
+    <ClInclude Include="src\Model\GltfAnimationClip.h" />
     <ClInclude Include="src\Model\GltfModel.h" />
     <ClInclude Include="src\Model\GltfNode.h" />
     <ClInclude Include="src\OpenGL\Framebuffer.h" />

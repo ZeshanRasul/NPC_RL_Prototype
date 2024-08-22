@@ -1,4 +1,7 @@
 #include <algorithm>
+#include <chrono>
+#include <cmath>
+
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtx/dual_quaternion.hpp>
 #include <glm/gtx/matrix_decompose.hpp>
@@ -58,11 +61,19 @@ bool GltfModel::loadModel(RenderData& renderData,
     Logger::log(1, "%s: model has %i nodes, root node is %i\n", __FUNCTION__, nodeCount,
         rootNode);
 
+    mNodeList.resize(nodeCount);
+
     mRootNode = GltfNode::createRoot(rootNode);
+
+    mNodeList.at(rootNode) = mRootNode;
+
     getNodeData(mRootNode, glm::mat4(1.0f));
     getNodes(mRootNode);
 
     mRootNode->printTree();
+
+    getAnimations();
+    animClipsSize = mAnimClips.size();
 
     renderData.rdGltfTriangleCount = getTriangleCount();
 
@@ -91,12 +102,6 @@ void GltfModel::createVertexBuffers() {
 
         Logger::log(1, "%s: data for %s uses accessor %i\n", __FUNCTION__, attribType.c_str(),
             accessorNum);
-        if (attribType.compare("POSITION") == 0) {
-            int numPositionEntries = accessor.count;
-            mAlteredPositions.resize(numPositionEntries);
-            Logger::log(1, "%s: loaded %i vertices from glTF file\n", __FUNCTION__,
-                numPositionEntries);
-        }
 
         mAttribAccessors.at(attributes.at(attribType)) = accessorNum;
 
@@ -167,17 +172,6 @@ void GltfModel::uploadVertexBuffers() {
     }
 }
 
-void GltfModel::uploadPositionBuffer() {
-    const tinygltf::Accessor& accessor = mModel->accessors.at(mAttribAccessors.at(0));
-    const tinygltf::BufferView& bufferView = mModel->bufferViews.at(accessor.bufferView);
-    const tinygltf::Buffer& buffer = mModel->buffers.at(bufferView.buffer);
-
-    glBindBuffer(GL_ARRAY_BUFFER, mVertexVBO.at(0));
-    glBufferData(GL_ARRAY_BUFFER, bufferView.byteLength,
-        mAlteredPositions.data(), GL_STATIC_DRAW);
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-}
-
 void GltfModel::uploadIndexBuffer() {
     /* buffer for vertex indices */
     const tinygltf::Primitive& primitives = mModel->meshes.at(0).primitives.at(0);
@@ -220,6 +214,35 @@ int GltfModel::getTriangleCount() {
         break;
     }
     return triangles;
+}
+
+void GltfModel::getAnimations() {
+    for (const auto& anim : mModel->animations) {
+        Logger::log(1, "%s: loading animation '%s' with %i channels\n", __FUNCTION__, anim.name.c_str(), anim.channels.size());
+        std::shared_ptr<GltfAnimationClip> clip = std::make_shared<GltfAnimationClip>(anim.name);
+        for (const auto& channel : anim.channels) {
+            clip->addChannel(mModel, anim, channel);
+        }
+        mAnimClips.push_back(clip);
+    }
+}
+
+void GltfModel::playAnimation(int animNum, float speedDivider) {
+    double currentTime = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now().time_since_epoch()).count();
+    setAnimationFrame(animNum, std::fmod(currentTime / 1000.0 * speedDivider, mAnimClips.at(animNum)->getClipEndTime()));
+}
+
+void GltfModel::setAnimationFrame(int animNum, float time) {
+    mAnimClips.at(animNum)->setAnimationFrame(mNodeList, time);
+    updateNodeMatrices(mRootNode, glm::mat4(1.0f));
+}
+
+float GltfModel::getAnimationEndTime(int animNum) {
+    return mAnimClips.at(animNum)->getClipEndTime();
+}
+
+std::string GltfModel::getClipName(int animNum) {
+    return mAnimClips.at(animNum)->getClipName();
 }
 
 void GltfModel::draw() {
@@ -359,29 +382,25 @@ void GltfModel::getNodes(std::shared_ptr<GltfNode> treeNode) {
     glm::mat4 treeNodeMatrix = treeNode->getNodeMatrix();
 
     for (auto& childNode : treeNode->getChilds()) {
+        mNodeList.at(childNode->getNodeNum()) = childNode;
         getNodeData(childNode, treeNodeMatrix);
         getNodes(childNode);
     }
 }
 
-void GltfModel::getNodeData(std::shared_ptr<GltfNode> treeNode, glm::mat4 parentNodeMatrix) {
-    int nodeNum = treeNode->getNodeNum();
-    const tinygltf::Node& node = mModel->nodes.at(nodeNum);
-    treeNode->setNodeName(node.name);
-
-    if (node.translation.size()) {
-        treeNode->setTranslation(glm::make_vec3(node.translation.data()));
-    }
-    if (node.rotation.size()) {
-        treeNode->setRotation(glm::make_quat(node.rotation.data()));
-    }
-    if (node.scale.size()) {
-        treeNode->setScale(glm::make_vec3(node.scale.data()));
-    }
-
-    treeNode->calculateLocalTRSMatrix();
+void GltfModel::updateNodeMatrices(std::shared_ptr<GltfNode> treeNode, glm::mat4 parentNodeMatrix) {
     treeNode->calculateNodeMatrix(parentNodeMatrix);
+    updateJointMatricesAndQuats(treeNode);
 
+    glm::mat4 treeNodeMatrix = treeNode->getNodeMatrix();
+
+    for (auto& childNode : treeNode->getChilds()) {
+        updateNodeMatrices(childNode, treeNodeMatrix);
+    }
+}
+
+void GltfModel::updateJointMatricesAndQuats(std::shared_ptr<GltfNode> treeNode) {
+    int nodeNum = treeNode->getNodeNum();
     mJointMatrices.at(mNodeToJoint.at(nodeNum)) =
         treeNode->getNodeMatrix() * mInverseBindMatrices.at(mNodeToJoint.at(nodeNum));
 
@@ -406,25 +425,25 @@ void GltfModel::getNodeData(std::shared_ptr<GltfNode> treeNode, glm::mat4 parent
     }
 }
 
-void GltfModel::applyVertexSkinning(bool enableSkinning) {
-    const tinygltf::Accessor& accessor = mModel->accessors.at(mAttribAccessors.at(0));
-    const tinygltf::BufferView& bufferView = mModel->bufferViews.at(accessor.bufferView);
-    const tinygltf::Buffer& buffer = mModel->buffers.at(bufferView.buffer);
+void GltfModel::getNodeData(std::shared_ptr<GltfNode> treeNode, glm::mat4 parentNodeMatrix) {
+    int nodeNum = treeNode->getNodeNum();
+    const tinygltf::Node& node = mModel->nodes.at(nodeNum);
+    treeNode->setNodeName(node.name);
 
-    std::memcpy(mAlteredPositions.data(), &buffer.data.at(0) + bufferView.byteOffset, bufferView.byteLength);
-
-    if (enableSkinning) {
-        for (int i = 0; i < mJointVec.size(); ++i) {
-            glm::ivec4 jointIndex = glm::make_vec4(mJointVec.at(i));
-            glm::vec4 weightIndex = glm::make_vec4(mWeightVec.at(i));
-            glm::mat4 skinMat =
-                weightIndex.x * mJointMatrices.at(jointIndex.x) +
-                weightIndex.y * mJointMatrices.at(jointIndex.y) +
-                weightIndex.z * mJointMatrices.at(jointIndex.z) +
-                weightIndex.w * mJointMatrices.at(jointIndex.w);
-            mAlteredPositions.at(i) = skinMat * glm::vec4(mAlteredPositions.at(i), 1.0f);
-        }
+    if (node.translation.size()) {
+        treeNode->setTranslation(glm::make_vec3(node.translation.data()));
     }
+    if (node.rotation.size()) {
+        treeNode->setRotation(glm::make_quat(node.rotation.data()));
+    }
+    if (node.scale.size()) {
+        treeNode->setScale(glm::make_vec3(node.scale.data()));
+    }
+
+    treeNode->calculateLocalTRSMatrix();
+    treeNode->calculateNodeMatrix(parentNodeMatrix);
+
+    updateJointMatricesAndQuats(treeNode);
 }
 
 void GltfModel::cleanup() {
@@ -433,4 +452,5 @@ void GltfModel::cleanup() {
     glDeleteBuffers(1, &mIndexVBO);
     mTex.cleanup();
     mModel.reset();
+    mNodeList.clear();
 }

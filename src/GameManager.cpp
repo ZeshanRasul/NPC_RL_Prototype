@@ -32,9 +32,9 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
     camera = new Camera(glm::vec3(50.0f, 3.0f, 80.0f));
     player = new Player(snapToGrid(glm::vec3(130.0f, 0.0f, 25.0f)), glm::vec3(1.0f), &playerShader, true);
     enemy = new Enemy(snapToGrid(glm::vec3(13.0f, 0.0f, 13.0f)), glm::vec3(1.0f), &enemyShader, true);
-    enemy2 = new Enemy(snapToGrid(glm::vec3(23.0f, 0.0f, 13.0f)), glm::vec3(1.0f), &enemyShader, true);
-    enemy3 = new Enemy(snapToGrid(glm::vec3(3.0f, 0.0f, 63.0f)), glm::vec3(1.0f), &enemyShader, true);
-    enemy4 = new Enemy(snapToGrid(glm::vec3(11.0f, 0.0f, 23.0f)), glm::vec3(1.0f), &enemyShader, true);
+//    enemy2 = new Enemy(snapToGrid(glm::vec3(23.0f, 0.0f, 13.0f)), glm::vec3(1.0f), &enemyShader, true);
+//    enemy3 = new Enemy(snapToGrid(glm::vec3(3.0f, 0.0f, 63.0f)), glm::vec3(1.0f), &enemyShader, true);
+//    enemy4 = new Enemy(snapToGrid(glm::vec3(11.0f, 0.0f, 23.0f)), glm::vec3(1.0f), &enemyShader, true);
 
     inputManager->setContext(camera, player, enemy, width, height);
 
@@ -76,9 +76,9 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 
     gameObjects.push_back(player);
     gameObjects.push_back(enemy);  
-    gameObjects.push_back(enemy2);  
-    gameObjects.push_back(enemy3);  
-    gameObjects.push_back(enemy4);  
+//    gameObjects.push_back(enemy2);  
+//    gameObjects.push_back(enemy3);  
+//    gameObjects.push_back(enemy4);  
  /*   gameObjects.push_back(waypoint1);
     gameObjects.push_back(waypoint2);
     gameObjects.push_back(waypoint3);
@@ -213,14 +213,17 @@ void GameManager::update(float deltaTime)
 
     // TODO: Update Game Objects
     enemy->Update(deltaTime, *player);
-    enemy2->Update(deltaTime, *player);
-    enemy3->Update(deltaTime, *player);
-    enemy4->Update(deltaTime, *player);
+//    enemy2->Update(deltaTime, *player);
+//    enemy3->Update(deltaTime, *player);
+//    enemy4->Update(deltaTime, *player);
 }
 
 void GameManager::render()
 {
     // TODO:: Render Game Objects
+
+    player->SetAnimation(8, 1.0f);
+
     player->GetShader()->use();
     mPlayerDualQuatSSBuffer.uploadSsboData(player->model->getJointDualQuats(), 1);
     enemy->GetShader()->use();

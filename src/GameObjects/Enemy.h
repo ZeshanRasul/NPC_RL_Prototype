@@ -90,6 +90,7 @@ public:
 
     void moveEnemy(const std::vector<glm::ivec2>& path, float deltaTime);
 
+    void SetAnimation(int animNum, float speedDivider);
 
     EnemyState state = PATROL;
     float Yaw;

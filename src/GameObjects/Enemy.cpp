@@ -148,9 +148,12 @@ void Enemy::moveEnemy(const std::vector<glm::ivec2>& path, float deltaTime) {
     const float agentRadius = 0.5f; // Adjust this value to match the agent's radius
     float speed = 10.0f; // Ensure this speed is appropriate for the grid size and cell size
 
+//    SetAnimation(0, 1.0f);
+
     if (pathIndex >= path.size()) {
         std::cout << "Agent has reached its destination." << std::endl;
         reachedDestination = true;
+//        SetAnimation(4, 1.0f);
         return; // Stop moving if the agent has reached its destination
     }
 
@@ -218,4 +221,9 @@ void Enemy::moveEnemy(const std::vector<glm::ivec2>& path, float deltaTime) {
             pathIndex = 0; // Reset path index if the end is reached
         }
     }
+}
+
+void Enemy::SetAnimation(int animNum, float speedDivider)
+{
+    model->playAnimation(animNum, speedDivider);
 }

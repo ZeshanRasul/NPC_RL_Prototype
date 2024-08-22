@@ -9,6 +9,7 @@
 
 #include "src/OpenGL/RenderData.h"
 #include "Model/GltfNode.h"
+#include "Model/GltfAnimationClip.h"
 
 class GltfModel {
 public:
@@ -26,6 +27,11 @@ public:
     int getJointDualQuatsSize();
     std::vector<glm::mat2x4> getJointDualQuats();
 
+    void playAnimation(int animNum, float speedDivider);
+    void setAnimationFrame(int animNumber, float time);
+    float getAnimationEndTime(int animNum);
+    std::string getClipName(int animNum);
+
 private:
     void createVertexBuffers();
     void createIndexBuffer();
@@ -35,8 +41,11 @@ private:
     void getJointData();
     void getWeightData();
     void getInvBindMatrices();
+    void getAnimations();
     void getNodes(std::shared_ptr<GltfNode> treeNode);
     void getNodeData(std::shared_ptr<GltfNode> treeNode, glm::mat4 parentNodeMatrix);
+    void updateNodeMatrices(std::shared_ptr<GltfNode> treeNode, glm::mat4 parentNodeMatrix);
+    void updateJointMatricesAndQuats(std::shared_ptr<GltfNode> treeNode);
 
     std::vector<glm::tvec4<uint16_t>> mJointVec{};
     std::vector<glm::vec4> mWeightVec{};
@@ -47,12 +56,15 @@ private:
     std::vector<int> mAttribAccessors{};
     std::vector<int> mNodeToJoint{};
 
-    std::vector<glm::vec3> mAlteredPositions{};
-
     std::shared_ptr<GltfNode> mRootNode = nullptr;
     std::shared_ptr<tinygltf::Model> mModel = nullptr;
 
     std::shared_ptr<Mesh> mSkeletonMesh = nullptr;
+
+    std::vector<std::shared_ptr<GltfNode>> mNodeList;
+
+    std::vector<std::shared_ptr<GltfAnimationClip>> mAnimClips{};
+    size_t animClipsSize;
 
     GLuint mVAO = 0;
     std::vector<GLuint> mVertexVBO{};
