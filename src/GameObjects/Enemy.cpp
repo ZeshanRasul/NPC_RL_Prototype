@@ -88,6 +88,9 @@ void Enemy::Update(float dt, Player& player)
         if (reachedPlayer)
         {
             SetAnimation(4, 1.0f);
+
+            if (playerEnemyDistance > CELL_SIZE)
+                reachedPlayer = false;
         }
         else
         {
