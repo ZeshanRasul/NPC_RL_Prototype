@@ -59,6 +59,7 @@ public:
     void SetAnimation(int animNum, float speedDivider);
 
     float GetVelocity() const { return mVelocity; }
+	void SetVelocity(float newVelocity) { mVelocity = newVelocity; }
 
 public:
     float PlayerYaw;

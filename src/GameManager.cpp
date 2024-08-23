@@ -218,7 +218,7 @@ void GameManager::render()
     // TODO:: Render Game Objects
 
     int animNumber = 4;
-    if (player->GetVelocity() >= 0.1f)
+    if (player->GetVelocity() >= 0.01f)
         animNumber = 0;
 
     player->model->playAnimation(animNumber, 1.0f);

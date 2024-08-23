@@ -119,12 +119,17 @@ void InputManager::handlePlayerMovement(GLFWwindow* window, Player& player, Came
             player.UpdatePlayerVectors();
             player.PlayerProcessKeyboard(FORWARD, deltaTime);
         }
-        if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+        else if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
             player.PlayerProcessKeyboard(BACKWARD, deltaTime);
-        if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+        else if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
             player.PlayerProcessKeyboard(LEFT, deltaTime);
-        if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+        else if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
             player.PlayerProcessKeyboard(RIGHT, deltaTime);
+		else if (glfwGetKey(window, GLFW_KEY_W) == GLFW_RELEASE || 
+            glfwGetKey(window, GLFW_KEY_S) == GLFW_RELEASE ||
+            glfwGetKey(window, GLFW_KEY_A) == GLFW_RELEASE || 
+            glfwGetKey(window, GLFW_KEY_D) == GLFW_RELEASE)
+			player.SetVelocity(0.0f);
 
     }
 }
