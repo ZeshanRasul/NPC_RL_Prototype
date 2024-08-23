@@ -18,8 +18,6 @@ public:
     void draw();
     void cleanup();
     void uploadVertexBuffers();
-    void applyVertexSkinning(bool enableSkinning);
-    void uploadPositionBuffer();
     void uploadIndexBuffer();
     std::shared_ptr<Mesh> getSkeleton(bool enableSkinning);
     int getJointMatrixSize();
@@ -27,8 +25,8 @@ public:
     int getJointDualQuatsSize();
     std::vector<glm::mat2x4> getJointDualQuats();
 
-    void playAnimation(int animNum, float speedDivider);
-    void setAnimationFrame(int animNumber, float time);
+    void playAnimation(int animNum, float speedDivider, float blendFactor, bool playBackwards);
+    void blendAnimationFrame(int animNumber, float time, float blendFactor);
     float getAnimationEndTime(int animNum);
     std::string getClipName(int animNum);
 

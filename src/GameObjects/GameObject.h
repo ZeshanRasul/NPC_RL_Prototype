@@ -22,8 +22,6 @@ public:
         Logger::log(1, "%s: matrix uniform buffer (size %i bytes) successfully created\n", __FUNCTION__, uniformMatrixBufferSize);
     }
 
-    void ApplySkinning() const { model->applyVertexSkinning(toSkin); }
-
     bool isSkinned() const { return toSkin; }
 
     virtual void Draw(glm::mat4 viewMat, glm::mat4 proj) {

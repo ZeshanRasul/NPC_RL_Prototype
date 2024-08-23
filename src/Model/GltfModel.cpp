@@ -233,13 +233,21 @@ void GltfModel::getAnimations() {
     }
 }
 
-void GltfModel::playAnimation(int animNum, float speedDivider) {
+void GltfModel::playAnimation(int animNum, float speedDivider, float blendFactor, bool playBackwards) {
     double currentTime = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now().time_since_epoch()).count();
-    setAnimationFrame(animNum, std::fmod(currentTime / 1000.0 * speedDivider, mAnimClips.at(animNum)->getClipEndTime()));
+    if (playBackwards) {
+        blendAnimationFrame(animNum, mAnimClips.at(animNum)->getClipEndTime() -
+            std::fmod(currentTime / 1000.0 * speedDivider,
+                mAnimClips.at(animNum)->getClipEndTime()), blendFactor);
+    }
+    else {
+        blendAnimationFrame(animNum, std::fmod(currentTime / 1000.0 * speedDivider,
+            mAnimClips.at(animNum)->getClipEndTime()), blendFactor);
+    }
 }
 
-void GltfModel::setAnimationFrame(int animNum, float time) {
-    mAnimClips.at(animNum)->setAnimationFrame(mNodeList, time);
+void GltfModel::blendAnimationFrame(int animNum, float time, float blendFactor) {
+    mAnimClips.at(animNum)->blendAnimationFrame(mNodeList, time, blendFactor);
     updateNodeMatrices(mRootNode, glm::mat4(1.0f));
 }
 

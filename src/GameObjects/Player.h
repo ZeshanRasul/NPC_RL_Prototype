@@ -56,7 +56,7 @@ public:
     void PlayerProcessKeyboard(CameraMovement direction, float deltaTime);
     void PlayerProcessMouseMovement(float xOffset);
 
-    void SetAnimation(int animNum, float speedDivider);
+    void SetAnimation(int animNum, float speedDivider, float blendFactor, bool playAnimBackwards);
 
     float GetVelocity() const { return mVelocity; }
 	void SetVelocity(float newVelocity) { mVelocity = newVelocity; }

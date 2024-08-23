@@ -22,11 +22,11 @@ void Enemy::drawObject(glm::mat4 viewMat, glm::mat4 proj)
         model->uploadVertexBuffers();
 		uploadVertexBuffer = false;
     }
-    //model->uploadPositionBuffer();
+
     model->draw();
 }
 
-void Enemy::Update(float dt, Player& player)
+void Enemy::Update(float dt, Player& player, float blendFactor, bool playAnimBackwards)
 {
     float playerEnemyDistance = glm::distance(getPosition(), player.getPosition());
 
@@ -62,7 +62,7 @@ void Enemy::Update(float dt, Player& player)
             //    std::cout << std::endl;
             //}
 
-            moveEnemy(path, dt);
+            moveEnemy(path, dt, blendFactor, playAnimBackwards);
         }
         else
         {
@@ -78,7 +78,7 @@ void Enemy::Update(float dt, Player& player)
 
             reachedDestination = false;
 
-            moveEnemy(path, dt);
+            moveEnemy(path, dt, blendFactor, playAnimBackwards);
         }
 
         break;
@@ -87,7 +87,7 @@ void Enemy::Update(float dt, Player& player)
     {
         if (reachedPlayer)
         {
-            SetAnimation(4, 1.0f);
+            SetAnimation(4, 1.0f, blendFactor, playAnimBackwards);
 
             if (playerEnemyDistance > CELL_SIZE)
                 reachedPlayer = false;
@@ -102,7 +102,7 @@ void Enemy::Update(float dt, Player& player)
 
             std::cout << "Moving to Player destination" << std::endl;
 
-            moveEnemy(path, dt);
+            moveEnemy(path, dt, blendFactor, playAnimBackwards);
         }
 
         break;
@@ -154,7 +154,7 @@ void Enemy::EnemyProcessMouseMovement(float xOffset, float yOffset, bool constra
 	UpdateEnemyCameraVectors();
 }
 
-void Enemy::moveEnemy(const std::vector<glm::ivec2>& path, float deltaTime) {
+void Enemy::moveEnemy(const std::vector<glm::ivec2>& path, float deltaTime, float blendFactor, bool playAnimBackwards) {
     static size_t pathIndex = 0;
     if (path.empty()) return;
 
@@ -163,7 +163,7 @@ void Enemy::moveEnemy(const std::vector<glm::ivec2>& path, float deltaTime) {
     float speed = 10.0f; // Ensure this speed is appropriate for the grid size and cell size
     
     if (!reachedPlayer)
-        SetAnimation(0, 1.0f);
+        SetAnimation(0, 1.0f, blendFactor, playAnimBackwards);
 
     if (pathIndex >= path.size()) {
         std::cout << "Agent has reached its destination." << std::endl;
@@ -244,7 +244,7 @@ void Enemy::moveEnemy(const std::vector<glm::ivec2>& path, float deltaTime) {
     }
 }
 
-void Enemy::SetAnimation(int animNum, float speedDivider)
+void Enemy::SetAnimation(int animNum, float speedDivider, float blendFactor, bool playBackwards)
 {
-    model->playAnimation(animNum, speedDivider);
+    model->playAnimation(animNum, speedDivider, blendFactor, playBackwards);
 }

@@ -129,6 +129,8 @@ void GameManager::showDebugUI()
 
     ShowLightControlWindow(dirLight);
     ShowCameraControlWindow(*camera);
+
+    ShowAnimationControlWindow();
 }
 
 void GameManager::renderDebugUI()
@@ -141,18 +143,29 @@ void GameManager::ShowLightControlWindow(DirLight& light)
 {
     ImGui::Begin("Directional Light Control");
 
-    // Light direction control
     ImGui::Text("Light Direction");
     ImGui::DragFloat3("Direction", (float*)&light.direction, dirLight.direction.x, dirLight.direction.y, dirLight.direction.z);
 
-    // Ambient color picker
     ImGui::ColorEdit4("Ambient", (float*)&light.ambient);
 
-    // Diffuse color picker
     ImGui::ColorEdit4("Diffuse", (float*)&light.diffuse);
 
-    // Specular color picker
     ImGui::ColorEdit4("Specular", (float*)&light.specular);
+
+    ImGui::End();
+}
+
+void GameManager::ShowAnimationControlWindow()
+{
+    ImGui::Begin("Animation Control");
+
+    ImGui::Text("Player Blend Factor");
+    ImGui::SameLine();
+	ImGui::SliderFloat("##PlayerBlendFactor", &playerAnimBlendFactor, 0.0f, 1.0f);
+
+    ImGui::Text("Enemy Blend Factor");
+    ImGui::SameLine();
+    ImGui::SliderFloat("##EnemyBlendFactor", &enemyAnimBlendFactor, 0.0f, 1.0f);
 
     ImGui::End();
 }
@@ -191,7 +204,7 @@ void GameManager::update(float deltaTime)
     inputManager->processInput(window->getWindow(), deltaTime);
 
     // TODO: Update Game Objects
-    enemy->Update(deltaTime, *player);
+    enemy->Update(deltaTime, *player, enemyAnimBlendFactor, false);
 //    enemy2->Update(deltaTime, *player);
 //    enemy3->Update(deltaTime, *player);
 //    enemy4->Update(deltaTime, *player);
@@ -199,13 +212,11 @@ void GameManager::update(float deltaTime)
 
 void GameManager::render()
 {
-    // TODO:: Render Game Objects
-
-    int animNumber = 4;
+    int animNumber = 0;
     if (player->GetVelocity() >= 0.01f)
         animNumber = 0;
 
-    player->model->playAnimation(animNumber, 1.0f);
+    player->model->playAnimation(animNumber, 1.0f, playerAnimBlendFactor, false);
 
     for (auto obj : gameObjects) {
        renderer->draw(obj, view, projection);

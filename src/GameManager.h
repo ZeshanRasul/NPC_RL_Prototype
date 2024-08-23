@@ -38,6 +38,8 @@ public:
 private:
     void ShowCameraControlWindow(Camera& cam);
     void ShowLightControlWindow(DirLight& light);
+    void ShowAnimationControlWindow();
+
 
     Renderer* renderer;
     Window* window;
@@ -60,6 +62,9 @@ private:
     size_t mPlayerJointMatrixSize;
     size_t mEnemyJointMatrixSize;
 	std::vector<glm::mat2x4> playerJointDualQuatsVec;
+
+	float playerAnimBlendFactor = 1.0f;
+	float enemyAnimBlendFactor = 1.0f;
 
     glm::mat4 view = glm::mat4(1.0f);
     glm::mat4 projection = glm::mat4(1.0f);

@@ -33,6 +33,30 @@ void GltfAnimationClip::setAnimationFrame(std::vector<std::shared_ptr<GltfNode>>
     }
 }
 
+void GltfAnimationClip::blendAnimationFrame(std::vector<std::shared_ptr<GltfNode>> nodes,
+    float time, float blendFactor) {
+    for (auto& channel : mAnimationChannels) {
+        int targetNode = channel->getTargetNode();
+        switch (channel->getTargetPath()) {
+        case ETargetPath::ROTATION:
+            nodes.at(targetNode)->blendRotation(channel->getRotation(time), blendFactor);
+            break;
+        case ETargetPath::TRANSLATION:
+            nodes.at(targetNode)->blendTranslation(channel->getTranslation(time), blendFactor);
+            break;
+        case ETargetPath::SCALE:
+            nodes.at(targetNode)->blendScale(channel->getScaling(time), blendFactor);
+            break;
+        }
+    }
+    /* update all nodes in a single run */
+    for (auto& node : nodes) {
+        if (node) {
+            node->calculateLocalTRSMatrix();
+        }
+    }
+}
+
 float GltfAnimationClip::getClipEndTime() {
     return mAnimationChannels.at(0)->getMaxTime();;
 }

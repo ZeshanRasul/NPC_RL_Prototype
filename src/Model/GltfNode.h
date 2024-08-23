@@ -14,9 +14,14 @@ public:
 	int getNodeNum();
 
 	void setNodeName(std::string name);
+
 	void setScale(glm::vec3 scale);
 	void setTranslation(glm::vec3 translation);
 	void setRotation(glm::quat rotation);
+
+	void blendScale(glm::vec3 scale, float blendFactor);
+	void blendTranslation(glm::vec3 translation, float blendFactor);
+	void blendRotation(glm::quat rotation, float blendFactor);
 
 	void calculateLocalTRSMatrix();
 	void calculateNodeMatrix(glm::mat4 parentNodeMatrix);
@@ -31,6 +36,10 @@ private:
 	std::string mNodeName;
 
 	std::vector<std::shared_ptr<GltfNode>> mChildNodes{};
+
+	glm::vec3 mBlendScale = glm::vec3(1.0f);
+	glm::vec3 mBlendTranslation = glm::vec3(0.0f);
+	glm::quat mBlendRotation = glm::quat(1.0f, 0.0f, 0.0f, 0.0f);
 
 	glm::vec3 mScale = glm::vec3(1.0f);
 	glm::vec3 mTranslation = glm::vec3(0.0f);

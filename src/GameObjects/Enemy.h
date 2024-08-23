@@ -76,7 +76,7 @@ public:
 
     void drawObject(glm::mat4 viewMat, glm::mat4 proj) override;
 
-    void Update(float dt, Player& player);
+    void Update(float dt, Player& player, float blendFactor, bool playAnimBackwards);
 
     glm::vec3 getPosition() {
         return position;
@@ -96,9 +96,9 @@ public:
 
     void SetEnemyState(EnemyState newState) { state = newState; }
 
-    void moveEnemy(const std::vector<glm::ivec2>& path, float deltaTime);
+    void moveEnemy(const std::vector<glm::ivec2>& path, float deltaTime, float blendFactor, bool playAnimBackwards);
 
-    void SetAnimation(int animNum, float speedDivider);
+    void SetAnimation(int animNum, float speedDivider, float blendFactor, bool playBackwards);
 
     EnemyState state = PATROL;
     float Yaw;

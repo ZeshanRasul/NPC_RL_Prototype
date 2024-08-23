@@ -14,19 +14,13 @@ void Player::drawObject(glm::mat4 viewMat, glm::mat4 proj)
 
     mPlayerDualQuatSSBuffer.uploadSsboData(model->getJointDualQuats(), 2);
 
-
 //    model->playAnimation(0, 0.8f);
-
 
     if (uploadVertexBuffer)
     {
         model->uploadVertexBuffers();
         uploadVertexBuffer = false;
     }
-    //model->uploadPositionBuffer();
-
-
-
 
     model->draw();
 }
@@ -69,8 +63,8 @@ void Player::PlayerProcessMouseMovement(float xOffset)
     UpdatePlayerVectors();
 }
 
-void Player::SetAnimation(int animNum, float speedDivider)
+void Player::SetAnimation(int animNum, float speedDivider, float blendFactor, bool playAnimBackwards)
 {
-    model->playAnimation(animNum, speedDivider);
+    model->playAnimation(animNum, speedDivider, blendFactor, playAnimBackwards);
 }
 
