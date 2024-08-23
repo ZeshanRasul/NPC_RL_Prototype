@@ -13,6 +13,10 @@ void Enemy::drawObject(glm::mat4 viewMat, glm::mat4 proj)
     matrixData.push_back(modelMat);
     mUniformBuffer.uploadUboData(matrixData, 0);
 
+    GetShader()->use();
+    mEnemyDualQuatSSBuffer.uploadSsboData(model->getJointDualQuats(), 2);
+
+
     if (uploadVertexBuffer)
     {
         model->uploadVertexBuffers();

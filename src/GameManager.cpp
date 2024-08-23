@@ -48,15 +48,10 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
     mEnemySSBuffer.init(enemyJointMatrixSize);
     Logger::log(1, "%s: glTF joint matrix uniform buffer (size %i bytes) successfully created\n", __FUNCTION__, mEnemySSBuffer);
 
-    //size_t playerModelJointDualQuatBufferSize = player->model->getJointDualQuatsSize() *
+    //size_t enemyModelJointDualQuatBufferSize = enemy->model->getJointDualQuatsSize() *
     //    sizeof(glm::mat2x4);
-    //mPlayerDualQuatSSBuffer.init(playerModelJointDualQuatBufferSize);
-    //Logger::log(1, "%s: glTF joint dual quaternions shader storage buffer (size %i bytes) successfully created\n", __FUNCTION__, playerModelJointDualQuatBufferSize);
-
-    size_t enemyModelJointDualQuatBufferSize = enemy->model->getJointDualQuatsSize() *
-        sizeof(glm::mat2x4);
-    mEnemyDualQuatSSBuffer.init(enemyModelJointDualQuatBufferSize);
-    Logger::log(1, "%s: glTF joint dual quaternions shader storage buffer (size %i bytes) successfully created\n", __FUNCTION__, enemyModelJointDualQuatBufferSize);
+    //mEnemyDualQuatSSBuffer.init(enemyModelJointDualQuatBufferSize);
+    //Logger::log(1, "%s: glTF joint dual quaternions shader storage buffer (size %i bytes) successfully created\n", __FUNCTION__, enemyModelJointDualQuatBufferSize);
 
 
  /*   waypoint1 = new Waypoint(snapToGrid(waypointPositions[0]), glm::vec3(5.0f, 10.0f, 5.0f), &gridShader, false);
@@ -228,12 +223,8 @@ void GameManager::render()
 
     player->model->playAnimation(animNumber, 1.0f);
 
-    playerJointDualQuatsVec = player->model->getJointDualQuats();
-
-    //player->GetShader()->use();
-    //mPlayerDualQuatSSBuffer.uploadSsboData(playerJointDualQuatsVec, 2);
-    enemy->GetShader()->use();
-    mEnemyDualQuatSSBuffer.uploadSsboData(enemy->model->getJointDualQuats(), 2);
+    //enemy->GetShader()->use();
+    //mEnemyDualQuatSSBuffer.uploadSsboData(enemy->model->getJointDualQuats(), 2);
 
     for (auto obj : gameObjects) {
        renderer->draw(obj, view, projection);

@@ -3,6 +3,7 @@
 #include "GameObject.h"
 #include "Player.h"
 #include "src/Pathfinding/Grid.h"
+#include "src/OpenGL/ShaderStorageBuffer.h"
 
 enum EnemyState {
     PATROL,
@@ -54,6 +55,13 @@ public:
 
         model->uploadIndexBuffer();
         Logger::log(1, "%s: glTF model '%s' succesfully loaded\n", __FUNCTION__, modelFilename.c_str());
+
+
+        size_t enemyModelJointDualQuatBufferSize = model->getJointDualQuatsSize() *
+            sizeof(glm::mat2x4);
+        mEnemyDualQuatSSBuffer.init(enemyModelJointDualQuatBufferSize);
+        Logger::log(1, "%s: glTF joint dual quaternions shader storage buffer (size %i bytes) successfully created\n", __FUNCTION__, enemyModelJointDualQuatBufferSize);
+
 
         UpdateEnemyCameraVectors();
         UpdateEnemyVectors(); 
@@ -107,4 +115,5 @@ public:
     glm::vec3 currentWaypoint;
 
     bool uploadVertexBuffer = true;
+    ShaderStorageBuffer mEnemyDualQuatSSBuffer{};
 };
