@@ -38,22 +38,6 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 
     inputManager->setContext(camera, player, enemy, width, height);
 
-    size_t playerJointMatrixSize = player->model->getJointMatrixSize() * sizeof(glm::mat4);
-
-    mPlayerSSBuffer.init(playerJointMatrixSize);
-    Logger::log(1, "%s: glTF joint matrix uniform buffer (size %i bytes) successfully created\n", __FUNCTION__, mPlayerSSBuffer);
-    
-    size_t enemyJointMatrixSize = enemy->model->getJointMatrixSize() * sizeof(glm::mat4);
-
-    mEnemySSBuffer.init(enemyJointMatrixSize);
-    Logger::log(1, "%s: glTF joint matrix uniform buffer (size %i bytes) successfully created\n", __FUNCTION__, mEnemySSBuffer);
-
-    //size_t enemyModelJointDualQuatBufferSize = enemy->model->getJointDualQuatsSize() *
-    //    sizeof(glm::mat2x4);
-    //mEnemyDualQuatSSBuffer.init(enemyModelJointDualQuatBufferSize);
-    //Logger::log(1, "%s: glTF joint dual quaternions shader storage buffer (size %i bytes) successfully created\n", __FUNCTION__, enemyModelJointDualQuatBufferSize);
-
-
  /*   waypoint1 = new Waypoint(snapToGrid(waypointPositions[0]), glm::vec3(5.0f, 10.0f, 5.0f), &gridShader, false);
     waypoint2 = new Waypoint(snapToGrid(waypointPositions[1]), glm::vec3(5.0f, 10.0f, 5.0f), &gridShader, false);
     waypoint3 = new Waypoint(snapToGrid(waypointPositions[2]), glm::vec3(5.0f, 10.0f, 5.0f), &gridShader, false);
@@ -222,9 +206,6 @@ void GameManager::render()
         animNumber = 0;
 
     player->model->playAnimation(animNumber, 1.0f);
-
-    //enemy->GetShader()->use();
-    //mEnemyDualQuatSSBuffer.uploadSsboData(enemy->model->getJointDualQuats(), 2);
 
     for (auto obj : gameObjects) {
        renderer->draw(obj, view, projection);
