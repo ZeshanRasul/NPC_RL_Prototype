@@ -56,12 +56,11 @@ bool GltfModel::loadModel(RenderData& renderData,
     getWeightData();
     getInvBindMatrices();
 
-    int nodeCount = mModel->nodes.size();
+    mNodeCount = mModel->nodes.size();
     int rootNode = mModel->scenes.at(0).nodes.at(0);
-    Logger::log(1, "%s: model has %i nodes, root node is %i\n", __FUNCTION__, nodeCount,
-        rootNode);
+    Logger::log(1, "%s: model has %i nodes, root node is %i\n", __FUNCTION__, mNodeCount, rootNode);
 
-    mNodeList.resize(nodeCount);
+    mNodeList.resize(mNodeCount);
 
     mRootNode = GltfNode::createRoot(rootNode);
 
@@ -74,6 +73,13 @@ bool GltfModel::loadModel(RenderData& renderData,
 
     getAnimations();
     renderData.animClipsSize = mAnimClips.size();
+
+    mAdditiveAnimationMask.resize(mNodeCount);
+    mInvertedAdditiveAnimationMask.resize(mNodeCount);
+
+    std::fill(mAdditiveAnimationMask.begin(), mAdditiveAnimationMask.end(), true);
+    mInvertedAdditiveAnimationMask = mAdditiveAnimationMask;
+    mInvertedAdditiveAnimationMask.flip();
 
     renderData.rdGltfTriangleCount = getTriangleCount();
 
@@ -264,7 +270,7 @@ void GltfModel::playAnimation(int sourceAnimNumber, int destAnimNumber,
 }
 
 void GltfModel::blendAnimationFrame(int animNum, float time, float blendFactor) {
-    mAnimClips.at(animNum)->blendAnimationFrame(mNodeList, time, blendFactor);
+    mAnimClips.at(animNum)->blendAnimationFrame(mNodeList, mAdditiveAnimationMask, time, blendFactor);
     updateNodeMatrices(mRootNode, glm::mat4(1.0f));
 }
 
@@ -275,8 +281,12 @@ void GltfModel::crossBlendAnimationFrame(int sourceAnimNumber, int destAnimNumbe
     float destAnimDuration = mAnimClips.at(destAnimNumber)->getClipEndTime();
     float scaledTime = time * (destAnimDuration / sourceAnimDuration);
 
-    mAnimClips.at(sourceAnimNumber)->setAnimationFrame(mNodeList, time);
-    mAnimClips.at(destAnimNumber)->blendAnimationFrame(mNodeList, scaledTime, blendFactor);
+    mAnimClips.at(sourceAnimNumber)->setAnimationFrame(mNodeList, mAdditiveAnimationMask, time);
+    mAnimClips.at(destAnimNumber)->blendAnimationFrame(mNodeList, mAdditiveAnimationMask, scaledTime, blendFactor);
+
+    mAnimClips.at(destAnimNumber)->setAnimationFrame(mNodeList, mInvertedAdditiveAnimationMask, scaledTime);
+    mAnimClips.at(sourceAnimNumber)->blendAnimationFrame(mNodeList, mInvertedAdditiveAnimationMask, time, blendFactor);
+
     updateNodeMatrices(mRootNode, glm::mat4(1.0f));
 }
 
@@ -455,6 +465,17 @@ void GltfModel::resetNodeData(std::shared_ptr<GltfNode> treeNode, glm::mat4 pare
     }
 }
 
+void GltfModel::updateAdditiveMask(std::shared_ptr<GltfNode> treeNode, int splitNodeNum) {
+    if (treeNode->getNodeNum() == splitNodeNum) {
+        return;
+    }
+
+    mAdditiveAnimationMask.at(treeNode->getNodeNum()) = false;
+    for (auto& childNode : treeNode->getChilds()) {
+        updateAdditiveMask(childNode, splitNodeNum);
+    }
+}
+
 void GltfModel::updateJointMatricesAndQuats(std::shared_ptr<GltfNode> treeNode) {
     int nodeNum = treeNode->getNodeNum();
     mJointMatrices.at(mNodeToJoint.at(nodeNum)) =
@@ -502,6 +523,21 @@ void GltfModel::getNodeData(std::shared_ptr<GltfNode> treeNode, glm::mat4 parent
     treeNode->calculateNodeMatrix(parentNodeMatrix);
 
     updateJointMatricesAndQuats(treeNode);
+}
+
+void GltfModel::setSkeletonSplitNode(int nodeNum) {
+    std::fill(mAdditiveAnimationMask.begin(), mAdditiveAnimationMask.end(), true);
+    updateAdditiveMask(mRootNode, nodeNum);
+
+    mInvertedAdditiveAnimationMask = mAdditiveAnimationMask;
+    mInvertedAdditiveAnimationMask.flip();
+}
+
+std::string GltfModel::getNodeName(int nodeNum) {
+    if (nodeNum >= 0 && nodeNum < (mNodeList.size()) && mNodeList.at(nodeNum)) {
+        return mNodeList.at(nodeNum)->getNodeName();
+    }
+    return "(Invalid)";
 }
 
 void GltfModel::cleanup() {

@@ -14,6 +14,7 @@ public:
 	int getNodeNum();
 
 	void setNodeName(std::string name);
+	std::string getNodeName();
 
 	void setScale(glm::vec3 scale);
 	void setTranslation(glm::vec3 translation);

@@ -35,6 +35,10 @@ void GltfNode::setNodeName(std::string name)
 	mNodeName = name;
 }
 
+std::string GltfNode::getNodeName() {
+	return mNodeName;
+}
+
 void GltfNode::setScale(glm::vec3 scale)
 {
 	mScale = scale;

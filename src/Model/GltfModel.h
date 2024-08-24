@@ -34,6 +34,9 @@ public:
 	int getAnimClipsSize() const { return (int)mAnimClips.size(); }
 
     void resetNodeData();
+    void setSkeletonSplitNode(int nodeNum);
+    std::string getNodeName(int nodeNum);
+	int getNodeCount() const { return mNodeCount; }
 
 private:
     void createVertexBuffers();
@@ -48,8 +51,10 @@ private:
     void getNodes(std::shared_ptr<GltfNode> treeNode);
     void getNodeData(std::shared_ptr<GltfNode> treeNode, glm::mat4 parentNodeMatrix);
     void resetNodeData(std::shared_ptr<GltfNode> treeNode, glm::mat4 parentNodeMatrix);
+
     void updateNodeMatrices(std::shared_ptr<GltfNode> treeNode, glm::mat4 parentNodeMatrix);
     void updateJointMatricesAndQuats(std::shared_ptr<GltfNode> treeNode);
+    void updateAdditiveMask(std::shared_ptr<GltfNode> treeNode, int splitNodeNum);
 
     std::vector<glm::tvec4<uint16_t>> mJointVec{};
     std::vector<glm::vec4> mWeightVec{};
@@ -66,9 +71,13 @@ private:
     std::shared_ptr<Mesh> mSkeletonMesh = nullptr;
 
     std::vector<std::shared_ptr<GltfNode>> mNodeList;
+	int mNodeCount = 0;
 
     std::vector<std::shared_ptr<GltfAnimationClip>> mAnimClips{};
     size_t animClipsSize;
+
+    std::vector<bool> mAdditiveAnimationMask{};
+    std::vector<bool> mInvertedAdditiveAnimationMask{};
 
     GLuint mVAO = 0;
     std::vector<GLuint> mVertexVBO{};

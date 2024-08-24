@@ -68,12 +68,19 @@ private:
     int playerCrossBlendSourceClip = 0;
 	int playerCrossBlendDestClip = 8;
     float playerAnimCrossBlendFactor = 0.0f;
+	bool playerAdditiveBlend = false;
+    int playerSkeletonSplitNode = 0;
+	std::string playerSkeletonSplitNodeName = "None";
 
     float enemyAnimBlendFactor = 1.0f;
     bool enemyCrossBlend = false;
     int enemyCrossBlendSourceClip = 1;
     int enemyCrossBlendDestClip = 7;
     float enemyAnimCrossBlendFactor = 0.0f;
+	bool enemyAdditiveBlend = false;
+    int enemySkeletonSplitNode = 0;
+    std::string enemySkeletonSplitNodeName = "None";
+
 
     glm::mat4 view = glm::mat4(1.0f);
     glm::mat4 projection = glm::mat4(1.0f);

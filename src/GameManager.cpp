@@ -38,6 +38,11 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 
     inputManager->setContext(camera, player, enemy, width, height);
 
+    /* reset skeleton split */
+    playerSkeletonSplitNode = player->model->getNodeCount() - 1;
+    enemySkeletonSplitNode = enemy->model->getNodeCount() - 1;
+
+
  /*   waypoint1 = new Waypoint(snapToGrid(waypointPositions[0]), glm::vec3(5.0f, 10.0f, 5.0f), &gridShader, false);
     waypoint2 = new Waypoint(snapToGrid(waypointPositions[1]), glm::vec3(5.0f, 10.0f, 5.0f), &gridShader, false);
     waypoint3 = new Waypoint(snapToGrid(waypointPositions[2]), glm::vec3(5.0f, 10.0f, 5.0f), &gridShader, false);
@@ -196,6 +201,20 @@ void GameManager::ShowAnimationControlWindow()
     ImGui::SameLine();
     ImGui::SliderFloat("##CrossBlendFactor", &playerAnimCrossBlendFactor, 0.0f, 1.0f);
 
+    ImGui::Checkbox("Additive Blending", &playerAdditiveBlend);
+
+    if (!playerAdditiveBlend) {
+        ImGui::BeginDisabled();
+    }
+    ImGui::Text("Split Node  ");
+    ImGui::SameLine();
+    ImGui::SliderInt("##SplitNode", &playerSkeletonSplitNode, 0, player->model->getNodeCount() - 1);
+    ImGui::Text("Split Node Name: %s", playerSkeletonSplitNodeName.c_str());
+
+    if (!playerAdditiveBlend) {
+        ImGui::EndDisabled();
+    }
+
     if (!playerCrossBlend)
 		ImGui::EndDisabled();
 
@@ -239,6 +258,20 @@ void GameManager::ShowAnimationControlWindow()
     ImGui::Text("Cross Blend ");
     ImGui::SameLine();
     ImGui::SliderFloat("##CrossBlendFactor", &enemyAnimCrossBlendFactor, 0.0f, 1.0f);
+
+    ImGui::Checkbox("Additive Blending", &enemyAdditiveBlend);
+
+    if (!enemyAdditiveBlend) {
+        ImGui::BeginDisabled();
+    }
+    ImGui::Text("Split Node  ");
+    ImGui::SameLine();
+    ImGui::SliderInt("##SplitNode", &enemySkeletonSplitNode, 0, enemy->model->getNodeCount() - 1);
+    ImGui::Text("Split Node Name: %s", enemySkeletonSplitNodeName.c_str());
+
+    if (!enemyAdditiveBlend) {
+        ImGui::EndDisabled();
+    }
 
     if (!enemyCrossBlend)
         ImGui::EndDisabled();
@@ -292,6 +325,28 @@ void GameManager::render()
     if (blendingChanged != playerCrossBlend)
     {
 		blendingChanged = playerCrossBlend;
+        if (!playerCrossBlend)
+        {
+            playerAdditiveBlend = false;
+        }
+        player->model->resetNodeData();
+    }
+
+    static bool additiveBlendingChanged = playerAdditiveBlend;
+    if (additiveBlendingChanged != playerAdditiveBlend) {
+        additiveBlendingChanged = playerAdditiveBlend;
+        /* reset split when additive blending is disabled */
+        if (!playerAdditiveBlend) {
+            playerSkeletonSplitNode = player->model->getNodeCount() - 1;
+        }
+        player->model->resetNodeData();
+    }
+
+    static int skelSplitNode = playerSkeletonSplitNode;
+    if (skelSplitNode != playerSkeletonSplitNode) {
+        player->model->setSkeletonSplitNode(playerSkeletonSplitNode);
+        playerSkeletonSplitNodeName = player->model->getNodeName(playerSkeletonSplitNode);
+        skelSplitNode = playerSkeletonSplitNode;
         player->model->resetNodeData();
     }
 
