@@ -157,15 +157,91 @@ void GameManager::ShowLightControlWindow(DirLight& light)
 
 void GameManager::ShowAnimationControlWindow()
 {
-    ImGui::Begin("Animation Control");
+    ImGui::Begin("Player Animation Control");
+
+	ImGui::Checkbox("Blending Type: ", &playerCrossBlend);
+    ImGui::SameLine();
+    if (playerCrossBlend)
+    {
+        ImGui::Text("Cross");
+    }
+    else 
+    { 
+		ImGui::Text("Single");
+    }
+
+    if (playerCrossBlend)
+        ImGui::BeginDisabled();
 
     ImGui::Text("Player Blend Factor");
     ImGui::SameLine();
 	ImGui::SliderFloat("##PlayerBlendFactor", &playerAnimBlendFactor, 0.0f, 1.0f);
 
+    if (playerCrossBlend)
+        ImGui::EndDisabled();
+
+    if (!playerCrossBlend)
+		ImGui::BeginDisabled();
+
+    ImGui::Text("Source Clip   ");
+    ImGui::SameLine();
+    ImGui::SliderInt("##SourceClip", &playerCrossBlendSourceClip, 0, player->model->getAnimClipsSize() - 1);
+
+
+	ImGui::Text("Dest Clip   ");
+	ImGui::SameLine();
+	ImGui::SliderInt("##DestClip", &playerCrossBlendDestClip, 0, player->model->getAnimClipsSize() - 1);
+
+    ImGui::Text("Cross Blend ");
+    ImGui::SameLine();
+    ImGui::SliderFloat("##CrossBlendFactor", &playerAnimCrossBlendFactor, 0.0f, 1.0f);
+
+    if (!playerCrossBlend)
+		ImGui::EndDisabled();
+
+    ImGui::End();
+
+    ImGui::Begin("Enemy Animation Control");
+
+    ImGui::Checkbox("Cross Blend", &enemyCrossBlend);
+    ImGui::SameLine();
+    if (enemyCrossBlend)
+    {
+        ImGui::Text("Cross");
+    }
+    else
+    {
+        ImGui::Text("Single");
+    }
+
+	if (enemyCrossBlend)
+		ImGui::BeginDisabled();
+
     ImGui::Text("Enemy Blend Factor");
     ImGui::SameLine();
     ImGui::SliderFloat("##EnemyBlendFactor", &enemyAnimBlendFactor, 0.0f, 1.0f);
+
+    if (enemyCrossBlend)
+        ImGui::EndDisabled();
+
+    if (!enemyCrossBlend)
+        ImGui::BeginDisabled();
+
+    ImGui::Text("Source Clip   ");
+    ImGui::SameLine();
+    ImGui::SliderInt("##SourceClip", &enemyCrossBlendSourceClip, 0, enemy->model->getAnimClipsSize() - 1);
+
+
+    ImGui::Text("Dest Clip   ");
+    ImGui::SameLine();
+    ImGui::SliderInt("##DestClip", &enemyCrossBlendDestClip, 0, enemy->model->getAnimClipsSize() - 1);
+
+    ImGui::Text("Cross Blend ");
+    ImGui::SameLine();
+    ImGui::SliderFloat("##CrossBlendFactor", &enemyAnimCrossBlendFactor, 0.0f, 1.0f);
+
+    if (!enemyCrossBlend)
+        ImGui::EndDisabled();
 
     ImGui::End();
 }
@@ -212,11 +288,21 @@ void GameManager::update(float deltaTime)
 
 void GameManager::render()
 {
-    int animNumber = 0;
-    if (player->GetVelocity() >= 0.01f)
-        animNumber = 0;
+    static bool blendingChanged = playerCrossBlend;
+    if (blendingChanged != playerCrossBlend)
+    {
+		blendingChanged = playerCrossBlend;
+        player->model->resetNodeData();
+    }
 
-    player->model->playAnimation(animNumber, 1.0f, playerAnimBlendFactor, false);
+    if (playerCrossBlend)
+    {
+		player->model->playAnimation(playerCrossBlendSourceClip, playerCrossBlendDestClip, 1.0f, playerAnimCrossBlendFactor, false);
+    }
+    else
+    {
+		player->model->playAnimation(0, 1.0f, playerAnimBlendFactor, false);
+    }
 
     for (auto obj : gameObjects) {
        renderer->draw(obj, view, projection);

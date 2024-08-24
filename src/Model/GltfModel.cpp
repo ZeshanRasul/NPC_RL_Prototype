@@ -246,8 +246,37 @@ void GltfModel::playAnimation(int animNum, float speedDivider, float blendFactor
     }
 }
 
+void GltfModel::playAnimation(int sourceAnimNumber, int destAnimNumber,
+    float speedDivider, float blendFactor, bool playBackwards) {
+    double currentTime = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now().time_since_epoch()).count();
+
+    if (playBackwards) {
+        crossBlendAnimationFrame(sourceAnimNumber, destAnimNumber,
+            mAnimClips.at(sourceAnimNumber)->getClipEndTime() -
+            std::fmod(currentTime / 1000.0 * speedDivider,
+                mAnimClips.at(sourceAnimNumber)->getClipEndTime()), blendFactor);
+    }
+    else {
+        crossBlendAnimationFrame(sourceAnimNumber, destAnimNumber,
+            std::fmod(currentTime / 1000.0 * speedDivider,
+                mAnimClips.at(sourceAnimNumber)->getClipEndTime()), blendFactor);
+    }
+}
+
 void GltfModel::blendAnimationFrame(int animNum, float time, float blendFactor) {
     mAnimClips.at(animNum)->blendAnimationFrame(mNodeList, time, blendFactor);
+    updateNodeMatrices(mRootNode, glm::mat4(1.0f));
+}
+
+void GltfModel::crossBlendAnimationFrame(int sourceAnimNumber, int destAnimNumber, float time,
+    float blendFactor) {
+
+    float sourceAnimDuration = mAnimClips.at(sourceAnimNumber)->getClipEndTime();
+    float destAnimDuration = mAnimClips.at(destAnimNumber)->getClipEndTime();
+    float scaledTime = time * (destAnimDuration / sourceAnimDuration);
+
+    mAnimClips.at(sourceAnimNumber)->setAnimationFrame(mNodeList, time);
+    mAnimClips.at(destAnimNumber)->blendAnimationFrame(mNodeList, scaledTime, blendFactor);
     updateNodeMatrices(mRootNode, glm::mat4(1.0f));
 }
 
@@ -410,6 +439,19 @@ void GltfModel::updateNodeMatrices(std::shared_ptr<GltfNode> treeNode, glm::mat4
 
     for (auto& childNode : treeNode->getChilds()) {
         updateNodeMatrices(childNode, treeNodeMatrix);
+    }
+}
+
+void GltfModel::resetNodeData() {
+    getNodeData(mRootNode, glm::mat4(1.0f));
+    resetNodeData(mRootNode, glm::mat4(1.0f));
+}
+
+void GltfModel::resetNodeData(std::shared_ptr<GltfNode> treeNode, glm::mat4 parentNodeMatrix) {
+    glm::mat4 treeNodeMatrix = treeNode->getNodeMatrix();
+    for (auto& childNode : treeNode->getChilds()) {
+        getNodeData(childNode, treeNodeMatrix);
+        resetNodeData(childNode, treeNodeMatrix);
     }
 }
 

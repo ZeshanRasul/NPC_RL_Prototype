@@ -64,7 +64,16 @@ private:
 	std::vector<glm::mat2x4> playerJointDualQuatsVec;
 
 	float playerAnimBlendFactor = 1.0f;
-	float enemyAnimBlendFactor = 1.0f;
+    bool playerCrossBlend = false;
+    int playerCrossBlendSourceClip = 0;
+	int playerCrossBlendDestClip = 8;
+    float playerAnimCrossBlendFactor = 0.0f;
+
+    float enemyAnimBlendFactor = 1.0f;
+    bool enemyCrossBlend = false;
+    int enemyCrossBlendSourceClip = 1;
+    int enemyCrossBlendDestClip = 7;
+    float enemyAnimCrossBlendFactor = 0.0f;
 
     glm::mat4 view = glm::mat4(1.0f);
     glm::mat4 projection = glm::mat4(1.0f);

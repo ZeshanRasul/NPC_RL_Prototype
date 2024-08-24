@@ -26,9 +26,14 @@ public:
     std::vector<glm::mat2x4> getJointDualQuats();
 
     void playAnimation(int animNum, float speedDivider, float blendFactor, bool playBackwards);
+    void playAnimation(int sourceAnimNum, int destAnimNum, float speedDivider, float blendFactor, bool playBackwards);
     void blendAnimationFrame(int animNumber, float time, float blendFactor);
+    void crossBlendAnimationFrame(int sourceAnimNumber, int destAnimNumber, float time, float blendFactor);
     float getAnimationEndTime(int animNum);
     std::string getClipName(int animNum);
+	int getAnimClipsSize() const { return (int)mAnimClips.size(); }
+
+    void resetNodeData();
 
 private:
     void createVertexBuffers();
@@ -42,6 +47,7 @@ private:
     void getAnimations();
     void getNodes(std::shared_ptr<GltfNode> treeNode);
     void getNodeData(std::shared_ptr<GltfNode> treeNode, glm::mat4 parentNodeMatrix);
+    void resetNodeData(std::shared_ptr<GltfNode> treeNode, glm::mat4 parentNodeMatrix);
     void updateNodeMatrices(std::shared_ptr<GltfNode> treeNode, glm::mat4 parentNodeMatrix);
     void updateJointMatricesAndQuats(std::shared_ptr<GltfNode> treeNode);
 
