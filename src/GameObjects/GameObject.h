@@ -10,6 +10,7 @@
 #include "Model/GltfModel.h"
 #include "RenderData.h"
 #include "UniformBuffer.h"
+#include "Components/Component.h"
 #include "Logger.h"
 
 class GameObject {
@@ -31,6 +32,33 @@ public:
 
     virtual Shader* GetShader() const { return shader; }
 
+    virtual void AddComponent(Component* component) {
+        // Find the insertion point in the sorted vector
+        // (The first element with a order higher than me)
+        int myOrder = component->GetUpdateOrder();
+        auto iter = mComponents.begin();
+        for (;
+            iter != mComponents.end();
+            ++iter)
+        {
+            if (myOrder < (*iter)->GetUpdateOrder())
+            {
+                break;
+            }
+        }
+
+        // Inserts element before position of iterator
+        mComponents.insert(iter, component);
+    }
+    ;
+    virtual void RemoveComponent(Component* component) {
+        auto iter = std::find(mComponents.begin(), mComponents.end(), component);
+        if (iter != mComponents.end())
+        {
+            mComponents.erase(iter);
+        }
+    };
+
     std::shared_ptr<GltfModel> model = nullptr;;
 protected:
     virtual void drawObject(glm::mat4 viewMat, glm::mat4 proj) = 0;
@@ -42,4 +70,6 @@ protected:
     RenderData renderData;
 
     UniformBuffer mUniformBuffer{};
+
+    std::vector<Component*> mComponents;
 };

@@ -15,7 +15,16 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
     : window(window)
 {
     inputManager = new InputManager();
-        
+	audioSystem = new AudioSystem(this);
+
+	if (!audioSystem->Initialize())
+	{
+		Logger::log(1, "%s error: AudioSystem init error\n", __FUNCTION__);
+        audioSystem->Shutdown();
+        delete audioSystem;
+        audioSystem = nullptr;
+	}
+
     window->setInputManager(inputManager);
     
     renderer = window->getRenderer();
@@ -67,6 +76,8 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
     gameObjects.push_back(waypoint2);
     gameObjects.push_back(waypoint3);
     gameObjects.push_back(waypoint4);*/
+
+    mMusicEvent = audioSystem->PlayEvent("event:/Music");
 }
 
 void GameManager::setupCamera(unsigned int width, unsigned int height)
@@ -311,6 +322,7 @@ void GameManager::ShowCameraControlWindow(Camera& cam)
 void GameManager::update(float deltaTime)
 {
     inputManager->processInput(window->getWindow(), deltaTime);
+	audioSystem->Update(deltaTime);
 
     // TODO: Update Game Objects
     enemy->Update(deltaTime, *player, enemyAnimBlendFactor, false);

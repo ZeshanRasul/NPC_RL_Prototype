@@ -6,6 +6,8 @@
 #include "src/Window/Window.h"
 
 #include "src/InputManager.h"
+#include "Audio/AudioSystem.h"
+#include "Audio/SoundEvent.h"
 
 #include "src/Camera.h"
 #include "GameObjects/Player.h"
@@ -26,7 +28,7 @@ public:
 
     void setupCamera(unsigned int width, unsigned int height);
     void setSceneData();
-
+	AudioSystem* getAudioSystem() { return audioSystem; }
 
     void update(float deltaTime);
 
@@ -50,6 +52,8 @@ private:
     Enemy* enemy3;
     Enemy* enemy4;
     InputManager* inputManager;
+	AudioSystem* audioSystem;
+
     std::vector<GameObject*> gameObjects;
 
     Shader playerShader{};
@@ -94,4 +98,6 @@ private:
     Waypoint* waypoint4;
 
     int currentStateIndex = 0;
+
+    SoundEvent mMusicEvent;
 };
