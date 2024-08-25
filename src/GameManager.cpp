@@ -37,6 +37,7 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 
     gridShader.loadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/gridVertex.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/gridFragment.glsl");
 
+	crosshairShader.loadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/crosshair_vert.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/crosshair_frag.glsl");
 
     // TODO: Initialise Game Objects
 
@@ -46,6 +47,9 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 //    enemy2 = new Enemy(snapToGrid(glm::vec3(23.0f, 0.0f, 13.0f)), glm::vec3(1.0f), &enemyShader, true);
 //    enemy3 = new Enemy(snapToGrid(glm::vec3(3.0f, 0.0f, 63.0f)), glm::vec3(1.0f), &enemyShader, true);
 //    enemy4 = new Enemy(snapToGrid(glm::vec3(11.0f, 0.0f, 23.0f)), glm::vec3(1.0f), &enemyShader, true);
+
+	crosshair = new Crosshair(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f), &crosshairShader, false, this);
+
     AudioComponent* fireAudioComponent = new AudioComponent(enemy);
     fireAudioComponent->PlayEvent("event:/FireLoop");
 

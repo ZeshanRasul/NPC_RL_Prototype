@@ -13,6 +13,7 @@
 #include "GameObjects/Player.h"
 #include "GameObjects/Enemy.h"
 #include "GameObjects/Waypoint.h"
+#include "GameObjects/Crosshair.h"
 #include "src/Pathfinding/Grid.h"
 
 class GameManager {
@@ -51,6 +52,7 @@ private:
     Enemy* enemy2;
     Enemy* enemy3;
     Enemy* enemy4;
+	Crosshair* crosshair;
     InputManager* inputManager;
 	AudioSystem* audioSystem;
 
@@ -59,10 +61,13 @@ private:
     Shader playerShader{};
     Shader enemyShader{};
     Shader gridShader{};
+	Shader crosshairShader{};
+    
     ShaderStorageBuffer mPlayerSSBuffer{};
     ShaderStorageBuffer mEnemySSBuffer{};
     ShaderStorageBuffer mPlayerDualQuatSSBuffer{};
     ShaderStorageBuffer mEnemyDualQuatSSBuffer{};
+   
     size_t mPlayerJointMatrixSize;
     size_t mEnemyJointMatrixSize;
 	std::vector<glm::mat2x4> playerJointDualQuatsVec;
