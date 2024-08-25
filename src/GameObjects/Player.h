@@ -10,8 +10,8 @@
 
 class Player : public GameObject {
 public:
-    Player(glm::vec3 pos, glm::vec3 scale, Shader* shdr, bool applySkinning, float yaw = -90.0f)
-        : GameObject(pos, scale, shdr, applySkinning), PlayerYaw(yaw)
+    Player(glm::vec3 pos, glm::vec3 scale, Shader* shdr, bool applySkinning, GameManager* gameMgr, float yaw = -90.0f)
+        : GameObject(pos, scale, yaw, shdr, applySkinning, gameMgr)
     {
         model = std::make_shared<GltfModel>();
 
@@ -30,6 +30,7 @@ public:
         mPlayerDualQuatSSBuffer.init(playerModelJointDualQuatBufferSize);
         Logger::log(1, "%s: glTF joint dual quaternions shader storage buffer (size %i bytes) successfully created\n", __FUNCTION__, playerModelJointDualQuatBufferSize);
 
+        ComputeAudioWorldTransform();
 
         UpdatePlayerVectors();
     }
@@ -49,7 +50,10 @@ public:
 
     void setPosition(glm::vec3 newPos) {
         position = newPos;
+		mRecomputeWorldTransform = true;
     }
+
+    void ComputeAudioWorldTransform() override;
 
     void UpdatePlayerVectors();
 

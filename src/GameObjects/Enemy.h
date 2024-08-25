@@ -41,8 +41,8 @@ static glm::vec3 selectRandomWaypoint(const glm::vec3& currentWaypoint, const st
 class Enemy : public GameObject {
 public:
 
-    Enemy(glm::vec3 pos, glm::vec3 scale, Shader* sdr, bool applySkinning, float yaw = 0.0f)
-        : GameObject(pos, scale, sdr, applySkinning ), Yaw(yaw)
+    Enemy(glm::vec3 pos, glm::vec3 scale, Shader* sdr, bool applySkinning, GameManager* gameMgr, float yaw = 0.0f)
+        : GameObject(pos, scale, yaw, sdr, applySkinning, gameMgr )
     {
         model = std::make_shared<GltfModel>();
 
@@ -62,6 +62,7 @@ public:
         mEnemyDualQuatSSBuffer.init(enemyModelJointDualQuatBufferSize);
         Logger::log(1, "%s: glTF joint dual quaternions shader storage buffer (size %i bytes) successfully created\n", __FUNCTION__, enemyModelJointDualQuatBufferSize);
 
+        ComputeAudioWorldTransform();
 
         UpdateEnemyCameraVectors();
         UpdateEnemyVectors(); 
@@ -84,7 +85,11 @@ public:
 
     void setPosition(glm::vec3 newPos) {
         position = newPos;
+        mRecomputeWorldTransform = true;
+        ComputeAudioWorldTransform();
     }
+
+	void ComputeAudioWorldTransform() override;
 
     void UpdateEnemyCameraVectors();
 
@@ -100,8 +105,9 @@ public:
 
     void SetAnimation(int animNum, float speedDivider, float blendFactor, bool playBackwards);
 
+	void SetYaw(float newYaw) { yaw = newYaw; }
+
     EnemyState state = PATROL;
-    float Yaw;
     float EnemyCameraYaw;
     float EnemyCameraPitch;
     glm::vec3 EnemyFront;

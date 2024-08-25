@@ -5,7 +5,7 @@ void Enemy::drawObject(glm::mat4 viewMat, glm::mat4 proj)
 {
 	glm::mat4 modelMat = glm::mat4(1.0f);
 	modelMat = glm::translate(modelMat, position);
-	modelMat = glm::rotate(modelMat, glm::radians(-Yaw + 90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+	modelMat = glm::rotate(modelMat, glm::radians(-yaw + 90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 	modelMat = glm::scale(modelMat, scale);
     std::vector<glm::mat4> matrixData;
     matrixData.push_back(viewMat);
@@ -110,7 +110,29 @@ void Enemy::Update(float dt, Player& player, float blendFactor, bool playAnimBac
     default:
         break;
     }
+
+    ComputeAudioWorldTransform();
+    UpdateComponents(dt);
 }
+
+void Enemy::ComputeAudioWorldTransform()
+{
+    if (mRecomputeWorldTransform)
+    {
+        mRecomputeWorldTransform = false;
+        glm::mat4 worldTransform = glm::mat4(1.0f);
+        // Scale, then rotate, then translate
+        audioWorldTransform = glm::translate(worldTransform, position);
+        audioWorldTransform = glm::rotate(worldTransform, glm::radians(-yaw + 90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+        audioWorldTransform = glm::scale(worldTransform, scale);
+
+        // Inform components world transform updated
+        for (auto comp : mComponents)
+        {
+            comp->OnUpdateWorldTransform();
+        }
+    }
+};
 
 void Enemy::UpdateEnemyCameraVectors()
 {
@@ -126,9 +148,9 @@ void Enemy::UpdateEnemyCameraVectors()
 void Enemy::UpdateEnemyVectors()
 {
 	glm::vec3 front = glm::vec3(1.0f);
-	front.x = glm::cos(glm::radians(Yaw));
+	front.x = glm::cos(glm::radians(yaw));
 	front.y = 0.0f;
-	front.z = glm::sin(glm::radians(Yaw));
+	front.z = glm::sin(glm::radians(yaw));
 	Front = glm::normalize(front);
 	Right = glm::normalize(glm::cross(Front, glm::vec3(0.0f, 1.0f, 0.0f)));
 	Up = glm::normalize(glm::cross(Right, Front));
@@ -192,7 +214,8 @@ void Enemy::moveEnemy(const std::vector<glm::ivec2>& path, float deltaTime, floa
     glm::vec3 direction = glm::normalize(targetPos - getPosition());
 
     //enemy.Yaw = glm::degrees(glm::acos(glm::dot(glm::normalize(enemy.Front), direction)));
-    Yaw = glm::degrees(glm::atan(direction.z, direction.x));
+    yaw = glm::degrees(glm::atan(direction.z, direction.x));
+	mRecomputeWorldTransform = true;
 
     UpdateEnemyVectors();
 

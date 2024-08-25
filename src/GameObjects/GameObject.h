@@ -15,8 +15,8 @@
 
 class GameObject {
 public:
-    GameObject(glm::vec3 pos, glm::vec3 scale, Shader* shdr, bool applySkinning)
-        : position(pos), scale(scale), shader(shdr), toSkin(applySkinning) 
+    GameObject(glm::vec3 pos, glm::vec3 scale, float yaw, Shader* shdr, bool applySkinning, class GameManager* gameMgr)
+        : position(pos), scale(scale), yaw(yaw), shader(shdr), toSkin(applySkinning), mGameManager(gameMgr)
     {
         size_t uniformMatrixBufferSize = 3 * sizeof(glm::mat4);
         mUniformBuffer.init(uniformMatrixBufferSize);
@@ -59,15 +59,35 @@ public:
         }
     };
 
+    virtual void UpdateComponents(float deltaTime)
+    {
+        for (auto comp : mComponents)
+        {
+            comp->Update(deltaTime);
+        }
+    }
+
+    virtual void ComputeAudioWorldTransform() {};
+
+	GameManager* GetGameManager() const { return mGameManager; }
+
+    glm::mat4 GetAudioWorldTransform() const { return audioWorldTransform; }
+
     std::shared_ptr<GltfModel> model = nullptr;;
 protected:
     virtual void drawObject(glm::mat4 viewMat, glm::mat4 proj) = 0;
 
     glm::vec3 position;
     glm::vec3 scale;
+    float yaw;
+    bool mRecomputeWorldTransform = true;
+    glm::mat4 audioWorldTransform;
+
     bool toSkin;
     Shader* shader = nullptr;
     RenderData renderData;
+
+    class GameManager* mGameManager = nullptr;
 
     UniformBuffer mUniformBuffer{};
 

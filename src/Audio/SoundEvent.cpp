@@ -146,9 +146,9 @@ namespace
 		// Convert from our coordinates (+x forward, +y right, +z up)
 		// to FMOD (+z forward, +x right, +y up)
 		FMOD_VECTOR v;
-		v.x = in.y;
-		v.y = in.z;
-		v.z = in.x;
+		v.x = in.x;
+		v.y = in.y;
+		v.z = in.z;
 		return v;
 	}
 }
@@ -160,7 +160,7 @@ void SoundEvent::Set3DAttributes(const glm::mat4& worldTrans)
 	{
 		FMOD_3D_ATTRIBUTES attr;
 		// Set position, forward, up
-		attr.position = VecToFMOD(glm::vec3(worldTrans[3]));
+		attr.position = VecToFMOD(glm::vec3(worldTrans[3][2]));
 		// In world transform, first row is forward
 		attr.forward = VecToFMOD(glm::vec3(worldTrans[0][0], worldTrans[1][0], worldTrans[2][0]));
 		// Third row is up

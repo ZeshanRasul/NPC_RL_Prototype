@@ -1,4 +1,6 @@
 #include "GameManager.h"
+#include "Components/AudioComponent.h"
+
 #include "imgui/imgui.h"
 #include "imgui/backend/imgui_impl_glfw.h"
 #include "imgui/backend/imgui_impl_opengl3.h"
@@ -39,11 +41,14 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
     // TODO: Initialise Game Objects
 
     camera = new Camera(glm::vec3(50.0f, 3.0f, 80.0f));
-    player = new Player(snapToGrid(glm::vec3(130.0f, 0.0f, 25.0f)), glm::vec3(1.0f), &playerShader, true);
-    enemy = new Enemy(snapToGrid(glm::vec3(13.0f, 0.0f, 13.0f)), glm::vec3(1.0f), &enemyShader, true);
+    player = new Player(snapToGrid(glm::vec3(130.0f, 0.0f, 25.0f)), glm::vec3(1.0f), &playerShader, true, this);
+    enemy = new Enemy(snapToGrid(glm::vec3(13.0f, 0.0f, 13.0f)), glm::vec3(1.0f), &enemyShader, true, this);
 //    enemy2 = new Enemy(snapToGrid(glm::vec3(23.0f, 0.0f, 13.0f)), glm::vec3(1.0f), &enemyShader, true);
 //    enemy3 = new Enemy(snapToGrid(glm::vec3(3.0f, 0.0f, 63.0f)), glm::vec3(1.0f), &enemyShader, true);
 //    enemy4 = new Enemy(snapToGrid(glm::vec3(11.0f, 0.0f, 23.0f)), glm::vec3(1.0f), &enemyShader, true);
+    AudioComponent* fireAudioComponent = new AudioComponent(enemy);
+    fireAudioComponent->PlayEvent("event:/FireLoop");
+
 
     inputManager->setContext(camera, player, enemy, width, height);
 
@@ -95,8 +100,9 @@ void GameManager::setupCamera(unsigned int width, unsigned int height)
     else if (camera->Mode == FLY)
         view = camera->GetViewMatrix();
 
-    projection = glm::perspective(glm::radians(camera->Zoom), (float)width / (float)height, 0.1f, 100.0f);
+    projection = glm::perspective(glm::radians(camera->Zoom), (float)width / (float)height, 0.1f, 500.0f);
 
+    audioSystem->SetListener(view);
 }
 
 void GameManager::setSceneData()
@@ -125,11 +131,13 @@ void GameManager::showDebugUI()
 
     ImGui::Begin("Enemy");
 
+    float newYaw;
+
     ImGui::InputFloat3("Position", &enemy->getPosition()[0]);
     ImGui::InputFloat("EnemyCamPitch", &enemy->EnemyCameraPitch);
-    ImGui::InputFloat("EnemyYaw", &enemy->Yaw);
+    ImGui::InputFloat("EnemyYaw", &newYaw);
     ImGui::InputFloat3("EnemyFront", &enemy->Front[0]);
-
+    enemy->SetYaw(newYaw);
 
     if (enemy->state == PATROL)
         currentStateIndex = 0;

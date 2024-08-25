@@ -264,9 +264,9 @@ namespace
 		// Convert from our coordinates (+x forward, +y right, +z up)
 		// to FMOD (+z forward, +x right, +y up)
 		FMOD_VECTOR v;
-		v.x = in.y;
-		v.y = in.z;
-		v.z = in.x;
+		v.x = in.x;
+		v.y = in.y;
+		v.z = in.z;
 		return v;
 	}
 }
@@ -277,11 +277,11 @@ void AudioSystem::SetListener(const glm::mat4& viewMatrix)
 	glm::mat4 invView = glm::inverse(viewMatrix);
 	FMOD_3D_ATTRIBUTES listener;
 	// Set position, forward, up
-	listener.position = VecToFMOD(glm::vec3(invView[3]));
+	listener.position = VecToFMOD(glm::vec3(viewMatrix[3]));
 	// In the inverted view, third row is forward
-	listener.forward = VecToFMOD(glm::vec3(invView[0][2], invView[1][2], invView[2][2]));
+	listener.forward = VecToFMOD(glm::vec3(viewMatrix[0][2], viewMatrix[1][2], viewMatrix[2][2]));
 	// In the inverted view, second row is up
-	listener.up = VecToFMOD(glm::vec3(invView[0][1], invView[1][1], invView[2][1]));
+	listener.up = VecToFMOD(glm::vec3(viewMatrix[0][1], viewMatrix[1][1], viewMatrix[2][1]));
 	// Set velocity to zero (fix if using Doppler effect)
 	listener.velocity = { 0.0f, 0.0f, 0.0f };
 	// Send to FMOD

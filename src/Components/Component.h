@@ -6,9 +6,10 @@ public:
 	// (the lower the update order, the earlier the component updates)
 	Component(class GameObject* owner, int updateOrder = 100);
 	
-	~Component();
+	virtual ~Component();
 
-	void Update(float deltaTime);
+	virtual void Update(float deltaTime);
+	virtual void OnUpdateWorldTransform() { }
 
 	int GetUpdateOrder() const { return mUpdateOrder; }
 protected:
