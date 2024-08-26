@@ -227,6 +227,8 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="src\Assets\Models\backpack\backpack.mtl" />
+    <None Include="src\Shaders\crosshair_frag.glsl" />
+    <None Include="src\Shaders\crosshair_vert.glsl" />
     <None Include="src\Shaders\fragment_gpu_dquat.glsl" />
     <None Include="src\Shaders\vertex_gpu_dquat.glsl" />
     <None Include="src\Shaders\fragment_gpu.glsl" />

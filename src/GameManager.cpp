@@ -49,6 +49,8 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 //    enemy4 = new Enemy(snapToGrid(glm::vec3(11.0f, 0.0f, 23.0f)), glm::vec3(1.0f), &enemyShader, true);
 
 	crosshair = new Crosshair(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f), &crosshairShader, false, this);
+	crosshair->LoadMesh();
+	crosshair->LoadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/Crosshair.png");
 
     AudioComponent* fireAudioComponent = new AudioComponent(enemy);
     fireAudioComponent->PlayEvent("event:/FireLoop");
@@ -130,6 +132,7 @@ void GameManager::showDebugUI()
 
     ImGui::InputFloat3("Position", &player->getPosition()[0]);
     ImGui::InputFloat("Yaw", &player->PlayerYaw);
+	ImGui::InputFloat3("Player Front", &player->PlayerFront[0]);
 
     ImGui::End();
 
@@ -348,7 +351,7 @@ void GameManager::render()
     static bool blendingChanged = playerCrossBlend;
     if (blendingChanged != playerCrossBlend)
     {
-		blendingChanged = playerCrossBlend;
+        blendingChanged = playerCrossBlend;
         if (!playerCrossBlend)
         {
             playerAdditiveBlend = false;
@@ -376,18 +379,29 @@ void GameManager::render()
 
     if (playerCrossBlend)
     {
-		player->model->playAnimation(playerCrossBlendSourceClip, playerCrossBlendDestClip, 1.0f, playerAnimCrossBlendFactor, false);
+        player->model->playAnimation(playerCrossBlendSourceClip, playerCrossBlendDestClip, 1.0f, playerAnimCrossBlendFactor, false);
     }
     else
     {
-		player->model->playAnimation(0, 1.0f, playerAnimBlendFactor, false);
+        player->model->playAnimation(0, 1.0f, playerAnimBlendFactor, false);
     }
 
+	glEnable(GL_DEPTH_TEST);
+
     for (auto obj : gameObjects) {
-       renderer->draw(obj, view, projection);
+        renderer->draw(obj, view, projection);
     }
     gridShader.use();
     cell.BindVAO();
 
     gameGrid.drawGrid(gridShader, view, projection);
+
+	glDisable(GL_DEPTH_TEST);
+
+    glm::vec2 ndcPos = crosshair->CalculateCrosshairPosition(player->getPosition(), player->PlayerFront, 300.0f, window->GetWidth(), window->GetHeight(), projection, view);
+   
+    float ndcX = (ndcPos.x / window->GetWidth()) * 2.0f - 1.0f;
+    float ndcY = (ndcPos.y / window->GetHeight()) * 2.0f - 1.0f;
+    
+    crosshair->DrawCrosshair(glm::vec2(ndcX, ndcY));
 }

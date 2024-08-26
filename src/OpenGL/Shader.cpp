@@ -183,3 +183,9 @@ void Shader::setVec3(const std::string& name, float x, float y, float z) const
 {
     glUniform3f(glGetUniformLocation(mShaderProgram, name.c_str()), x, y, z);
 }
+
+void Shader::setVec2(const std::string& name, float x, float y) const
+{
+    glUniform2f(glGetUniformLocation(mShaderProgram, name.c_str()), x, y);
+
+}

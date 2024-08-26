@@ -11,6 +11,9 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 
 bool Window::init(unsigned int width, unsigned int height, std::string title)
 {
+	mWidth = width;
+	mHeight = height;
+
     if (!glfwInit())
     {
         Logger::log(1, "%s: glfwInit() error\n", __FUNCTION__);;

@@ -18,10 +18,15 @@ public:
 
 	void setInputManager(InputManager* inputManager);
 
+	unsigned int GetWidth() const { return mWidth; }
+	unsigned int GetHeight() const { return mHeight; }
+
 	void cleanup();
 
 private:
 	GLFWwindow* mWindow;
+	unsigned int mWidth;
+	unsigned int mHeight;
 
 	Renderer* mRenderer;
 };

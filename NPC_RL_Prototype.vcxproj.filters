@@ -291,6 +291,8 @@
     <None Include="src\Shaders\vertex_gpu.glsl" />
     <None Include="src\Shaders\vertex_gpu_dquat.glsl" />
     <None Include="src\Shaders\fragment_gpu_dquat.glsl" />
+    <None Include="src\Shaders\crosshair_vert.glsl" />
+    <None Include="src\Shaders\crosshair_frag.glsl" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="src\Assets\Models\backpack\specular.jpg">

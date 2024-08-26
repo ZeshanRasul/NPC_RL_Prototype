@@ -17,6 +17,10 @@ public:
 
     void drawObject(glm::mat4 viewMat, glm::mat4 proj) override;
 
+	glm::vec2 CalculateCrosshairPosition(glm::vec3 rayOrigin, glm::vec3 rayDir, float distance, int screenWidth, int screenHeight,
+        glm::mat4 proj, glm::mat4 view);
+    void DrawCrosshair(glm::vec2 ndcPos);
+
     void ComputeAudioWorldTransform() override;
 
 private:
