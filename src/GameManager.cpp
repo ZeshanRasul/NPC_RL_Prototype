@@ -398,7 +398,7 @@ void GameManager::render()
 
 	glDisable(GL_DEPTH_TEST);
 
-    glm::vec2 ndcPos = crosshair->CalculateCrosshairPosition(player->getPosition(), player->PlayerFront, 300.0f, window->GetWidth(), window->GetHeight(), projection, view);
+    glm::vec2 ndcPos = crosshair->CalculateCrosshairPosition(camera->Position, camera->Front, 1000.0f, window->GetWidth(), window->GetHeight(), projection, view);
    
     float ndcX = (ndcPos.x / window->GetWidth()) * 2.0f - 1.0f;
     float ndcY = (ndcPos.y / window->GetHeight()) * 2.0f - 1.0f;
