@@ -36,11 +36,12 @@ void Crosshair::drawObject(glm::mat4 viewMat, glm::mat4 proj)
 glm::vec2 Crosshair::CalculateCrosshairPosition(glm::vec3 rayOrigin, glm::vec3 rayDir, float distance, int screenWidth, int screenHeight, 
 	glm::mat4 proj, glm::mat4 view)
 {
-	glm::vec3 rayEnd = rayOrigin + rayDir * distance;
+	glm::vec3 direction = rayDir * distance;
+	glm::vec3 rayEnd = rayOrigin + direction;
 	glm::vec4 clipSpacePos = proj * view * glm::vec4(rayEnd, 1.0f);
 	glm::vec3 ndcSpacePos = glm::vec3(clipSpacePos) / clipSpacePos.w;
 	glm::vec2 screenSpacePos = glm::vec2(0.0f);
-	screenSpacePos.x = (ndcSpacePos.x + 1.0f) / 2.0f * screenWidth;
+	screenSpacePos.x = screenWidth * (1.0f - (ndcSpacePos.x + 1.0f) / 2.0f);
 	screenSpacePos.y = (1.0f - ndcSpacePos.y) / 2.0f * screenHeight;
 
 	return screenSpacePos;

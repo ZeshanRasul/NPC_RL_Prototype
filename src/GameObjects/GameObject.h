@@ -74,12 +74,13 @@ public:
     glm::mat4 GetAudioWorldTransform() const { return audioWorldTransform; }
 
     std::shared_ptr<GltfModel> model = nullptr;;
+    float yaw;
+
 protected:
     virtual void drawObject(glm::mat4 viewMat, glm::mat4 proj) = 0;
 
     glm::vec3 position;
     glm::vec3 scale;
-    float yaw;
     bool mRecomputeWorldTransform = true;
     glm::mat4 audioWorldTransform;
 
