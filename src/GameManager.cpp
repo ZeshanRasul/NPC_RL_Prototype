@@ -425,7 +425,8 @@ void GameManager::render()
 		glm::vec3 red = glm::vec3(1.0f, 0.0f, 0.0f);
 
         
-        glm::vec2 ndcPos = crosshair->CalculateCrosshairPosition(player->getPosition() - glm::vec3(0.0f, 520.0f, 0.0f), rayD, dist, window->GetWidth(), window->GetHeight(), projection, view);
+        //glm::vec2 ndcPos = crosshair->CalculateCrosshairPosition(player->getPosition() - glm::vec3(0.0f, 520.0f, 0.0f), rayD, dist, window->GetWidth(), window->GetHeight(), projection, view);
+        glm::vec2 ndcPos = crosshair->CalculateCrosshairPosition(rayEnd, window->GetWidth(), window->GetHeight(), projection, view);
    
         float ndcX = (ndcPos.x / window->GetWidth()) * 2.0f - 1.0f;
         float ndcY = (ndcPos.y / window->GetHeight()) * 2.0f - 1.0f;

@@ -9,7 +9,7 @@ layout (location = 0) out vec2 TexCoord;
 
 void main()
 {
-	vec2 ndcPosition = aPos.xy + ndcPos;
+	vec2 ndcPosition = aPos.xy - ndcPos;
 	gl_Position = vec4(ndcPosition, 0.0, 1.0);
 	TexCoord = aTexCoord;
 }
