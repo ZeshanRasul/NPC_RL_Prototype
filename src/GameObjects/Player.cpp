@@ -1,5 +1,6 @@
 #include "Player.h"
 #include "GameManager.h"
+#include "Components/AudioComponent.h"
 
 void Player::drawObject(glm::mat4 viewMat, glm::mat4 proj)
 {
@@ -145,5 +146,8 @@ void Player::SetPlayerState(PlayerState newState)
 
 void Player::Shoot()
 {
+    AudioComponent* shootAudioComponent = new AudioComponent(this);
+    shootAudioComponent->PlayEvent("event:/Explosion2D");
+
 }
 
