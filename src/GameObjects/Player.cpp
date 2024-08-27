@@ -143,3 +143,7 @@ void Player::SetPlayerState(PlayerState newState)
     }
 }
 
+void Player::Shoot()
+{
+}
+

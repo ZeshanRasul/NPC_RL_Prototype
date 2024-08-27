@@ -8,7 +8,7 @@ void Line::LoadMesh()
 	glBindVertexArray(0);
 }
 
-void Line::DrawLine(glm::mat4 viewMat, glm::mat4 proj, glm::vec3 rayOrigin, glm::vec3 rayEnd, glm::vec3 lineColor)
+void Line::DrawLine(glm::mat4 viewMat, glm::mat4 proj, glm::vec3 lineColor)
 {
 	shader->use();
 	shader->setMat4("view", viewMat);

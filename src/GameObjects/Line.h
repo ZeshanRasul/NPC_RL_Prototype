@@ -15,7 +15,7 @@ public:
 
     void drawObject(glm::mat4 viewMat, glm::mat4 proj) override {};
 
-    void DrawLine(glm::mat4 viewMat, glm::mat4 proj, glm::vec3 rayOrigin, glm::vec3 rayEnd, glm::vec3 lineColor);
+    void DrawLine(glm::mat4 viewMat, glm::mat4 proj, glm::vec3 lineColor);
 
     void ComputeAudioWorldTransform() override;
 

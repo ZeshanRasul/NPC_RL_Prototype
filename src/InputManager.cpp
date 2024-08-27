@@ -132,6 +132,19 @@ void InputManager::processInput(GLFWwindow* window, float deltaTime)
 
     shiftKeyPressed = shiftKeyCurrentlyPressed;
 
+    bool leftClickCurrentlyPressed = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_1) == GLFW_PRESS;
+
+    if (leftClickCurrentlyPressed && !leftClickPressed && camera->Mode == PLAYER_AIM)
+    {
+        if (player->GetPlayerState() == AIMING)
+        {
+            player->SetPlayerState(SHOOTING);
+			player->Shoot();
+        }
+    }
+
+    leftClickPressed = leftClickCurrentlyPressed;
+
     handlePlayerMovement(window, *player, *camera, deltaTime);
 }
 

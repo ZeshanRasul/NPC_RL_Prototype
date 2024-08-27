@@ -79,6 +79,11 @@ public:
     PlayerState GetPlayerState() const { return mPlayerState; }
     void SetPlayerState(PlayerState newState);
 
+	glm::vec3 GetShootPos() const { return mShootStartPos; }
+	float GetShootDistance() const { return shootDistance; }
+
+    void Shoot();
+
 public:
     float PlayerYaw;
     glm::vec3 PlayerFront;
@@ -90,11 +95,14 @@ public:
 
 	float aimPitch = 0.0f;
 
+    glm::vec3 mShootStartPos = getPosition() + glm::vec3(0.0f, 2.5f, 0.0f);
+    float shootDistance = 5000.0f;
+
     float MovementSpeed = 7.5f;
     float mVelocity = 0.0f;
 
     bool uploadVertexBuffer = true;
-   ShaderStorageBuffer mPlayerDualQuatSSBuffer{};
+    ShaderStorageBuffer mPlayerDualQuatSSBuffer{};
 
-   PlayerState mPlayerState = MOVING;
+    PlayerState mPlayerState = MOVING;
 };
