@@ -40,6 +40,9 @@ public:
         ComputeAudioWorldTransform();
 
         UpdatePlayerVectors();
+		PlayerAimFront = PlayerFront;
+		PlayerAimRight = PlayerRight;
+		PlayerAimUp = PlayerUp;
     }
 
     ~Player()
@@ -63,6 +66,7 @@ public:
     void ComputeAudioWorldTransform() override;
 
     void UpdatePlayerVectors();
+    void UpdatePlayerAimVectors();
 
     void PlayerProcessKeyboard(CameraMovement direction, float deltaTime);
     void PlayerProcessMouseMovement(float xOffset);
@@ -80,6 +84,12 @@ public:
     glm::vec3 PlayerFront;
     glm::vec3 PlayerRight;
     glm::vec3 PlayerUp;
+    glm::vec3 PlayerAimFront;
+    glm::vec3 PlayerAimRight;
+    glm::vec3 PlayerAimUp;
+
+	float aimPitch = 0.0f;
+
     float MovementSpeed = 7.5f;
     float mVelocity = 0.0f;
 

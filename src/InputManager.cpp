@@ -26,22 +26,28 @@ void InputManager::handleMouseMovement(double xPosIn, double yPosIn)
     lastX = xPos;
     lastY = yPos;
 
-    if (camera->Mode == PLAYER_FOLLOW)
+    if (camera->Mode == PLAYER_FOLLOW || camera->Mode == PLAYER_AIM)
         player->PlayerProcessMouseMovement(xOffset);
     else if (camera->Mode == ENEMY_FOLLOW)
         enemy->EnemyProcessMouseMovement(xOffset, yOffset, true);
-
-    camera->ProcessMouseMovement(xOffset, yOffset);
 
     if (camera->Mode == PLAYER_FOLLOW)
     {
         player->PlayerYaw = camera->Yaw;
         player->UpdatePlayerVectors();
     }
+    else if (camera->Mode == PLAYER_AIM)
+    {
+		player->PlayerYaw = camera->Yaw;
+        player->aimPitch = camera->Pitch;
+		player->UpdatePlayerAimVectors();
+    }
     else if (camera->Mode == ENEMY_FOLLOW)
     {
         enemy->UpdateEnemyCameraVectors();
     }
+
+    camera->ProcessMouseMovement(xOffset, yOffset);
 }
 
 void InputManager::handleMouseScroll(double xOffset, double yOffset)
@@ -149,4 +155,6 @@ void InputManager::handlePlayerMovement(GLFWwindow* window, Player& player, Came
 			player.SetVelocity(0.0f);
 
     }
+
+    
 }

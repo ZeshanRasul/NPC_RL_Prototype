@@ -107,8 +107,8 @@ void GameManager::setupCamera(unsigned int width, unsigned int height)
         view = camera->GetViewMatrix();
     else if (camera->Mode == PLAYER_AIM)
     {
-        camera->FollowTarget(player->getPosition() + (player->PlayerRight * -1.3f), player->PlayerFront, camera->playerCamRearOffset, camera->playerCamHeightOffset);
-        view = camera->GetViewMatrixPlayerFollow(player->getPosition() + (player->PlayerRight * -1.3f), glm::vec3(0.0f, 1.0f, 0.0f));
+        camera->FollowTarget(player->getPosition() + (player->PlayerAimRight * -1.3f), player->PlayerAimFront, camera->playerCamRearOffset, camera->playerCamHeightOffset);
+        view = camera->GetViewMatrixPlayerFollow(player->getPosition() + (player->PlayerAimRight * -1.3f), glm::vec3(0.0f, 1.0f, 0.0f));
     }
 
     projection = glm::perspective(glm::radians(camera->Zoom), (float)width / (float)height, 0.1f, 500.0f);
@@ -138,6 +138,8 @@ void GameManager::showDebugUI()
     ImGui::InputFloat3("Position", &player->getPosition()[0]);
     ImGui::InputFloat("Yaw", &player->PlayerYaw);
 	ImGui::InputFloat3("Player Front", &player->PlayerFront[0]);
+    ImGui::InputFloat3("Player Aim Front", &player->PlayerAimFront[0]);
+    ImGui::InputFloat("Player Aim Pitch", &player->aimPitch);
 
     ImGui::End();
 
@@ -327,7 +329,9 @@ void GameManager::ShowCameraControlWindow(Camera& cam)
         modeText = "Player Follow";
     else if (cam.Mode == ENEMY_FOLLOW)
         modeText = "Enemy Follow";
-
+    else if (cam.Mode == PLAYER_AIM)
+        modeText = "Player Aim"
+        ;
     ImGui::Text(modeText.c_str());
 
     ImGui::InputFloat3("Position", (float*)&cam.Position);
@@ -402,14 +406,17 @@ void GameManager::render()
 
     gameGrid.drawGrid(gridShader, view, projection);
 
-	glDisable(GL_DEPTH_TEST);
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    if (player->GetPlayerState() == AIMING)
+    {
+	    glDisable(GL_DEPTH_TEST);
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-    glm::vec2 ndcPos = crosshair->CalculateCrosshairPosition(player->getPosition() - glm::vec3(0.0f, 520.0f, 0.0f), player->PlayerFront, 1000.0f, window->GetWidth(), window->GetHeight(), projection, view);
+        glm::vec2 ndcPos = crosshair->CalculateCrosshairPosition(player->getPosition() - glm::vec3(0.0f, 520.0f, 0.0f), player->PlayerAimFront, 1000.0f, window->GetWidth(), window->GetHeight(), projection, view);
    
-    float ndcX = (ndcPos.x / window->GetWidth()) * 2.0f - 1.0f;
-    float ndcY = (ndcPos.y / window->GetHeight()) * 2.0f - 1.0f;
-    
-    crosshair->DrawCrosshair(glm::vec2(ndcX, ndcY));
+        float ndcX = (ndcPos.x / window->GetWidth()) * 2.0f - 1.0f;
+        float ndcY = (ndcPos.y / window->GetHeight()) * 2.0f - 1.0f;
+        
+        crosshair->DrawCrosshair(glm::vec2(ndcX, ndcY));
+    }
 }

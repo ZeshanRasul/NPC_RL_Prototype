@@ -62,6 +62,18 @@ void Player::UpdatePlayerVectors()
     PlayerUp = glm::normalize(glm::cross(PlayerRight, PlayerFront));
 }
 
+void Player::UpdatePlayerAimVectors()
+{
+    glm::vec3 front;
+    front.x = glm::cos(glm::radians(yaw - 90.0f)) * glm::cos(glm::radians(aimPitch));
+    front.y = glm::sin(glm::radians(aimPitch));
+    front.z = glm::sin(glm::radians(yaw-90.0f)) * glm::cos(glm::radians(aimPitch));
+
+    PlayerAimFront = glm::normalize(front);
+    PlayerAimRight = glm::normalize(glm::cross(PlayerAimFront, glm::vec3(0.0f, 1.0f, 0.0f)));
+    PlayerAimUp = glm::normalize(glm::cross(PlayerAimRight, PlayerAimFront));
+}
+
 void Player::PlayerProcessKeyboard(CameraMovement direction, float deltaTime)
 {
     mVelocity = MovementSpeed * deltaTime;
@@ -103,7 +115,10 @@ void Player::PlayerProcessMouseMovement(float xOffset)
     yaw += xOffset;
     mRecomputeWorldTransform = true;
     ComputeAudioWorldTransform();
-    UpdatePlayerVectors();
+    if (GetPlayerState() == MOVING)
+        UpdatePlayerVectors();
+	else if (GetPlayerState() == AIMING)
+		UpdatePlayerAimVectors();
 }
 
 void Player::SetAnimation(int animNum, float speedDivider, float blendFactor, bool playAnimBackwards)
