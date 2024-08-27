@@ -96,7 +96,7 @@ public:
 	float aimPitch = 0.0f;
 
     glm::vec3 mShootStartPos = getPosition() + (glm::vec3(0.0f, 2.5f, 0.0f));
-    float shootDistance = 5000.0f;
+    float shootDistance = 100000.0f;
 
     float MovementSpeed = 7.5f;
     float mVelocity = 0.0f;
