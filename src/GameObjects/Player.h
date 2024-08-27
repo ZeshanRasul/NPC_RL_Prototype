@@ -79,7 +79,7 @@ public:
     PlayerState GetPlayerState() const { return mPlayerState; }
     void SetPlayerState(PlayerState newState);
 
-	glm::vec3 GetShootPos() const { return mShootStartPos; }
+	glm::vec3 GetShootPos() { return getPosition() + glm::vec3(0.0f, 2.5f, 0.0f); }
 	float GetShootDistance() const { return shootDistance; }
 
     void Shoot();
@@ -95,7 +95,7 @@ public:
 
 	float aimPitch = 0.0f;
 
-    glm::vec3 mShootStartPos = getPosition() + glm::vec3(0.0f, 2.5f, 0.0f);
+    glm::vec3 mShootStartPos = getPosition() + (glm::vec3(0.0f, 2.5f, 0.0f));
     float shootDistance = 5000.0f;
 
     float MovementSpeed = 7.5f;

@@ -145,6 +145,12 @@ void InputManager::processInput(GLFWwindow* window, float deltaTime)
 
     leftClickPressed = leftClickCurrentlyPressed;
 
+	if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_1) == GLFW_RELEASE && player->GetPlayerState() == SHOOTING)
+	{
+		player->SetPlayerState(AIMING);
+	}
+
+
     handlePlayerMovement(window, *player, *camera, deltaTime);
 }
 
@@ -160,12 +166,13 @@ void InputManager::setContext(Camera* cam, Player* plyr, Enemy* enmy, unsigned i
 
 void InputManager::handlePlayerMovement(GLFWwindow* window, Player& player, Camera& camera, float deltaTime)
 {
-    if (camera.Mode == PLAYER_FOLLOW)
+    if (camera.Mode == PLAYER_FOLLOW || camera.Mode == PLAYER_AIM)
     {
         if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
         {
             player.PlayerYaw = camera.Yaw;
             player.UpdatePlayerVectors();
+            player.UpdatePlayerAimVectors();
             player.PlayerProcessKeyboard(FORWARD, deltaTime);
         }
         else if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
