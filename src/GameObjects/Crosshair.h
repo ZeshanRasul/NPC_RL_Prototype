@@ -6,8 +6,7 @@ class Crosshair : public GameObject {
 public:
     Crosshair(glm::vec3 pos, glm::vec3 scale, Shader* shdr, bool applySkinning, GameManager* gameMgr, float yaw = 0.0f)
         : GameObject(pos, scale, yaw, shdr, applySkinning, gameMgr)
-    {
-        
+    {      
         ComputeAudioWorldTransform();
     }
 

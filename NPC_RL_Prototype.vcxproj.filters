@@ -138,6 +138,9 @@
     <ClCompile Include="src\GameObjects\Crosshair.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\GameObjects\Line.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\ShaderOld.h">
@@ -278,6 +281,9 @@
     <ClInclude Include="src\GameObjects\Crosshair.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\GameObjects\Line.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="src\Shaders\vertex.glsl" />
@@ -293,6 +299,8 @@
     <None Include="src\Shaders\fragment_gpu_dquat.glsl" />
     <None Include="src\Shaders\crosshair_vert.glsl" />
     <None Include="src\Shaders\crosshair_frag.glsl" />
+    <None Include="src\Shaders\line_vert.glsl" />
+    <None Include="src\Shaders\line_frag.glsl" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="src\Assets\Models\backpack\specular.jpg">

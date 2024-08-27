@@ -39,6 +39,7 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 
 	crosshairShader.loadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/crosshair_vert.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/crosshair_frag.glsl");
 
+	lineShader.loadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/line_vert.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/line_frag.glsl");
     // TODO: Initialise Game Objects
 
     camera = new Camera(glm::vec3(50.0f, 3.0f, 80.0f));
@@ -51,6 +52,8 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 	crosshair = new Crosshair(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f), &crosshairShader, false, this);
 	crosshair->LoadMesh();
 	crosshair->LoadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/Crosshair.png");
+	line = new Line(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f), &lineShader, false, this);
+    line->LoadMesh();
 
     AudioComponent* fireAudioComponent = new AudioComponent(enemy);
     fireAudioComponent->PlayEvent("event:/FireLoop");
@@ -414,12 +417,23 @@ void GameManager::render()
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-        glm::vec2 ndcPos = crosshair->CalculateCrosshairPosition(player->getPosition() - glm::vec3(0.0f, 520.0f, 0.0f), player->PlayerAimFront, 1000.0f, window->GetWidth(), window->GetHeight(), projection, view);
+		glm::vec3 rayO = player->getPosition();
+		glm::vec3 rayD = glm::normalize(player->PlayerAimFront);
+		float dist = 1000.0f;
+
+		glm::vec3 rayEnd = rayO + rayD * dist;
+		glm::vec3 red = glm::vec3(1.0f, 0.0f, 0.0f);
+
+        
+        glm::vec2 ndcPos = crosshair->CalculateCrosshairPosition(player->getPosition() - glm::vec3(0.0f, 520.0f, 0.0f), rayD, dist, window->GetWidth(), window->GetHeight(), projection, view);
    
         float ndcX = (ndcPos.x / window->GetWidth()) * 2.0f - 1.0f;
         float ndcY = (ndcPos.y / window->GetHeight()) * 2.0f - 1.0f;
         
         crosshair->DrawCrosshair(glm::vec2(ndcX, ndcY));
+        line->UpdateVertexBuffer(rayO, rayEnd);
+        line->DrawLine(view, projection, player->getPosition() - glm::vec3(0.0f, 1.5f, 0.0f), rayEnd, red);
+
     }
     if (camSwitchedToAim)
 		camSwitchedToAim = false;

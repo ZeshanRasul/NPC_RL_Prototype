@@ -14,6 +14,7 @@
 #include "GameObjects/Enemy.h"
 #include "GameObjects/Waypoint.h"
 #include "GameObjects/Crosshair.h"
+#include "GameObjects/Line.h"
 #include "src/Pathfinding/Grid.h"
 
 class GameManager {
@@ -49,12 +50,15 @@ private:
     Renderer* renderer;
     Window* window;
     Camera* camera;
+
     Player* player;
     Enemy* enemy;
     Enemy* enemy2;
     Enemy* enemy3;
     Enemy* enemy4;
 	Crosshair* crosshair;
+	Line* line;
+
     InputManager* inputManager;
 	AudioSystem* audioSystem;
 
@@ -64,6 +68,7 @@ private:
     Shader enemyShader{};
     Shader gridShader{};
 	Shader crosshairShader{};
+	Shader lineShader{};
     
     ShaderStorageBuffer mPlayerSSBuffer{};
     ShaderStorageBuffer mEnemySSBuffer{};

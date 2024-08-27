@@ -152,6 +152,7 @@
     <ClCompile Include="src\GameObjects\Crosshair.cpp" />
     <ClCompile Include="src\GameObjects\Enemy.cpp" />
     <ClCompile Include="src\GameObjects\Ground.cpp" />
+    <ClCompile Include="src\GameObjects\Line.cpp" />
     <ClCompile Include="src\GameObjects\Player.cpp" />
     <ClCompile Include="src\GameObjects\Waypoint.cpp" />
     <ClCompile Include="src\glad.c" />
@@ -201,6 +202,7 @@
     <ClInclude Include="src\GameObjects\Enemy.h" />
     <ClInclude Include="src\GameObjects\GameObject.h" />
     <ClInclude Include="src\GameObjects\Ground.h" />
+    <ClInclude Include="src\GameObjects\Line.h" />
     <ClInclude Include="src\GameObjects\Player.h" />
     <ClInclude Include="src\GameObjects\Waypoint.h" />
     <ClInclude Include="src\InputManager.h" />
@@ -230,6 +232,8 @@
     <None Include="src\Shaders\crosshair_frag.glsl" />
     <None Include="src\Shaders\crosshair_vert.glsl" />
     <None Include="src\Shaders\fragment_gpu_dquat.glsl" />
+    <None Include="src\Shaders\line_frag.glsl" />
+    <None Include="src\Shaders\line_vert.glsl" />
     <None Include="src\Shaders\vertex_gpu_dquat.glsl" />
     <None Include="src\Shaders\fragment_gpu.glsl" />
     <None Include="src\Shaders\fragment.glsl" />
