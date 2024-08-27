@@ -34,12 +34,15 @@ void InputManager::handleMouseMovement(double xPosIn, double yPosIn)
     if (camera->Mode == PLAYER_FOLLOW)
     {
         player->PlayerYaw = camera->Yaw;
+        player->aimPitch = camera->Pitch;
         player->UpdatePlayerVectors();
+        player->UpdatePlayerAimVectors();
     }
     else if (camera->Mode == PLAYER_AIM)
     {
 		player->PlayerYaw = camera->Yaw;
         player->aimPitch = camera->Pitch;
+        player->UpdatePlayerVectors();
 		player->UpdatePlayerAimVectors();
     }
     else if (camera->Mode == ENEMY_FOLLOW)
