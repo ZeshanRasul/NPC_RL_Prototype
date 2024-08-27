@@ -16,6 +16,7 @@ enum CameraMode {
 	FLY,
 	PLAYER_FOLLOW,
 	ENEMY_FOLLOW,
+	PLAYER_AIM,
 	MODE_COUNT
 };
 

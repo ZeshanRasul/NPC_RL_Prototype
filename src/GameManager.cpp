@@ -105,6 +105,11 @@ void GameManager::setupCamera(unsigned int width, unsigned int height)
     }
     else if (camera->Mode == FLY)
         view = camera->GetViewMatrix();
+    else if (camera->Mode == PLAYER_AIM)
+    {
+        camera->FollowTarget(player->getPosition() + (player->PlayerRight * -1.3f), player->PlayerFront, camera->playerCamRearOffset, camera->playerCamHeightOffset);
+        view = camera->GetViewMatrixPlayerFollow(player->getPosition() + (player->PlayerRight * -1.3f), glm::vec3(0.0f, 1.0f, 0.0f));
+    }
 
     projection = glm::perspective(glm::radians(camera->Zoom), (float)width / (float)height, 0.1f, 500.0f);
 

@@ -47,4 +47,5 @@ private:
     bool isTabPressed = false;
     bool tabBeenPressed = false;
     bool spaceKeyPressed = false;
+	bool shiftKeyPressed = false;
 };

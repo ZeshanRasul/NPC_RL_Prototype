@@ -8,6 +8,13 @@
 #include "UniformBuffer.h"
 #include "ShaderStorageBuffer.h"
 
+enum PlayerState {
+    MOVING,
+    AIMING,
+    SHOOTING,
+    PLAYER_STATE_COUNT
+};
+
 class Player : public GameObject {
 public:
     Player(glm::vec3 pos, glm::vec3 scale, Shader* shdr, bool applySkinning, GameManager* gameMgr, float yaw = -90.0f)
@@ -65,6 +72,9 @@ public:
     float GetVelocity() const { return mVelocity; }
 	void SetVelocity(float newVelocity) { mVelocity = newVelocity; }
 
+    PlayerState GetPlayerState() const { return mPlayerState; }
+    void SetPlayerState(PlayerState newState) { mPlayerState = newState; }
+
 public:
     float PlayerYaw;
     glm::vec3 PlayerFront;
@@ -74,5 +84,7 @@ public:
     float mVelocity = 0.0f;
 
     bool uploadVertexBuffer = true;
-    ShaderStorageBuffer mPlayerDualQuatSSBuffer{};
+   ShaderStorageBuffer mPlayerDualQuatSSBuffer{};
+
+   PlayerState mPlayerState = MOVING;
 };

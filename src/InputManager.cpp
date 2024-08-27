@@ -95,6 +95,23 @@ void InputManager::processInput(GLFWwindow* window, float deltaTime)
         if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
             camera->ProcessKeyboard(RIGHT, deltaTime);
     }
+    bool shiftKeyCurrentlyPressed = glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS;
+
+    if (shiftKeyCurrentlyPressed && !shiftKeyPressed && (camera->Mode == PLAYER_FOLLOW || camera->Mode == PLAYER_AIM))
+    {
+        if (player->GetPlayerState() == MOVING)
+        {
+            player->SetPlayerState(AIMING);
+			camera->Mode = PLAYER_AIM;
+        }
+        else if (player->GetPlayerState() == AIMING)
+        {
+			player->SetPlayerState(MOVING);
+			camera->Mode = PLAYER_FOLLOW;
+        }
+    }
+
+    shiftKeyPressed = shiftKeyCurrentlyPressed;
 
     handlePlayerMovement(window, *player, *camera, deltaTime);
 }
