@@ -387,6 +387,7 @@ void GameManager::render()
     }
 
 	glEnable(GL_DEPTH_TEST);
+    glDisable(GL_BLEND);
 
     for (auto obj : gameObjects) {
         renderer->draw(obj, view, projection);
@@ -397,6 +398,8 @@ void GameManager::render()
     gameGrid.drawGrid(gridShader, view, projection);
 
 	glDisable(GL_DEPTH_TEST);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     glm::vec2 ndcPos = crosshair->CalculateCrosshairPosition(player->getPosition() - glm::vec3(0.0f, 520.0f, 0.0f), player->PlayerFront, 1000.0f, window->GetWidth(), window->GetHeight(), projection, view);
    
