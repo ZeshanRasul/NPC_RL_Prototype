@@ -77,7 +77,7 @@ public:
 	void SetVelocity(float newVelocity) { mVelocity = newVelocity; }
 
     PlayerState GetPlayerState() const { return mPlayerState; }
-    void SetPlayerState(PlayerState newState) { mPlayerState = newState; }
+    void SetPlayerState(PlayerState newState);
 
 public:
     float PlayerYaw;

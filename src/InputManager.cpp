@@ -35,6 +35,10 @@ void InputManager::handleMouseMovement(double xPosIn, double yPosIn)
     {
         player->PlayerYaw = camera->Yaw;
         player->aimPitch = camera->Pitch;
+        if (player->aimPitch > 19.0f)
+            player->aimPitch = 19.0f;
+        if (player->aimPitch < -19.0f)
+            player->aimPitch = -19.0f;
         player->UpdatePlayerVectors();
         player->UpdatePlayerAimVectors();
     }
@@ -42,6 +46,10 @@ void InputManager::handleMouseMovement(double xPosIn, double yPosIn)
     {
 		player->PlayerYaw = camera->Yaw;
         player->aimPitch = camera->Pitch;
+        if (player->aimPitch > 19.0f)
+            player->aimPitch = 19.0f;
+        if (player->aimPitch < -19.0f)
+            player->aimPitch = -19.0f;
         player->UpdatePlayerVectors();
 		player->UpdatePlayerAimVectors();
     }
@@ -111,11 +119,13 @@ void InputManager::processInput(GLFWwindow* window, float deltaTime)
         if (player->GetPlayerState() == MOVING)
         {
             player->SetPlayerState(AIMING);
+            player->UpdatePlayerAimVectors();
 			camera->Mode = PLAYER_AIM;
         }
         else if (player->GetPlayerState() == AIMING)
         {
 			player->SetPlayerState(MOVING);
+			player->UpdatePlayerVectors();
 			camera->Mode = PLAYER_FOLLOW;
         }
     }

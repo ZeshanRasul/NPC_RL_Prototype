@@ -38,6 +38,8 @@ public:
     void setUpDebugUI();
     void showDebugUI();
     void renderDebugUI();
+
+    bool camSwitchedToAim = false;
 private:
     void ShowCameraControlWindow(Camera& cam);
     void ShowLightControlWindow(DirLight& light);

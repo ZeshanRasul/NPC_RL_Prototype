@@ -1,4 +1,5 @@
 #include "Player.h"
+#include "GameManager.h"
 
 void Player::drawObject(glm::mat4 viewMat, glm::mat4 proj)
 {
@@ -124,5 +125,21 @@ void Player::PlayerProcessMouseMovement(float xOffset)
 void Player::SetAnimation(int animNum, float speedDivider, float blendFactor, bool playAnimBackwards)
 {
     model->playAnimation(animNum, speedDivider, blendFactor, playAnimBackwards);
+}
+
+void Player::SetPlayerState(PlayerState newState)
+{
+    mPlayerState = newState;
+    if (mPlayerState == MOVING)
+        UpdatePlayerVectors();
+    else if (mPlayerState == AIMING)
+    {
+        UpdatePlayerAimVectors();
+        GameManager* gmeMgr = GetGameManager();
+        if (gmeMgr->camSwitchedToAim == false)
+        {
+            gmeMgr->camSwitchedToAim = true;
+        }
+    }
 }
 

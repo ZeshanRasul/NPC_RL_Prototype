@@ -346,6 +346,8 @@ void GameManager::ShowCameraControlWindow(Camera& cam)
 void GameManager::update(float deltaTime)
 {
     inputManager->processInput(window->getWindow(), deltaTime);
+    player->UpdatePlayerVectors();
+    player->UpdatePlayerAimVectors();
 	audioSystem->Update(deltaTime);
 
     // TODO: Update Game Objects
@@ -406,7 +408,7 @@ void GameManager::render()
 
     gameGrid.drawGrid(gridShader, view, projection);
 
-    if (player->GetPlayerState() == AIMING)
+    if (player->GetPlayerState() == AIMING && camSwitchedToAim == false)
     {
 	    glDisable(GL_DEPTH_TEST);
         glEnable(GL_BLEND);
@@ -419,4 +421,6 @@ void GameManager::render()
         
         crosshair->DrawCrosshair(glm::vec2(ndcX, ndcY));
     }
+    if (camSwitchedToAim)
+		camSwitchedToAim = false;
 }
