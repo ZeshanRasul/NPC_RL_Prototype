@@ -417,7 +417,7 @@ void GameManager::render()
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-		glm::vec3 rayO = player->getPosition();
+		glm::vec3 rayO = player->getPosition() + glm::vec3(0.0f, 2.5f, 0.0f);
 		glm::vec3 rayD = glm::normalize(player->PlayerAimFront);
 		float dist = 1000.0f;
 
