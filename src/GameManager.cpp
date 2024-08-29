@@ -437,7 +437,7 @@ void GameManager::render()
         if (player->GetPlayerState() == SHOOTING)
         {
 			lineColor = glm::vec3(0.0f, 1.0f, 0.0f);
-            if (physicsWorld->rayIntersect(rayO, rayD, hitPoint)) {
+            if (physicsWorld->rayEnemyIntersect(rayO, rayD, hitPoint)) {
                 std::cout << "Ray hit at: " << hitPoint.x << ", " << hitPoint.y << ", " << hitPoint.z << std::endl;
             }
             else {

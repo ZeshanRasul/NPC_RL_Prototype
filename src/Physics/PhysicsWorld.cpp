@@ -1,6 +1,8 @@
-#include "PhysicsWorld.h"
 #include <limits>
+#include <algorithm>
 #include <glm/glm.hpp>
+
+#include "PhysicsWorld.h"
 
 PhysicsWorld::PhysicsWorld() {}
 
@@ -59,20 +61,18 @@ bool PhysicsWorld::rayEnemyIntersect(const glm::vec3& rayOrigin, const glm::vec3
 }
 
 bool PhysicsWorld::rayAABBIntersect(const glm::vec3& rayOrigin, const glm::vec3& rayDirection, const AABB& aabb, glm::vec3& hitPoint) {
-    glm::vec3 invDir = 1.0f / rayDirection + glm::vec3(1e-8);
-    glm::vec3 t0 = (rayOrigin - aabb.transformedMin) * rayDirection;
-    glm::vec3 t1 = (rayOrigin - aabb.transformedMax) * rayDirection;
+    float tMin;
+    float tMax;
 
-    glm::vec3 tmin = glm::min(t0, t1);
-    glm::vec3 tmax = glm::max(t0, t1);
+    float t1 = (aabb.transformedMin.x - rayOrigin.x) / rayDirection.x;
+    float t2 = (aabb.transformedMax.x - rayOrigin.x) / rayDirection.x;
+    float t3 = (aabb.transformedMin.y - rayOrigin.y) / rayDirection.y;
+    float t4 = (aabb.transformedMax.y - rayOrigin.y) / rayDirection.y;
+    float t5 = (aabb.transformedMin.z - rayOrigin.z) / rayDirection.z;
+    float t6 = (aabb.transformedMax.z - rayOrigin.z) / rayDirection.z;
 
-    float tNear = glm::max(glm::max(tmin.x, tmin.y), tmin.z);
-    float tFar = glm::min(glm::min(tmax.x, tmax.y), tmax.z);
+    tMin = std::max({ std::min(t1, t2), std::min(t3, t4), std::min(t5, t6) });
+    tMax = std::min({ std::max(t1, t2), std::max(t3, t4), std::max(t5, t6) });
 
-    if (tNear > tFar || tFar < 0.0f) {
-        return false;
-    }
-
-    hitPoint = rayOrigin + tNear * rayDirection;
-    return true;
+    return tMax >= std::max(tMin, 0.0f);
 }

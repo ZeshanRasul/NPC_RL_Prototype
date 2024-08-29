@@ -43,7 +43,7 @@ class Enemy : public GameObject {
 public:
 
     Enemy(glm::vec3 pos, glm::vec3 scale, Shader* sdr, bool applySkinning, GameManager* gameMgr, float yaw = 0.0f)
-        : GameObject(pos, scale, yaw, sdr, applySkinning, gameMgr )
+		: GameObject(pos, scale, yaw, sdr, applySkinning, gameMgr)
     {
         model = std::make_shared<GltfModel>();
 
@@ -106,7 +106,9 @@ public:
 
     void SetAnimation(int animNum, float speedDivider, float blendFactor, bool playBackwards);
 
-	void SetYaw(float newYaw) { yaw = newYaw; }
+	void SetYaw(float newYaw) { 
+        yaw = newYaw; 
+    }
 
     void updateAABB() {
         glm::mat4 modelMatrix = glm::translate(glm::mat4(1.0f), position) *

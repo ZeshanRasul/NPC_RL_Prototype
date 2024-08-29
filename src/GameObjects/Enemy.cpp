@@ -225,6 +225,7 @@ void Enemy::moveEnemy(const std::vector<glm::ivec2>& path, float deltaTime, floa
 
     //enemy.Yaw = glm::degrees(glm::acos(glm::dot(glm::normalize(enemy.Front), direction)));
     yaw = glm::degrees(glm::atan(direction.z, direction.x));
+    updateAABB();
 	mRecomputeWorldTransform = true;
 
     UpdateEnemyVectors();
@@ -247,6 +248,7 @@ void Enemy::moveEnemy(const std::vector<glm::ivec2>& path, float deltaTime, floa
 
     if (isObstacleFree) {
         setPosition(newPos);
+        updateAABB();
     }
     else {
         // If the new position is within an obstacle, try to adjust the position slightly
@@ -265,6 +267,7 @@ void Enemy::moveEnemy(const std::vector<glm::ivec2>& path, float deltaTime, floa
 
         if (isObstacleFree) {
             setPosition(newPos);
+			updateAABB();
         }
     }
 

@@ -163,7 +163,15 @@ void Player::Shoot()
     glm::vec3 hitPoint;
 
 	GameManager* gmeMgr = GetGameManager();
-    gmeMgr->GetPhysicsWorld()->rayEnemyIntersect(rayO, rayD, hitPoint);
+    //gmeMgr->GetPhysicsWorld()->rayEnemyIntersect(rayO, rayD, hitPoint);
+
+    if (gmeMgr->GetPhysicsWorld()->rayEnemyIntersect(rayO, rayD, hitPoint)) {
+        std::cout << "Ray hit at: " << hitPoint.x << ", " << hitPoint.y << ", " << hitPoint.z << std::endl;
+    }
+    else {
+        std::cout << "No hit detected." << std::endl;
+    }
+
 }
 
 void Player::renderAABB(glm::mat4 proj, glm::mat4 viewMat, glm::mat4 model, Shader* aabbSdr)
