@@ -92,7 +92,7 @@ public:
         aabb.update(modelMatrix);
     }
 
-    void renderAABB(glm::mat4 proj, glm::mat4 viewMat, glm::mat4 model, Shader* shader);
+    void renderAABB(glm::mat4 proj, glm::mat4 viewMat, glm::mat4 model, Shader* aabbSdr);
 
     AABB aabb;
 

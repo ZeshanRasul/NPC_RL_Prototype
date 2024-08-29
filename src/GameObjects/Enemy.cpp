@@ -20,10 +20,12 @@ void Enemy::drawObject(glm::mat4 viewMat, glm::mat4 proj)
     if (uploadVertexBuffer)
     {
         model->uploadVertexBuffers();
+		aabb.calculateAABB(model->getVertices());
 		uploadVertexBuffer = false;
     }
 
     model->draw();
+	renderAABB(proj, viewMat, modelMat, aabbShader);
 }
 
 void Enemy::Update(float dt, Player& player, float blendFactor, bool playAnimBackwards)
@@ -111,6 +113,7 @@ void Enemy::Update(float dt, Player& player, float blendFactor, bool playAnimBac
         break;
     }
 
+    updateAABB();
     ComputeAudioWorldTransform();
     UpdateComponents(dt);
 }
@@ -270,4 +273,55 @@ void Enemy::moveEnemy(const std::vector<glm::ivec2>& path, float deltaTime, floa
 void Enemy::SetAnimation(int animNum, float speedDivider, float blendFactor, bool playBackwards)
 {
     model->playAnimation(animNum, speedDivider, blendFactor, playBackwards);
+}
+
+void Enemy::renderAABB(glm::mat4 proj, glm::mat4 viewMat, glm::mat4 model, Shader* shader)
+{
+    glm::vec3 min = aabb.transformedMin;
+    glm::vec3 max = aabb.transformedMax;
+
+    std::vector<glm::vec3> lineVertices = {
+        {min.x, min.y, min.z}, {max.x, min.y, min.z},
+        {max.x, min.y, min.z}, {max.x, max.y, min.z},
+        {max.x, max.y, min.z}, {min.x, max.y, min.z},
+        {min.x, max.y, min.z}, {min.x, min.y, min.z},
+
+        {min.x, min.y, max.z}, {max.x, min.y, max.z},
+        {max.x, min.y, max.z}, {max.x, max.y, max.z},
+        {max.x, max.y, max.z}, {min.x, max.y, max.z},
+        {min.x, max.y, max.z}, {min.x, min.y, max.z},
+
+        {min.x, min.y, min.z}, {min.x, min.y, max.z},
+        {max.x, min.y, min.z}, {max.x, min.y, max.z},
+        {max.x, max.y, min.z}, {max.x, max.y, max.z},
+        {min.x, max.y, min.z}, {min.x, max.y, max.z}
+    };
+
+    GLuint VAO, VBO;
+    glGenVertexArrays(1, &VAO);
+    glGenBuffers(1, &VBO);
+
+    glBindVertexArray(VAO);
+
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    glBufferData(GL_ARRAY_BUFFER, lineVertices.size() * sizeof(glm::vec3), lineVertices.data(), GL_STATIC_DRAW);
+
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), (void*)0);
+
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindVertexArray(0);
+
+    aabbShader->use();
+
+    aabbShader->setMat4("projection", proj);
+    aabbShader->setMat4("view", viewMat);
+    aabbShader->setMat4("model", model);
+
+    glBindVertexArray(VAO);
+    glDrawArrays(GL_LINES, 0, lineVertices.size());
+    glBindVertexArray(0);
+
+    glDeleteVertexArrays(1, &VAO);
+    glDeleteBuffers(1, &VBO);
 }
