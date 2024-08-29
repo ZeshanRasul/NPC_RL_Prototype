@@ -43,8 +43,9 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
     
 	aabbShader.loadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/aabb_vert.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/aabb_frag.glsl");
     
-    // TODO: Initialise Game Objects
+	physicsWorld = new PhysicsWorld();
 
+    // TODO: Initialise Game Objects
     camera = new Camera(glm::vec3(50.0f, 3.0f, 80.0f));
     player = new Player(snapToGrid(glm::vec3(130.0f, 0.0f, 25.0f)), glm::vec3(1.0f), &playerShader, true, this);
     player->aabbShader = &aabbShader;
@@ -431,8 +432,18 @@ void GameManager::render()
 
 		glm::vec3 lineColor = glm::vec3(1.0f, 0.0f, 0.0f);
 
+        glm::vec3 hitPoint;
+
         if (player->GetPlayerState() == SHOOTING)
+        {
 			lineColor = glm::vec3(0.0f, 1.0f, 0.0f);
+            if (physicsWorld->rayIntersect(rayO, rayD, hitPoint)) {
+                std::cout << "Ray hit at: " << hitPoint.x << ", " << hitPoint.y << ", " << hitPoint.z << std::endl;
+            }
+            else {
+                std::cout << "No hit detected." << std::endl;
+            }
+        }
         
         glm::vec2 ndcPos = crosshair->CalculateCrosshairPosition(rayEnd, window->GetWidth(), window->GetHeight(), projection, view);
    

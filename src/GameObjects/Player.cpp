@@ -22,6 +22,10 @@ void Player::drawObject(glm::mat4 viewMat, glm::mat4 proj)
     {
         model->uploadVertexBuffers();
 		aabb.calculateAABB(model->getVertices());
+        aabb.owner = this;
+        GameManager* gameMgr = GetGameManager();
+        gameMgr->GetPhysicsWorld()->addCollider(GetAABB());
+        updateAABB();
         uploadVertexBuffer = false;
     }
 
@@ -152,6 +156,14 @@ void Player::Shoot()
     AudioComponent* shootAudioComponent = new AudioComponent(this);
     shootAudioComponent->PlayEvent("event:/Explosion2D");
 
+    glm::vec3 rayO = GetShootPos();
+    glm::vec3 rayD = glm::normalize(PlayerAimFront);
+    float dist = GetShootDistance();
+
+    glm::vec3 hitPoint;
+
+	GameManager* gmeMgr = GetGameManager();
+    gmeMgr->GetPhysicsWorld()->rayEnemyIntersect(rayO, rayD, hitPoint);
 }
 
 void Player::renderAABB(glm::mat4 proj, glm::mat4 viewMat, glm::mat4 model, Shader* aabbSdr)
@@ -196,6 +208,7 @@ void Player::renderAABB(glm::mat4 proj, glm::mat4 viewMat, glm::mat4 model, Shad
     aabbShader->setMat4("projection", proj);
     aabbShader->setMat4("view", viewMat);
     aabbShader->setMat4("model", model);
+    aabbShader->setVec3("color", aabbColor);
 
     glBindVertexArray(VAO);
     glDrawArrays(GL_LINES, 0, lineVertices.size());
@@ -203,5 +216,10 @@ void Player::renderAABB(glm::mat4 proj, glm::mat4 viewMat, glm::mat4 model, Shad
 
     glDeleteVertexArrays(1, &VAO);
     glDeleteBuffers(1, &VBO);
+}
+
+void Player::OnHit()
+{
+	setAABBColor(glm::vec3(1.0f, 0.0f, 1.0f));
 }
 

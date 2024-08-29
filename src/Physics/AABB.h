@@ -3,6 +3,8 @@
 #include <glm/glm.hpp>
 #include <vector>
 
+#include "GameObjects/GameObject.h"
+
 class AABB {
 public:
     AABB();
@@ -19,6 +21,7 @@ public:
 
     glm::vec3 transformedMin;
     glm::vec3 transformedMax;
+	GameObject* owner;
 
 private:
     glm::vec3 mMin;

@@ -73,6 +73,8 @@ public:
 
     glm::mat4 GetAudioWorldTransform() const { return audioWorldTransform; }
 
+	virtual void OnHit() {};
+
     std::shared_ptr<GltfModel> model = nullptr;;
     float yaw;
 

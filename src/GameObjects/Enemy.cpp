@@ -1,5 +1,6 @@
 #include "Enemy.h"
 #include "src/Pathfinding/Grid.h"
+#include "GameManager.h"
 
 void Enemy::drawObject(glm::mat4 viewMat, glm::mat4 proj)
 {
@@ -21,6 +22,12 @@ void Enemy::drawObject(glm::mat4 viewMat, glm::mat4 proj)
     {
         model->uploadVertexBuffers();
 		aabb.calculateAABB(model->getVertices());
+        aabb.owner = this;
+        updateAABB();
+        GameManager* gameMgr = GetGameManager();
+        gameMgr->GetPhysicsWorld()->addCollider(GetAABB());
+        gameMgr->GetPhysicsWorld()->addEnemyCollider(GetAABB());
+
 		uploadVertexBuffer = false;
     }
 
@@ -317,6 +324,7 @@ void Enemy::renderAABB(glm::mat4 proj, glm::mat4 viewMat, glm::mat4 model, Shade
     aabbShader->setMat4("projection", proj);
     aabbShader->setMat4("view", viewMat);
     aabbShader->setMat4("model", model);
+	aabbShader->setVec3("color", aabbColor);
 
     glBindVertexArray(VAO);
     glDrawArrays(GL_LINES, 0, lineVertices.size());
@@ -324,4 +332,10 @@ void Enemy::renderAABB(glm::mat4 proj, glm::mat4 viewMat, glm::mat4 model, Shade
 
     glDeleteVertexArrays(1, &VAO);
     glDeleteBuffers(1, &VBO);
+}
+
+void Enemy::OnHit()
+{
+	Logger::log(1, "Enemy was hit!", __FUNCTION__);
+	setAABBColor(glm::vec3(1.0f, 0.0f, 1.0f));
 }

@@ -22,6 +22,9 @@ public:
     void CreateAndUploadVertexBuffer();
 
 	void UpdateVertexBuffer(glm::vec3 rayOrigin, glm::vec3 rayEnd);
+
+    void OnHit() override {};
+
 private:
 
     float vertices[6] = {

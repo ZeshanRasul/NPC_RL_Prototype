@@ -22,6 +22,8 @@ public:
 
     void ComputeAudioWorldTransform() override;
 
+    void OnHit() override {};
+
 private:
     void CreateAndUploadVertexBuffer();
     void CreateAndUploadIndexBuffer();

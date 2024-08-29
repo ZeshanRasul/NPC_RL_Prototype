@@ -92,9 +92,14 @@ public:
         aabb.update(modelMatrix);
     }
 
+    AABB GetAABB() const { return aabb; }
     void renderAABB(glm::mat4 proj, glm::mat4 viewMat, glm::mat4 model, Shader* aabbSdr);
+    void setAABBColor(glm::vec3 color) { aabbColor = color; }
+
+    void OnHit() override;
 
     AABB aabb;
+    glm::vec3 aabbColor = glm::vec3(0.0f, 0.0f, 1.0f);
 
 public:
     float PlayerYaw;

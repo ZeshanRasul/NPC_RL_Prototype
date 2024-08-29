@@ -115,8 +115,12 @@ public:
         aabb.update(modelMatrix);
     }
 
+    AABB GetAABB() const { return aabb; }
     void renderAABB(glm::mat4 proj, glm::mat4 viewMat, glm::mat4 model, Shader* shader);
 
+	void setAABBColor(glm::vec3 color) { aabbColor = color; }
+
+    void OnHit() override;
 
     EnemyState state = PATROL;
     float EnemyCameraYaw;
@@ -136,4 +140,5 @@ public:
 
     AABB aabb;
     Shader* aabbShader;
+	glm::vec3 aabbColor = glm::vec3(0.0f, 0.0f, 1.0f);
 };

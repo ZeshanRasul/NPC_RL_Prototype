@@ -8,6 +8,7 @@
 #include "src/InputManager.h"
 #include "Audio/AudioSystem.h"
 #include "Audio/SoundEvent.h"
+#include "Physics/PhysicsWorld.h"
 
 #include "src/Camera.h"
 #include "GameObjects/Player.h"
@@ -41,6 +42,9 @@ public:
     void renderDebugUI();
 
     bool camSwitchedToAim = false;
+
+	PhysicsWorld* GetPhysicsWorld() { return physicsWorld; }
+
 private:
     void ShowCameraControlWindow(Camera& cam);
     void ShowLightControlWindow(DirLight& light);
@@ -61,6 +65,7 @@ private:
 
     InputManager* inputManager;
 	AudioSystem* audioSystem;
+	PhysicsWorld* physicsWorld;
 
     std::vector<GameObject*> gameObjects;
 

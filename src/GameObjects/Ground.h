@@ -14,5 +14,6 @@ public:
     void drawObject(glm::mat4 viewMat, glm::mat4 proj) override;
 
     void ComputeAudioWorldTransform() override;
-
+   
+    void OnHit() override {};
 };
