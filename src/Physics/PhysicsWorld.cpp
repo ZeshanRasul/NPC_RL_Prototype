@@ -44,6 +44,7 @@ bool PhysicsWorld::rayEnemyIntersect(const glm::vec3& rayOrigin, const glm::vec3
     for (const auto& collider : enemyColliders) {
         glm::vec3 tempHitPoint;
         if (rayAABBIntersect(rayOrigin, rayDirection, collider, tempHitPoint)) {
+            
             float distance = glm::length(tempHitPoint - rayOrigin);
             if (distance < closestDistance) {
                 closestDistance = distance;
@@ -61,18 +62,39 @@ bool PhysicsWorld::rayEnemyIntersect(const glm::vec3& rayOrigin, const glm::vec3
 }
 
 bool PhysicsWorld::rayAABBIntersect(const glm::vec3& rayOrigin, const glm::vec3& rayDirection, const AABB& aabb, glm::vec3& hitPoint) {
-    float tMin;
-    float tMax;
 
-    float t1 = (aabb.transformedMin.x - rayOrigin.x) / rayDirection.x;
-    float t2 = (aabb.transformedMax.x - rayOrigin.x) / rayDirection.x;
-    float t3 = (aabb.transformedMin.y - rayOrigin.y) / rayDirection.y;
-    float t4 = (aabb.transformedMax.y - rayOrigin.y) / rayDirection.y;
-    float t5 = (aabb.transformedMin.z - rayOrigin.z) / rayDirection.z;
-    float t6 = (aabb.transformedMax.z - rayOrigin.z) / rayDirection.z;
+    // Use the transformed AABB for the intersection test
+    glm::vec3 min = aabb.transformedMin;
+    glm::vec3 max = aabb.transformedMax;
 
-    tMin = std::max({ std::min(t1, t2), std::min(t3, t4), std::min(t5, t6) });
-    tMax = std::min({ std::max(t1, t2), std::max(t3, t4), std::max(t5, t6) });
+    // Initialize tMin and tMax to infinite intervals
+    float tMin = 0.0f;
+    float tMax = std::numeric_limits<float>::max();
 
-    return tMax >= std::max(tMin, 0.0f);
+    // Iterate over each axis (x, y, z)
+    for (int i = 0; i < 3; ++i) {
+        if (std::abs(rayDirection[i]) < std::numeric_limits<float>::epsilon()) {
+            // Ray is parallel to the slab (axis-aligned plane)
+            if (rayOrigin[i] < min[i] || rayOrigin[i] > max[i]) {
+                return false; // No intersection
+            }
+        }
+        else {
+            // Compute intersection t values for slabs
+            float t1 = (min[i] - rayOrigin[i]) / rayDirection[i];
+            float t2 = (max[i] - rayOrigin[i]) / rayDirection[i];
+
+            if (t1 > t2) std::swap(t1, t2);
+
+            tMin = std::max(tMin, t1);
+            tMax = std::min(tMax, t2);
+
+            if (tMin > tMax) {
+                return false; // No intersection
+            }
+        }
+    }
+
+	hitPoint = rayOrigin + rayDirection * tMin;
+    return true;
 }

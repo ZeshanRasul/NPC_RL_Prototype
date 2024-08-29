@@ -153,14 +153,20 @@ void Player::SetPlayerState(PlayerState newState)
 
 void Player::Shoot()
 {
+	if (GetPlayerState() != SHOOTING)
+		return;
+
     AudioComponent* shootAudioComponent = new AudioComponent(this);
     shootAudioComponent->PlayEvent("event:/Explosion2D");
+
+    UpdatePlayerVectors();
+    UpdatePlayerAimVectors();
 
     glm::vec3 rayO = GetShootPos();
     glm::vec3 rayD = glm::normalize(PlayerAimFront);
     float dist = GetShootDistance();
 
-    glm::vec3 hitPoint;
+    glm::vec3 hitPoint = glm::vec3(0.0f);
 
 	GameManager* gmeMgr = GetGameManager();
     //gmeMgr->GetPhysicsWorld()->rayEnemyIntersect(rayO, rayD, hitPoint);
