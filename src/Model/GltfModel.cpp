@@ -115,6 +115,21 @@ void GltfModel::createVertexBuffers() {
                 numPositionEntries);
         }
 
+        if (attribType.compare("POSITION") == 0) {
+            int numPositionEntries = accessor.count;
+            Logger::log(1, "%s: loaded %i vertices from glTF file\n", __FUNCTION__,
+                numPositionEntries);
+
+            // Extract vertices
+            const float* positions = reinterpret_cast<const float*>(
+                buffer.data.data() + bufferView.byteOffset + accessor.byteOffset);
+
+            mVertices.resize(numPositionEntries);
+            for (int i = 0; i < numPositionEntries; ++i) {
+                mVertices[i] = glm::vec3(positions[i * 3 + 0], positions[i * 3 + 1], positions[i * 3 + 2]);
+            }
+        }
+
         mAttribAccessors.at(attributes.at(attribType)) = accessorNum;
 
         int dataSize = 1;
@@ -151,7 +166,6 @@ void GltfModel::createVertexBuffers() {
             break;
         }
 
-        /* buffers for position, normal and tex coordinates */
         glGenBuffers(1, &mVertexVBO.at(attributes.at(attribType)));
         glBindBuffer(GL_ARRAY_BUFFER, mVertexVBO.at(attributes.at(attribType)));
 

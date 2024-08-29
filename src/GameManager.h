@@ -69,6 +69,7 @@ private:
     Shader gridShader{};
 	Shader crosshairShader{};
 	Shader lineShader{};
+	Shader aabbShader{};
     
     ShaderStorageBuffer mPlayerSSBuffer{};
     ShaderStorageBuffer mEnemySSBuffer{};

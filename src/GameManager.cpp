@@ -40,10 +40,14 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 	crosshairShader.loadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/crosshair_vert.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/crosshair_frag.glsl");
 
 	lineShader.loadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/line_vert.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/line_frag.glsl");
+    
+	aabbShader.loadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/aabb_vert.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/aabb_frag.glsl");
+    
     // TODO: Initialise Game Objects
 
     camera = new Camera(glm::vec3(50.0f, 3.0f, 80.0f));
     player = new Player(snapToGrid(glm::vec3(130.0f, 0.0f, 25.0f)), glm::vec3(1.0f), &playerShader, true, this);
+    player->aabbShader = &aabbShader;
     enemy = new Enemy(snapToGrid(glm::vec3(13.0f, 0.0f, 13.0f)), glm::vec3(1.0f), &enemyShader, true, this);
 //    enemy2 = new Enemy(snapToGrid(glm::vec3(23.0f, 0.0f, 13.0f)), glm::vec3(1.0f), &enemyShader, true);
 //    enemy3 = new Enemy(snapToGrid(glm::vec3(3.0f, 0.0f, 63.0f)), glm::vec3(1.0f), &enemyShader, true);
@@ -351,6 +355,7 @@ void GameManager::update(float deltaTime)
     inputManager->processInput(window->getWindow(), deltaTime);
     player->UpdatePlayerVectors();
     player->UpdatePlayerAimVectors();
+	player->Update(deltaTime);
 	audioSystem->Update(deltaTime);
 
     // TODO: Update Game Objects

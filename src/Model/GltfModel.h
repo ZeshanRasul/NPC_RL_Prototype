@@ -38,6 +38,8 @@ public:
     std::string getNodeName(int nodeNum);
 	int getNodeCount() const { return mNodeCount; }
 
+	std::vector<glm::vec3> getVertices() { return mVertices; }
+
 private:
     void createVertexBuffers();
     void createIndexBuffer();
@@ -79,6 +81,7 @@ private:
     std::vector<bool> mAdditiveAnimationMask{};
     std::vector<bool> mInvertedAdditiveAnimationMask{};
 
+	std::vector<glm::vec3> mVertices{};
     GLuint mVAO = 0;
     std::vector<GLuint> mVertexVBO{};
     GLuint mIndexVBO = 0;

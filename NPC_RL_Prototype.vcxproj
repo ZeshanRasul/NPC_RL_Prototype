@@ -173,6 +173,7 @@
     <ClCompile Include="src\OpenGL\VertexBuffer.cpp" />
     <ClCompile Include="src\Pathfinding\Grid.cpp" />
     <ClCompile Include="src\Pathfinding\Grid.h" />
+    <ClCompile Include="src\Physics\AABB.cpp" />
     <ClCompile Include="src\ShaderOld.cpp" />
     <ClCompile Include="src\tinygltf\tiny_gltf.cc" />
     <ClCompile Include="src\Tools\Logger.cpp" />
@@ -220,6 +221,7 @@
     <ClInclude Include="src\OpenGL\Texture.h" />
     <ClInclude Include="src\OpenGL\UniformBuffer.h" />
     <ClInclude Include="src\OpenGL\VertexBuffer.h" />
+    <ClInclude Include="src\Physics\AABB.h" />
     <ClInclude Include="src\Primitives.h" />
     <ClInclude Include="src\ShaderOld.h" />
     <ClInclude Include="src\tinygltf\json.hpp" />
@@ -229,6 +231,8 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="src\Assets\Models\backpack\backpack.mtl" />
+    <None Include="src\Shaders\aabb_frag.glsl" />
+    <None Include="src\Shaders\aabb_vert.glsl" />
     <None Include="src\Shaders\crosshair_frag.glsl" />
     <None Include="src\Shaders\crosshair_vert.glsl" />
     <None Include="src\Shaders\fragment_gpu_dquat.glsl" />
