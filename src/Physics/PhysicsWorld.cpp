@@ -55,6 +55,7 @@ bool PhysicsWorld::rayEnemyIntersect(const glm::vec3& rayOrigin, const glm::vec3
     float closestDistance = std::numeric_limits<float>::max();
 
 	AABB* closestAABB = nullptr;
+    AABB* missedAABB = nullptr;
 
     for (AABB* collider : enemyColliders) {
         glm::vec3 tempHitPoint;
@@ -67,14 +68,17 @@ bool PhysicsWorld::rayEnemyIntersect(const glm::vec3& rayOrigin, const glm::vec3
                 closestAABB = collider;
             } 
         }
+        else {
+            missedAABB = collider;
+        }
     }
 
-	if (hit && closestAABB && !closestAABB->isPlayer)
-	    closestAABB->owner->OnHit();
-	else if (closestAABB && !closestAABB->isPlayer)
+    if (hit && closestAABB && !closestAABB->isPlayer)
+        closestAABB->owner->OnHit();
+    else if (missedAABB && !missedAABB->isPlayer)
     {
-		hit = false;
-        closestAABB->owner->OnMiss();
+        hit = false;
+        missedAABB->owner->OnMiss();
     }
 
     return hit;
