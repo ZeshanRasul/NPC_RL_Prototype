@@ -31,6 +31,7 @@ void Player::drawObject(glm::mat4 viewMat, glm::mat4 proj)
         uploadVertexBuffer = false;
     }
 
+    updateAABB();
     model->draw();
 	renderAABB(proj, viewMat, modelMat, aabbShader);
 }
