@@ -32,13 +32,13 @@ void AABB::update(const glm::mat4& modelMatrix) {
 
     for (const auto& corner : corners) {
         glm::vec3 transformed = glm::vec3(modelMatrix * glm::vec4(corner, 1.0f));
-        std::cout << "Transformed: " << transformed.x << ", " << transformed.y << ", " << transformed.z << std::endl;
+//        std::cout << "Transformed: " << transformed.x << ", " << transformed.y << ", " << transformed.z << std::endl;
 
         transformedMin = glm::min(transformedMin, transformed);
         transformedMax = glm::max(transformedMax, transformed);
     }
 
-	std::cout << "Transformed Min: " << transformedMin.x << ", " << transformedMin.y << ", " << transformedMin.z << std::endl;
-	std::cout << "Transformed Max: " << transformedMax.x << ", " << transformedMax.y << ", " << transformedMax.z << std::endl;
+//	std::cout << "Transformed Min: " << transformedMin.x << ", " << transformedMin.y << ", " << transformedMin.z << std::endl;
+//	std::cout << "Transformed Max: " << transformedMax.x << ", " << transformedMax.y << ", " << transformedMax.z << std::endl;
 
 }

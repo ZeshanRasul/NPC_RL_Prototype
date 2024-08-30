@@ -96,12 +96,12 @@ bool PhysicsWorld::rayAABBIntersect(const glm::vec3& rayOrigin, const glm::vec3&
 	std::cout << "Ray Origin: " << rayOrigin.x << ", " << rayOrigin.y << ", " << rayOrigin.z << "\n";
     std::cout << "Ray Direction: " << rayDirection.x << ", " << rayDirection.y << ", " << rayDirection.z << "\n";
     
-    // Check if the ray origin is inside the AABB
-    if (rayOrigin.x >= min.x && rayOrigin.x <= max.x &&
-        rayOrigin.y >= min.y && rayOrigin.y <= max.y &&
-        rayOrigin.z >= min.z && rayOrigin.z <= max.z) {
-        return false; // Ray origin is inside the AABB, so we skip this intersection
-    }
+    //// Check if the ray origin is inside the AABB
+    //if (rayOrigin.x >= min.x && rayOrigin.x <= max.x &&
+    //    rayOrigin.y >= min.y && rayOrigin.y <= max.y &&
+    //    rayOrigin.z >= min.z && rayOrigin.z <= max.z) {
+    //    return false; // Ray origin is inside the AABB, so we skip this intersection
+    //}
 
     // Initialize tMin and tMax to infinite intervals
     float tMin = 0.0f;
