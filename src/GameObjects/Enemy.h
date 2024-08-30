@@ -54,6 +54,19 @@ public:
             Logger::log(1, "%s: loading glTF model '%s' failed\n", __FUNCTION__, modelFilename.c_str());
         }
 
+        if (uploadVertexBuffer)
+        {
+            model->uploadVertexBuffers();
+            //aabb.calculateAABB(model->getVertices());
+            //aabb.owner = this;
+            //updateAABB();
+            ////class GameManager* gameMgr = GetGameManager();
+            //mGameManager->GetPhysicsWorld()->addCollider(GetAABB());
+            //mGameManager->GetPhysicsWorld()->addEnemyCollider(GetAABB());
+            SetUpAABB();
+            uploadVertexBuffer = false;
+        }
+
         model->uploadIndexBuffer();
         Logger::log(1, "%s: glTF model '%s' succesfully loaded\n", __FUNCTION__, modelFilename.c_str());
 
@@ -86,6 +99,7 @@ public:
 
     void setPosition(glm::vec3 newPos) {
         position = newPos;
+        updateAABB();
         mRecomputeWorldTransform = true;
         ComputeAudioWorldTransform();
     }
@@ -114,15 +128,22 @@ public:
         glm::mat4 modelMatrix = glm::translate(glm::mat4(1.0f), position) *
             glm::rotate(glm::mat4(1.0f), glm::radians(-yaw + 90.0f), glm::vec3(0.0f, 1.0f, 0.0f)) *
             glm::scale(glm::mat4(1.0f), scale);
-        aabb.update(modelMatrix);
-    }
+        aabb->mModelMatrix = modelMatrix;
+        aabb->update(modelMatrix);
+    };
 
-    AABB GetAABB() const { return aabb; }
+    void SetUpAABB();
+
+    AABB* GetAABB() const { return aabb; }
     void renderAABB(glm::mat4 proj, glm::mat4 viewMat, glm::mat4 model, Shader* shader);
 
 	void setAABBColor(glm::vec3 color) { aabbColor = color; }
 
     void OnHit() override;
+    void OnMiss() override {
+        aabbColor = glm::vec3(1.0f, 1.0f, 1.0f);
+    }
+	glm::vec3 aabbColor = glm::vec3(0.0f, 0.0f, 1.0f);
 
     EnemyState state = PATROL;
     float EnemyCameraYaw;
@@ -140,7 +161,6 @@ public:
     bool uploadVertexBuffer = true;
     ShaderStorageBuffer mEnemyDualQuatSSBuffer{};
 
-    AABB aabb;
+    AABB* aabb;
     Shader* aabbShader;
-	glm::vec3 aabbColor = glm::vec3(0.0f, 0.0f, 1.0f);
 };

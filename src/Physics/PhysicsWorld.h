@@ -8,15 +8,15 @@ class PhysicsWorld {
 public:
     PhysicsWorld();
 
-    void addCollider(const AABB& collider);
-    void addEnemyCollider(const AABB& collider);
+    void addCollider(AABB* collider);
+    void addEnemyCollider(AABB* collider);
     bool rayIntersect(const glm::vec3& rayOrigin, const glm::vec3& rayDirection, glm::vec3& hitPoint);
     bool rayEnemyIntersect(const glm::vec3& rayOrigin, const glm::vec3& rayDirection, glm::vec3& hitPoint);
 
 private:
-    std::vector<AABB> colliders;
-    std::vector<AABB> enemyColliders;
+    std::vector<AABB*> colliders;
+    std::vector<AABB*> enemyColliders;
 
-    bool rayAABBIntersect(const glm::vec3& rayOrigin, const glm::vec3& rayDirection, const AABB& aabb, glm::vec3& hitPoint);
+    bool rayAABBIntersect(const glm::vec3& rayOrigin, const glm::vec3& rayDirection, AABB* aabb, glm::vec3& hitPoint);
 };
 

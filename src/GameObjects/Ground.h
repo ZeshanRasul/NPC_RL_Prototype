@@ -16,4 +16,5 @@ public:
     void ComputeAudioWorldTransform() override;
    
     void OnHit() override {};
+    void OnMiss() override {};
 };

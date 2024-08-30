@@ -75,13 +75,15 @@ public:
 
 	virtual void OnHit() {};
 
+    virtual void OnMiss() {};
+
     std::shared_ptr<GltfModel> model = nullptr;;
     float yaw;
 
+    glm::vec3 position;
 protected:
     virtual void drawObject(glm::mat4 viewMat, glm::mat4 proj) = 0;
 
-    glm::vec3 position;
     glm::vec3 scale;
     bool mRecomputeWorldTransform = true;
     glm::mat4 audioWorldTransform;

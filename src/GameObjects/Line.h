@@ -24,6 +24,7 @@ public:
 	void UpdateVertexBuffer(glm::vec3 rayOrigin, glm::vec3 rayEnd);
 
     void OnHit() override {};
+    void OnMiss() override {};
 
 private:
 

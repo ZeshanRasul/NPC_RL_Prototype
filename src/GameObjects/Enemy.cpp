@@ -18,18 +18,19 @@ void Enemy::drawObject(glm::mat4 viewMat, glm::mat4 proj)
     mEnemyDualQuatSSBuffer.uploadSsboData(model->getJointDualQuats(), 2);
 
 
-    if (uploadVertexBuffer)
-    {
-        model->uploadVertexBuffers();
-		aabb.calculateAABB(model->getVertices());
-        aabb.owner = this;
-        updateAABB();
-        GameManager* gameMgr = GetGameManager();
-        gameMgr->GetPhysicsWorld()->addCollider(GetAABB());
-        gameMgr->GetPhysicsWorld()->addEnemyCollider(GetAABB());
+  //  if (uploadVertexBuffer)
+  //  {
+  //      model->uploadVertexBuffers();
+		//aabb.calculateAABB(model->getVertices());
+  //      aabb.owner = this;
+		//aabb.mModelMatrix = modelMat;
+  //      updateAABB();
+  //      GameManager* gameMgr = GetGameManager();
+  //      gameMgr->GetPhysicsWorld()->addCollider(GetAABB());
+  //      gameMgr->GetPhysicsWorld()->addEnemyCollider(GetAABB());
 
-		uploadVertexBuffer = false;
-    }
+		//uploadVertexBuffer = false;
+  //  }
 
     model->draw();
 	renderAABB(proj, viewMat, modelMat, aabbShader);
@@ -225,7 +226,6 @@ void Enemy::moveEnemy(const std::vector<glm::ivec2>& path, float deltaTime, floa
 
     //enemy.Yaw = glm::degrees(glm::acos(glm::dot(glm::normalize(enemy.Front), direction)));
     yaw = glm::degrees(glm::atan(direction.z, direction.x));
-    updateAABB();
 	mRecomputeWorldTransform = true;
 
     UpdateEnemyVectors();
@@ -248,7 +248,6 @@ void Enemy::moveEnemy(const std::vector<glm::ivec2>& path, float deltaTime, floa
 
     if (isObstacleFree) {
         setPosition(newPos);
-        updateAABB();
     }
     else {
         // If the new position is within an obstacle, try to adjust the position slightly
@@ -267,7 +266,6 @@ void Enemy::moveEnemy(const std::vector<glm::ivec2>& path, float deltaTime, floa
 
         if (isObstacleFree) {
             setPosition(newPos);
-			updateAABB();
         }
     }
 
@@ -285,10 +283,21 @@ void Enemy::SetAnimation(int animNum, float speedDivider, float blendFactor, boo
     model->playAnimation(animNum, speedDivider, blendFactor, playBackwards);
 }
 
+void Enemy::SetUpAABB()
+{
+    aabb = new AABB();
+    aabb->calculateAABB(model->getVertices());
+    aabb->owner = this;
+    updateAABB();
+    //class GameManager* gameMgr = GetGameManager();
+    mGameManager->GetPhysicsWorld()->addCollider(GetAABB());
+    mGameManager->GetPhysicsWorld()->addEnemyCollider(GetAABB());
+}
+
 void Enemy::renderAABB(glm::mat4 proj, glm::mat4 viewMat, glm::mat4 model, Shader* shader)
 {
-    glm::vec3 min = aabb.transformedMin;
-    glm::vec3 max = aabb.transformedMax;
+    glm::vec3 min = aabb->transformedMin;
+    glm::vec3 max = aabb->transformedMax;
 
     std::vector<glm::vec3> lineVertices = {
         {min.x, min.y, min.z}, {max.x, min.y, min.z},
@@ -340,5 +349,6 @@ void Enemy::renderAABB(glm::mat4 proj, glm::mat4 viewMat, glm::mat4 model, Shade
 void Enemy::OnHit()
 {
 	Logger::log(1, "Enemy was hit!", __FUNCTION__);
+	Logger::log(1, "%s Enemy Position", getPosition());
 	setAABBColor(glm::vec3(1.0f, 0.0f, 1.0f));
 }

@@ -19,9 +19,16 @@ public:
 
     void update(const glm::mat4& modelMatrix);
 
-    glm::vec3 transformedMin;
-    glm::vec3 transformedMax;
-	GameObject* owner;
+	glm::vec3 getTransformedMin()   const { return transformedMin; }
+	glm::vec3 getTransformedMax()   const { return transformedMax; }
+
+    glm::vec3 transformedMin = glm::vec3(1.0f);
+    glm::vec3 transformedMax = glm::vec3(1.0f);
+	GameObject* owner = nullptr;
+
+    glm::mat4 mModelMatrix = glm::mat4(1.0f);
+
+    bool isPlayer = false;
 
 private:
     glm::vec3 mMin;

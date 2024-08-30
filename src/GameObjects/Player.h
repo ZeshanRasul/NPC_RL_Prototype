@@ -80,7 +80,7 @@ public:
     PlayerState GetPlayerState() const { return mPlayerState; }
     void SetPlayerState(PlayerState newState);
 
-	glm::vec3 GetShootPos() { return getPosition() + glm::vec3(0.0f, 2.5f, 0.0f); }
+	glm::vec3 GetShootPos() { return getPosition() + glm::vec3(0.0f, 2.5f, 0.0f) + (10.0f * PlayerAimFront); }
 	float GetShootDistance() const { return shootDistance; }
 
     void Shoot();
@@ -89,16 +89,17 @@ public:
         glm::mat4 modelMatrix = glm::translate(glm::mat4(1.0f), position) *
             glm::rotate(glm::mat4(1.0f), glm::radians(-yaw + 180.0f), glm::vec3(0.0f, 1.0f, 0.0f)) *
             glm::scale(glm::mat4(1.0f), scale);
-        aabb.update(modelMatrix);
+        aabb->mModelMatrix = modelMatrix;
+        aabb->update(modelMatrix);
     }
 
-    AABB GetAABB() const { return aabb; }
+    AABB* GetAABB() const { return aabb; }
     void renderAABB(glm::mat4 proj, glm::mat4 viewMat, glm::mat4 model, Shader* aabbSdr);
     void setAABBColor(glm::vec3 color) { aabbColor = color; }
 
     void OnHit() override;
-
-    AABB aabb;
+    void OnMiss() override {};
+    AABB* aabb;
     glm::vec3 aabbColor = glm::vec3(0.0f, 0.0f, 1.0f);
 
 public:

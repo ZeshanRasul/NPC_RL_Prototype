@@ -21,11 +21,13 @@ void Player::drawObject(glm::mat4 viewMat, glm::mat4 proj)
     if (uploadVertexBuffer)
     {
         model->uploadVertexBuffers();
-		aabb.calculateAABB(model->getVertices());
-        aabb.owner = this;
-        GameManager* gameMgr = GetGameManager();
-        gameMgr->GetPhysicsWorld()->addCollider(GetAABB());
+		aabb = new AABB();
+		aabb->calculateAABB(model->getVertices());
+        aabb->owner = this;
+		aabb->isPlayer = true;
         updateAABB();
+        GameManager* gameMgr = GetGameManager();
+//        gameMgr->GetPhysicsWorld()->addCollider(GetAABB());
         uploadVertexBuffer = false;
     }
 
@@ -35,7 +37,7 @@ void Player::drawObject(glm::mat4 viewMat, glm::mat4 proj)
 
 void Player::Update(float dt) 
 {
-    updateAABB();
+ //   updateAABB();
     ComputeAudioWorldTransform();
     UpdateComponents(dt);
 }
@@ -171,19 +173,24 @@ void Player::Shoot()
 	GameManager* gmeMgr = GetGameManager();
     //gmeMgr->GetPhysicsWorld()->rayEnemyIntersect(rayO, rayD, hitPoint);
 
-    if (gmeMgr->GetPhysicsWorld()->rayEnemyIntersect(rayO, rayD, hitPoint)) {
-        std::cout << "Ray hit at: " << hitPoint.x << ", " << hitPoint.y << ", " << hitPoint.z << std::endl;
+	bool hit = false;
+    hit = gmeMgr->GetPhysicsWorld()->rayEnemyIntersect(rayO, rayD, hitPoint);
+
+    if (hit) {
+        std::cout << "\nRay hit at: " << hitPoint.x << ", " << hitPoint.y << ", " << hitPoint.z << std::endl;
+		hitPoint = glm::vec3(0.0f);
     }
     else {
-        std::cout << "No hit detected." << std::endl;
+        std::cout << "\nNo hit detected." << std::endl;
     }
-
+	rayD = glm::vec3(0.0f);
+    UpdatePlayerAimVectors();
 }
 
 void Player::renderAABB(glm::mat4 proj, glm::mat4 viewMat, glm::mat4 model, Shader* aabbSdr)
 {
-    glm::vec3 min = aabb.transformedMin;
-    glm::vec3 max = aabb.transformedMax;
+    glm::vec3 min = aabb->transformedMin;
+    glm::vec3 max = aabb->transformedMax;
 
     std::vector<glm::vec3> lineVertices = {
         {min.x, min.y, min.z}, {max.x, min.y, min.z},
@@ -234,6 +241,6 @@ void Player::renderAABB(glm::mat4 proj, glm::mat4 viewMat, glm::mat4 model, Shad
 
 void Player::OnHit()
 {
-	setAABBColor(glm::vec3(1.0f, 0.0f, 1.0f));
+	std::cout << "Player hit!" << std::endl;
 }
 
