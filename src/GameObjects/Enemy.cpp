@@ -97,7 +97,8 @@ void Enemy::Update(float dt, Player& player, float blendFactor, bool playAnimBac
     {
         if (reachedPlayer)
         {
-            SetAnimation(4, 1.0f, blendFactor, playAnimBackwards);
+            SetAnimNum(4);
+            SetAnimation(GetAnimNum(), 1.0f, blendFactor, playAnimBackwards);
 
             if (playerEnemyDistance > CELL_SIZE)
                 reachedPlayer = false;
@@ -196,7 +197,7 @@ void Enemy::moveEnemy(const std::vector<glm::ivec2>& path, float deltaTime, floa
     float speed = 10.0f; // Ensure this speed is appropriate for the grid size and cell size
     
     if (!reachedPlayer)
-        SetAnimation(0, 1.0f, blendFactor, playAnimBackwards);
+        SetAnimation(GetAnimNum(), 1.0f, blendFactor, playAnimBackwards);
 
     if (pathIndex >= path.size()) {
         std::cout << "Agent has reached its destination." << std::endl;
@@ -355,7 +356,7 @@ void Enemy::OnHit()
 {
 	Logger::log(1, "Enemy was hit!\n", __FUNCTION__);
 	setAABBColor(glm::vec3(1.0f, 0.0f, 1.0f));
+    SetAnimNum(8);
     TakeDamage(50.0f);
     takeDamageAC->PlayEvent("event:/EnemyDamage");
-    SetAnimation(8, 1.0f, 1.0f, false);
 }

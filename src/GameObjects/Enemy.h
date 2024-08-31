@@ -153,6 +153,9 @@ public:
 
 	void setAABBColor(glm::vec3 color) { aabbColor = color; }
 
+    int GetAnimNum() const { return animNum; }
+	void SetAnimNum(int newAnimNum) { animNum = newAnimNum; }
+
     void OnHit() override;
     void OnMiss() override {
         aabbColor = glm::vec3(1.0f, 1.0f, 1.0f);
@@ -180,4 +183,5 @@ public:
     Shader* aabbShader;
 
     AudioComponent* takeDamageAC;
+	int animNum = 0;
 };
