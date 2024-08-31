@@ -160,7 +160,7 @@ void Player::Shoot()
 		return;
 
     AudioComponent* shootAudioComponent = new AudioComponent(this);
-    shootAudioComponent->PlayEvent("event:/Explosion2D");
+    shootAudioComponent->PlayEvent("event:/PlayerShoot");
 
     UpdatePlayerVectors();
     UpdatePlayerAimVectors();

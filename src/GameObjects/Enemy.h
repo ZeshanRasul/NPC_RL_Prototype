@@ -5,6 +5,7 @@
 #include "src/Pathfinding/Grid.h"
 #include "src/OpenGL/ShaderStorageBuffer.h"
 #include "Physics/AABB.h"
+#include "Components/AudioComponent.h"
 
 enum EnemyState {
     PATROL,
@@ -82,6 +83,7 @@ public:
         UpdateEnemyVectors(); 
 
         currentWaypoint = waypointPositions[std::rand() % waypointPositions.size()];
+        takeDamageAC = new AudioComponent(this);
     }
 
     ~Enemy() 
@@ -124,6 +126,18 @@ public:
         yaw = newYaw; 
     }
 
+	float GetHealth() const { return health; }
+	void SetHealth(float newHealth) { health = newHealth; }
+
+	void TakeDamage(float damage) {
+		SetHealth(GetHealth() - damage);
+		if (GetHealth() <= 0.0f) {
+			OnDeath();
+		}
+	}
+
+    void OnDeath();
+
     void updateAABB() {
         glm::mat4 modelMatrix = glm::translate(glm::mat4(1.0f), position) *
             glm::rotate(glm::mat4(1.0f), glm::radians(-yaw + 90.0f), glm::vec3(0.0f, 1.0f, 0.0f)) *
@@ -145,6 +159,7 @@ public:
     }
 	glm::vec3 aabbColor = glm::vec3(0.0f, 0.0f, 1.0f);
 
+	float health = 100.0f;
     EnemyState state = PATROL;
     float EnemyCameraYaw;
     float EnemyCameraPitch;
@@ -163,4 +178,6 @@ public:
 
     AABB* aabb;
     Shader* aabbShader;
+
+    AudioComponent* takeDamageAC;
 };

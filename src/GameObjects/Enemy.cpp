@@ -283,6 +283,11 @@ void Enemy::SetAnimation(int animNum, float speedDivider, float blendFactor, boo
     model->playAnimation(animNum, speedDivider, blendFactor, playBackwards);
 }
 
+void Enemy::OnDeath()
+{
+	std::cout << "Enemy Died!" << std::endl;
+}
+
 void Enemy::SetUpAABB()
 {
     aabb = new AABB();
@@ -348,7 +353,9 @@ void Enemy::renderAABB(glm::mat4 proj, glm::mat4 viewMat, glm::mat4 model, Shade
 
 void Enemy::OnHit()
 {
-	Logger::log(1, "Enemy was hit!", __FUNCTION__);
-	Logger::log(1, "%s Enemy Position", getPosition());
+	Logger::log(1, "Enemy was hit!\n", __FUNCTION__);
 	setAABBColor(glm::vec3(1.0f, 0.0f, 1.0f));
+    TakeDamage(50.0f);
+    takeDamageAC->PlayEvent("event:/EnemyDamage");
+    SetAnimation(8, 1.0f, 1.0f, false);
 }
