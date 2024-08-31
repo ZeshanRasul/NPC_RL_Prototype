@@ -38,13 +38,15 @@ void Enemy::drawObject(glm::mat4 viewMat, glm::mat4 proj)
 
 void Enemy::Update(float dt, Player& player, float blendFactor, bool playAnimBackwards)
 {
+	damageTimer -= dt;
+
     float playerEnemyDistance = glm::distance(getPosition(), player.getPosition());
 
     if (playerEnemyDistance < 35.0f)
     {
         SetEnemyState(ATTACK);
     }
-    else
+	else if (GetEnemyState() != TAKE_DAMAGE)
     {
         SetEnemyState(PATROL);
     }
@@ -118,6 +120,17 @@ void Enemy::Update(float dt, Player& player, float blendFactor, bool playAnimBac
 
         break;
     }
+    case TAKE_DAMAGE:
+    {
+        SetAnimNum(8);
+        SetAnimation(GetAnimNum(), 1.0f, blendFactor, playAnimBackwards);
+        if (damageTimer <= 0.0f)
+        {
+            state = PATROL;
+        }
+        break;
+    }
+
     default:
         break;
     }
@@ -197,6 +210,7 @@ void Enemy::moveEnemy(const std::vector<glm::ivec2>& path, float deltaTime, floa
     float speed = 10.0f; // Ensure this speed is appropriate for the grid size and cell size
     
     if (!reachedPlayer)
+        SetAnimNum(0);
         SetAnimation(GetAnimNum(), 1.0f, blendFactor, playAnimBackwards);
 
     if (pathIndex >= path.size()) {
@@ -355,8 +369,10 @@ void Enemy::renderAABB(glm::mat4 proj, glm::mat4 viewMat, glm::mat4 model, Shade
 void Enemy::OnHit()
 {
 	Logger::log(1, "Enemy was hit!\n", __FUNCTION__);
+    SetEnemyState(TAKE_DAMAGE);
 	setAABBColor(glm::vec3(1.0f, 0.0f, 1.0f));
     SetAnimNum(8);
     TakeDamage(50.0f);
     takeDamageAC->PlayEvent("event:/EnemyDamage");
+	damageTimer = model->getAnimationEndTime(8);
 }

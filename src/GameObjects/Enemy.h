@@ -9,7 +9,8 @@
 
 enum EnemyState {
     PATROL,
-    ATTACK
+    ATTACK,
+	TAKE_DAMAGE
 };
 
 static const char* EnemyStateNames[] = {
@@ -184,4 +185,6 @@ public:
 
     AudioComponent* takeDamageAC;
 	int animNum = 0;
+    bool takingDamage = false;
+	float damageTimer = 0.0f;
 };
