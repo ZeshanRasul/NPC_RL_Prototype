@@ -10,7 +10,9 @@
 enum EnemyState {
     PATROL,
     ATTACK,
-	TAKE_DAMAGE
+	TAKE_DAMAGE,
+    DYING,
+    DEAD
 };
 
 static const char* EnemyStateNames[] = {

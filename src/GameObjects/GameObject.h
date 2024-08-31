@@ -81,6 +81,9 @@ public:
     float yaw;
 
     glm::vec3 position;
+
+    bool isDestroyed = false;
+
 protected:
     virtual void drawObject(glm::mat4 viewMat, glm::mat4 proj) = 0;
 

@@ -38,6 +38,8 @@ void Enemy::drawObject(glm::mat4 viewMat, glm::mat4 proj)
 
 void Enemy::Update(float dt, Player& player, float blendFactor, bool playAnimBackwards)
 {
+	if (GetEnemyState() == DEAD) return;
+
 	damageTimer -= dt;
 
     float playerEnemyDistance = glm::distance(getPosition(), player.getPosition());
@@ -301,6 +303,8 @@ void Enemy::SetAnimation(int animNum, float speedDivider, float blendFactor, boo
 void Enemy::OnDeath()
 {
 	std::cout << "Enemy Died!" << std::endl;
+    isDestroyed = true;
+    SetEnemyState(DEAD);
 }
 
 void Enemy::SetUpAABB()

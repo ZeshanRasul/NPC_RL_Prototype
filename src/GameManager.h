@@ -25,7 +25,8 @@ public:
     ~GameManager() {
         delete camera;
         delete player;
-        delete enemy;
+        if(!enemy->isDestroyed)
+            delete enemy;
         delete inputManager;
     }
 
@@ -50,6 +51,7 @@ private:
     void ShowLightControlWindow(DirLight& light);
     void ShowAnimationControlWindow();
 
+    void RemoveDestroyedGameObjects();
 
     Renderer* renderer;
     Window* window;
