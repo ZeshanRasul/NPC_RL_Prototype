@@ -336,8 +336,9 @@ void GameManager::showDebugUI()
     {
         for (auto it = gameObjects.begin(); it != gameObjects.end(); ) {
             if ((*it)->isDestroyed) {
-                delete* it; // Delete the object
-                it = gameObjects.erase(it); // Remove from vector
+                delete* it; 
+                *it = nullptr;
+                it = gameObjects.erase(it); 
             }
             else {
                 ++it;

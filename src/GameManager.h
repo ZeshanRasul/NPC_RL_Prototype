@@ -24,9 +24,12 @@ public:
 
     ~GameManager() {
         delete camera;
-        delete player;
-        if(!enemy->isDestroyed)
-            delete enemy;
+        for (auto it = gameObjects.begin(); it != gameObjects.end(); ) {
+            if (*it) {
+                delete* it;            
+            }
+            it = gameObjects.erase(it); 
+        }
         delete inputManager;
     }
 

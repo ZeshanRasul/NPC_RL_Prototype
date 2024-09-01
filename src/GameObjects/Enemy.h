@@ -189,4 +189,6 @@ public:
 	int animNum = 0;
     bool takingDamage = false;
 	float damageTimer = 0.0f;
+    bool isDying = false;
+	float dyingTimer = 0.0f;
 };

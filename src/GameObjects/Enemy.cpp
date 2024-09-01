@@ -37,10 +37,12 @@ void Enemy::drawObject(glm::mat4 viewMat, glm::mat4 proj)
 }
 
 void Enemy::Update(float dt, Player& player, float blendFactor, bool playAnimBackwards)
-{
-	if (GetEnemyState() == DEAD) return;
+{    
+    if (GetEnemyState() == TAKE_DAMAGE)
+	    damageTimer -= dt;
 
-	damageTimer -= dt;
+    if (GetEnemyState() == DYING)
+        dyingTimer -= dt;
 
     float playerEnemyDistance = glm::distance(getPosition(), player.getPosition());
 
@@ -48,7 +50,7 @@ void Enemy::Update(float dt, Player& player, float blendFactor, bool playAnimBac
     {
         SetEnemyState(ATTACK);
     }
-	else if (GetEnemyState() != TAKE_DAMAGE)
+	else if (GetEnemyState() != TAKE_DAMAGE && GetEnemyState() != DYING && GetEnemyState() != DEAD)
     {
         SetEnemyState(PATROL);
     }
@@ -132,7 +134,20 @@ void Enemy::Update(float dt, Player& player, float blendFactor, bool playAnimBac
         }
         break;
     }
-
+    case DYING:
+	{
+        SetAnimation(GetAnimNum(), 1.0f, blendFactor, playAnimBackwards);
+		if (dyingTimer <= 0.0f)
+		{
+			SetEnemyState(DEAD);
+		}
+		break;
+	}
+    case DEAD:
+    {
+        isDestroyed = true;
+        return;
+    }
     default:
         break;
     }
@@ -303,8 +318,9 @@ void Enemy::SetAnimation(int animNum, float speedDivider, float blendFactor, boo
 void Enemy::OnDeath()
 {
 	std::cout << "Enemy Died!" << std::endl;
-    isDestroyed = true;
-    SetEnemyState(DEAD);
+    SetEnemyState(DYING);
+    SetAnimNum(3);
+	dyingTimer = 1.5f;
 }
 
 void Enemy::SetUpAABB()
