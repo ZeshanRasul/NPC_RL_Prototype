@@ -47,7 +47,7 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 
     cell = new Cell();
     cell->SetUpVAO();
-    
+    cell->LoadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/Cell.png");
     gameGrid = new Grid();
     gameGrid->initializeGrid();
 

@@ -25,7 +25,11 @@ void Grid::initializeGrid() {
 
 void Grid::drawGrid(Shader& gridShader, glm::mat4 viewMat, glm::mat4 projMat) 
 {
+//    glEnable(GL_BLEND);
+//    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     gridShader.use();
+    grid[0][0].LoadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/Cell.png");
+	grid[0][0].mTex.bind();
     for (int i = 0; i < GRID_SIZE; ++i) {
         for (int j = 0; j < GRID_SIZE; ++j) {
             glm::vec3 position = glm::vec3(i * CELL_SIZE, 0.0f, j * CELL_SIZE);
@@ -43,6 +47,7 @@ void Grid::drawGrid(Shader& gridShader, glm::mat4 viewMat, glm::mat4 projMat)
             glDrawArrays(GL_TRIANGLES, 0, 6);
         }
     }
+    grid[0][0].mTex.unbind();
 }
 
 #include <unordered_set>

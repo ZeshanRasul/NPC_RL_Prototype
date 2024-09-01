@@ -3,6 +3,9 @@
 #include <glad/glad.h>
 #include <glm/glm.hpp>
 
+#include "Logger.h"
+#include "Texture.h"
+
 class Cell {
 public:
     Cell(bool isObs, glm::vec3 col)
@@ -33,6 +36,16 @@ public:
         glBindVertexArray(0);
     }
 
+    bool LoadTexture(std::string textureFilename)
+    {
+        if (!mTex.loadTexture(textureFilename, false)) {
+            Logger::log(1, "%s: texture loading failed\n", __FUNCTION__);
+            return false;
+        }
+        Logger::log(1, "%s: Crosshair texture successfully loaded\n", __FUNCTION__, textureFilename);
+        return true;
+    }
+
     void BindVAO() const {
         glBindVertexArray(cellVAO);
     }
@@ -53,6 +66,7 @@ public:
 		color = col;
 	}
 
+    Texture mTex{};
 private:
     GLuint cellVAO = 0;
     GLuint cellVBO = 0;
