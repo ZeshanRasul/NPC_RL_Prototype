@@ -37,6 +37,8 @@ private:
     int GRID_SIZE = 100;
     int CELL_SIZE = 7;
     std::vector<std::vector<Cell>> grid;
+
+    bool firstLoad = true;
 }; 
 
 

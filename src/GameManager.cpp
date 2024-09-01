@@ -50,7 +50,7 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
     cell->LoadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/Cell.png");
     gameGrid = new Grid();
     gameGrid->initializeGrid();
-
+//	gameGrid->GetGrid()[0][0].LoadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/Cell.png");
 
     // TODO: Initialise Game Objects
     camera = new Camera(glm::vec3(50.0f, 3.0f, 80.0f));
@@ -444,7 +444,7 @@ void GameManager::render()
     for (auto obj : gameObjects) {
         renderer->draw(obj, view, projection);
     }
-
+    
     gameGrid->drawGrid(gridShader, view, projection);
 
     if ((player->GetPlayerState() == AIMING || player->GetPlayerState() == SHOOTING) && camSwitchedToAim == false)
