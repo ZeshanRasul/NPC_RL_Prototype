@@ -20,34 +20,11 @@ static const char* EnemyStateNames[] = {
     "Attack"
 };
 
-
-static glm::vec3 snapToGrid(const glm::vec3& position);
-
-static std::vector<glm::vec3> waypointPositions = {
-            snapToGrid(glm::vec3(0.0f, 0.0f, 0.0f)),
-            snapToGrid(glm::vec3(0.0f, 0.0f, 90.0f)),
-            snapToGrid(glm::vec3(30.0f, 0.0f, 0.0f)),
-            snapToGrid(glm::vec3(30.0f, 0.0f, 90.0f))
-};
-static glm::vec3 selectRandomWaypoint(const glm::vec3& currentWaypoint, const std::vector<glm::vec3>& allWaypoints) {
-
-    std::vector<glm::vec3> availableWaypoints;
-    for (const auto& wp : allWaypoints) {
-        if (wp != currentWaypoint) {
-            availableWaypoints.push_back(wp);
-        }
-    }
-
-    // Select a random waypoint from the available waypoints
-    int randomIndex = std::rand() % availableWaypoints.size();
-    return availableWaypoints[randomIndex];
-}
-
 class Enemy : public GameObject {
 public:
 
-    Enemy(glm::vec3 pos, glm::vec3 scale, Shader* sdr, bool applySkinning, GameManager* gameMgr, float yaw = 0.0f)
-		: GameObject(pos, scale, yaw, sdr, applySkinning, gameMgr)
+    Enemy(glm::vec3 pos, glm::vec3 scale, Shader* sdr, bool applySkinning, GameManager* gameMgr, Grid* grd, float yaw = 0.0f)
+		: GameObject(pos, scale, yaw, sdr, applySkinning, gameMgr), grid(grd)
     {
         model = std::make_shared<GltfModel>();
 
@@ -163,6 +140,21 @@ public:
     void OnMiss() override {
         aabbColor = glm::vec3(1.0f, 1.0f, 1.0f);
     }
+    
+    glm::vec3 selectRandomWaypoint(const glm::vec3& currentWaypoint, const std::vector<glm::vec3>& allWaypoints) {
+
+        std::vector<glm::vec3> availableWaypoints;
+        for (const auto& wp : allWaypoints) {
+            if (wp != currentWaypoint) {
+                availableWaypoints.push_back(wp);
+            }
+        }
+
+        // Select a random waypoint from the available waypoints
+        int randomIndex = std::rand() % availableWaypoints.size();
+        return availableWaypoints[randomIndex];
+    }
+
 	glm::vec3 aabbColor = glm::vec3(0.0f, 0.0f, 1.0f);
 
 	float health = 100.0f;
@@ -191,4 +183,13 @@ public:
 	float damageTimer = 0.0f;
     bool isDying = false;
 	float dyingTimer = 0.0f;
+
+	Grid* grid;
+
+    std::vector<glm::vec3> waypointPositions = {
+            grid->snapToGrid(glm::vec3(0.0f, 0.0f, 0.0f)),
+            grid->snapToGrid(glm::vec3(0.0f, 0.0f, 90.0f)),
+            grid->snapToGrid(glm::vec3(30.0f, 0.0f, 0.0f)),
+            grid->snapToGrid(glm::vec3(30.0f, 0.0f, 90.0f))
+    };
 };

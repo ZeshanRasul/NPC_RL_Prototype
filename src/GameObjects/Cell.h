@@ -3,24 +3,18 @@
 #include <glad/glad.h>
 #include <glm/glm.hpp>
 
-// Vertex data for a cell
-static float cellVertices[] = {
-    // positions         // texture coords
-     0.0f, 0.0f, 0.0f,   0.0f, 0.0f,
-     1.0f, 0.0f, 0.0f,   1.0f, 0.0f,
-     1.0f, 0.0f, 1.0f,   1.0f, 1.0f,
+class Cell {
+public:
+    Cell(bool isObs, glm::vec3 col)
+        : isObstacle(isObs), color(col)
+    {
+        SetUpVAO();
+    }
 
-     0.0f, 0.0f, 0.0f,   0.0f, 0.0f,
-     1.0f, 0.0f, 1.0f,   1.0f, 1.0f,
-     0.0f, 0.0f, 1.0f,   0.0f, 1.0f
-};
-
-// Define cell structure
-struct Cell {
-    bool isObstacle;
-    glm::vec3 color;
-
-    unsigned int cellVAO, cellVBO;
+    Cell() : isObstacle(false), color(glm::vec3(0.0f, 1.0f, 0.0f))
+    {
+        SetUpVAO();
+    }
 
     void SetUpVAO() {
         glGenVertexArrays(1, &cellVAO);
@@ -39,7 +33,43 @@ struct Cell {
         glBindVertexArray(0);
     }
 
-    void BindVAO() {
+    void BindVAO() const {
         glBindVertexArray(cellVAO);
     }
+
+    bool IsObstacle() const {
+		return isObstacle;
+	}
+
+	void SetObstacle(bool obs) {
+		isObstacle = obs;
+	}
+
+    glm::vec3 GetColor() const {
+		return color;
+	}
+
+	void SetColor(glm::vec3 col) {
+		color = col;
+	}
+
+private:
+    GLuint cellVAO = 0;
+    GLuint cellVBO = 0;
+
+    // Vertex data for a cell
+    float cellVertices[30] = {
+        // positions         // texture coords
+         0.0f, 0.0f, 0.0f,   0.0f, 0.0f,
+         1.0f, 0.0f, 0.0f,   1.0f, 0.0f,
+         1.0f, 0.0f, 1.0f,   1.0f, 1.0f,
+
+         0.0f, 0.0f, 0.0f,   0.0f, 0.0f,
+         1.0f, 0.0f, 1.0f,   1.0f, 1.0f,
+         0.0f, 0.0f, 1.0f,   0.0f, 1.0f
+    };
+
+    bool isObstacle;
+    glm::vec3 color;
+
 };

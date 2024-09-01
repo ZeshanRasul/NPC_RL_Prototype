@@ -1,15 +1,17 @@
 #include "Grid.h"
 #include <queue>
 #include <unordered_map>
+#include "Logger.h"
 
-std::vector<std::vector<Cell>> grid(GRID_SIZE, std::vector<Cell>(GRID_SIZE, { false, glm::vec3(0.0f, 1.0f, 0.0f) }));
-
-// Add some obstacles
 void Grid::initializeGrid() {
+
+    std::vector<Cell> row(GRID_SIZE, Cell(false, glm::vec3(0.0f, 1.0f, 0.0f)));
+    grid = std::vector<std::vector<Cell>>(GRID_SIZE, row);
+
     for (int i = 5; i < 10; ++i) {
         for (int j = 0; j < 10; ++j) {
-            grid[i][j].isObstacle = true;
-            grid[i][j].color = glm::vec3(1.0f, 0.0f, 0.0f);
+			grid[i][j].SetObstacle(true);
+            grid[i][j].SetColor(glm::vec3(1.0f, 0.0f, 0.0f));
         }
     }
     size_t uniformMatrixBufferSize = 3 * sizeof(glm::mat4);
@@ -21,8 +23,9 @@ void Grid::initializeGrid() {
 
 }
 
-void Grid::drawGrid(Shader& gridShader, glm::mat4 viewMat, glm::mat4 projMat) {
-
+void Grid::drawGrid(Shader& gridShader, glm::mat4 viewMat, glm::mat4 projMat) 
+{
+    gridShader.use();
     for (int i = 0; i < GRID_SIZE; ++i) {
         for (int j = 0; j < GRID_SIZE; ++j) {
             glm::vec3 position = glm::vec3(i * CELL_SIZE, 0.0f, j * CELL_SIZE);
@@ -33,8 +36,10 @@ void Grid::drawGrid(Shader& gridShader, glm::mat4 viewMat, glm::mat4 projMat) {
             matrixData.push_back(projMat);
             matrixData.push_back(model);
             mGridUniformBuffer.uploadUboData(matrixData, 0);
-            gridShader.setVec3("color", grid[i][j].color);
+			glm::vec3 cellColor = grid[i][j].GetColor();
+            gridShader.setVec3("color", cellColor);
             // Render cell
+			grid[i][j].BindVAO();
             glDrawArrays(GL_TRIANGLES, 0, 6);
         }
     }
@@ -57,7 +62,7 @@ float heuristic(const glm::ivec2& a, const glm::ivec2& b) {
     return (std::abs(a.x - b.x) + std::abs(a.y - b.y)) * glm::min((a.x - b.x), (a.y - b.y));
 }
 
-std::vector<glm::ivec2> findPath(const glm::ivec2& start, const glm::ivec2& goal, const std::vector<std::vector<Cell>>& grid) {
+std::vector<glm::ivec2> Grid::findPath(const glm::ivec2& start, const glm::ivec2& goal, const std::vector<std::vector<Cell>>& grid) {
     std::priority_queue<Node> openSet;
     std::unordered_map<glm::ivec2, Node, ivec2_hash> allNodes;
     std::unordered_set<glm::ivec2, ivec2_hash> closedSet;
@@ -90,7 +95,7 @@ std::vector<glm::ivec2> findPath(const glm::ivec2& start, const glm::ivec2& goal
         for (const glm::ivec2& neighbor : neighbors) {
             if (neighbor.x < 0 || neighbor.y < 0 || neighbor.x >= GRID_SIZE || neighbor.y >= GRID_SIZE)
                 continue;
-            if (grid[neighbor.x][neighbor.y].isObstacle || closedSet.count(neighbor))
+            if (grid[neighbor.x][neighbor.y].IsObstacle() || closedSet.count(neighbor))
                 continue;
 
             float tentativeGCost = current.gCost + 1.0f;

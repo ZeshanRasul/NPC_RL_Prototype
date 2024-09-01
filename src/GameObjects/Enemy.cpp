@@ -61,10 +61,10 @@ void Enemy::Update(float dt, Player& player, float blendFactor, bool playAnimBac
     {
         if (reachedDestination == false)
         {
-            std::vector<glm::ivec2> path = findPath(
-                glm::ivec2(getPosition().x / CELL_SIZE, getPosition().z / CELL_SIZE),
-                glm::ivec2(currentWaypoint.x / CELL_SIZE, currentWaypoint.z / CELL_SIZE),
-                grid
+            std::vector<glm::ivec2> path = grid->findPath(
+                glm::ivec2(getPosition().x / grid->GetCellSize(), getPosition().z / grid->GetCellSize()),
+                glm::ivec2(currentWaypoint.x / grid->GetCellSize(), currentWaypoint.z / grid->GetCellSize()),
+				grid->GetGrid()
             );
 
             //if (path.empty()) {
@@ -84,10 +84,10 @@ void Enemy::Update(float dt, Player& player, float blendFactor, bool playAnimBac
         {
             currentWaypoint = selectRandomWaypoint(currentWaypoint, waypointPositions);
 
-            std::vector<glm::ivec2> path = findPath(
-                glm::ivec2(getPosition().x / CELL_SIZE, getPosition().z / CELL_SIZE),
-                glm::ivec2(currentWaypoint.x / CELL_SIZE, currentWaypoint.z / CELL_SIZE),
-                grid
+            std::vector<glm::ivec2> path = grid->findPath(
+                glm::ivec2(getPosition().x / grid->GetCellSize(), getPosition().z / grid->GetCellSize()),
+                glm::ivec2(currentWaypoint.x / grid->GetCellSize(), currentWaypoint.z / grid->GetCellSize()),
+                grid->GetGrid()
             );
 
             //std::cout << "Finding new waypoint destination" << std::endl;
@@ -106,15 +106,15 @@ void Enemy::Update(float dt, Player& player, float blendFactor, bool playAnimBac
             SetAnimNum(4);
             SetAnimation(GetAnimNum(), 1.0f, blendFactor, playAnimBackwards);
 
-            if (playerEnemyDistance > CELL_SIZE)
+            if (playerEnemyDistance > grid->GetCellSize())
                 reachedPlayer = false;
         }
         else
         {
-            std::vector<glm::ivec2> path = findPath(
-                glm::ivec2(getPosition().x / CELL_SIZE, getPosition().z / CELL_SIZE),
-                glm::ivec2(player.getPosition().x / CELL_SIZE, player.getPosition().z / CELL_SIZE),
-                grid
+            std::vector<glm::ivec2> path = grid->findPath(
+                glm::ivec2(getPosition().x / grid->GetCellSize(), getPosition().z / grid->GetCellSize()),
+                glm::ivec2(player.getPosition().x / grid->GetCellSize(), player.getPosition().z / grid->GetCellSize()),
+				grid->GetGrid()
             );
 
             std::cout << "Moving to Player destination" << std::endl;
@@ -247,11 +247,11 @@ void Enemy::moveEnemy(const std::vector<glm::ivec2>& path, float deltaTime, floa
 
     if (pathIndex < path.size())
     {
-        cellOffset = CELL_SIZE / 2.0f;
+        cellOffset = grid->GetCellSize() / 2.0f;
     }
 
     // Calculate the target position from the current path node
-    glm::vec3 targetPos = glm::vec3(path[pathIndex].x * CELL_SIZE + CELL_SIZE / 2.0f, getPosition().y, path[pathIndex].y * CELL_SIZE + CELL_SIZE / 2.0f);
+    glm::vec3 targetPos = glm::vec3(path[pathIndex].x * grid->GetCellSize() + grid->GetCellSize() / 2.0f, getPosition().y, path[pathIndex].y * grid->GetCellSize() + grid->GetCellSize() / 2.0f);
 
     // Calculate the direction to the target position
     glm::vec3 direction = glm::normalize(targetPos - getPosition());
@@ -269,8 +269,8 @@ void Enemy::moveEnemy(const std::vector<glm::ivec2>& path, float deltaTime, floa
     bool isObstacleFree = true;
     for (float xOffset = -agentRadius; xOffset <= agentRadius; xOffset += agentRadius * 2) {
         for (float zOffset = -agentRadius; zOffset <= agentRadius; zOffset += agentRadius * 2) {
-            glm::ivec2 checkPos = glm::ivec2((newPos.x + xOffset) / CELL_SIZE, (newPos.z + zOffset) / CELL_SIZE);
-            if (checkPos.x < 0 || checkPos.x >= GRID_SIZE || checkPos.y < 0 || checkPos.y >= GRID_SIZE || grid[checkPos.x][checkPos.y].isObstacle) {
+            glm::ivec2 checkPos = glm::ivec2((newPos.x + xOffset) / grid->GetCellSize(), (newPos.z + zOffset) / grid->GetCellSize());
+            if (checkPos.x < 0 || checkPos.x >= grid->GetCellSize() || checkPos.y < 0 || checkPos.y >= grid->GetGridSize() || grid->GetGrid()[checkPos.x][checkPos.y].IsObstacle()) {
                 isObstacleFree = false;
                 break;
             }
@@ -287,8 +287,8 @@ void Enemy::moveEnemy(const std::vector<glm::ivec2>& path, float deltaTime, floa
         isObstacleFree = true;
         for (float xOffset = -agentRadius; xOffset <= agentRadius; xOffset += agentRadius * 2) {
             for (float zOffset = -agentRadius; zOffset <= agentRadius; zOffset += agentRadius * 2) {
-                glm::ivec2 checkPos = glm::ivec2((newPos.x + xOffset) / CELL_SIZE, (newPos.z + zOffset) / CELL_SIZE);
-                if (checkPos.x < 0 || checkPos.x >= GRID_SIZE || checkPos.y < 0 || checkPos.y >= GRID_SIZE || grid[checkPos.x][checkPos.y].isObstacle) {
+                glm::ivec2 checkPos = glm::ivec2((newPos.x + xOffset) / grid->GetCellSize(), (newPos.z + zOffset) / grid->GetCellSize());
+                if (checkPos.x < 0 || checkPos.x >= grid->GetCellSize() || checkPos.y < 0 || checkPos.y >= grid->GetCellSize() || grid->GetGrid()[checkPos.x][checkPos.y].IsObstacle()) {
                     isObstacleFree = false;
                     break;
                 }

@@ -45,15 +45,22 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
     
 	physicsWorld = new PhysicsWorld();
 
+    cell = new Cell();
+    cell->SetUpVAO();
+    
+    gameGrid = new Grid();
+    gameGrid->initializeGrid();
+
+
     // TODO: Initialise Game Objects
     camera = new Camera(glm::vec3(50.0f, 3.0f, 80.0f));
-    player = new Player(snapToGrid(glm::vec3(130.0f, 0.0f, 25.0f)), glm::vec3(1.0f), &playerShader, true, this);
+    player = new Player(gameGrid->snapToGrid(glm::vec3(130.0f, 0.0f, 25.0f)), glm::vec3(1.0f), &playerShader, true, this);
     player->aabbShader = &aabbShader;
-    enemy = new Enemy(snapToGrid(glm::vec3(13.0f, 0.0f, 13.0f)), glm::vec3(1.0f), &enemyShader, true, this);
+    enemy = new Enemy(gameGrid->snapToGrid(glm::vec3(13.0f, 0.0f, 13.0f)), glm::vec3(1.0f), &enemyShader, true, this, gameGrid);
 	enemy->aabbShader = &aabbShader;
-//    enemy2 = new Enemy(snapToGrid(glm::vec3(23.0f, 0.0f, 13.0f)), glm::vec3(1.0f), &enemyShader, true);
-//    enemy3 = new Enemy(snapToGrid(glm::vec3(3.0f, 0.0f, 63.0f)), glm::vec3(1.0f), &enemyShader, true);
-//    enemy4 = new Enemy(snapToGrid(glm::vec3(11.0f, 0.0f, 23.0f)), glm::vec3(1.0f), &enemyShader, true);
+//    enemy2 = new Enemy(gameGrid->snapToGrid(glm::vec3(23.0f, 0.0f, 13.0f)), glm::vec3(1.0f), &enemyShader, true);
+//    enemy3 = new Enemy(gameGrid->snapToGrid(glm::vec3(3.0f, 0.0f, 63.0f)), glm::vec3(1.0f), &enemyShader, true);
+//    enemy4 = new Enemy(gameGrid->snapToGrid(glm::vec3(11.0f, 0.0f, 23.0f)), glm::vec3(1.0f), &enemyShader, true);
 
 	crosshair = new Crosshair(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f), &crosshairShader, false, this);
 	crosshair->LoadMesh();
@@ -72,18 +79,14 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
     enemySkeletonSplitNode = enemy->model->getNodeCount() - 1;
 
 
- /*   waypoint1 = new Waypoint(snapToGrid(waypointPositions[0]), glm::vec3(5.0f, 10.0f, 5.0f), &gridShader, false);
-    waypoint2 = new Waypoint(snapToGrid(waypointPositions[1]), glm::vec3(5.0f, 10.0f, 5.0f), &gridShader, false);
-    waypoint3 = new Waypoint(snapToGrid(waypointPositions[2]), glm::vec3(5.0f, 10.0f, 5.0f), &gridShader, false);
-    waypoint4 = new Waypoint(snapToGrid(waypointPositions[3]), glm::vec3(5.0f, 10.0f, 5.0f), &gridShader, false);*/
+ /*   waypoint1 = new Waypoint(gameGrid->snapToGrid(waypointPositions[0]), glm::vec3(5.0f, 10.0f, 5.0f), &gridShader, false);
+    waypoint2 = new Waypoint(gameGrid->snapToGrid(waypointPositions[1]), glm::vec3(5.0f, 10.0f, 5.0f), &gridShader, false);
+    waypoint3 = new Waypoint(gameGrid->snapToGrid(waypointPositions[2]), glm::vec3(5.0f, 10.0f, 5.0f), &gridShader, false);
+    waypoint4 = new Waypoint(gameGrid->snapToGrid(waypointPositions[3]), glm::vec3(5.0f, 10.0f, 5.0f), &gridShader, false);*/
 
 //  TODO: Render Ground
 // 
 //    Ground ground(glm::vec3(-100.0f, -0.3f, 50.0f), glm::vec3(100.0f, 1.0f, 100.0f));
-
-    cell.SetUpVAO();
-
-    gameGrid.initializeGrid();
 
     std::srand(static_cast<unsigned int>(std::time(nullptr)));
 
@@ -441,10 +444,8 @@ void GameManager::render()
     for (auto obj : gameObjects) {
         renderer->draw(obj, view, projection);
     }
-    gridShader.use();
-    cell.BindVAO();
 
-    gameGrid.drawGrid(gridShader, view, projection);
+    gameGrid->drawGrid(gridShader, view, projection);
 
     if ((player->GetPlayerState() == AIMING || player->GetPlayerState() == SHOOTING) && camSwitchedToAim == false)
     {
