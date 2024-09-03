@@ -47,7 +47,7 @@ void Enemy::Update(float dt, Player& player, float blendFactor, bool playAnimBac
 
     float playerEnemyDistance = glm::distance(getPosition(), player.getPosition());
 
-    if (playerEnemyDistance < 35.0f && enemyShootCooldown > 0.0f)
+    if (playerEnemyDistance < 35.0f && enemyShootCooldown > 0.0f && GetEnemyState() != TAKE_DAMAGE && GetEnemyState() != DYING && GetEnemyState() != DEAD)
     {
         SetEnemyState(ATTACK);
     }
