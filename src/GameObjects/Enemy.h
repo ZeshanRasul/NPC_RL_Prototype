@@ -10,6 +10,7 @@
 enum EnemyState {
     PATROL,
     ATTACK,
+    ENEMY_SHOOTING,
 	TAKE_DAMAGE,
     DYING,
     DEAD
@@ -190,6 +191,7 @@ public:
     glm::vec3 enemyShootPos = glm::vec3(0.0f);
 	glm::vec3 enemyShootDir = glm::vec3(0.0f);
 	float enemyShootDistance = 100000.0f;
+    float enemyShootCooldown = 0.0f;
 
 	Grid* grid;
 

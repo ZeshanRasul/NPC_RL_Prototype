@@ -68,6 +68,9 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 	line = new Line(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f), &lineShader, false, this);
     line->LoadMesh();
 
+    enemyLine = new Line(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f), &lineShader, false, this);
+    enemyLine->LoadMesh();
+
     AudioComponent* fireAudioComponent = new AudioComponent(enemy);
     fireAudioComponent->PlayEvent("event:/FireLoop");
 
@@ -480,4 +483,12 @@ void GameManager::render()
     }
     if (camSwitchedToAim)
 		camSwitchedToAim = false;
+
+    if (enemy->GetEnemyState() == ENEMY_SHOOTING)
+    {
+		glm::vec3 enemyLineColor = glm::vec3(1.0f, 1.0f, 0.0f);
+		glm::vec3 enemyRayEnd = enemy->enemyShootPos + enemy->enemyShootDir * enemy->enemyShootDistance;
+        enemyLine->UpdateVertexBuffer(enemy->enemyShootPos, enemyRayEnd);
+		enemyLine->DrawLine(view, projection, enemyLineColor);
+    }
 }

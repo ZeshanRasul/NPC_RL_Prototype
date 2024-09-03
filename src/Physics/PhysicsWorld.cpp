@@ -38,9 +38,9 @@ bool PhysicsWorld::rayIntersect(const glm::vec3& rayOrigin, const glm::vec3& ray
 		}
     }
 
-    if (hit && closestAABB && !closestAABB->isPlayer)
+    if (hit && closestAABB)
         closestAABB->owner->OnHit();
-    else if (missedAABB && !missedAABB->isPlayer)
+    else if (missedAABB)
     {
         hit = false;
         missedAABB->owner->OnMiss();

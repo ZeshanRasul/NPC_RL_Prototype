@@ -67,6 +67,7 @@ private:
     Enemy* enemy4;
 	Crosshair* crosshair;
 	Line* line;
+    Line* enemyLine;
 
     InputManager* inputManager;
 	AudioSystem* audioSystem;

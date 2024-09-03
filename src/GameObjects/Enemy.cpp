@@ -47,9 +47,13 @@ void Enemy::Update(float dt, Player& player, float blendFactor, bool playAnimBac
 
     float playerEnemyDistance = glm::distance(getPosition(), player.getPosition());
 
-    if (playerEnemyDistance < 35.0f)
+    if (playerEnemyDistance < 35.0f && enemyShootCooldown > 0.0f)
     {
         SetEnemyState(ATTACK);
+    }
+    else if (playerEnemyDistance < 35.0f && enemyShootCooldown <= 0.0f)
+    {
+        SetEnemyState(ENEMY_SHOOTING);
     }
 	else if (GetEnemyState() != TAKE_DAMAGE && GetEnemyState() != DYING && GetEnemyState() != DEAD)
     {
@@ -102,11 +106,24 @@ void Enemy::Update(float dt, Player& player, float blendFactor, bool playAnimBac
     }
     case ATTACK:
     {
+        if (enemyShootCooldown <= 0.0f)
+		{
+			SetEnemyState(ENEMY_SHOOTING);
+		}
+		else
+		{
+			enemyShootCooldown -= dt;
+		}
+        break;
+    }
+    case ENEMY_SHOOTING:
+    {
+        Shoot(player);
         SetAnimNum(5);
         SetAnimation(GetAnimNum(), 1.0f, blendFactor, playAnimBackwards);
-        Shoot(player);
-
-        break;
+        enemyShootCooldown = 0.3f;
+		SetEnemyState(ATTACK);
+		break;
     }
     case TAKE_DAMAGE:
     {
@@ -301,7 +318,7 @@ void Enemy::SetAnimation(int animNum, float speedDivider, float blendFactor, boo
 
 void Enemy::Shoot(Player& player)
 {
-    if (GetEnemyState() != ATTACK)
+    if (GetEnemyState() != ENEMY_SHOOTING)
         return;
 
 	glm::vec3 accuracyOffset = glm::vec3(0.0f);
@@ -346,7 +363,7 @@ void Enemy::SetUpAABB()
     aabb->owner = this;
     updateAABB();
     //class GameManager* gameMgr = GetGameManager();
-    mGameManager->GetPhysicsWorld()->addCollider(GetAABB());
+//    mGameManager->GetPhysicsWorld()->addCollider(GetAABB());
     mGameManager->GetPhysicsWorld()->addEnemyCollider(GetAABB());
 }
 
