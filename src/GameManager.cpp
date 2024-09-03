@@ -484,7 +484,7 @@ void GameManager::render()
     if (camSwitchedToAim)
 		camSwitchedToAim = false;
 
-    if (enemy->GetEnemyState() == ENEMY_SHOOTING)
+    if (enemy->enemyHasShot && enemy->enemyRayDebugRenderTimer > 0.0f)
     {
 		glm::vec3 enemyLineColor = glm::vec3(1.0f, 1.0f, 0.0f);
 		glm::vec3 enemyRayEnd = enemy->enemyShootPos + enemy->enemyShootDir * enemy->enemyShootDistance;

@@ -58,6 +58,7 @@ void Enemy::Update(float dt, Player& player, float blendFactor, bool playAnimBac
 	else if (GetEnemyState() != TAKE_DAMAGE && GetEnemyState() != DYING && GetEnemyState() != DEAD)
     {
         SetEnemyState(PATROL);
+        enemyHasShot = false;
     }
 
     switch (GetEnemyState())
@@ -113,6 +114,7 @@ void Enemy::Update(float dt, Player& player, float blendFactor, bool playAnimBac
 		else
 		{
 			enemyShootCooldown -= dt;
+            enemyRayDebugRenderTimer -= dt;
 		}
         break;
     }
@@ -122,6 +124,8 @@ void Enemy::Update(float dt, Player& player, float blendFactor, bool playAnimBac
         SetAnimNum(5);
         SetAnimation(GetAnimNum(), 1.0f, blendFactor, playAnimBackwards);
         enemyShootCooldown = 0.3f;
+        enemyRayDebugRenderTimer = 0.3f;
+        enemyHasShot = true;
 		SetEnemyState(ATTACK);
 		break;
     }
@@ -336,6 +340,9 @@ void Enemy::Shoot(Player& player)
 	enemyShootPos = getPosition() + glm::vec3(0.0f, 2.5f, 0.0f);
     enemyShootDir = (player.getPosition() - getPosition()) + accuracyOffset;
 	glm::vec3 hitPoint = glm::vec3(0.0f);
+
+    yaw = glm::degrees(glm::atan(enemyShootDir.z, enemyShootDir.x));
+    UpdateEnemyVectors();
 
     bool hit = false;
     hit = GetGameManager()->GetPhysicsWorld()->rayIntersect(enemyShootPos, enemyShootDir, hitPoint);

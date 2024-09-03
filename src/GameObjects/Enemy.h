@@ -192,6 +192,8 @@ public:
 	glm::vec3 enemyShootDir = glm::vec3(0.0f);
 	float enemyShootDistance = 100000.0f;
     float enemyShootCooldown = 0.0f;
+    float enemyRayDebugRenderTimer = 0.3f;
+    bool enemyHasShot = false;
 
 	Grid* grid;
 
