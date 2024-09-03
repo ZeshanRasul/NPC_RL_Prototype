@@ -106,6 +106,8 @@ public:
         yaw = newYaw; 
     }
 
+    void Shoot(Player& player);
+
 	float GetHealth() const { return health; }
 	void SetHealth(float newHealth) { health = newHealth; }
 
@@ -183,6 +185,11 @@ public:
 	float damageTimer = 0.0f;
     bool isDying = false;
 	float dyingTimer = 0.0f;
+
+    float accuracy = 60.0f;
+    glm::vec3 enemyShootPos = glm::vec3(0.0f);
+	glm::vec3 enemyShootDir = glm::vec3(0.0f);
+	float enemyShootDistance = 100000.0f;
 
 	Grid* grid;
 

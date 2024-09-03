@@ -1,6 +1,7 @@
 #include "Enemy.h"
 #include "src/Pathfinding/Grid.h"
 #include "GameManager.h"
+#include <random>
 
 void Enemy::drawObject(glm::mat4 viewMat, glm::mat4 proj)
 {
@@ -101,26 +102,9 @@ void Enemy::Update(float dt, Player& player, float blendFactor, bool playAnimBac
     }
     case ATTACK:
     {
-        if (reachedPlayer)
-        {
-            SetAnimNum(4);
-            SetAnimation(GetAnimNum(), 1.0f, blendFactor, playAnimBackwards);
-
-            if (playerEnemyDistance > grid->GetCellSize())
-                reachedPlayer = false;
-        }
-        else
-        {
-            std::vector<glm::ivec2> path = grid->findPath(
-                glm::ivec2(getPosition().x / grid->GetCellSize(), getPosition().z / grid->GetCellSize()),
-                glm::ivec2(player.getPosition().x / grid->GetCellSize(), player.getPosition().z / grid->GetCellSize()),
-				grid->GetGrid()
-            );
-
-            std::cout << "Moving to Player destination" << std::endl;
-
-            moveEnemy(path, dt, blendFactor, playAnimBackwards);
-        }
+        SetAnimNum(5);
+        SetAnimation(GetAnimNum(), 1.0f, blendFactor, playAnimBackwards);
+        Shoot(player);
 
         break;
     }
@@ -313,6 +297,38 @@ void Enemy::moveEnemy(const std::vector<glm::ivec2>& path, float deltaTime, floa
 void Enemy::SetAnimation(int animNum, float speedDivider, float blendFactor, bool playBackwards)
 {
     model->playAnimation(animNum, speedDivider, blendFactor, playBackwards);
+}
+
+void Enemy::Shoot(Player& player)
+{
+    if (GetEnemyState() != ATTACK)
+        return;
+
+	glm::vec3 accuracyOffset = glm::vec3(0.0f);
+	glm::vec3 accuracyOffsetFactor = glm::vec3(1.0f);
+
+    std::random_device dev;
+    std::mt19937 rng(dev());
+    std::uniform_int_distribution<std::mt19937::result_type> dist100(0, 100); // distribution in range [1, 100]
+
+	if (dist100(rng) < 60)
+	{
+		accuracyOffset = accuracyOffset + (accuracyOffsetFactor * (float)dist100(rng));
+	}
+
+	enemyShootPos = getPosition() + glm::vec3(0.0f, 2.5f, 0.0f);
+    enemyShootDir = (player.getPosition() - getPosition()) + accuracyOffset;
+	glm::vec3 hitPoint = glm::vec3(0.0f);
+
+    bool hit = false;
+    hit = GetGameManager()->GetPhysicsWorld()->rayIntersect(enemyShootPos, enemyShootDir, hitPoint);
+
+    if (hit) {
+        std::cout << "\nRay hit at: " << hitPoint.x << ", " << hitPoint.y << ", " << hitPoint.z << std::endl;
+    }
+    else {
+        std::cout << "\nNo hit detected." << std::endl;
+    }
 }
 
 void Enemy::OnDeath()

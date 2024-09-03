@@ -27,7 +27,7 @@ void Player::drawObject(glm::mat4 viewMat, glm::mat4 proj)
 		aabb->isPlayer = true;
         updateAABB();
         GameManager* gameMgr = GetGameManager();
-//        gameMgr->GetPhysicsWorld()->addCollider(GetAABB());
+        gameMgr->GetPhysicsWorld()->addCollider(GetAABB());
         uploadVertexBuffer = false;
     }
 
@@ -243,5 +243,12 @@ void Player::renderAABB(glm::mat4 proj, glm::mat4 viewMat, glm::mat4 model, Shad
 void Player::OnHit()
 {
 	std::cout << "Player hit!" << std::endl;
+	setAABBColor(glm::vec3(1.0f, 0.0f, 1.0f));
+    TakeDamage(50.0f);
+}
+
+void Player::OnDeath()
+{
+	std::cout << "Player died!" << std::endl;
 }
 

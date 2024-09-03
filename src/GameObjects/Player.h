@@ -98,9 +98,25 @@ public:
     void setAABBColor(glm::vec3 color) { aabbColor = color; }
 
     void OnHit() override;
-    void OnMiss() override {};
+    void OnMiss() override {
+		std::cout << "Player was missed!" << std::endl;
+		setAABBColor(glm::vec3(1.0f, 1.0f, 1.0f));
+    };
+
     AABB* aabb;
     glm::vec3 aabbColor = glm::vec3(0.0f, 0.0f, 1.0f);
+
+    void OnDeath();
+
+    float GetHealth() const { return health; }
+    void SetHealth(float newHealth) { health = newHealth; }
+
+    void TakeDamage(float damage) {
+        SetHealth(GetHealth() - damage);
+        if (GetHealth() <= 0.0f) {
+            OnDeath();
+        }
+    }
 
 public:
     float PlayerYaw;
@@ -125,4 +141,5 @@ public:
     PlayerState mPlayerState = MOVING;
 
     Shader* aabbShader;
+    float health = 100.0f;
 };
