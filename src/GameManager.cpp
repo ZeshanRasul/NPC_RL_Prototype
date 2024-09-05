@@ -54,6 +54,12 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
     gameGrid = new Grid();
 	cover1 = new Cube(gameGrid->snapToGrid(gameGrid->coverPositions[0]), glm::vec3(gameGrid->GetCellSize()), &cubeShader, false, this);
     cover1->LoadMesh();
+	cover2 = new Cube(gameGrid->snapToGrid(gameGrid->coverPositions[1]), glm::vec3(gameGrid->GetCellSize()), &cubeShader, false, this);
+    cover2->LoadMesh();
+	cover3 = new Cube(gameGrid->snapToGrid(gameGrid->coverPositions[2]), glm::vec3(gameGrid->GetCellSize()), &cubeShader, false, this);
+    cover3->LoadMesh();
+	cover4 = new Cube(gameGrid->snapToGrid(gameGrid->coverPositions[3]), glm::vec3(gameGrid->GetCellSize()), &cubeShader, false, this);
+    cover4->LoadMesh();
     gameGrid->initializeGrid();
 //	gameGrid->GetGrid()[0][0].LoadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/Cell.png");
 
@@ -101,6 +107,9 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
     gameObjects.push_back(player);
     gameObjects.push_back(enemy); 
     gameObjects.push_back(cover1);
+    gameObjects.push_back(cover2);
+    gameObjects.push_back(cover3);
+    gameObjects.push_back(cover4);
 //    gameObjects.push_back(enemy2);  
 //    gameObjects.push_back(enemy3);  
 //    gameObjects.push_back(enemy4);  

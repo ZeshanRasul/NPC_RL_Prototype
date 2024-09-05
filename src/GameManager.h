@@ -70,6 +70,9 @@ private:
 	Line* line;
     Line* enemyLine;
     Cube* cover1;
+    Cube* cover2;
+    Cube* cover3;
+    Cube* cover4;
 
     InputManager* inputManager;
 	AudioSystem* audioSystem;
