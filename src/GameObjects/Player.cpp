@@ -19,7 +19,7 @@ void Player::drawObject(glm::mat4 viewMat, glm::mat4 proj)
 
     if (uploadVertexBuffer)
     {
-        model->uploadVertexBuffers();
+        model->uploadVertexBuffers(5);
 		aabb = new AABB();
 		aabb->calculateAABB(model->getVertices());
         aabb->owner = this;

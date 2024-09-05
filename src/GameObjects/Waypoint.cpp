@@ -12,9 +12,7 @@ void Waypoint::drawObject(glm::mat4 viewMat, glm::mat4 proj)
 	matrixData.push_back(modelMat);
 	mUniformBuffer.uploadUboData(matrixData, 0);
 
-// Draw TODO: Update for GLTF
-
-//	model.Draw(shader);
+    model->draw();
 }
 
 void Waypoint::ComputeAudioWorldTransform()

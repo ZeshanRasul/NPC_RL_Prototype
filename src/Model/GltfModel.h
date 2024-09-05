@@ -14,10 +14,10 @@
 class GltfModel {
 public:
     bool loadModel(RenderData& renderData, std::string modelFilename,
-        std::string textureFilename);
+        std::string textureFilename, bool skinning);
     void draw();
     void cleanup();
-    void uploadVertexBuffers();
+    void uploadVertexBuffers(int attrCount);
     void uploadIndexBuffer();
     std::shared_ptr<Mesh> getSkeleton(bool enableSkinning);
     int getJointMatrixSize();

@@ -43,6 +43,8 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
     
 	aabbShader.loadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/aabb_vert.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/aabb_frag.glsl");
     
+	wallShader.loadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/vertex.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/fragment.glsl");
+
 	physicsWorld = new PhysicsWorld();
 
     cell = new Cell();
@@ -82,8 +84,8 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
     enemySkeletonSplitNode = enemy->model->getNodeCount() - 1;
 
 
- /*   waypoint1 = new Waypoint(gameGrid->snapToGrid(waypointPositions[0]), glm::vec3(5.0f, 10.0f, 5.0f), &gridShader, false);
-    waypoint2 = new Waypoint(gameGrid->snapToGrid(waypointPositions[1]), glm::vec3(5.0f, 10.0f, 5.0f), &gridShader, false);
+    waypoint1 = new Waypoint(gameGrid->snapToGrid(glm::vec3(19.0f, 0.0f, 5.0f)), glm::vec3(1.0f), &wallShader, false, this);
+ /*   waypoint2 = new Waypoint(gameGrid->snapToGrid(waypointPositions[1]), glm::vec3(5.0f, 10.0f, 5.0f), &gridShader, false);
     waypoint3 = new Waypoint(gameGrid->snapToGrid(waypointPositions[2]), glm::vec3(5.0f, 10.0f, 5.0f), &gridShader, false);
     waypoint4 = new Waypoint(gameGrid->snapToGrid(waypointPositions[3]), glm::vec3(5.0f, 10.0f, 5.0f), &gridShader, false);*/
 
@@ -98,7 +100,8 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 //    gameObjects.push_back(enemy2);  
 //    gameObjects.push_back(enemy3);  
 //    gameObjects.push_back(enemy4);  
- /*   gameObjects.push_back(waypoint1);
+    gameObjects.push_back(waypoint1);
+ /*   
     gameObjects.push_back(waypoint2);
     gameObjects.push_back(waypoint3);
     gameObjects.push_back(waypoint4);*/

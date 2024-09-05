@@ -10,7 +10,7 @@
 #include "Logger.h"
 
 bool GltfModel::loadModel(RenderData& renderData,
-    std::string modelFilename, std::string textureFilename) {
+    std::string modelFilename, std::string textureFilename, bool skinning) {
     if (!mTex.loadTexture(textureFilename, false)) {
         Logger::log(1, "%s: texture loading failed\n", __FUNCTION__);
         return false;
@@ -52,35 +52,38 @@ bool GltfModel::loadModel(RenderData& renderData,
 
     glBindVertexArray(0);
 
-    getJointData();
-    getWeightData();
-    getInvBindMatrices();
+    if (skinning)
+    {
+        getJointData();
+        getWeightData();
+        getInvBindMatrices();
 
-    mNodeCount = mModel->nodes.size();
-    int rootNode = mModel->scenes.at(0).nodes.at(0);
-    Logger::log(1, "%s: model has %i nodes, root node is %i\n", __FUNCTION__, mNodeCount, rootNode);
+        mNodeCount = mModel->nodes.size();
+        int rootNode = mModel->scenes.at(0).nodes.at(0);
+        Logger::log(1, "%s: model has %i nodes, root node is %i\n", __FUNCTION__, mNodeCount, rootNode);
 
-    mNodeList.resize(mNodeCount);
+        mNodeList.resize(mNodeCount);
 
-    mRootNode = GltfNode::createRoot(rootNode);
+        mRootNode = GltfNode::createRoot(rootNode);
 
-    mNodeList.at(rootNode) = mRootNode;
+        mNodeList.at(rootNode) = mRootNode;
 
-    getNodeData(mRootNode, glm::mat4(1.0f));
-    getNodes(mRootNode);
+        getNodeData(mRootNode, glm::mat4(1.0f));
+        getNodes(mRootNode);
 
-    mRootNode->printTree();
+        mRootNode->printTree();
 
-    getAnimations();
-    renderData.animClipsSize = mAnimClips.size();
+        getAnimations();
+        renderData.animClipsSize = mAnimClips.size();
 
-    mAdditiveAnimationMask.resize(mNodeCount);
-    mInvertedAdditiveAnimationMask.resize(mNodeCount);
+        mAdditiveAnimationMask.resize(mNodeCount);
+        mInvertedAdditiveAnimationMask.resize(mNodeCount);
 
-    std::fill(mAdditiveAnimationMask.begin(), mAdditiveAnimationMask.end(), true);
-    mInvertedAdditiveAnimationMask = mAdditiveAnimationMask;
-    mInvertedAdditiveAnimationMask.flip();
-
+        std::fill(mAdditiveAnimationMask.begin(), mAdditiveAnimationMask.end(), true);
+        mInvertedAdditiveAnimationMask = mAdditiveAnimationMask;
+        mInvertedAdditiveAnimationMask.flip();
+    }
+  
     renderData.rdGltfTriangleCount = getTriangleCount();
 
     return true;
@@ -185,8 +188,8 @@ void GltfModel::createIndexBuffer() {
     // glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 }
 
-void GltfModel::uploadVertexBuffers() {
-    for (int i = 0; i < 5; ++i) {
+void GltfModel::uploadVertexBuffers(int attrCount) {
+    for (int i = 0; i < attrCount; ++i) {
         const tinygltf::Accessor& accessor = mModel->accessors.at(i);
         const tinygltf::BufferView& bufferView = mModel->bufferViews.at(accessor.bufferView);
         const tinygltf::Buffer& buffer = mModel->buffers.at(bufferView.buffer);

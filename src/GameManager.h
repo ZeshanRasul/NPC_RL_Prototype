@@ -81,6 +81,7 @@ private:
 	Shader crosshairShader{};
 	Shader lineShader{};
 	Shader aabbShader{};
+	Shader wallShader{};
     
     ShaderStorageBuffer mPlayerSSBuffer{};
     ShaderStorageBuffer mEnemySSBuffer{};
