@@ -16,6 +16,7 @@
 #include "GameObjects/Waypoint.h"
 #include "GameObjects/Crosshair.h"
 #include "GameObjects/Line.h"
+#include "GameObjects/Cube.h"
 #include "src/Pathfinding/Grid.h"
 
 class GameManager {
@@ -68,6 +69,7 @@ private:
 	Crosshair* crosshair;
 	Line* line;
     Line* enemyLine;
+    Cube* cover1;
 
     InputManager* inputManager;
 	AudioSystem* audioSystem;
@@ -81,7 +83,8 @@ private:
 	Shader crosshairShader{};
 	Shader lineShader{};
 	Shader aabbShader{};
-    
+	Shader cubeShader{};
+
     ShaderStorageBuffer mPlayerSSBuffer{};
     ShaderStorageBuffer mEnemySSBuffer{};
     ShaderStorageBuffer mPlayerDualQuatSSBuffer{};

@@ -150,6 +150,7 @@
     <ClCompile Include="src\Components\Component.cpp" />
     <ClCompile Include="src\GameManager.cpp" />
     <ClCompile Include="src\GameObjects\Crosshair.cpp" />
+    <ClCompile Include="src\GameObjects\Cube.cpp" />
     <ClCompile Include="src\GameObjects\Enemy.cpp" />
     <ClCompile Include="src\GameObjects\Ground.cpp" />
     <ClCompile Include="src\GameObjects\Line.cpp" />
@@ -201,6 +202,7 @@
     <ClInclude Include="src\GameManager.h" />
     <ClInclude Include="src\GameObjects\Cell.h" />
     <ClInclude Include="src\GameObjects\Crosshair.h" />
+    <ClInclude Include="src\GameObjects\Cube.h" />
     <ClInclude Include="src\GameObjects\Enemy.h" />
     <ClInclude Include="src\GameObjects\GameObject.h" />
     <ClInclude Include="src\GameObjects\Ground.h" />

@@ -43,12 +43,17 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
     
 	aabbShader.loadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/aabb_vert.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/aabb_frag.glsl");
     
+    cubeShader.loadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/vertex.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/fragment.glsl");
+
 	physicsWorld = new PhysicsWorld();
+
 
     cell = new Cell();
     cell->SetUpVAO();
     cell->LoadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/Cell.png");
     gameGrid = new Grid();
+	cover1 = new Cube(gameGrid->snapToGrid(glm::vec3(18.0f, 3.5f, 18.0f)), glm::vec3(gameGrid->GetCellSize()), &cubeShader, false, this);
+    cover1->LoadMesh();
     gameGrid->initializeGrid();
 //	gameGrid->GetGrid()[0][0].LoadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/Cell.png");
 
@@ -94,7 +99,8 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
     std::srand(static_cast<unsigned int>(std::time(nullptr)));
 
     gameObjects.push_back(player);
-    gameObjects.push_back(enemy);  
+    gameObjects.push_back(enemy); 
+    gameObjects.push_back(cover1);
 //    gameObjects.push_back(enemy2);  
 //    gameObjects.push_back(enemy3);  
 //    gameObjects.push_back(enemy4);  

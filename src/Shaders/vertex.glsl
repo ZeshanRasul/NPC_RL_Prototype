@@ -6,12 +6,14 @@ layout (location = 2) in vec2 aTexCoord;
 layout (location = 0) out vec3 normal;
 layout (location = 1) out vec2 texCoord;
 
-uniform mat4 proj;
-uniform mat4 view;
-uniform mat4 model;
+layout (std140, binding = 0) uniform Matrices {
+    mat4 view;
+    mat4 projection;
+	mat4 model;
+};
 
 void main() {
-  gl_Position = proj * view * model * vec4(aPos, 1.0);
+  gl_Position = projection * view * model * vec4(aPos, 1.0);
   normal = aNormal;
   texCoord = aTexCoord;
 }
