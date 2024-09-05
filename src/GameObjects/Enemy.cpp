@@ -353,6 +353,8 @@ void Enemy::Shoot(Player& player)
     else {
         std::cout << "\nNo hit detected." << std::endl;
     }
+
+    shootAC->PlayEvent("event:/EnemyShoot");
 }
 
 void Enemy::OnDeath()
@@ -360,6 +362,7 @@ void Enemy::OnDeath()
 	std::cout << "Enemy Died!" << std::endl;
     SetEnemyState(DYING);
     SetAnimNum(3);
+    deathAC->PlayEvent("event:/EnemyDeath");
 	dyingTimer = 1.5f;
 }
 
@@ -433,6 +436,7 @@ void Enemy::OnHit()
 	setAABBColor(glm::vec3(1.0f, 0.0f, 1.0f));
     SetAnimNum(8);
     TakeDamage(50.0f);
-    takeDamageAC->PlayEvent("event:/EnemyDamage");
+    if (GetEnemyState() != DYING)
+        takeDamageAC->PlayEvent("event:/EnemyTakeDamage");
 	damageTimer = model->getAnimationEndTime(8);
 }

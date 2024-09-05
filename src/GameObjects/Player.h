@@ -8,6 +8,7 @@
 #include "UniformBuffer.h"
 #include "ShaderStorageBuffer.h"
 #include "Physics/AABB.h"
+#include "Components/AudioComponent.h"
 
 enum PlayerState {
     MOVING,
@@ -37,6 +38,10 @@ public:
             sizeof(glm::mat2x4);
         mPlayerDualQuatSSBuffer.init(playerModelJointDualQuatBufferSize);
         Logger::log(1, "%s: glTF joint dual quaternions shader storage buffer (size %i bytes) successfully created\n", __FUNCTION__, playerModelJointDualQuatBufferSize);
+
+        takeDamageAC = new AudioComponent(this);
+        deathAC = new AudioComponent(this);
+        shootAC = new AudioComponent(this);
 
         ComputeAudioWorldTransform();
 
@@ -112,11 +117,15 @@ public:
     void SetHealth(float newHealth) { health = newHealth; }
 
     void TakeDamage(float damage) {
+        takeDamageAC->PlayEvent("event:/PlayerTakeDamage");
         SetHealth(GetHealth() - damage);
         if (GetHealth() <= 0.0f) {
             OnDeath();
         }
     }
+
+    int GetAnimNum() const { return animNum; }
+    void SetAnimNum(int newAnimNum) { animNum = newAnimNum; }
 
 public:
     float PlayerYaw;
@@ -126,6 +135,10 @@ public:
     glm::vec3 PlayerAimFront;
     glm::vec3 PlayerAimRight;
     glm::vec3 PlayerAimUp;
+
+    AudioComponent* takeDamageAC;
+    AudioComponent* shootAC;
+    AudioComponent* deathAC;
 
 	float aimPitch = 0.0f;
 
@@ -142,4 +155,6 @@ public:
 
     Shader* aabbShader;
     float health = 100.0f;
+
+    int animNum = 4;
 };

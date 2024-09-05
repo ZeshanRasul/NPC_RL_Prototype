@@ -65,6 +65,8 @@ public:
 
         currentWaypoint = waypointPositions[std::rand() % waypointPositions.size()];
         takeDamageAC = new AudioComponent(this);
+		deathAC = new AudioComponent(this);
+		shootAC = new AudioComponent(this);
     }
 
     ~Enemy() 
@@ -181,6 +183,8 @@ public:
     Shader* aabbShader;
 
     AudioComponent* takeDamageAC;
+    AudioComponent* shootAC;
+    AudioComponent* deathAC;
 	int animNum = 0;
     bool takingDamage = false;
 	float damageTimer = 0.0f;

@@ -1,6 +1,5 @@
 #include "Player.h"
 #include "GameManager.h"
-#include "Components/AudioComponent.h"
 
 void Player::drawObject(glm::mat4 viewMat, glm::mat4 proj)
 {
@@ -159,8 +158,7 @@ void Player::Shoot()
 	if (GetPlayerState() != SHOOTING)
 		return;
 
-    AudioComponent* shootAudioComponent = new AudioComponent(this);
-    shootAudioComponent->PlayEvent("event:/PlayerShoot");
+    shootAC->PlayEvent("event:/PlayerShoot");
 
     UpdatePlayerVectors();
     UpdatePlayerAimVectors();
@@ -250,5 +248,6 @@ void Player::OnHit()
 void Player::OnDeath()
 {
 	std::cout << "Player died!" << std::endl;
+//	deathAC->PlayEvent("event:/PlayerDeath");
 }
 
