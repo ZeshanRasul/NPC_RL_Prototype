@@ -58,6 +58,14 @@ public:
 		isObstacle = obs;
 	}
 
+    bool IsCover() const {
+        return isCover;
+    }
+
+    void SetCover(bool cover) {
+        isCover = cover;
+    }
+
     glm::vec3 GetColor() const {
 		return color;
 	}
@@ -85,5 +93,6 @@ private:
 
     bool isObstacle;
     glm::vec3 color;
+    bool isCover;
 
 };

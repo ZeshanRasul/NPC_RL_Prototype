@@ -52,7 +52,7 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
     cell->SetUpVAO();
     cell->LoadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/Cell.png");
     gameGrid = new Grid();
-	cover1 = new Cube(gameGrid->snapToGrid(glm::vec3(18.0f, 3.5f, 18.0f)), glm::vec3(gameGrid->GetCellSize()), &cubeShader, false, this);
+	cover1 = new Cube(gameGrid->snapToGrid(gameGrid->coverPositions[0]), glm::vec3(gameGrid->GetCellSize()), &cubeShader, false, this);
     cover1->LoadMesh();
     gameGrid->initializeGrid();
 //	gameGrid->GetGrid()[0][0].LoadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/Cell.png");

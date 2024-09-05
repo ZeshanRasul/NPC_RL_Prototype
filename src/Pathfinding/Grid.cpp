@@ -8,12 +8,42 @@ void Grid::initializeGrid() {
     std::vector<Cell> row(GRID_SIZE, Cell(false, glm::vec3(0.0f, 1.0f, 0.0f)));
     grid = std::vector<std::vector<Cell>>(GRID_SIZE, row);
 
-    for (int i = 5; i < 10; ++i) {
-        for (int j = 0; j < 10; ++j) {
-			grid[i][j].SetObstacle(true);
-            grid[i][j].SetColor(glm::vec3(1.0f, 0.0f, 0.0f));
+   // for (int i = 5; i < 10; ++i) {
+   //     for (int j = 0; j < 10; ++j) {
+			//grid[i][j].SetObstacle(true);
+   //         grid[i][j].SetColor(glm::vec3(1.0f, 0.0f, 0.0f));
+   //     }
+   // }
+
+    for (glm::vec3 coverPos : snapCoverPositionsToGrid())
+    {
+		int gridX = static_cast<int>(coverPos.x / CELL_SIZE);
+		int gridZ = static_cast<int>(coverPos.z / CELL_SIZE);
+		grid[gridX][gridZ].SetObstacle(true);
+		grid[gridX][gridZ].SetColor(glm::vec3(1.0f, 0.0f, 0.0f));
+		if (gridX + 1 < GRID_SIZE) {
+			grid[gridX + 1][gridZ].SetCover(true);
+			grid[gridX + 1][gridZ].SetColor(glm::vec3(1.0f, 0.4f, 0.0f));
+            coverLocations.push_back(grid[gridX + 1][gridZ]);
+		}
+        if (gridZ + 1 < GRID_SIZE) {
+            grid[gridX][gridZ + 1].SetCover(true);
+            grid[gridX][gridZ + 1].SetColor(glm::vec3(1.0f, 0.4f, 0.0f));
+            coverLocations.push_back(grid[gridX][gridZ + 1]);
+
+        }
+        if (gridX - 1 > 0) {
+            grid[gridX - 1][gridZ].SetCover(true);
+            grid[gridX - 1][gridZ].SetColor(glm::vec3(1.0f, 0.4f, 0.0f));
+            coverLocations.push_back(grid[gridX - 1][gridZ]);
+        }
+        if (gridZ - 1 > 0) {
+            grid[gridX][gridZ - 1].SetCover(true);
+            grid[gridX][gridZ - 1].SetColor(glm::vec3(1.0f, 0.4f, 0.0f));
+            coverLocations.push_back(grid[gridX][gridZ - 1]);
         }
     }
+
     size_t uniformMatrixBufferSize = 3 * sizeof(glm::mat4);
     mGridUniformBuffer.init(uniformMatrixBufferSize);
     Logger::log(1, "%s: matrix uniform buffer (size %i bytes) successfully created\n", __FUNCTION__, uniformMatrixBufferSize);
