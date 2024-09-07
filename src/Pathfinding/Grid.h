@@ -11,6 +11,11 @@
 
 class Grid {
 public:
+	struct Cover {
+		glm::vec3 worldPosition;
+		Cell gridPos;
+	};
+
     std::vector<glm::vec3> coverPositions = {
         glm::vec3(18.0f, 3.5f, 18.0f),
         glm::vec3(48.0f, 3.5f, 18.0f),
@@ -47,15 +52,20 @@ public:
 		return snappedCoverPositions;
 	}
 
+	glm::vec3 ConvertCellToWorldSpace(const int gridX, const int gridZ) const
+	{
+		return glm::vec3(gridX * CELL_SIZE + CELL_SIZE / 2.0f, 0.0f, gridZ * CELL_SIZE + CELL_SIZE / 2.0f);
+	}
+
     std::vector<glm::ivec2> findPath(const glm::ivec2& start, const glm::ivec2& goal, const std::vector<std::vector<Cell>>& grid);
 
     std::vector<std::vector<Cell>> GetGrid() const { return grid; }
-    std::vector<Cell> GetCoverLocations() const { return coverLocations; }
+    std::vector<Cover> GetCoverLocations() const { return coverLocations; }
 
 	int GetGridSize() const { return GRID_SIZE; }
     int GetCellSize() const { return CELL_SIZE; }
 
-    std::vector<Cell> coverLocations;
+    std::vector<Cover> coverLocations;
 private:
     UniformBuffer mGridUniformBuffer{};
     UniformBuffer mGridColorUniformBuffer{};

@@ -142,6 +142,7 @@ public:
 	void SetAnimNum(int newAnimNum) { animNum = newAnimNum; }
 
     void OnHit() override;
+
     void OnMiss() override {
         aabbColor = glm::vec3(1.0f, 1.0f, 1.0f);
     }

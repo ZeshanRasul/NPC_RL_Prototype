@@ -24,23 +24,27 @@ void Grid::initializeGrid() {
 		if (gridX + 1 < GRID_SIZE) {
 			grid[gridX + 1][gridZ].SetCover(true);
 			grid[gridX + 1][gridZ].SetColor(glm::vec3(1.0f, 0.4f, 0.0f));
-            coverLocations.push_back(grid[gridX + 1][gridZ]);
+			Cover newCover1 = { ConvertCellToWorldSpace(gridX + 1, gridZ), grid[gridX + 1][gridZ] };
+            coverLocations.push_back(newCover1);
 		}
         if (gridZ + 1 < GRID_SIZE) {
             grid[gridX][gridZ + 1].SetCover(true);
             grid[gridX][gridZ + 1].SetColor(glm::vec3(1.0f, 0.4f, 0.0f));
-            coverLocations.push_back(grid[gridX][gridZ + 1]);
+			Cover newCover2 = { ConvertCellToWorldSpace(gridX, gridZ + 1), grid[gridX][gridZ + 1] };
+            coverLocations.push_back(newCover2);
 
         }
         if (gridX - 1 > 0) {
             grid[gridX - 1][gridZ].SetCover(true);
             grid[gridX - 1][gridZ].SetColor(glm::vec3(1.0f, 0.4f, 0.0f));
-            coverLocations.push_back(grid[gridX - 1][gridZ]);
+			Cover newCover3 = { ConvertCellToWorldSpace(gridX - 1, gridZ), grid[gridX - 1][gridZ] };
+            coverLocations.push_back(newCover3);
         }
         if (gridZ - 1 > 0) {
             grid[gridX][gridZ - 1].SetCover(true);
             grid[gridX][gridZ - 1].SetColor(glm::vec3(1.0f, 0.4f, 0.0f));
-            coverLocations.push_back(grid[gridX][gridZ - 1]);
+			Cover newCover4 = { ConvertCellToWorldSpace(gridX, gridZ - 1), grid[gridX][gridZ - 1] };
+            coverLocations.push_back(newCover4);
         }
     }
 

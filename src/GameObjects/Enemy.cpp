@@ -373,7 +373,7 @@ void Enemy::SetUpAABB()
     aabb->owner = this;
     updateAABB();
     //class GameManager* gameMgr = GetGameManager();
-//    mGameManager->GetPhysicsWorld()->addCollider(GetAABB());
+    mGameManager->GetPhysicsWorld()->addCollider(GetAABB());
     mGameManager->GetPhysicsWorld()->addEnemyCollider(GetAABB());
 }
 

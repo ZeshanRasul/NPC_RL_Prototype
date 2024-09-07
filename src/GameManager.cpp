@@ -54,12 +54,17 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
     gameGrid = new Grid();
 	cover1 = new Cube(gameGrid->snapToGrid(gameGrid->coverPositions[0]), glm::vec3(gameGrid->GetCellSize()), &cubeShader, false, this);
     cover1->LoadMesh();
+    cover1->SetAABBShader(&aabbShader);
 	cover2 = new Cube(gameGrid->snapToGrid(gameGrid->coverPositions[1]), glm::vec3(gameGrid->GetCellSize()), &cubeShader, false, this);
     cover2->LoadMesh();
+    cover2->SetAABBShader(&aabbShader);
 	cover3 = new Cube(gameGrid->snapToGrid(gameGrid->coverPositions[2]), glm::vec3(gameGrid->GetCellSize()), &cubeShader, false, this);
     cover3->LoadMesh();
+    cover3->SetAABBShader(&aabbShader);
 	cover4 = new Cube(gameGrid->snapToGrid(gameGrid->coverPositions[3]), glm::vec3(gameGrid->GetCellSize()), &cubeShader, false, this);
     cover4->LoadMesh();
+    cover4->SetAABBShader(&aabbShader);
+
     gameGrid->initializeGrid();
 //	gameGrid->GetGrid()[0][0].LoadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/Cell.png");
 
@@ -413,7 +418,8 @@ void GameManager::showDebugUI()
 //    enemy2->Update(deltaTime, *player);
 //    enemy3->Update(deltaTime, *player);
 //    enemy4->Update(deltaTime, *player);
-	    audioSystem->Update(deltaTime);
+//
+ 	    audioSystem->Update(deltaTime);
 }
 
 void GameManager::render()
