@@ -44,16 +44,9 @@ void Enemy::Update(float dt, Player& player, float blendFactor, bool playAnimBac
 
     if (GetEnemyState() == DYING)
         dyingTimer -= dt;
-
-    if (GetEnemyState() == TAKING_COVER)
-    {
-		coverTimer -= dt;
-        //if (coverTimer <= 0.0f && reachedCover)
-        //{
-        //    SetEnemyState(ATTACK);
-        //}
-    }
 	
+    if (GetEnemyState() == TAKING_COVER)
+        coverTimer -= dt;
 
     float playerEnemyDistance = glm::distance(getPosition(), player.getPosition());
 
@@ -65,7 +58,7 @@ void Enemy::Update(float dt, Player& player, float blendFactor, bool playAnimBac
     {
         SetEnemyState(ENEMY_SHOOTING);
     }
-	else if (GetEnemyState() != DYING && GetEnemyState() != DEAD && GetEnemyState() != TAKING_COVER && health < 51.0f)
+	else if (GetEnemyState() != DYING && GetEnemyState() != DEAD && GetEnemyState() != TAKING_COVER && health < 51.0f && !reachedCover)
 	{
 		SetEnemyState(SEEKING_COVER);
 	}
@@ -168,6 +161,12 @@ void Enemy::Update(float dt, Player& player, float blendFactor, bool playAnimBac
 		);
 
 		moveEnemy(path, dt, blendFactor, playAnimBackwards);
+        SetAnimation(GetAnimNum(), 1.0f, blendFactor, playAnimBackwards);
+
+        if (coverTimer <= 0.0f && reachedCover)
+        {
+            SetEnemyState(PATROL);
+        }
 
 		break;
 	}
@@ -264,8 +263,10 @@ void Enemy::moveEnemy(const std::vector<glm::ivec2>& path, float deltaTime, floa
     float speed = 10.0f; // Ensure this speed is appropriate for the grid size and cell size
     
     if (!reachedPlayer)
+    {
         SetAnimNum(0);
         SetAnimation(GetAnimNum(), 1.0f, blendFactor, playAnimBackwards);
+    }
 
     if (pathIndex >= path.size()) {
         std::cout << "Agent has reached its destination." << std::endl;
@@ -277,10 +278,12 @@ void Enemy::moveEnemy(const std::vector<glm::ivec2>& path, float deltaTime, floa
 		{
 			reachedPlayer = true;
 		} 
-		else if (state == TAKING_COVER)
+		else if (state == TAKING_COVER && !reachedCover)
 		{
 			reachedCover = true;
-            coverTimer = 1.3f;
+            coverTimer = 6.4f;
+            SetAnimNum(4);
+            SetAnimation(GetAnimNum(), 1.0f, blendFactor, playAnimBackwards);
 		}
 		
         return; // Stop moving if the agent has reached its destination
