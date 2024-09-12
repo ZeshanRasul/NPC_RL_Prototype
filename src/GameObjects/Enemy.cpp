@@ -165,6 +165,7 @@ void Enemy::Update(float dt, Player& player, float blendFactor, bool playAnimBac
 
         if (coverTimer <= 0.0f && reachedCover)
         {
+            inCover = false;
             SetEnemyState(PATROL);
         }
 
@@ -262,7 +263,7 @@ void Enemy::moveEnemy(const std::vector<glm::ivec2>& path, float deltaTime, floa
     const float agentRadius = 0.5f; // Adjust this value to match the agent's radius
     float speed = 10.0f; // Ensure this speed is appropriate for the grid size and cell size
     
-    if (!reachedPlayer)
+    if (!reachedPlayer && !inCover)
     {
         SetAnimNum(0);
         SetAnimation(GetAnimNum(), 1.0f, blendFactor, playAnimBackwards);
@@ -281,6 +282,7 @@ void Enemy::moveEnemy(const std::vector<glm::ivec2>& path, float deltaTime, floa
 		else if (state == TAKING_COVER && !reachedCover)
 		{
 			reachedCover = true;
+			inCover = true;
             coverTimer = 6.4f;
             SetAnimNum(4);
             SetAnimation(GetAnimNum(), 1.0f, blendFactor, playAnimBackwards);
