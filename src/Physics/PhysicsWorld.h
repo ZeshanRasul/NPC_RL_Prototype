@@ -12,6 +12,7 @@ public:
     void addEnemyCollider(AABB* collider);
     bool rayIntersect(const glm::vec3& rayOrigin, const glm::vec3& rayDirection, glm::vec3& hitPoint);
     bool rayEnemyIntersect(const glm::vec3& rayOrigin, const glm::vec3& rayDirection, glm::vec3& hitPoint);
+    bool checkPlayerVisibility(const glm::vec3& rayOrigin, const glm::vec3& rayDirection, glm::vec3& hitPoint);
 
 private:
     std::vector<AABB*> colliders;

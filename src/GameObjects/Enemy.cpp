@@ -440,3 +440,37 @@ void Enemy::OnHit()
         takeDamageAC->PlayEvent("event:/EnemyTakeDamage");
 	damageTimer = model->getAnimationEndTime(8);
 }
+
+Grid::Cover Enemy::ScoreCoverLocations(Player& player)
+{
+    float bestScore = 0.0f;
+
+	Grid::Cover bestCover;
+
+	for (Grid::Cover cover : grid->GetCoverLocations())
+	{
+        float score = 0.0f; 
+		
+        float distanceToPlayer = glm::distance(cover.worldPosition, player.getPosition());
+        score -= distanceToPlayer * 0.5f;
+
+		float distanceToEnemy = glm::distance(cover.worldPosition, getPosition());
+		score += (1.0f / distanceToEnemy + 1.0f) * 1.0f;
+
+		glm::vec3 rayOrigin = cover.worldPosition + glm::vec3(0.0f, 2.5f, 0.0f);
+		glm::vec3 rayDirection = glm::normalize(player.getPosition() - rayOrigin);
+        glm::vec3 hitPoint = glm::vec3(0.0f);
+
+        bool visibleToPlayer = mGameManager->GetPhysicsWorld()->checkPlayerVisibility(rayOrigin, rayDirection, hitPoint);
+        if (!visibleToPlayer) {
+            score += 2.0f;
+        }
+
+		if (score > bestScore) {
+			bestScore = score;
+			bestCover = cover;
+		}
+	}
+
+    return bestCover;
+}

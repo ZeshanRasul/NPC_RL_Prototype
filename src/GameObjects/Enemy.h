@@ -147,6 +147,8 @@ public:
         aabbColor = glm::vec3(1.0f, 1.0f, 1.0f);
     }
     
+    Grid::Cover ScoreCoverLocations(Player& player);
+
     glm::vec3 selectRandomWaypoint(const glm::vec3& currentWaypoint, const std::vector<glm::vec3>& allWaypoints) {
 
         std::vector<glm::vec3> availableWaypoints;

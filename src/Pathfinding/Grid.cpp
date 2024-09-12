@@ -8,13 +8,6 @@ void Grid::initializeGrid() {
     std::vector<Cell> row(GRID_SIZE, Cell(false, glm::vec3(0.0f, 1.0f, 0.0f)));
     grid = std::vector<std::vector<Cell>>(GRID_SIZE, row);
 
-   // for (int i = 5; i < 10; ++i) {
-   //     for (int j = 0; j < 10; ++j) {
-			//grid[i][j].SetObstacle(true);
-   //         grid[i][j].SetColor(glm::vec3(1.0f, 0.0f, 0.0f));
-   //     }
-   // }
-
     for (glm::vec3 coverPos : snapCoverPositionsToGrid())
     {
 		int gridX = static_cast<int>(coverPos.x / CELL_SIZE);

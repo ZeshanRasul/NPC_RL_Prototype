@@ -84,6 +84,41 @@ bool PhysicsWorld::rayEnemyIntersect(const glm::vec3& rayOrigin, const glm::vec3
     return hit;
 }
 
+bool PhysicsWorld::checkPlayerVisibility(const glm::vec3& rayOrigin, const glm::vec3& rayDirection, glm::vec3& hitPoint)
+{
+    bool hit = false;
+    float closestDistance = std::numeric_limits<float>::max();
+
+    AABB* closestAABB = nullptr;
+    std::vector<AABB*> missedAABBs = {};
+
+    for (AABB* collider : colliders) {
+        glm::vec3 tempHitPoint;
+        if (rayAABBIntersect(rayOrigin, rayDirection, collider, tempHitPoint)) {
+            float distance = glm::length(tempHitPoint - rayOrigin);
+            if (distance < closestDistance) {
+                closestDistance = distance;
+                hitPoint = tempHitPoint;
+                hit = true;
+                closestAABB = collider;
+            }
+        }
+        else {
+            missedAABBs.push_back(collider);
+        }
+    }
+
+    if (hit && closestAABB->isPlayer) {
+        return true;
+    }
+    else if (hit && !closestAABB->isPlayer)
+    {
+        return false;
+    }
+
+    return false;
+}
+
 bool PhysicsWorld::rayAABBIntersect(const glm::vec3& rayOrigin, const glm::vec3& rayDirection, AABB* aabb, glm::vec3& hitPoint) {
 
 	aabb->update(aabb->mModelMatrix);
