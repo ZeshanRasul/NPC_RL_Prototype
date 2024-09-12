@@ -12,13 +12,21 @@ enum EnemyState {
     ATTACK,
     ENEMY_SHOOTING,
 	TAKE_DAMAGE,
+    SEEKING_COVER,
+    TAKING_COVER,
     DYING,
     DEAD
 };
 
 static const char* EnemyStateNames[] = {
     "Patrol",
-    "Attack"
+    "Attack",
+    "Enemy Shooting",
+	"Take Damage",
+	"Seeking Cover",
+	"Taking Cover",
+	"Dying",
+	"Dead"
 };
 
 class Enemy : public GameObject {
@@ -147,7 +155,7 @@ public:
         aabbColor = glm::vec3(1.0f, 1.0f, 1.0f);
     }
     
-    Grid::Cover ScoreCoverLocations(Player& player);
+    Grid::Cover& ScoreCoverLocations(Player& player);
 
     glm::vec3 selectRandomWaypoint(const glm::vec3& currentWaypoint, const std::vector<glm::vec3>& allWaypoints) {
 
@@ -193,6 +201,9 @@ public:
 	float damageTimer = 0.0f;
     bool isDying = false;
 	float dyingTimer = 0.0f;
+	bool inCover = false;
+	float coverTimer = 0.0f;
+	bool reachedCover = false;
 
     float accuracy = 60.0f;
     glm::vec3 enemyShootPos = glm::vec3(0.0f);
@@ -203,6 +214,7 @@ public:
     bool enemyHasShot = false;
 
 	Grid* grid;
+    Grid::Cover cover;
 
     std::vector<glm::vec3> waypointPositions = {
             grid->snapToGrid(glm::vec3(0.0f, 0.0f, 0.0f)),

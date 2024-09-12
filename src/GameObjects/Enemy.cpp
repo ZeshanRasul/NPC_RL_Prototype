@@ -45,21 +45,35 @@ void Enemy::Update(float dt, Player& player, float blendFactor, bool playAnimBac
     if (GetEnemyState() == DYING)
         dyingTimer -= dt;
 
+    if (GetEnemyState() == TAKING_COVER)
+    {
+		coverTimer -= dt;
+        //if (coverTimer <= 0.0f && reachedCover)
+        //{
+        //    SetEnemyState(ATTACK);
+        //}
+    }
+	
+
     float playerEnemyDistance = glm::distance(getPosition(), player.getPosition());
 
-    if (playerEnemyDistance < 35.0f && enemyShootCooldown > 0.0f && GetEnemyState() != TAKE_DAMAGE && GetEnemyState() != DYING && GetEnemyState() != DEAD)
+    if (playerEnemyDistance < 35.0f && enemyShootCooldown > 0.0f && GetEnemyState() != TAKE_DAMAGE && GetEnemyState() != DYING && GetEnemyState() != DEAD && GetEnemyState() != TAKING_COVER && GetEnemyState() != SEEKING_COVER)
     {
         SetEnemyState(ATTACK);
     }
-    else if (playerEnemyDistance < 35.0f && enemyShootCooldown <= 0.0f)
+    else if (playerEnemyDistance < 35.0f && enemyShootCooldown <= 0.0f && GetEnemyState() != TAKE_DAMAGE && GetEnemyState() != DYING && GetEnemyState() != DEAD && GetEnemyState() != TAKING_COVER && GetEnemyState() != SEEKING_COVER)
     {
         SetEnemyState(ENEMY_SHOOTING);
     }
-	else if (GetEnemyState() != TAKE_DAMAGE && GetEnemyState() != DYING && GetEnemyState() != DEAD)
+	else if (GetEnemyState() != DYING && GetEnemyState() != DEAD && GetEnemyState() != TAKING_COVER && health < 51.0f)
+	{
+		SetEnemyState(SEEKING_COVER);
+	}
+	else if (GetEnemyState() != TAKE_DAMAGE && GetEnemyState() != DYING && GetEnemyState() != DEAD && GetEnemyState() != TAKING_COVER && GetEnemyState() != SEEKING_COVER)
     {
         SetEnemyState(PATROL);
         enemyHasShot = false;
-    }
+    } 
 
     switch (GetEnemyState())
     {
@@ -139,6 +153,24 @@ void Enemy::Update(float dt, Player& player, float blendFactor, bool playAnimBac
         }
         break;
     }
+    case SEEKING_COVER:
+    {
+		cover = ScoreCoverLocations(player);
+        SetEnemyState(TAKING_COVER);
+        break;
+    }
+	case TAKING_COVER:
+	{
+		std::vector<glm::ivec2> path = grid->findPath(
+			glm::ivec2(getPosition().x / grid->GetCellSize(), getPosition().z / grid->GetCellSize()),
+			glm::ivec2(cover.worldPosition.x / grid->GetCellSize(), cover.worldPosition.z / grid->GetCellSize()),
+			grid->GetGrid()
+		);
+
+		moveEnemy(path, dt, blendFactor, playAnimBackwards);
+
+		break;
+	}
     case DYING:
 	{
         SetAnimation(GetAnimNum(), 1.0f, blendFactor, playAnimBackwards);
@@ -244,7 +276,13 @@ void Enemy::moveEnemy(const std::vector<glm::ivec2>& path, float deltaTime, floa
 		else if (state == ATTACK)
 		{
 			reachedPlayer = true;
+		} 
+		else if (state == TAKING_COVER)
+		{
+			reachedCover = true;
+            coverTimer = 1.3f;
 		}
+		
         return; // Stop moving if the agent has reached its destination
     }
 
@@ -441,21 +479,21 @@ void Enemy::OnHit()
 	damageTimer = model->getAnimationEndTime(8);
 }
 
-Grid::Cover Enemy::ScoreCoverLocations(Player& player)
+Grid::Cover& Enemy::ScoreCoverLocations(Player& player)
 {
-    float bestScore = 0.0f;
+    float bestScore = -100000.0f;
 
 	Grid::Cover bestCover;
 
-	for (Grid::Cover cover : grid->GetCoverLocations())
+	for (Grid::Cover& cover : grid->GetCoverLocations())
 	{
         float score = 0.0f; 
 		
         float distanceToPlayer = glm::distance(cover.worldPosition, player.getPosition());
-        score -= distanceToPlayer * 0.5f;
+        score += distanceToPlayer * 0.5f;
 
 		float distanceToEnemy = glm::distance(cover.worldPosition, getPosition());
-		score += (1.0f / distanceToEnemy + 1.0f) * 1.0f;
+		score -= (1.0f / distanceToEnemy + 1.0f) * 1.0f;
 
 		glm::vec3 rayOrigin = cover.worldPosition + glm::vec3(0.0f, 2.5f, 0.0f);
 		glm::vec3 rayDirection = glm::normalize(player.getPosition() - rayOrigin);
@@ -463,7 +501,7 @@ Grid::Cover Enemy::ScoreCoverLocations(Player& player)
 
         bool visibleToPlayer = mGameManager->GetPhysicsWorld()->checkPlayerVisibility(rayOrigin, rayDirection, hitPoint);
         if (!visibleToPlayer) {
-            score += 2.0f;
+            score += 20.0f;
         }
 
 		if (score > bestScore) {
