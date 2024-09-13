@@ -97,9 +97,9 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
     playerSkeletonSplitNode = player->model->getNodeCount() - 1;
     enemySkeletonSplitNode = enemy->model->getNodeCount() - 1;
 
+    waypoint2 = new Waypoint(gameGrid->snapToGrid(glm::vec3(61.0f, 0.0f, 25.0f)), glm::vec3(5.0f, 10.0f, 5.0f), &cubeShader, false, this);
 
  /*   waypoint1 = new Waypoint(gameGrid->snapToGrid(waypointPositions[0]), glm::vec3(5.0f, 10.0f, 5.0f), &gridShader, false);
-    waypoint2 = new Waypoint(gameGrid->snapToGrid(waypointPositions[1]), glm::vec3(5.0f, 10.0f, 5.0f), &gridShader, false);
     waypoint3 = new Waypoint(gameGrid->snapToGrid(waypointPositions[2]), glm::vec3(5.0f, 10.0f, 5.0f), &gridShader, false);
     waypoint4 = new Waypoint(gameGrid->snapToGrid(waypointPositions[3]), glm::vec3(5.0f, 10.0f, 5.0f), &gridShader, false);*/
 
@@ -118,8 +118,8 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 //    gameObjects.push_back(enemy2);  
 //    gameObjects.push_back(enemy3);  
 //    gameObjects.push_back(enemy4);  
- /*   gameObjects.push_back(waypoint1);
     gameObjects.push_back(waypoint2);
+ /*   gameObjects.push_back(waypoint1);
     gameObjects.push_back(waypoint3);
     gameObjects.push_back(waypoint4);*/
 

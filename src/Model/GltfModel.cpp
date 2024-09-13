@@ -9,6 +9,54 @@
 #include "GltfModel.h"
 #include "Logger.h"
 
+bool GltfModel::loadModelNoAnim(RenderData& renderData,
+    std::string modelFilename, std::string textureFilename) {
+    if (!mTex.loadTexture(textureFilename, false)) {
+        Logger::log(1, "%s: texture loading failed\n", __FUNCTION__);
+        return false;
+    }
+    Logger::log(1, "%s: glTF model texture '%s' successfully loaded\n", __FUNCTION__,
+        modelFilename.c_str());
+
+    mModel = std::make_shared<tinygltf::Model>();
+
+    tinygltf::TinyGLTF gltfLoader;
+    std::string loaderErrors;
+    std::string loaderWarnings;
+    bool result = false;
+
+    result = gltfLoader.LoadASCIIFromFile(mModel.get(), &loaderErrors, &loaderWarnings,
+        modelFilename);
+
+    if (!loaderWarnings.empty()) {
+        Logger::log(1, "%s: warnings while loading glTF model:\n%s\n", __FUNCTION__,
+            loaderWarnings.c_str());
+    }
+
+    if (!loaderErrors.empty()) {
+        Logger::log(1, "%s: errors while loading glTF model:\n%s\n", __FUNCTION__,
+            loaderErrors.c_str());
+    }
+
+    if (!result) {
+        Logger::log(1, "%s error: could not load file '%s'\n", __FUNCTION__,
+            modelFilename.c_str());
+        return false;
+    }
+
+    glGenVertexArrays(1, &mVAO);
+    glBindVertexArray(mVAO);
+
+    createVertexBuffers();
+    createIndexBuffer();
+
+    glBindVertexArray(0);
+
+    renderData.rdGltfTriangleCount = getTriangleCount();
+
+    return true;
+}
+
 bool GltfModel::loadModel(RenderData& renderData,
     std::string modelFilename, std::string textureFilename) {
     if (!mTex.loadTexture(textureFilename, false)) {
@@ -187,6 +235,19 @@ void GltfModel::createIndexBuffer() {
 
 void GltfModel::uploadVertexBuffers() {
     for (int i = 0; i < 5; ++i) {
+        const tinygltf::Accessor& accessor = mModel->accessors.at(i);
+        const tinygltf::BufferView& bufferView = mModel->bufferViews.at(accessor.bufferView);
+        const tinygltf::Buffer& buffer = mModel->buffers.at(bufferView.buffer);
+
+        glBindBuffer(GL_ARRAY_BUFFER, mVertexVBO.at(i));
+        glBufferData(GL_ARRAY_BUFFER, bufferView.byteLength,
+            &buffer.data.at(0) + bufferView.byteOffset, GL_STATIC_DRAW);
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+    }
+}
+
+void GltfModel::uploadVertexBuffersNoAnimations() {
+    for (int i = 0; i < 3; ++i) {
         const tinygltf::Accessor& accessor = mModel->accessors.at(i);
         const tinygltf::BufferView& bufferView = mModel->bufferViews.at(accessor.bufferView);
         const tinygltf::Buffer& buffer = mModel->buffers.at(bufferView.buffer);
