@@ -10,7 +10,7 @@ public:
         model = std::make_shared<GltfModel>();
 
         std::string modelFilename = "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Models/GLTF/MilitaryMale/MilitaryMale.gltf";
-        std::string modelTextureFilename = "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Models/GLTF/MilitaryMale/Albedo.png";
+        std::string modelTextureFilename = "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Models/GLTF/MilitaryMale/albedo.png";
 
         if (!model->loadModelNoAnim(renderData, modelFilename, modelTextureFilename)) {
             Logger::log(1, "%s: loading glTF model '%s' failed\n", __FUNCTION__, modelFilename.c_str());
