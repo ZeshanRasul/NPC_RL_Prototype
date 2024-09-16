@@ -462,7 +462,7 @@ void GameManager::render()
         if (player->GetVelocity() > 0.01f)
             player->SetAnimation(0, 1.0f, playerAnimBlendFactor, false);
         else
-            player->SetAnimation(4, 1.0f, playerAnimBlendFactor, false);
+            player->SetAnimation(0, 1.0f, playerAnimBlendFactor, false);
     }
 
 	glEnable(GL_DEPTH_TEST);
