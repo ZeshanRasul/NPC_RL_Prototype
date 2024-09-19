@@ -128,7 +128,7 @@ void Enemy::Update(float dt, Player& player, float blendFactor, bool playAnimBac
     case ENEMY_SHOOTING:
     {
         Shoot(player);
-        SetAnimNum(5);
+        SetAnimNum(2);
         SetAnimation(GetAnimNum(), 1.0f, blendFactor, playAnimBackwards);
         enemyShootCooldown = 0.3f;
         enemyRayDebugRenderTimer = 0.3f;
@@ -138,7 +138,7 @@ void Enemy::Update(float dt, Player& player, float blendFactor, bool playAnimBac
     }
     case TAKE_DAMAGE:
     {
-        SetAnimNum(8);
+        SetAnimNum(2);
         SetAnimation(GetAnimNum(), 1.0f, blendFactor, playAnimBackwards);
         if (damageTimer <= 0.0f)
         {
@@ -265,7 +265,7 @@ void Enemy::moveEnemy(const std::vector<glm::ivec2>& path, float deltaTime, floa
     
     if (!reachedPlayer && !inCover)
     {
-        SetAnimNum(0);
+        SetAnimNum(1);
         SetAnimation(GetAnimNum(), 1.0f, blendFactor, playAnimBackwards);
     }
 
@@ -284,7 +284,7 @@ void Enemy::moveEnemy(const std::vector<glm::ivec2>& path, float deltaTime, floa
 			reachedCover = true;
 			inCover = true;
             coverTimer = 6.4f;
-            SetAnimNum(4);
+            SetAnimNum(0);
             SetAnimation(GetAnimNum(), 1.0f, blendFactor, playAnimBackwards);
 		}
 		
@@ -404,7 +404,7 @@ void Enemy::OnDeath()
 {
 	std::cout << "Enemy Died!" << std::endl;
     SetEnemyState(DYING);
-    SetAnimNum(3);
+    SetAnimNum(2);
     deathAC->PlayEvent("event:/EnemyDeath");
 	dyingTimer = 1.5f;
 }
@@ -477,11 +477,11 @@ void Enemy::OnHit()
 	Logger::log(1, "Enemy was hit!\n", __FUNCTION__);
     SetEnemyState(TAKE_DAMAGE);
 	setAABBColor(glm::vec3(1.0f, 0.0f, 1.0f));
-    SetAnimNum(8);
+    SetAnimNum(2);
     TakeDamage(50.0f);
     if (GetEnemyState() != DYING)
         takeDamageAC->PlayEvent("event:/EnemyTakeDamage");
-	damageTimer = model->getAnimationEndTime(8);
+	damageTimer = model->getAnimationEndTime(2);
 }
 
 Grid::Cover& Enemy::ScoreCoverLocations(Player& player)
