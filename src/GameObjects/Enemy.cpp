@@ -58,7 +58,7 @@ void Enemy::Update(float dt, Player& player, float blendFactor, bool playAnimBac
     {
         SetEnemyState(ENEMY_SHOOTING);
     }
-	else if (GetEnemyState() != DYING && GetEnemyState() != DEAD && GetEnemyState() != TAKING_COVER && health < 51.0f && !reachedCover)
+	else if (GetEnemyState() != DYING && GetEnemyState() != DEAD && GetEnemyState() != TAKING_COVER && health < 51.0f && !reachedCover && damageTimer <= 0.0f)
 	{
 		SetEnemyState(SEEKING_COVER);
 	}
@@ -128,7 +128,7 @@ void Enemy::Update(float dt, Player& player, float blendFactor, bool playAnimBac
     case ENEMY_SHOOTING:
     {
         Shoot(player);
-        SetAnimNum(2);
+        SetAnimNum(3);
         SetAnimation(GetAnimNum(), 1.0f, blendFactor, playAnimBackwards);
         enemyShootCooldown = 0.3f;
         enemyRayDebugRenderTimer = 0.3f;
@@ -138,7 +138,7 @@ void Enemy::Update(float dt, Player& player, float blendFactor, bool playAnimBac
     }
     case TAKE_DAMAGE:
     {
-        SetAnimNum(2);
+        SetAnimNum(4);
         SetAnimation(GetAnimNum(), 1.0f, blendFactor, playAnimBackwards);
         if (damageTimer <= 0.0f)
         {
@@ -265,7 +265,7 @@ void Enemy::moveEnemy(const std::vector<glm::ivec2>& path, float deltaTime, floa
     
     if (!reachedPlayer && !inCover)
     {
-        SetAnimNum(1);
+        SetAnimNum(2);
         SetAnimation(GetAnimNum(), 1.0f, blendFactor, playAnimBackwards);
     }
 
@@ -284,7 +284,7 @@ void Enemy::moveEnemy(const std::vector<glm::ivec2>& path, float deltaTime, floa
 			reachedCover = true;
 			inCover = true;
             coverTimer = 6.4f;
-            SetAnimNum(0);
+            SetAnimNum(3);
             SetAnimation(GetAnimNum(), 1.0f, blendFactor, playAnimBackwards);
 		}
 		
@@ -404,7 +404,7 @@ void Enemy::OnDeath()
 {
 	std::cout << "Enemy Died!" << std::endl;
     SetEnemyState(DYING);
-    SetAnimNum(2);
+    SetAnimNum(1);
     deathAC->PlayEvent("event:/EnemyDeath");
 	dyingTimer = 1.5f;
 }
@@ -477,11 +477,11 @@ void Enemy::OnHit()
 	Logger::log(1, "Enemy was hit!\n", __FUNCTION__);
     SetEnemyState(TAKE_DAMAGE);
 	setAABBColor(glm::vec3(1.0f, 0.0f, 1.0f));
-    SetAnimNum(2);
+    SetAnimNum(4);
     TakeDamage(50.0f);
     if (GetEnemyState() != DYING)
         takeDamageAC->PlayEvent("event:/EnemyTakeDamage");
-	damageTimer = model->getAnimationEndTime(2);
+	damageTimer = model->getAnimationEndTime(4);
 }
 
 Grid::Cover& Enemy::ScoreCoverLocations(Player& player)
