@@ -70,7 +70,7 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 
     // TODO: Initialise Game Objects
     camera = new Camera(glm::vec3(50.0f, 3.0f, 80.0f));
-    player = new Player(gameGrid->snapToGrid(glm::vec3(60.0f, 0.0f, 25.0f)), glm::vec3(1.0f), &playerShader, true, this);
+    player = new Player(gameGrid->snapToGrid(glm::vec3(60.0f, 0.0f, 25.0f)), glm::vec3(3.0f), &playerShader, true, this);
     player->aabbShader = &aabbShader;
     enemy = new Enemy(gameGrid->snapToGrid(glm::vec3(13.0f, 0.0f, 13.0f)), glm::vec3(1.0f), &enemyShader, true, this, gameGrid);
 	enemy->aabbShader = &aabbShader;
@@ -459,10 +459,12 @@ void GameManager::render()
     }
     else
     {
-        if (player->GetVelocity() > 0.01f)
-            player->SetAnimation(0, 1.0f, playerAnimBlendFactor, false);
+        if (player->GetVelocity() > 0.01f && player->GetVelocity() < 0.4f)
+            player->SetAnimNum(15);
+        else if (player->GetVelocity() >= 0.4f)
+            player->SetAnimNum(10);
         else
-            player->SetAnimation(0, 1.0f, playerAnimBlendFactor, false);
+            player->SetAnimNum(0);
     }
 
 	glEnable(GL_DEPTH_TEST);

@@ -40,6 +40,7 @@ void Player::Update(float dt)
  //   updateAABB();
     ComputeAudioWorldTransform();
     UpdateComponents(dt);
+    SetAnimation(GetAnimNum(), 1.0f, 1.0f, false);
 }
 
 
@@ -109,6 +110,7 @@ void Player::PlayerProcessKeyboard(CameraMovement direction, float deltaTime)
         mRecomputeWorldTransform = true;
         ComputeAudioWorldTransform();
         UpdateComponents(deltaTime);
+        SetAnimNum(13);
     }
     if (direction == RIGHT)
     {
@@ -116,6 +118,7 @@ void Player::PlayerProcessKeyboard(CameraMovement direction, float deltaTime)
         mRecomputeWorldTransform = true;
         ComputeAudioWorldTransform();
         UpdateComponents(deltaTime);
+        SetAnimNum(14);
     }
 }
 
@@ -159,7 +162,7 @@ void Player::Shoot()
 		return;
 
     shootAC->PlayEvent("event:/PlayerShoot");
-
+    SetAnimNum(12);
     UpdatePlayerVectors();
     UpdatePlayerAimVectors();
 
