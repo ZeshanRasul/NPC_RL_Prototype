@@ -72,11 +72,20 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
     camera = new Camera(glm::vec3(50.0f, 3.0f, 80.0f));
     player = new Player(gameGrid->snapToGrid(glm::vec3(60.0f, 0.0f, 25.0f)), glm::vec3(3.0f), &playerShader, true, this);
     player->aabbShader = &aabbShader;
-    enemy = new Enemy(gameGrid->snapToGrid(glm::vec3(13.0f, 0.0f, 13.0f)), glm::vec3(3.0f), &enemyShader, true, this, gameGrid);
+
+    std::string texture = "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Models/GLTF/Enemies/Ely/ely-vanguardsoldier-kerwinatienza_diffuse.png";
+    std::string texture2 = "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Models/GLTF/Enemies/Ely/ely-vanguardsoldier-kerwinatienza_diffuse 2.png";
+    std::string texture3 = "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Models/GLTF/Enemies/Ely/ely-vanguardsoldier-kerwinatienza_diffuse 3.png";
+    std::string texture4 = "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Models/GLTF/Enemies/Ely/ely-vanguardsoldier-kerwinatienza_diffuse 4.png";
+
+    enemy = new Enemy(gameGrid->snapToGrid(glm::vec3(13.0f, 0.0f, 13.0f)), glm::vec3(3.0f), &enemyShader, true, this, gameGrid, texture);
 	enemy->aabbShader = &aabbShader;
-//    enemy2 = new Enemy(gameGrid->snapToGrid(glm::vec3(23.0f, 0.0f, 13.0f)), glm::vec3(1.0f), &enemyShader, true);
-//    enemy3 = new Enemy(gameGrid->snapToGrid(glm::vec3(3.0f, 0.0f, 63.0f)), glm::vec3(1.0f), &enemyShader, true);
-//    enemy4 = new Enemy(gameGrid->snapToGrid(glm::vec3(11.0f, 0.0f, 23.0f)), glm::vec3(1.0f), &enemyShader, true);
+    enemy2 = new Enemy(gameGrid->snapToGrid(glm::vec3(23.0f, 0.0f, 13.0f)), glm::vec3(3.0f), &enemyShader, true, this, gameGrid, texture2);
+	enemy2->aabbShader = &aabbShader;
+    enemy3 = new Enemy(gameGrid->snapToGrid(glm::vec3(3.0f, 0.0f, 63.0f)), glm::vec3(3.0f), &enemyShader, true, this, gameGrid, texture3);
+    enemy3->aabbShader = &aabbShader;
+    enemy4 = new Enemy(gameGrid->snapToGrid(glm::vec3(11.0f, 0.0f, 23.0f)), glm::vec3(3.0f), &enemyShader, true, this, gameGrid, texture4);
+    enemy4->aabbShader = &aabbShader;
 
 	crosshair = new Crosshair(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f), &crosshairShader, false, this);
 	crosshair->LoadMesh();
@@ -97,7 +106,7 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
     playerSkeletonSplitNode = player->model->getNodeCount() - 1;
     enemySkeletonSplitNode = enemy->model->getNodeCount() - 1;
 
-    waypoint2 = new Waypoint(gameGrid->snapToGrid(glm::vec3(61.0f, 0.0f, 25.0f)), glm::vec3(0.1f, 0.1f, 0.1f), &cubeShader, false, this);
+ //   waypoint2 = new Waypoint(gameGrid->snapToGrid(glm::vec3(61.0f, 0.0f, 25.0f)), glm::vec3(0.1f, 0.1f, 0.1f), &cubeShader, false, this);
 
  /*   waypoint1 = new Waypoint(gameGrid->snapToGrid(waypointPositions[0]), glm::vec3(5.0f, 10.0f, 5.0f), &gridShader, false);
     waypoint3 = new Waypoint(gameGrid->snapToGrid(waypointPositions[2]), glm::vec3(5.0f, 10.0f, 5.0f), &gridShader, false);
@@ -115,10 +124,10 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
     gameObjects.push_back(cover2);
     gameObjects.push_back(cover3);
     gameObjects.push_back(cover4);
-//    gameObjects.push_back(enemy2);  
-//    gameObjects.push_back(enemy3);  
-//    gameObjects.push_back(enemy4);  
-    gameObjects.push_back(waypoint2);
+    gameObjects.push_back(enemy2);  
+    gameObjects.push_back(enemy3);  
+    gameObjects.push_back(enemy4);  
+ //   gameObjects.push_back(waypoint2);
  /*   gameObjects.push_back(waypoint1);
     gameObjects.push_back(waypoint3);
     gameObjects.push_back(waypoint4);*/
@@ -413,12 +422,20 @@ void GameManager::showDebugUI()
 
         // TODO: Update Game Objects
 	    player->Update(deltaTime);
+
         if (!enemy->isDestroyed)
             enemy->Update(deltaTime, *player, enemyAnimBlendFactor, false);
-//    enemy2->Update(deltaTime, *player);
-//    enemy3->Update(deltaTime, *player);
-//    enemy4->Update(deltaTime, *player);
-//
+
+		if (!enemy2->isDestroyed)
+            enemy2->Update(deltaTime, *player, enemyAnimBlendFactor, false);
+
+		if (!enemy3->isDestroyed)
+            enemy3->Update(deltaTime, *player, enemyAnimBlendFactor, false);
+
+		if (!enemy4->isDestroyed)
+            enemy4->Update(deltaTime, *player, enemyAnimBlendFactor, false);
+
+        
  	    audioSystem->Update(deltaTime);
 }
 
