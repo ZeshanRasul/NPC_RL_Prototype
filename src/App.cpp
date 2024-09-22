@@ -37,5 +37,6 @@ void App::run()
 
         mGameManager->renderDebugUI();
         mWindow->mainLoop();
+        mGameManager->RemoveDestroyedGameObjects();
     }
 }

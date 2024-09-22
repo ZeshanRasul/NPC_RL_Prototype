@@ -47,12 +47,6 @@ public:
         if (uploadVertexBuffer)
         {
             model->uploadVertexBuffers();
-            //aabb.calculateAABB(model->getVertices());
-            //aabb.owner = this;
-            //updateAABB();
-            ////class GameManager* gameMgr = GetGameManager();
-            //mGameManager->GetPhysicsWorld()->addCollider(GetAABB());
-            //mGameManager->GetPhysicsWorld()->addEnemyCollider(GetAABB());
             SetUpAABB();
             uploadVertexBuffer = false;
         }

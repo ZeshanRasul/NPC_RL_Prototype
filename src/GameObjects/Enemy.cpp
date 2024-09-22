@@ -18,21 +18,6 @@ void Enemy::drawObject(glm::mat4 viewMat, glm::mat4 proj)
     GetShader()->use();
     mEnemyDualQuatSSBuffer.uploadSsboData(model->getJointDualQuats(), 2);
 
-
-  //  if (uploadVertexBuffer)
-  //  {
-  //      model->uploadVertexBuffers();
-		//aabb.calculateAABB(model->getVertices());
-  //      aabb.owner = this;
-		//aabb.mModelMatrix = modelMat;
-  //      updateAABB();
-  //      GameManager* gameMgr = GetGameManager();
-  //      gameMgr->GetPhysicsWorld()->addCollider(GetAABB());
-  //      gameMgr->GetPhysicsWorld()->addEnemyCollider(GetAABB());
-
-		//uploadVertexBuffer = false;
-  //  }
-
     model->draw();
 	renderAABB(proj, viewMat, modelMat, aabbShader);
 }
@@ -108,17 +93,6 @@ void Enemy::Update(float dt, Player& player, float blendFactor, bool playAnimBac
 				grid->GetGrid()
             );
 
-            //if (path.empty()) {
-            //    std::cerr << "No path found" << std::endl;
-            //}
-            //else {
-            //    std::cout << "Path found: ";
-            //    for (const auto& step : path) {
-            //        std::cout << "(" << step.x << ", " << step.y << ") ";
-            //    }
-            //    std::cout << std::endl;
-            //}
-
             moveEnemy(path, dt, blendFactor, playAnimBackwards);
         }
         else
@@ -130,8 +104,6 @@ void Enemy::Update(float dt, Player& player, float blendFactor, bool playAnimBac
                 glm::ivec2(currentWaypoint.x / grid->GetCellSize(), currentWaypoint.z / grid->GetCellSize()),
                 grid->GetGrid()
             );
-
-            //std::cout << "Finding new waypoint destination" << std::endl;
 
             reachedDestination = false;
 
@@ -210,9 +182,6 @@ void Enemy::Update(float dt, Player& player, float blendFactor, bool playAnimBac
 	}
     case DEAD:
     {
-  //      isDestroyed = true;
-		//GetGameManager()->GetPhysicsWorld()->removeCollider(GetAABB());
-  //      GetGameManager()->GetPhysicsWorld()->removeEnemyCollider(GetAABB());
         return;
     }
     default:
@@ -445,7 +414,6 @@ void Enemy::SetUpAABB()
     aabb->calculateAABB(model->getVertices());
     aabb->owner = this;
     updateAABB();
-    //class GameManager* gameMgr = GetGameManager();
     mGameManager->GetPhysicsWorld()->addCollider(GetAABB());
     mGameManager->GetPhysicsWorld()->addEnemyCollider(GetAABB());
 }

@@ -416,7 +416,6 @@ void GameManager::showDebugUI()
             enemy4->Update(deltaTime, *player, enemyAnimBlendFactor, false);
  
  	    audioSystem->Update(deltaTime);
-        RemoveDestroyedGameObjects();
 }
 
 void GameManager::render()
@@ -507,35 +506,47 @@ void GameManager::render()
     if (camSwitchedToAim)
 		camSwitchedToAim = false;
 
-    if (enemy->enemyHasShot && enemy->enemyRayDebugRenderTimer > 0.0f)
+    if (enemy != nullptr && !enemy->isDestroyed)
     {
-		glm::vec3 enemyLineColor = glm::vec3(1.0f, 1.0f, 0.0f);
-		glm::vec3 enemyRayEnd = enemy->enemyShootPos + enemy->enemyShootDir * enemy->enemyShootDistance;
-        enemyLine->UpdateVertexBuffer(enemy->enemyShootPos, enemyRayEnd);
-		enemyLine->DrawLine(view, projection, enemyLineColor);
+        if (enemy->enemyHasShot && enemy->enemyRayDebugRenderTimer > 0.0f)
+        {
+	    	glm::vec3 enemyLineColor = glm::vec3(1.0f, 1.0f, 0.0f);
+	    	glm::vec3 enemyRayEnd = enemy->enemyShootPos + enemy->enemyShootDir * enemy->enemyShootDistance;
+            enemyLine->UpdateVertexBuffer(enemy->enemyShootPos, enemyRayEnd);
+	    	enemyLine->DrawLine(view, projection, enemyLineColor);
+        }
     }
 
-    if (enemy2->enemyHasShot && enemy2->enemyRayDebugRenderTimer > 0.0f)
+    if (enemy2 != nullptr && !enemy2->isDestroyed)
     {
-        glm::vec3 enemy2LineColor = glm::vec3(1.0f, 1.0f, 0.0f);
-        glm::vec3 enemy2RayEnd = enemy2->enemyShootPos + enemy2->enemyShootDir * enemy2->enemyShootDistance;
-        enemy2Line->UpdateVertexBuffer(enemy2->enemyShootPos, enemy2RayEnd);
-        enemy2Line->DrawLine(view, projection, enemy2LineColor);
+        if (enemy2->enemyHasShot && enemy2->enemyRayDebugRenderTimer > 0.0f)
+        {
+            glm::vec3 enemy2LineColor = glm::vec3(1.0f, 1.0f, 0.0f);
+            glm::vec3 enemy2RayEnd = enemy2->enemyShootPos + enemy2->enemyShootDir * enemy2->enemyShootDistance;
+            enemy2Line->UpdateVertexBuffer(enemy2->enemyShootPos, enemy2RayEnd);
+            enemy2Line->DrawLine(view, projection, enemy2LineColor);
+        }
     }
 
-    if (enemy3->enemyHasShot && enemy3->enemyRayDebugRenderTimer > 0.0f)
+    if (enemy3 != nullptr && !enemy3->isDestroyed)
     {
-        glm::vec3 enemy3LineColor = glm::vec3(1.0f, 1.0f, 0.0f);
-        glm::vec3 enemy3RayEnd = enemy3->enemyShootPos + enemy3->enemyShootDir * enemy3->enemyShootDistance;
-        enemy3Line->UpdateVertexBuffer(enemy3->enemyShootPos, enemy3RayEnd);
-        enemy3Line->DrawLine(view, projection, enemy3LineColor);
+        if (enemy3->enemyHasShot && enemy3->enemyRayDebugRenderTimer > 0.0f)
+        {
+            glm::vec3 enemy3LineColor = glm::vec3(1.0f, 1.0f, 0.0f);
+            glm::vec3 enemy3RayEnd = enemy3->enemyShootPos + enemy3->enemyShootDir * enemy3->enemyShootDistance;
+            enemy3Line->UpdateVertexBuffer(enemy3->enemyShootPos, enemy3RayEnd);
+            enemy3Line->DrawLine(view, projection, enemy3LineColor);
+        }
     }
 
-    if (enemy4->enemyHasShot && enemy4->enemyRayDebugRenderTimer > 0.0f)
+    if (enemy4 != nullptr && !enemy4->isDestroyed)
     {
-        glm::vec3 enemy4LineColor = glm::vec3(1.0f, 1.0f, 0.0f);
-        glm::vec3 enemy4RayEnd = enemy4->enemyShootPos + enemy4->enemyShootDir * enemy4->enemyShootDistance;
-        enemy4Line->UpdateVertexBuffer(enemy4->enemyShootPos, enemy4RayEnd);
-        enemy4Line->DrawLine(view, projection, enemy4LineColor);
+        if (enemy4->enemyHasShot && enemy4->enemyRayDebugRenderTimer > 0.0f)
+        {
+            glm::vec3 enemy4LineColor = glm::vec3(1.0f, 1.0f, 0.0f);
+            glm::vec3 enemy4RayEnd = enemy4->enemyShootPos + enemy4->enemyShootDir * enemy4->enemyShootDistance;
+            enemy4Line->UpdateVertexBuffer(enemy4->enemyShootPos, enemy4RayEnd);
+            enemy4Line->DrawLine(view, projection, enemy4LineColor);
+        }
     }
 }

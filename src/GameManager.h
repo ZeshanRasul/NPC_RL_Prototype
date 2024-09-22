@@ -49,13 +49,14 @@ public:
     bool camSwitchedToAim = false;
 
 	PhysicsWorld* GetPhysicsWorld() { return physicsWorld; }
+    
+    void RemoveDestroyedGameObjects();
 
 private:
     void ShowCameraControlWindow(Camera& cam);
     void ShowLightControlWindow(DirLight& light);
     void ShowAnimationControlWindow();
 
-    void RemoveDestroyedGameObjects();
 
     Renderer* renderer;
     Window* window;
