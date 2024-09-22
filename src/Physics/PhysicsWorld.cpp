@@ -15,7 +15,7 @@ void PhysicsWorld::addEnemyCollider(AABB* collider)
 	enemyColliders.push_back(collider);
 }
 
-bool PhysicsWorld::rayIntersect(const glm::vec3& rayOrigin, const glm::vec3& rayDirection, glm::vec3& hitPoint) {
+bool PhysicsWorld::rayIntersect(const glm::vec3& rayOrigin, const glm::vec3& rayDirection, glm::vec3& hitPoint, AABB* selfAABB) {
     bool hit = false;
     float closestDistance = std::numeric_limits<float>::max();
 
@@ -26,7 +26,7 @@ bool PhysicsWorld::rayIntersect(const glm::vec3& rayOrigin, const glm::vec3& ray
         glm::vec3 tempHitPoint;
         if (rayAABBIntersect(rayOrigin, rayDirection, collider, tempHitPoint)) {
             float distance = glm::length(tempHitPoint - rayOrigin);
-            if (distance < closestDistance) {
+            if (distance < closestDistance && collider != selfAABB) {
                 closestDistance = distance;
                 hitPoint = tempHitPoint;
                 hit = true;
@@ -84,7 +84,7 @@ bool PhysicsWorld::rayEnemyIntersect(const glm::vec3& rayOrigin, const glm::vec3
     return hit;
 }
 
-bool PhysicsWorld::checkPlayerVisibility(const glm::vec3& rayOrigin, const glm::vec3& rayDirection, glm::vec3& hitPoint)
+bool PhysicsWorld::checkPlayerVisibility(const glm::vec3& rayOrigin, const glm::vec3& rayDirection, glm::vec3& hitPoint, AABB* selfAABB)
 {
     bool hit = false;
     float closestDistance = std::numeric_limits<float>::max();
@@ -96,7 +96,7 @@ bool PhysicsWorld::checkPlayerVisibility(const glm::vec3& rayOrigin, const glm::
         glm::vec3 tempHitPoint;
         if (rayAABBIntersect(rayOrigin, rayDirection, collider, tempHitPoint)) {
             float distance = glm::length(tempHitPoint - rayOrigin);
-            if (distance < closestDistance) {
+            if (distance < closestDistance && collider != selfAABB) {
                 closestDistance = distance;
                 hitPoint = tempHitPoint;
                 hit = true;
@@ -126,14 +126,6 @@ bool PhysicsWorld::rayAABBIntersect(const glm::vec3& rayOrigin, const glm::vec3&
     // Use the transformed AABB for the intersection test
     glm::vec3 min = aabb->transformedMin;
     glm::vec3 max = aabb->transformedMax;
-
-	std::cout << "TransformedMin: " << min.x << ", " << min.y << ", " << min.z << "\n";
-	std::cout << "TransformedMax: " << max.x << ", " << max.y << ", " << max.z << "\n";
-
-	std::cout << "Position: " << aabb->owner->position.x << ", " << aabb->owner->position.y << ", " << aabb->owner->position.z << "\n";
-
-	std::cout << "Ray Origin: " << rayOrigin.x << ", " << rayOrigin.y << ", " << rayOrigin.z << "\n";
-    std::cout << "Ray Direction: " << rayDirection.x << ", " << rayDirection.y << ", " << rayDirection.z << "\n";
     
     //// Check if the ray origin is inside the AABB
     //if (rayOrigin.x >= min.x && rayOrigin.x <= max.x &&

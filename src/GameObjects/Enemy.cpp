@@ -50,13 +50,25 @@ void Enemy::Update(float dt, Player& player, float blendFactor, bool playAnimBac
 
     float playerEnemyDistance = glm::distance(getPosition(), player.getPosition());
 
+    glm::vec3 tempEnemyShootPos = getPosition() + glm::vec3(0.0f, 2.5f, 0.0f);
+    glm::vec3 tempEnemyShootDir = glm::normalize(player.getPosition() - getPosition());
+    glm::vec3 hitPoint = glm::vec3(0.0f);
+
     if (playerEnemyDistance < 35.0f && enemyShootCooldown > 0.0f && GetEnemyState() != TAKE_DAMAGE && GetEnemyState() != DYING && GetEnemyState() != DEAD && GetEnemyState() != TAKING_COVER && GetEnemyState() != SEEKING_COVER)
     {
-        SetEnemyState(ATTACK);
+        playerIsVisible = mGameManager->GetPhysicsWorld()->checkPlayerVisibility(tempEnemyShootPos, tempEnemyShootDir, hitPoint, aabb);
+        if (playerIsVisible)
+        {
+            SetEnemyState(ATTACK);
+        }
     }
     else if (playerEnemyDistance < 35.0f && enemyShootCooldown <= 0.0f && GetEnemyState() != TAKE_DAMAGE && GetEnemyState() != DYING && GetEnemyState() != DEAD && GetEnemyState() != TAKING_COVER && GetEnemyState() != SEEKING_COVER)
     {
-        SetEnemyState(ENEMY_SHOOTING);
+        playerIsVisible = mGameManager->GetPhysicsWorld()->checkPlayerVisibility(tempEnemyShootPos, tempEnemyShootDir, hitPoint, aabb);
+        if (playerIsVisible)
+        {
+            SetEnemyState(ENEMY_SHOOTING);
+        }
     }
 	else if (GetEnemyState() != DYING && GetEnemyState() != DEAD && GetEnemyState() != TAKING_COVER && health < 51.0f && !reachedCover && damageTimer <= 0.0f)
 	{
@@ -388,7 +400,7 @@ void Enemy::Shoot(Player& player)
     UpdateEnemyVectors();
 
     bool hit = false;
-    hit = GetGameManager()->GetPhysicsWorld()->rayIntersect(enemyShootPos, enemyShootDir, hitPoint);
+    hit = GetGameManager()->GetPhysicsWorld()->rayIntersect(enemyShootPos, enemyShootDir, hitPoint, aabb);
 
     if (hit) {
         std::cout << "\nRay hit at: " << hitPoint.x << ", " << hitPoint.y << ", " << hitPoint.z << std::endl;
@@ -504,7 +516,7 @@ Grid::Cover& Enemy::ScoreCoverLocations(Player& player)
 		glm::vec3 rayDirection = glm::normalize(player.getPosition() - rayOrigin);
         glm::vec3 hitPoint = glm::vec3(0.0f);
 
-        bool visibleToPlayer = mGameManager->GetPhysicsWorld()->checkPlayerVisibility(rayOrigin, rayDirection, hitPoint);
+        bool visibleToPlayer = mGameManager->GetPhysicsWorld()->checkPlayerVisibility(rayOrigin, rayDirection, hitPoint, aabb);
         if (!visibleToPlayer) {
             score += 20.0f;
         }

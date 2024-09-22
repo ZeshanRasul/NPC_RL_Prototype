@@ -212,6 +212,7 @@ public:
     float enemyShootCooldown = 0.0f;
     float enemyRayDebugRenderTimer = 0.3f;
     bool enemyHasShot = false;
+	bool playerIsVisible = false;
 
 	Grid* grid;
     Grid::Cover cover;

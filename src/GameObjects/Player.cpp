@@ -176,7 +176,7 @@ void Player::Shoot()
     //gmeMgr->GetPhysicsWorld()->rayEnemyIntersect(rayO, rayD, hitPoint);
 
 	bool hit = false;
-    hit = gmeMgr->GetPhysicsWorld()->rayIntersect(rayO, rayD, hitPoint);
+    hit = gmeMgr->GetPhysicsWorld()->rayIntersect(rayO, rayD, hitPoint, aabb);
 
     if (hit) {
         std::cout << "\nRay hit at: " << hitPoint.x << ", " << hitPoint.y << ", " << hitPoint.z << std::endl;
