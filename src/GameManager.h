@@ -69,6 +69,9 @@ private:
 	Crosshair* crosshair;
 	Line* line;
     Line* enemyLine;
+    Line* enemy2Line;
+    Line* enemy3Line;
+    Line* enemy4Line;
     Cube* cover1;
     Cube* cover2;
     Cube* cover3;

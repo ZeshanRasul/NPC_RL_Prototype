@@ -32,21 +32,14 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
     renderer = window->getRenderer();
 
     playerShader.loadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/vertex_gpu_dquat.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/fragment_gpu_dquat.glsl");
-
     enemyShader.loadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/vertex_gpu_dquat.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/fragment_gpu_dquat.glsl");
-
     gridShader.loadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/gridVertex.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/gridFragment.glsl");
-
 	crosshairShader.loadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/crosshair_vert.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/crosshair_frag.glsl");
-
 	lineShader.loadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/line_vert.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/line_frag.glsl");
-    
-	aabbShader.loadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/aabb_vert.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/aabb_frag.glsl");
-    
+	aabbShader.loadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/aabb_vert.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/aabb_frag.glsl");   
     cubeShader.loadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/vertex.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/fragment.glsl");
 
 	physicsWorld = new PhysicsWorld();
-
 
     cell = new Cell();
     cell->SetUpVAO();
@@ -66,9 +59,7 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
     cover4->SetAABBShader(&aabbShader);
 
     gameGrid->initializeGrid();
-//	gameGrid->GetGrid()[0][0].LoadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/Cell.png");
 
-    // TODO: Initialise Game Objects
     camera = new Camera(glm::vec3(50.0f, 3.0f, 80.0f));
     player = new Player(gameGrid->snapToGrid(glm::vec3(60.0f, 0.0f, 25.0f)), glm::vec3(3.0f), &playerShader, true, this);
     player->aabbShader = &aabbShader;
@@ -94,7 +85,13 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
     line->LoadMesh();
 
     enemyLine = new Line(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f), &lineShader, false, this);
+    enemy2Line = new Line(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f), &lineShader, false, this);
+    enemy3Line = new Line(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f), &lineShader, false, this);
+    enemy4Line = new Line(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f), &lineShader, false, this);
     enemyLine->LoadMesh();
+    enemy2Line->LoadMesh();
+    enemy3Line->LoadMesh();
+    enemy4Line->LoadMesh();
 
     AudioComponent* fireAudioComponent = new AudioComponent(enemy);
     fireAudioComponent->PlayEvent("event:/FireLoop");
@@ -105,16 +102,6 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
     /* reset skeleton split */
     playerSkeletonSplitNode = player->model->getNodeCount() - 1;
     enemySkeletonSplitNode = enemy->model->getNodeCount() - 1;
-
- //   waypoint2 = new Waypoint(gameGrid->snapToGrid(glm::vec3(61.0f, 0.0f, 25.0f)), glm::vec3(0.1f, 0.1f, 0.1f), &cubeShader, false, this);
-
- /*   waypoint1 = new Waypoint(gameGrid->snapToGrid(waypointPositions[0]), glm::vec3(5.0f, 10.0f, 5.0f), &gridShader, false);
-    waypoint3 = new Waypoint(gameGrid->snapToGrid(waypointPositions[2]), glm::vec3(5.0f, 10.0f, 5.0f), &gridShader, false);
-    waypoint4 = new Waypoint(gameGrid->snapToGrid(waypointPositions[3]), glm::vec3(5.0f, 10.0f, 5.0f), &gridShader, false);*/
-
-//  TODO: Render Ground
-// 
-//    Ground ground(glm::vec3(-100.0f, -0.3f, 50.0f), glm::vec3(100.0f, 1.0f, 100.0f));
 
     std::srand(static_cast<unsigned int>(std::time(nullptr)));
 
@@ -127,10 +114,6 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
     gameObjects.push_back(enemy2);  
     gameObjects.push_back(enemy3);  
     gameObjects.push_back(enemy4);  
- //   gameObjects.push_back(waypoint2);
- /*   gameObjects.push_back(waypoint1);
-    gameObjects.push_back(waypoint3);
-    gameObjects.push_back(waypoint4);*/
 
     mMusicEvent = audioSystem->PlayEvent("event:/Music");
 }
@@ -379,7 +362,6 @@ void GameManager::showDebugUI()
                 ++it;
             }
         }
-
     }
 
     void GameManager::ShowCameraControlWindow(Camera& cam)
@@ -420,7 +402,6 @@ void GameManager::showDebugUI()
         player->UpdatePlayerVectors();
         player->UpdatePlayerAimVectors();
 
-        // TODO: Update Game Objects
 	    player->Update(deltaTime);
 
         if (!enemy->isDestroyed)
@@ -434,8 +415,7 @@ void GameManager::showDebugUI()
 
 		if (!enemy4->isDestroyed)
             enemy4->Update(deltaTime, *player, enemyAnimBlendFactor, false);
-
-        
+ 
  	    audioSystem->Update(deltaTime);
 }
 
@@ -533,5 +513,29 @@ void GameManager::render()
 		glm::vec3 enemyRayEnd = enemy->enemyShootPos + enemy->enemyShootDir * enemy->enemyShootDistance;
         enemyLine->UpdateVertexBuffer(enemy->enemyShootPos, enemyRayEnd);
 		enemyLine->DrawLine(view, projection, enemyLineColor);
+    }
+
+    if (enemy2->enemyHasShot && enemy2->enemyRayDebugRenderTimer > 0.0f)
+    {
+        glm::vec3 enemy2LineColor = glm::vec3(1.0f, 1.0f, 0.0f);
+        glm::vec3 enemy2RayEnd = enemy2->enemyShootPos + enemy2->enemyShootDir * enemy2->enemyShootDistance;
+        enemy2Line->UpdateVertexBuffer(enemy2->enemyShootPos, enemy2RayEnd);
+        enemy2Line->DrawLine(view, projection, enemy2LineColor);
+    }
+
+    if (enemy3->enemyHasShot && enemy3->enemyRayDebugRenderTimer > 0.0f)
+    {
+        glm::vec3 enemy3LineColor = glm::vec3(1.0f, 1.0f, 0.0f);
+        glm::vec3 enemy3RayEnd = enemy3->enemyShootPos + enemy3->enemyShootDir * enemy3->enemyShootDistance;
+        enemy3Line->UpdateVertexBuffer(enemy3->enemyShootPos, enemy3RayEnd);
+        enemy3Line->DrawLine(view, projection, enemy3LineColor);
+    }
+
+    if (enemy4->enemyHasShot && enemy4->enemyRayDebugRenderTimer > 0.0f)
+    {
+        glm::vec3 enemy4LineColor = glm::vec3(1.0f, 1.0f, 0.0f);
+        glm::vec3 enemy4RayEnd = enemy4->enemyShootPos + enemy4->enemyShootDir * enemy4->enemyShootDistance;
+        enemy4Line->UpdateVertexBuffer(enemy4->enemyShootPos, enemy4RayEnd);
+        enemy4Line->DrawLine(view, projection, enemy4LineColor);
     }
 }
