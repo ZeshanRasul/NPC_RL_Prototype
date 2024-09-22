@@ -397,26 +397,26 @@ void GameManager::showDebugUI()
 
     void GameManager::update(float deltaTime)
     {
-        RemoveDestroyedGameObjects();
         inputManager->processInput(window->getWindow(), deltaTime);
         player->UpdatePlayerVectors();
         player->UpdatePlayerAimVectors();
 
 	    player->Update(deltaTime);
 
-        if (!enemy->isDestroyed)
+        if (enemy != nullptr && !enemy->isDestroyed)
             enemy->Update(deltaTime, *player, enemyAnimBlendFactor, false);
 
-		if (!enemy2->isDestroyed)
+		if (enemy2 != nullptr && !enemy2->isDestroyed)
             enemy2->Update(deltaTime, *player, enemyAnimBlendFactor, false);
 
-		if (!enemy3->isDestroyed)
+		if (enemy3 != nullptr && !enemy3->isDestroyed)
             enemy3->Update(deltaTime, *player, enemyAnimBlendFactor, false);
 
-		if (!enemy4->isDestroyed)
+		if (enemy4 != nullptr && !enemy4->isDestroyed)
             enemy4->Update(deltaTime, *player, enemyAnimBlendFactor, false);
  
  	    audioSystem->Update(deltaTime);
+        RemoveDestroyedGameObjects();
 }
 
 void GameManager::render()

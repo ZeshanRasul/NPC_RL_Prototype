@@ -45,6 +45,14 @@ void Enemy::Update(float dt, Player& player, float blendFactor, bool playAnimBac
     if (GetEnemyState() == DYING)
         dyingTimer -= dt;
 	
+    if (dyingTimer <= 0.0f && (GetEnemyState() == DYING || GetEnemyState() == DEAD))
+    {
+        isDestroyed = true;
+        GetGameManager()->GetPhysicsWorld()->removeCollider(GetAABB());
+        GetGameManager()->GetPhysicsWorld()->removeEnemyCollider(GetAABB());
+        return;
+    }
+
     if (GetEnemyState() == TAKING_COVER)
         coverTimer -= dt;
 
@@ -61,6 +69,10 @@ void Enemy::Update(float dt, Player& player, float blendFactor, bool playAnimBac
         {
             SetEnemyState(ATTACK);
         }
+        else
+        {
+            SetEnemyState(PATROL);
+        }
     }
     else if (playerEnemyDistance < 35.0f && enemyShootCooldown <= 0.0f && GetEnemyState() != TAKE_DAMAGE && GetEnemyState() != DYING && GetEnemyState() != DEAD && GetEnemyState() != TAKING_COVER && GetEnemyState() != SEEKING_COVER)
     {
@@ -68,6 +80,10 @@ void Enemy::Update(float dt, Player& player, float blendFactor, bool playAnimBac
         if (playerIsVisible)
         {
             SetEnemyState(ENEMY_SHOOTING);
+        } 
+        else
+        {
+            SetEnemyState(PATROL);
         }
     }
 	else if (GetEnemyState() != DYING && GetEnemyState() != DEAD && GetEnemyState() != TAKING_COVER && health < 51.0f && !reachedCover && damageTimer <= 0.0f)
@@ -194,7 +210,9 @@ void Enemy::Update(float dt, Player& player, float blendFactor, bool playAnimBac
 	}
     case DEAD:
     {
-        isDestroyed = true;
+  //      isDestroyed = true;
+		//GetGameManager()->GetPhysicsWorld()->removeCollider(GetAABB());
+  //      GetGameManager()->GetPhysicsWorld()->removeEnemyCollider(GetAABB());
         return;
     }
     default:

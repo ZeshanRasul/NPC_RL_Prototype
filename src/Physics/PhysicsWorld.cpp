@@ -15,6 +15,22 @@ void PhysicsWorld::addEnemyCollider(AABB* collider)
 	enemyColliders.push_back(collider);
 }
 
+void PhysicsWorld::removeCollider(AABB* collider)
+{
+    auto it = std::remove(colliders.begin(), colliders.end(), collider);
+    if (it != colliders.end()) {
+        colliders.erase(it, colliders.end());
+    }
+}
+
+void PhysicsWorld::removeEnemyCollider(AABB* collider)
+{
+    auto it = std::remove(enemyColliders.begin(), enemyColliders.end(), collider);
+    if (it != enemyColliders.end()) {
+        enemyColliders.erase(it, enemyColliders.end());
+    }
+}
+
 bool PhysicsWorld::rayIntersect(const glm::vec3& rayOrigin, const glm::vec3& rayDirection, glm::vec3& hitPoint, AABB* selfAABB) {
     bool hit = false;
     float closestDistance = std::numeric_limits<float>::max();
