@@ -39,7 +39,7 @@ vec3 CalcDirLight(DirLight light, vec3 normal)
 //	vec3 diffuse = light.diffuse * diff * vec3(texture(tex, texCoord));
 
 	vec3 ambient = light.ambient * (1.0, 0.4, 0.6);
-	vec3 diffuse = light.diffuse * (1.0, 0.4, 0.6);
+	vec3 diffuse = light.diffuse * diff * (1.0, 0.4, 0.6);
 
 	return (ambient + diffuse);
 }
