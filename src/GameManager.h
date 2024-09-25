@@ -17,6 +17,7 @@
 #include "GameObjects/Crosshair.h"
 #include "GameObjects/Line.h"
 #include "GameObjects/Cube.h"
+#include "Model/GltfModel.h"
 #include "src/Pathfinding/Grid.h"
 
 class GameManager {
@@ -77,6 +78,11 @@ private:
     Cube* cover2;
     Cube* cover3;
     Cube* cover4;
+
+    std::shared_ptr<GltfModel> enemyModel = nullptr;;
+    std::shared_ptr<GltfModel> enemy2Model = nullptr;;
+    std::shared_ptr<GltfModel> enemy3Model = nullptr;;
+    std::shared_ptr<GltfModel> enemy4Model = nullptr;;
 
     InputManager* inputManager;
 	AudioSystem* audioSystem;

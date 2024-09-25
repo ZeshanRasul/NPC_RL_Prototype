@@ -69,14 +69,42 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
     std::string texture3 = "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Models/GLTF/Enemies/Ely/ely-vanguardsoldier-kerwinatienza_diffuse 3.png";
     std::string texture4 = "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Models/GLTF/Enemies/Ely/ely-vanguardsoldier-kerwinatienza_diffuse 4.png";
 
+    enemyModel = std::make_shared<GltfModel>();
+
+    std::string modelFilename = "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Models/GLTF/Enemies/Ely/EnemyEly.gltf";
+
+    if (!enemyModel->loadModel(modelFilename)) {
+        Logger::log(1, "%s: loading glTF model '%s' failed\n", __FUNCTION__, modelFilename.c_str());
+    }
+    
+    enemy2Model = enemyModel;
+    enemy3Model = enemyModel;
+    enemy4Model = enemyModel;
+
+
     enemy = new Enemy(gameGrid->snapToGrid(glm::vec3(13.0f, 0.0f, 13.0f)), glm::vec3(3.0f), &enemyShader, true, this, gameGrid, texture);
 	enemy->aabbShader = &aabbShader;
+	enemy->model = enemyModel;
+    enemy->mTex.loadTexture(texture, false);
+    enemy->SetUpModel();
+
     enemy2 = new Enemy(gameGrid->snapToGrid(glm::vec3(23.0f, 0.0f, 13.0f)), glm::vec3(3.0f), &enemyShader, true, this, gameGrid, texture2);
 	enemy2->aabbShader = &aabbShader;
+    enemy2->mTex.loadTexture(texture2, false);
+	enemy2->model = enemyModel;
+	enemy2->SetUpModel();
+
     enemy3 = new Enemy(gameGrid->snapToGrid(glm::vec3(3.0f, 0.0f, 63.0f)), glm::vec3(3.0f), &enemyShader, true, this, gameGrid, texture3);
     enemy3->aabbShader = &aabbShader;
+    enemy3->mTex.loadTexture(texture3, false);
+    enemy3->model = enemyModel;
+    enemy3->SetUpModel();
+
     enemy4 = new Enemy(gameGrid->snapToGrid(glm::vec3(11.0f, 0.0f, 23.0f)), glm::vec3(3.0f), &enemyShader, true, this, gameGrid, texture4);
     enemy4->aabbShader = &aabbShader;
+    enemy4->mTex.loadTexture(texture4, false);
+    enemy4->model = enemyModel;
+    enemy4->SetUpModel();
 
 	crosshair = new Crosshair(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f), &crosshairShader, false, this);
 	crosshair->LoadMesh();

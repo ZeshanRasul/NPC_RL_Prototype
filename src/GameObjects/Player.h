@@ -27,9 +27,11 @@ public:
         std::string modelFilename = "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Models/GLTF/SwatPlayer/Swat.gltf";
         std::string modelTextureFilename = "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Models/GLTF/SwatPlayer/Diffuse.png";
 
-        if (!model->loadModel(renderData, modelFilename, modelTextureFilename)) {
+        if (!model->loadModel(modelFilename)) {
             Logger::log(1, "%s: loading glTF model '%s' failed\n", __FUNCTION__, modelFilename.c_str());
         }
+
+        mTex = model->loadTexture(modelTextureFilename, false);
 
         model->uploadIndexBuffer();
         Logger::log(1, "%s: glTF model '%s' succesfully loaded\n", __FUNCTION__, modelFilename.c_str());

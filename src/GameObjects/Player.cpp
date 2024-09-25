@@ -31,7 +31,7 @@ void Player::drawObject(glm::mat4 viewMat, glm::mat4 proj)
     }
 
     updateAABB();
-    model->draw();
+    model->draw(mTex);
 	renderAABB(proj, viewMat, modelMat, aabbShader);
 }
 

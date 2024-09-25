@@ -35,30 +35,30 @@ public:
     Enemy(glm::vec3 pos, glm::vec3 scale, Shader* sdr, bool applySkinning, GameManager* gameMgr, Grid* grd, std::string texFilename, float yaw = 0.0f)
 		: GameObject(pos, scale, yaw, sdr, applySkinning, gameMgr), grid(grd)
     {
-        model = std::make_shared<GltfModel>();
+        //model = std::make_shared<GltfModel>();
 
-        std::string modelFilename = "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Models/GLTF/Enemies/Ely/EnemyEly.gltf";
-        std::string modelTextureFilename = texFilename;
+        //std::string modelFilename = "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Models/GLTF/Enemies/Ely/EnemyEly.gltf";
+        //std::string modelTextureFilename = texFilename;
 
-        if (!model->loadModel(renderData, modelFilename, modelTextureFilename)) {
-            Logger::log(1, "%s: loading glTF model '%s' failed\n", __FUNCTION__, modelFilename.c_str());
-        }
+        //if (!model->loadModel(renderData, modelFilename, modelTextureFilename)) {
+        //    Logger::log(1, "%s: loading glTF model '%s' failed\n", __FUNCTION__, modelFilename.c_str());
+        //}
 
-        if (uploadVertexBuffer)
-        {
-            model->uploadVertexBuffers();
-            SetUpAABB();
-            uploadVertexBuffer = false;
-        }
+        //if (uploadVertexBuffer)
+        //{
+        //    model->uploadVertexBuffers();
+        //    SetUpAABB();
+        //    uploadVertexBuffer = false;
+        //}
 
-        model->uploadIndexBuffer();
-        Logger::log(1, "%s: glTF model '%s' succesfully loaded\n", __FUNCTION__, modelFilename.c_str());
+        //model->uploadIndexBuffer();
+        //Logger::log(1, "%s: glTF model '%s' succesfully loaded\n", __FUNCTION__, modelFilename.c_str());
 
 
-        size_t enemyModelJointDualQuatBufferSize = model->getJointDualQuatsSize() *
-            sizeof(glm::mat2x4);
-        mEnemyDualQuatSSBuffer.init(enemyModelJointDualQuatBufferSize);
-        Logger::log(1, "%s: glTF joint dual quaternions shader storage buffer (size %i bytes) successfully created\n", __FUNCTION__, enemyModelJointDualQuatBufferSize);
+        //size_t enemyModelJointDualQuatBufferSize = model->getJointDualQuatsSize() *
+        //    sizeof(glm::mat2x4);
+        //mEnemyDualQuatSSBuffer.init(enemyModelJointDualQuatBufferSize);
+        //Logger::log(1, "%s: glTF joint dual quaternions shader storage buffer (size %i bytes) successfully created\n", __FUNCTION__, enemyModelJointDualQuatBufferSize);
 
         ComputeAudioWorldTransform();
 
@@ -75,6 +75,8 @@ public:
     {
         model->cleanup();
     }
+
+    void SetUpModel();
 
     void drawObject(glm::mat4 viewMat, glm::mat4 proj) override;
 

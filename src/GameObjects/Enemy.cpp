@@ -3,6 +3,25 @@
 #include "GameManager.h"
 #include <random>
 
+void Enemy::SetUpModel()
+{
+    if (uploadVertexBuffer)
+    {
+        model->uploadVertexBuffers();
+        SetUpAABB();
+        uploadVertexBuffer = false;
+    }
+
+    model->uploadIndexBuffer();
+    Logger::log(1, "%s: glTF model '%s' succesfully loaded\n", __FUNCTION__, model->filename.c_str());
+
+
+    size_t enemyModelJointDualQuatBufferSize = model->getJointDualQuatsSize() *
+        sizeof(glm::mat2x4);
+    mEnemyDualQuatSSBuffer.init(enemyModelJointDualQuatBufferSize);
+    Logger::log(1, "%s: glTF joint dual quaternions shader storage buffer (size %i bytes) successfully created\n", __FUNCTION__, enemyModelJointDualQuatBufferSize);
+}
+
 void Enemy::drawObject(glm::mat4 viewMat, glm::mat4 proj)
 {
 	glm::mat4 modelMat = glm::mat4(1.0f);
@@ -18,7 +37,7 @@ void Enemy::drawObject(glm::mat4 viewMat, glm::mat4 proj)
     GetShader()->use();
     mEnemyDualQuatSSBuffer.uploadSsboData(model->getJointDualQuats(), 2);
 
-    model->draw();
+    model->draw(mTex);
 	renderAABB(proj, viewMat, modelMat, aabbShader);
 }
 

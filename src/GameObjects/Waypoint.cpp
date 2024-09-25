@@ -14,7 +14,7 @@ void Waypoint::drawObject(glm::mat4 viewMat, glm::mat4 proj)
 
 // Draw TODO: Update for GLTF
 
-	model->draw();
+//	model->draw();
 }
 
 void Waypoint::ComputeAudioWorldTransform()

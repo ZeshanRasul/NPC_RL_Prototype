@@ -10,6 +10,7 @@
 #include "Model/GltfModel.h"
 #include "RenderData.h"
 #include "UniformBuffer.h"
+#include "Texture.h"
 #include "Components/Component.h"
 #include "Logger.h"
 
@@ -83,6 +84,8 @@ public:
     glm::vec3 position;
 
     bool isDestroyed = false;
+
+    Texture mTex{};
 
 protected:
     virtual void drawObject(glm::mat4 viewMat, glm::mat4 proj) = 0;

@@ -9,15 +9,7 @@
 #include "GltfModel.h"
 #include "Logger.h"
 
-bool GltfModel::loadModelNoAnim(RenderData& renderData,
-    std::string modelFilename, std::string textureFilename) {
-    if (!mTex.loadTexture(textureFilename, false)) {
-        Logger::log(1, "%s: texture loading failed\n", __FUNCTION__);
-        return false;
-    }
-    Logger::log(1, "%s: glTF model texture '%s' successfully loaded\n", __FUNCTION__,
-        modelFilename.c_str());
-
+bool GltfModel::loadModelNoAnim(std::string modelFilename) {
     mModel = std::make_shared<tinygltf::Model>();
 
     tinygltf::TinyGLTF gltfLoader;
@@ -52,21 +44,24 @@ bool GltfModel::loadModelNoAnim(RenderData& renderData,
 
     glBindVertexArray(0);
 
-    renderData.rdGltfTriangleCount = getTriangleCount();
-
     return true;
 }
 
-bool GltfModel::loadModel(RenderData& renderData,
-    std::string modelFilename, std::string textureFilename) {
+Texture GltfModel::loadTexture(std::string textureFilename, bool flip)
+{
     if (!mTex.loadTexture(textureFilename, false)) {
         Logger::log(1, "%s: texture loading failed\n", __FUNCTION__);
-        return false;
     }
     Logger::log(1, "%s: glTF model texture '%s' successfully loaded\n", __FUNCTION__,
-        modelFilename.c_str());
+        textureFilename.c_str());
 
+    return mTex;
+}
+
+bool GltfModel::loadModel(std::string modelFilename) {
     mModel = std::make_shared<tinygltf::Model>();
+
+    filename = modelFilename;
 
     tinygltf::TinyGLTF gltfLoader;
     std::string loaderErrors;
@@ -120,7 +115,6 @@ bool GltfModel::loadModel(RenderData& renderData,
     mRootNode->printTree();
 
     getAnimations();
-    renderData.animClipsSize = mAnimClips.size();
 
     mAdditiveAnimationMask.resize(mNodeCount);
     mInvertedAdditiveAnimationMask.resize(mNodeCount);
@@ -128,8 +122,6 @@ bool GltfModel::loadModel(RenderData& renderData,
     std::fill(mAdditiveAnimationMask.begin(), mAdditiveAnimationMask.end(), true);
     mInvertedAdditiveAnimationMask = mAdditiveAnimationMask;
     mInvertedAdditiveAnimationMask.flip();
-
-    renderData.rdGltfTriangleCount = getTriangleCount();
 
     return true;
 }
@@ -376,7 +368,7 @@ std::string GltfModel::getClipName(int animNum) {
     return mAnimClips.at(animNum)->getClipName();
 }
 
-void GltfModel::draw() {
+void GltfModel::draw(Texture tex) {
     const tinygltf::Primitive& primitives = mModel->meshes.at(0).primitives.at(0);
     const tinygltf::Accessor& indexAccessor = mModel->accessors.at(primitives.indices);
 
@@ -390,11 +382,11 @@ void GltfModel::draw() {
         break;
     }
 
-    mTex.bind();
+    tex.bind();
     glBindVertexArray(mVAO);
     glDrawElements(drawMode, indexAccessor.count, indexAccessor.componentType, nullptr);
     glBindVertexArray(0);
-    mTex.unbind();
+    tex.unbind();
 }
 
 void GltfModel::getJointData() {

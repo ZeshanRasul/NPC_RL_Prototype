@@ -13,12 +13,11 @@
 
 class GltfModel {
 public:
-    bool loadModel(RenderData& renderData, std::string modelFilename,
-        std::string textureFilename);
-    bool loadModelNoAnim(RenderData& renderData, std::string modelFilename,
-        std::string textureFilename);
+    bool loadModel(std::string modelFilename);
+    bool loadModelNoAnim(std::string modelFilename);
+	Texture loadTexture(std::string textureFilename, bool flip);
 
-    void draw();
+    void draw(Texture tex);
     void cleanup();
     void uploadVertexBuffers();
     void uploadVertexBuffersNoAnimations();
@@ -43,6 +42,8 @@ public:
 	int getNodeCount() const { return mNodeCount; }
 
 	std::vector<glm::vec3> getVertices() { return mVertices; }
+
+    std::string filename;
 
 private:
     void createVertexBuffers();
