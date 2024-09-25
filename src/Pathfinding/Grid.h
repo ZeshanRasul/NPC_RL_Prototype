@@ -70,7 +70,7 @@ private:
     UniformBuffer mGridUniformBuffer{};
     UniformBuffer mGridColorUniformBuffer{};
 
-    int GRID_SIZE = 30;
+    int GRID_SIZE = 15;
     int CELL_SIZE = 7;
     std::vector<std::vector<Cell>> grid;
 

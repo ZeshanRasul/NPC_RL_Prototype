@@ -215,8 +215,8 @@ public:
 
     std::vector<glm::vec3> waypointPositions = {
             grid->snapToGrid(glm::vec3(0.0f, 0.0f, 0.0f)),
-            grid->snapToGrid(glm::vec3(0.0f, 0.0f, 90.0f)),
-            grid->snapToGrid(glm::vec3(30.0f, 0.0f, 0.0f)),
-            grid->snapToGrid(glm::vec3(30.0f, 0.0f, 90.0f))
+            grid->snapToGrid(glm::vec3(0.0f, 0.0f, 70.0f)),
+            grid->snapToGrid(glm::vec3(40.0f, 0.0f, 0.0f)),
+            grid->snapToGrid(glm::vec3(40.0f, 0.0f, 70.0f))
     };
 };

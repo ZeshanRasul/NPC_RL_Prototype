@@ -61,7 +61,7 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
     gameGrid->initializeGrid();
 
     camera = new Camera(glm::vec3(50.0f, 3.0f, 80.0f));
-    player = new Player(gameGrid->snapToGrid(glm::vec3(60.0f, 0.0f, 25.0f)), glm::vec3(3.0f), &playerShader, true, this);
+    player = new Player(gameGrid->snapToGrid(glm::vec3(90.0f, 0.0f, 25.0f)), glm::vec3(3.0f), &playerShader, true, this);
     player->aabbShader = &aabbShader;
 
     std::string texture = "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Models/GLTF/Enemies/Ely/ely-vanguardsoldier-kerwinatienza_diffuse.png";
@@ -82,19 +82,19 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
     enemy4Model = enemyModel;
 
 
-    enemy = new Enemy(gameGrid->snapToGrid(glm::vec3(13.0f, 0.0f, 13.0f)), glm::vec3(3.0f), &enemyShader, true, this, gameGrid, texture);
+    enemy = new Enemy(gameGrid->snapToGrid(glm::vec3(33.0f, 0.0f, 23.0f)), glm::vec3(3.0f), &enemyShader, true, this, gameGrid, texture);
 	enemy->aabbShader = &aabbShader;
 	enemy->model = enemyModel;
     enemy->mTex.loadTexture(texture, false);
     enemy->SetUpModel();
 
-    enemy2 = new Enemy(gameGrid->snapToGrid(glm::vec3(23.0f, 0.0f, 13.0f)), glm::vec3(3.0f), &enemyShader, true, this, gameGrid, texture2);
+    enemy2 = new Enemy(gameGrid->snapToGrid(glm::vec3(3.0f, 0.0f, 53.0f)), glm::vec3(3.0f), &enemyShader, true, this, gameGrid, texture2);
 	enemy2->aabbShader = &aabbShader;
     enemy2->mTex.loadTexture(texture2, false);
 	enemy2->model = enemyModel;
 	enemy2->SetUpModel();
 
-    enemy3 = new Enemy(gameGrid->snapToGrid(glm::vec3(3.0f, 0.0f, 63.0f)), glm::vec3(3.0f), &enemyShader, true, this, gameGrid, texture3);
+    enemy3 = new Enemy(gameGrid->snapToGrid(glm::vec3(43.0f, 0.0f, 53.0f)), glm::vec3(3.0f), &enemyShader, true, this, gameGrid, texture3);
     enemy3->aabbShader = &aabbShader;
     enemy3->mTex.loadTexture(texture3, false);
     enemy3->model = enemyModel;
