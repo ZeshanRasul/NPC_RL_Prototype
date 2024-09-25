@@ -57,7 +57,17 @@ private:
     void ShowCameraControlWindow(Camera& cam);
     void ShowLightControlWindow(DirLight& light);
     void ShowAnimationControlWindow();
+	void ShowPerformanceWindow();
 
+    void calculatePerformance(float deltaTime);
+
+	float fps = 0.0f;
+    int numFramesAvg = 100;
+	float fpsSum = 0.0f;
+	int frameCount = 0;
+	float frameTime = 0.0f;
+	float elapsedTime = 0.0f;
+	float avgFPS = 0.0f;
 
     Renderer* renderer;
     Window* window;

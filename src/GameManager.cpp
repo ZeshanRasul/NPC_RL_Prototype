@@ -228,10 +228,9 @@ void GameManager::showDebugUI()
 
         ImGui::End();
     }
-        ShowLightControlWindow(dirLight);
-        ShowCameraControlWindow(*camera);
 
-        ShowAnimationControlWindow();
+    ShowAnimationControlWindow();
+	ShowPerformanceWindow();
     }
 
     void GameManager::renderDebugUI()
@@ -378,6 +377,37 @@ void GameManager::showDebugUI()
         }
     }
 
+    void GameManager::ShowPerformanceWindow()
+    {
+		ImGui::Begin("Performance");
+
+		ImGui::Text("FPS: %.1f", fps);
+		ImGui::Text("Avg FPS: %.1f", avgFPS);
+		ImGui::Text("Frame Time: %.1f ms", frameTime);
+		ImGui::Text("Elapsed Time: %.1f s", elapsedTime);
+
+		ImGui::End();
+    }
+
+    void GameManager::calculatePerformance(float deltaTime)
+    {
+        fps = 1.0f / deltaTime;
+
+		fpsSum += fps;
+        frameCount++;
+
+        if (frameCount == numFramesAvg)
+        {
+			avgFPS = fpsSum / numFramesAvg;
+			fpsSum = 0.0f;
+			frameCount = 0;
+        }
+
+		frameTime = deltaTime * 1000.0f;
+
+        elapsedTime += deltaTime;
+    }
+
     void GameManager::RemoveDestroyedGameObjects()
     {
         for (auto it = gameObjects.begin(); it != gameObjects.end(); ) {
@@ -444,6 +474,8 @@ void GameManager::showDebugUI()
             enemy4->Update(deltaTime, *player, enemyAnimBlendFactor, false);
  
  	    audioSystem->Update(deltaTime);
+
+		calculatePerformance(deltaTime);
 }
 
 void GameManager::render()
