@@ -35,6 +35,22 @@ public:
     Enemy(glm::vec3 pos, glm::vec3 scale, Shader* sdr, bool applySkinning, GameManager* gameMgr, Grid* grd, std::string texFilename, float yaw = 0.0f)
 		: GameObject(pos, scale, yaw, sdr, applySkinning, gameMgr), grid(grd)
     {
+        model = std::make_shared<GltfModel>();
+
+        std::string modelFilename = "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Models/GLTF/Enemies/Ely/EnemyEly.gltf";
+
+        if (!model->loadModel(modelFilename)) {
+            Logger::log(1, "%s: loading glTF model '%s' failed\n", __FUNCTION__, modelFilename.c_str());
+        }
+
+        if (!mTex.loadTexture(texFilename, false)) {
+            Logger::log(1, "%s: texture loading failed\n", __FUNCTION__);
+        }
+        Logger::log(1, "%s: glTF model texture '%s' successfully loaded\n", __FUNCTION__,
+            texFilename.c_str());
+
+        SetUpModel();
+
         ComputeAudioWorldTransform();
 
         UpdateEnemyCameraVectors();

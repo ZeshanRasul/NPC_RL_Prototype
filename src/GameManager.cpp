@@ -69,58 +69,20 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
     std::string texture3 = "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Models/GLTF/Enemies/Ely/ely-vanguardsoldier-kerwinatienza_diffuse 3.png";
     std::string texture4 = "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Models/GLTF/Enemies/Ely/ely-vanguardsoldier-kerwinatienza_diffuse 4.png";
 
-    enemyModel = std::make_shared<GltfModel>();
-
-    std::string modelFilename = "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Models/GLTF/Enemies/Ely/EnemyEly.gltf";
-
-    if (!enemyModel->loadModel(modelFilename)) {
-        Logger::log(1, "%s: loading glTF model '%s' failed\n", __FUNCTION__, modelFilename.c_str());
-    }
-    
-    enemy2Model = std::make_shared<GltfModel>();;
-    enemy3Model = std::make_shared<GltfModel>();;
-    enemy4Model = std::make_shared<GltfModel>();;
-
-    if (!enemy2Model->loadModel(modelFilename)) {
-        Logger::log(1, "%s: loading glTF model '%s' failed\n", __FUNCTION__, modelFilename.c_str());
-    }
-
-    if (!enemy3Model->loadModel(modelFilename)) {
-        Logger::log(1, "%s: loading glTF model '%s' failed\n", __FUNCTION__, modelFilename.c_str());
-    }
-
-    if (!enemy4Model->loadModel(modelFilename)) {
-        Logger::log(1, "%s: loading glTF model '%s' failed\n", __FUNCTION__, modelFilename.c_str());
-    }
-
-
-
     enemy = new Enemy(gameGrid->snapToGrid(glm::vec3(33.0f, 0.0f, 23.0f)), glm::vec3(3.0f), &enemyShader, true, this, gameGrid, texture);
 	enemy->aabbShader = &aabbShader;
-	enemy->model = enemyModel;
-    enemy->mTex.loadTexture(texture, false);
-    enemy->SetUpModel();
     enemy->SetUpAABB();
 
     enemy2 = new Enemy(gameGrid->snapToGrid(glm::vec3(3.0f, 0.0f, 53.0f)), glm::vec3(3.0f), &enemyShader, true, this, gameGrid, texture2);
 	enemy2->aabbShader = &aabbShader;
-    enemy2->mTex.loadTexture(texture2, false);
-	enemy2->model = enemy2Model;
-	enemy2->SetUpModel();
     enemy2->SetUpAABB();
 
     enemy3 = new Enemy(gameGrid->snapToGrid(glm::vec3(43.0f, 0.0f, 53.0f)), glm::vec3(3.0f), &enemyShader, true, this, gameGrid, texture3);
     enemy3->aabbShader = &aabbShader;
-    enemy3->mTex.loadTexture(texture3, false);
-    enemy3->model = enemy3Model;
-    enemy3->SetUpModel();
     enemy3->SetUpAABB();
 
     enemy4 = new Enemy(gameGrid->snapToGrid(glm::vec3(11.0f, 0.0f, 23.0f)), glm::vec3(3.0f), &enemyShader, true, this, gameGrid, texture4);
     enemy4->aabbShader = &aabbShader;
-    enemy4->mTex.loadTexture(texture4, false);
-    enemy4->model = enemy4Model;
-    enemy4->SetUpModel();
     enemy4->SetUpAABB();
 
 	crosshair = new Crosshair(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f), &crosshairShader, false, this);
@@ -332,66 +294,6 @@ void GameManager::showDebugUI()
 
         ImGui::End();
 
-        if (!enemy->isDestroyed)
-        {
-            ImGui::Begin("Enemy Animation Control");
-
-            ImGui::Checkbox("Cross Blend", &enemyCrossBlend);
-            ImGui::SameLine();
-            if (enemyCrossBlend)
-            {
-                ImGui::Text("Cross");
-            }
-            else
-            {
-                ImGui::Text("Single");
-            }
-
-            if (enemyCrossBlend)
-                ImGui::BeginDisabled();
-
-            ImGui::Text("Enemy Blend Factor");
-            ImGui::SameLine();
-            ImGui::SliderFloat("##EnemyBlendFactor", &enemyAnimBlendFactor, 0.0f, 1.0f);
-
-            if (enemyCrossBlend)
-                ImGui::EndDisabled();
-
-            if (!enemyCrossBlend)
-                ImGui::BeginDisabled();
-
-            ImGui::Text("Source Clip   ");
-            ImGui::SameLine();
-            ImGui::SliderInt("##SourceClip", &enemyCrossBlendSourceClip, 0, enemy->model->getAnimClipsSize() - 1);
-
-
-            ImGui::Text("Dest Clip   ");
-            ImGui::SameLine();
-            ImGui::SliderInt("##DestClip", &enemyCrossBlendDestClip, 0, enemy->model->getAnimClipsSize() - 1);
-
-            ImGui::Text("Cross Blend ");
-            ImGui::SameLine();
-            ImGui::SliderFloat("##CrossBlendFactor", &enemyAnimCrossBlendFactor, 0.0f, 1.0f);
-
-            ImGui::Checkbox("Additive Blending", &enemyAdditiveBlend);
-
-            if (!enemyAdditiveBlend) {
-                ImGui::BeginDisabled();
-            }
-            ImGui::Text("Split Node  ");
-            ImGui::SameLine();
-            ImGui::SliderInt("##SplitNode", &enemySkeletonSplitNode, 0, enemy->model->getNodeCount() - 1);
-            ImGui::Text("Split Node Name: %s", enemySkeletonSplitNodeName.c_str());
-
-            if (!enemyAdditiveBlend) {
-                ImGui::EndDisabled();
-            }
-
-            if (!enemyCrossBlend)
-                ImGui::EndDisabled();
-
-            ImGui::End();
-        }
     }
 
     void GameManager::ShowPerformanceWindow()
@@ -493,6 +395,7 @@ void GameManager::showDebugUI()
  	    audioSystem->Update(deltaTime);
 
 		calculatePerformance(deltaTime);
+        RemoveDestroyedGameObjects();
 }
 
 void GameManager::render()

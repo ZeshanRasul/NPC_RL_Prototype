@@ -89,11 +89,6 @@ private:
     Cube* cover3;
     Cube* cover4;
 
-    std::shared_ptr<GltfModel> enemyModel = nullptr;;
-    std::shared_ptr<GltfModel> enemy2Model = nullptr;;
-    std::shared_ptr<GltfModel> enemy3Model = nullptr;;
-    std::shared_ptr<GltfModel> enemy4Model = nullptr;;
-
     InputManager* inputManager;
 	AudioSystem* audioSystem;
 	PhysicsWorld* physicsWorld;
