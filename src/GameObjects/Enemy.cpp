@@ -279,7 +279,7 @@ void Enemy::moveEnemy(const std::vector<glm::ivec2>& path, float deltaTime, floa
 
     const float tolerance = 0.1f; // Smaller tolerance for better alignment
     const float agentRadius = 0.5f; // Adjust this value to match the agent's radius
-    float speed = 10.0f; // Ensure this speed is appropriate for the grid size and cell size
+    float speed = 5.0f; // Ensure this speed is appropriate for the grid size and cell size
     
     if (!reachedPlayer && !inCover)
     {
