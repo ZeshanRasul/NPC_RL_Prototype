@@ -27,7 +27,7 @@ void Cube::drawObject(glm::mat4 viewMat, glm::mat4 proj)
 	glBindVertexArray(mVAO);
 	glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
 	glBindVertexArray(0);
-	renderAABB(proj, viewMat, modelMat, aabbShader);
+	aabb->render(viewMat, proj, modelMat, aabbColor);
 }
 
 void Cube::CreateAndUploadVertexBuffer()
@@ -61,6 +61,8 @@ void Cube::SetUpAABB()
 		verticesVec.push_back(vertex);
 	}
 	aabb->calculateAABB(verticesVec);
+	aabb->setShader(aabbShader);
+	aabb->setUpMesh();
 	aabb->owner = this;
 	updateAABB();
 	mGameManager->GetPhysicsWorld()->addCollider(GetAABB());

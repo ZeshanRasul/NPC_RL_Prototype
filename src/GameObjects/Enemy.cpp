@@ -8,7 +8,7 @@ void Enemy::SetUpModel()
     if (uploadVertexBuffer)
     {
         model->uploadVertexBuffers();
-        SetUpAABB();
+        //SetUpAABB();
         uploadVertexBuffer = false;
     }
 
@@ -38,7 +38,7 @@ void Enemy::drawObject(glm::mat4 viewMat, glm::mat4 proj)
     mEnemyDualQuatSSBuffer.uploadSsboData(model->getJointDualQuats(), 2);
 
     model->draw(mTex);
-	renderAABB(proj, viewMat, modelMat, aabbShader);
+	aabb->render(viewMat, proj, modelMat, aabbColor);
 }
 
 void Enemy::Update(float dt, Player& player, float blendFactor, bool playAnimBackwards)
@@ -431,8 +431,10 @@ void Enemy::SetUpAABB()
 {
     aabb = new AABB();
     aabb->calculateAABB(model->getVertices());
-    aabb->owner = this;
+    aabb->setShader(aabbShader);
     updateAABB();
+    aabb->setUpMesh();
+    aabb->owner = this;
     mGameManager->GetPhysicsWorld()->addCollider(GetAABB());
     mGameManager->GetPhysicsWorld()->addEnemyCollider(GetAABB());
 }

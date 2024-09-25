@@ -46,17 +46,17 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
     cell->LoadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/Cell.png");
     gameGrid = new Grid();
 	cover1 = new Cube(gameGrid->snapToGrid(gameGrid->coverPositions[0]), glm::vec3(gameGrid->GetCellSize()), &cubeShader, false, this);
-    cover1->LoadMesh();
     cover1->SetAABBShader(&aabbShader);
+    cover1->LoadMesh();
 	cover2 = new Cube(gameGrid->snapToGrid(gameGrid->coverPositions[1]), glm::vec3(gameGrid->GetCellSize()), &cubeShader, false, this);
-    cover2->LoadMesh();
     cover2->SetAABBShader(&aabbShader);
+    cover2->LoadMesh();
 	cover3 = new Cube(gameGrid->snapToGrid(gameGrid->coverPositions[2]), glm::vec3(gameGrid->GetCellSize()), &cubeShader, false, this);
-    cover3->LoadMesh();
     cover3->SetAABBShader(&aabbShader);
+    cover3->LoadMesh();
 	cover4 = new Cube(gameGrid->snapToGrid(gameGrid->coverPositions[3]), glm::vec3(gameGrid->GetCellSize()), &cubeShader, false, this);
-    cover4->LoadMesh();
     cover4->SetAABBShader(&aabbShader);
+    cover4->LoadMesh();
 
     gameGrid->initializeGrid();
 
@@ -77,9 +77,22 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
         Logger::log(1, "%s: loading glTF model '%s' failed\n", __FUNCTION__, modelFilename.c_str());
     }
     
-    enemy2Model = enemyModel;
-    enemy3Model = enemyModel;
-    enemy4Model = enemyModel;
+    enemy2Model = std::make_shared<GltfModel>();;
+    enemy3Model = std::make_shared<GltfModel>();;
+    enemy4Model = std::make_shared<GltfModel>();;
+
+    if (!enemy2Model->loadModel(modelFilename)) {
+        Logger::log(1, "%s: loading glTF model '%s' failed\n", __FUNCTION__, modelFilename.c_str());
+    }
+
+    if (!enemy3Model->loadModel(modelFilename)) {
+        Logger::log(1, "%s: loading glTF model '%s' failed\n", __FUNCTION__, modelFilename.c_str());
+    }
+
+    if (!enemy4Model->loadModel(modelFilename)) {
+        Logger::log(1, "%s: loading glTF model '%s' failed\n", __FUNCTION__, modelFilename.c_str());
+    }
+
 
 
     enemy = new Enemy(gameGrid->snapToGrid(glm::vec3(33.0f, 0.0f, 23.0f)), glm::vec3(3.0f), &enemyShader, true, this, gameGrid, texture);
@@ -87,24 +100,28 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 	enemy->model = enemyModel;
     enemy->mTex.loadTexture(texture, false);
     enemy->SetUpModel();
+    enemy->SetUpAABB();
 
     enemy2 = new Enemy(gameGrid->snapToGrid(glm::vec3(3.0f, 0.0f, 53.0f)), glm::vec3(3.0f), &enemyShader, true, this, gameGrid, texture2);
 	enemy2->aabbShader = &aabbShader;
     enemy2->mTex.loadTexture(texture2, false);
-	enemy2->model = enemyModel;
+	enemy2->model = enemy2Model;
 	enemy2->SetUpModel();
+    enemy2->SetUpAABB();
 
     enemy3 = new Enemy(gameGrid->snapToGrid(glm::vec3(43.0f, 0.0f, 53.0f)), glm::vec3(3.0f), &enemyShader, true, this, gameGrid, texture3);
     enemy3->aabbShader = &aabbShader;
     enemy3->mTex.loadTexture(texture3, false);
-    enemy3->model = enemyModel;
+    enemy3->model = enemy3Model;
     enemy3->SetUpModel();
+    enemy3->SetUpAABB();
 
     enemy4 = new Enemy(gameGrid->snapToGrid(glm::vec3(11.0f, 0.0f, 23.0f)), glm::vec3(3.0f), &enemyShader, true, this, gameGrid, texture4);
     enemy4->aabbShader = &aabbShader;
     enemy4->mTex.loadTexture(texture4, false);
-    enemy4->model = enemyModel;
+    enemy4->model = enemy4Model;
     enemy4->SetUpModel();
+    enemy4->SetUpAABB();
 
 	crosshair = new Crosshair(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f), &crosshairShader, false, this);
 	crosshair->LoadMesh();

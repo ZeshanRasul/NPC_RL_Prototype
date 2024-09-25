@@ -15,6 +15,57 @@ void AABB::calculateAABB(const std::vector<glm::vec3>& vertices) {
     }
 }
 
+void AABB::setUpMesh()
+{
+    glm::vec3 min = transformedMin;
+    glm::vec3 max = transformedMax;
+
+    lineVertices = {
+        {min.x, min.y, min.z}, {max.x, min.y, min.z},
+        {max.x, min.y, min.z}, {max.x, max.y, min.z},
+        {max.x, max.y, min.z}, {min.x, max.y, min.z},
+        {min.x, max.y, min.z}, {min.x, min.y, min.z},
+
+        {min.x, min.y, max.z}, {max.x, min.y, max.z},
+        {max.x, min.y, max.z}, {max.x, max.y, max.z},
+        {max.x, max.y, max.z}, {min.x, max.y, max.z},
+        {min.x, max.y, max.z}, {min.x, min.y, max.z},
+
+        {min.x, min.y, min.z}, {min.x, min.y, max.z},
+        {max.x, min.y, min.z}, {max.x, min.y, max.z},
+        {max.x, max.y, min.z}, {max.x, max.y, max.z},
+        {min.x, max.y, min.z}, {min.x, max.y, max.z}
+    };
+
+    glGenVertexArrays(1, &VAO);
+    glGenBuffers(1, &VBO);
+
+    glBindVertexArray(VAO);
+
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    glBufferData(GL_ARRAY_BUFFER, lineVertices.size() * sizeof(glm::vec3), lineVertices.data(), GL_DYNAMIC_DRAW);
+
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), (void*)0);
+
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindVertexArray(0);
+}
+
+void AABB::render(glm::mat4 viewMat, glm::mat4 proj, glm::mat4 model, glm::vec3 aabbColor)
+{
+    shader->use();
+    
+    shader->setMat4("projection", proj);
+    shader->setMat4("view", viewMat);
+    shader->setMat4("model", model);
+    shader->setVec3("color", aabbColor);
+
+    glBindVertexArray(VAO);
+    glDrawArrays(GL_LINES, 0, lineVertices.size());
+    glBindVertexArray(0);
+}
+
 void AABB::update(const glm::mat4& modelMatrix) {
     std::vector<glm::vec3> corners = {
         mMin,
@@ -32,13 +83,37 @@ void AABB::update(const glm::mat4& modelMatrix) {
 
     for (const auto& corner : corners) {
         glm::vec3 transformed = glm::vec3(modelMatrix * glm::vec4(corner, 1.0f));
-//        std::cout << "Transformed: " << transformed.x << ", " << transformed.y << ", " << transformed.z << std::endl;
 
         transformedMin = glm::min(transformedMin, transformed);
         transformedMax = glm::max(transformedMax, transformed);
     }
 
-//	std::cout << "Transformed Min: " << transformedMin.x << ", " << transformedMin.y << ", " << transformedMin.z << std::endl;
-//	std::cout << "Transformed Max: " << transformedMax.x << ", " << transformedMax.y << ", " << transformedMax.z << std::endl;
+    glm::vec3 min = transformedMin;
+    glm::vec3 max = transformedMax;
+
+    lineVertices = {
+        {min.x, min.y, min.z}, {max.x, min.y, min.z},
+        {max.x, min.y, min.z}, {max.x, max.y, min.z},
+        {max.x, max.y, min.z}, {min.x, max.y, min.z},
+        {min.x, max.y, min.z}, {min.x, min.y, min.z},
+
+        {min.x, min.y, max.z}, {max.x, min.y, max.z},
+        {max.x, min.y, max.z}, {max.x, max.y, max.z},
+        {max.x, max.y, max.z}, {min.x, max.y, max.z},
+        {min.x, max.y, max.z}, {min.x, min.y, max.z},
+
+        {min.x, min.y, min.z}, {min.x, min.y, max.z},
+        {max.x, min.y, min.z}, {max.x, min.y, max.z},
+        {max.x, max.y, min.z}, {max.x, max.y, max.z},
+        {min.x, max.y, min.z}, {min.x, max.y, max.z}
+    };
+
+    glBindVertexArray(VAO);
+
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    glBufferData(GL_ARRAY_BUFFER, lineVertices.size() * sizeof(glm::vec3), lineVertices.data(), GL_DYNAMIC_DRAW);
+
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindVertexArray(0);
 
 }

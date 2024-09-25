@@ -13,6 +13,8 @@
 
 class GltfModel {
 public:
+    std::shared_ptr<GltfModel> clone() const;
+
     bool loadModel(std::string modelFilename);
     bool loadModelNoAnim(std::string modelFilename);
 	Texture loadTexture(std::string textureFilename, bool flip);

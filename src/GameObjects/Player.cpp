@@ -22,6 +22,8 @@ void Player::drawObject(glm::mat4 viewMat, glm::mat4 proj)
         model->uploadVertexBuffers();
 		aabb = new AABB();
 		aabb->calculateAABB(model->getVertices());
+        aabb->setShader(aabbShader);
+        aabb->setUpMesh();
         aabb->owner = this;
 		aabb->isPlayer = true;
         updateAABB();
@@ -32,7 +34,7 @@ void Player::drawObject(glm::mat4 viewMat, glm::mat4 proj)
 
     updateAABB();
     model->draw(mTex);
-	renderAABB(proj, viewMat, modelMat, aabbShader);
+	aabb->render(viewMat, proj, modelMat, aabbColor);
 }
 
 void Player::Update(float dt) 

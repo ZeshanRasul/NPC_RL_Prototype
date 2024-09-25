@@ -58,6 +58,68 @@ Texture GltfModel::loadTexture(std::string textureFilename, bool flip)
     return mTex;
 }
 
+std::shared_ptr<GltfModel> GltfModel::clone() const
+{
+    auto newModel = std::make_shared<GltfModel>();
+
+    // Deep copy the simple data members
+    newModel->filename = this->filename;
+    newModel->mNodeCount = this->mNodeCount;
+    newModel->animClipsSize = this->animClipsSize;
+    newModel->attributes = this->attributes;
+
+    // Deep copy the model data
+    if (this->mModel) {
+        newModel->mModel = std::make_shared<tinygltf::Model>(*this->mModel);
+    }
+
+    // Deep copy the textures
+    newModel->mTex = this->mTex;  // Assuming Texture has a proper copy constructor
+
+    // Deep copy the mesh data
+    if (this->mSkeletonMesh) {
+        newModel->mSkeletonMesh = std::make_shared<Mesh>(*this->mSkeletonMesh);
+    }
+
+    // Deep copy vertex buffers
+    newModel->mVertexVBO = this->mVertexVBO;
+    newModel->mIndexVBO = this->mIndexVBO;
+    newModel->mVAO = this->mVAO;
+
+    // Deep copy the animation clips
+    newModel->mAnimClips.resize(this->mAnimClips.size());
+    for (size_t i = 0; i < this->mAnimClips.size(); ++i) {
+        newModel->mAnimClips[i] = std::make_shared<GltfAnimationClip>(*this->mAnimClips[i]);
+    }
+
+    // Deep copy nodes
+    newModel->mNodeList.resize(this->mNodeList.size());
+    for (size_t i = 0; i < this->mNodeList.size(); ++i) {
+        if (this->mNodeList[i]) {
+            newModel->mNodeList[i] = std::make_shared<GltfNode>(*this->mNodeList[i]);
+        }
+    }
+
+    // Deep copy the root node
+    if (this->mRootNode) {
+        newModel->mRootNode = std::make_shared<GltfNode>(*this->mRootNode);
+    }
+
+    // Copy other member variables
+    newModel->mVertices = this->mVertices;
+    newModel->mJointVec = this->mJointVec;
+    newModel->mWeightVec = this->mWeightVec;
+    newModel->mInverseBindMatrices = this->mInverseBindMatrices;
+    newModel->mJointMatrices = this->mJointMatrices;
+    newModel->mJointDualQuats = this->mJointDualQuats;
+    newModel->mAttribAccessors = this->mAttribAccessors;
+    newModel->mNodeToJoint = this->mNodeToJoint;
+    newModel->mAdditiveAnimationMask = this->mAdditiveAnimationMask;
+    newModel->mInvertedAdditiveAnimationMask = this->mInvertedAdditiveAnimationMask;
+
+    return newModel;
+}
+
 bool GltfModel::loadModel(std::string modelFilename) {
     mModel = std::make_shared<tinygltf::Model>();
 
