@@ -130,7 +130,7 @@ public:
 
     glm::vec3 selectRandomWaypoint(const glm::vec3& currentWaypoint, const std::vector<glm::vec3>& allWaypoints) {
 
-        if (isDestroyed) return;
+        if (isDestroyed) return glm::vec3(0.0f);
 
         std::vector<glm::vec3> availableWaypoints;
         for (const auto& wp : allWaypoints) {
