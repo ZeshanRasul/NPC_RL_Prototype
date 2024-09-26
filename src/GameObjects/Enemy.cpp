@@ -576,49 +576,81 @@ Grid::Cover& Enemy::ScoreCoverLocations(Player& player)
 
 void Enemy::BuildBehaviorTree()
 {
-
+    // Top-level Selector
     auto root = std::make_shared<SelectorNode>();
-    
-    // Dead check sequence
+
+    // Dead check
+    auto isDeadCondition = std::make_shared<ConditionNode>([this]() { return IsDead(); });
+    auto deadAction = std::make_shared<ActionNode>([]() { return NodeStatus::Success; });
+
     auto deadSequence = std::make_shared<SequenceNode>();
-    deadSequence->AddChild(std::make_shared<ConditionNode>([this]() { return IsHealthZeroOrBelow(); }));
-    deadSequence->AddChild(std::make_shared<ActionNode>([this]() { return EnterDyingState(); }));
-    
+    deadSequence->AddChild(isDeadCondition);
+    deadSequence->AddChild(deadAction);
+
+    // Dying sequence
+    auto dyingSequence = std::make_shared<SequenceNode>();
+    dyingSequence->AddChild(std::make_shared<ConditionNode>([this]() { return IsHealthZeroOrBelow(); }));
+    dyingSequence->AddChild(std::make_shared<ActionNode>([this]() { return EnterDyingState(); }));
+
     // Taking Damage sequence
     auto takingDamageSequence = std::make_shared<SequenceNode>();
     takingDamageSequence->AddChild(std::make_shared<ConditionNode>([this]() { return IsTakingDamage(); }));
     takingDamageSequence->AddChild(std::make_shared<ActionNode>([this]() { return EnterTakingDamageState(); }));
-    
-    // Seek Cover sequence
+
+    // Attack Selector
+    auto attackSelector = std::make_shared<SelectorNode>();
+
+    // Player detected sequence
+    auto playerDetectedSequence = std::make_shared<SequenceNode>();
+    playerDetectedSequence->AddChild(std::make_shared<ConditionNode>([this]() { return IsPlayerDetected(); }));
+
+    // Player visible sequence
+    auto playerVisibleSequence = std::make_shared<SequenceNode>();
+    playerVisibleSequence->AddChild(std::make_shared<ConditionNode>([this]() { return IsPlayerVisible(); }));
+    playerVisibleSequence->AddChild(std::make_shared<ActionNode>([this]() { return AttackShoot(); }));
+
+    // Player not visible sequence
+    auto playerNotVisibleSequence = std::make_shared<SequenceNode>();
+    playerNotVisibleSequence->AddChild(std::make_shared<ConditionNode>([this]() { return !IsPlayerVisible(); }));
+    playerNotVisibleSequence->AddChild(std::make_shared<ActionNode>([this]() { return AttackChasePlayer(); }));
+
+    // Build player detected sequence
+    playerDetectedSequence->AddChild(playerVisibleSequence);
+    playerDetectedSequence->AddChild(playerNotVisibleSequence);
+
+    // Health below threshold sequence (Seek Cover)
     auto seekCoverSequence = std::make_shared<SequenceNode>();
     seekCoverSequence->AddChild(std::make_shared<ConditionNode>([this]() { return IsHealthBelowThreshold(); }));
     seekCoverSequence->AddChild(std::make_shared<ActionNode>([this]() { return SeekCover(); }));
     seekCoverSequence->AddChild(std::make_shared<ActionNode>([this]() { return TakeCover(); }));
     seekCoverSequence->AddChild(std::make_shared<ActionNode>([this]() { return EnterInCoverState(); }));
-    
-    //// Attack sequence based on player detection
-    //auto attackSequence = std::make_shared<SelectorNode>();
-    //attackSequence->AddChild(std::make_shared<SequenceNode>([this]() {
-    //    return IsPlayerDetected();
-    //    }));
-    //attackSequence->AddChild(std::make_shared<SequenceNode>([this]() { 
-    //        return AttackChasePlayer();
-    //    }));
-    //attackSequence->AddChild(std::make_shared<SequenceNode>([this]() { 
-    //    return AttackShoot();
-    //}));
-    
-    // Patrol sequence - initial state
+
+    // In Cover condition
+    auto inCoverCondition = std::make_shared<ConditionNode>([this]() { return IsInCover(); });
+    auto inCoverAction = std::make_shared<ActionNode>([]() { return NodeStatus::Success; });
+
+    auto inCoverSequence = std::make_shared<SequenceNode>();
+    inCoverSequence->AddChild(inCoverCondition);
+    inCoverSequence->AddChild(inCoverAction);
+
+    // Patrol action
     auto patrolSequence = std::make_shared<SequenceNode>();
-    patrolSequence->AddChild(std::make_shared<ConditionNode>([this]() { return !IsPlayerDetected(); }));
+    patrolSequence->AddChild(std::make_shared<ConditionNode>([this]() { return !IsPlayerInRange(); }));
+    patrolSequence->AddChild(std::make_shared<ConditionNode>([this]() { return !IsHealthBelowThreshold(); }));
     patrolSequence->AddChild(std::make_shared<ActionNode>([this]() { return Patrol(); }));
-   
-    // Add all sequences to the root selector
+
+    // Add sequences to attack selector
+    attackSelector->AddChild(playerDetectedSequence);
+    attackSelector->AddChild(seekCoverSequence);
+    attackSelector->AddChild(inCoverSequence);
+    attackSelector->AddChild(patrolSequence);
+
+    // Add sequences to root
     root->AddChild(deadSequence);
+    root->AddChild(dyingSequence);
     root->AddChild(takingDamageSequence);
-    root->AddChild(seekCoverSequence);
-    //root->AddChild(attackSequence);
-    root->AddChild(patrolSequence);  // Initial patrol state
+    root->AddChild(attackSelector);
+
     behaviorTree_ = root;
 }
 
@@ -650,6 +682,13 @@ bool Enemy::IsPlayerDetected()
 
 bool Enemy::IsPlayerVisible()
 {
+    glm::vec3 tempEnemyShootPos = getPosition() + glm::vec3(0.0f, 2.5f, 0.0f);
+    glm::vec3 tempEnemyShootDir = glm::normalize(player.getPosition() - getPosition());
+    glm::vec3 hitPoint = glm::vec3(0.0f);
+
+    
+    isPlayerVisible_ = mGameManager->GetPhysicsWorld()->checkPlayerVisibility(tempEnemyShootPos, tempEnemyShootDir, hitPoint, aabb);
+
     return isPlayerVisible_;
 }
 
@@ -660,6 +699,18 @@ bool Enemy::IsHealthBelowThreshold()
 
 bool Enemy::IsPlayerInRange()
 {
+    float playerEnemyDistance = glm::distance(getPosition(), player.getPosition());
+
+    glm::vec3 tempEnemyShootPos = getPosition() + glm::vec3(0.0f, 2.5f, 0.0f);
+    glm::vec3 tempEnemyShootDir = glm::normalize(player.getPosition() - getPosition());
+    glm::vec3 hitPoint = glm::vec3(0.0f);
+
+    if (playerEnemyDistance < 35.0f)
+    {
+        DetectPlayer();
+        isPlayerInRange_ = true;
+    }
+
     return isPlayerInRange_;
 }
 

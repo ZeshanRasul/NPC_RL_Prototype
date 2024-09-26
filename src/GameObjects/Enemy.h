@@ -123,8 +123,8 @@ public:
 
     void Shoot();
 
-	float GetHealth() const { return health; }
-	void SetHealth(float newHealth) { health = newHealth; }
+	float GetHealth() const { return health_; }
+	void SetHealth(float newHealth) { health_ = newHealth; }
 
 	void TakeDamage(float damage) {
 		SetHealth(GetHealth() - damage);
