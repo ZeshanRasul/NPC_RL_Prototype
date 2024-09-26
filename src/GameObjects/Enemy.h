@@ -6,6 +6,12 @@
 #include "src/OpenGL/ShaderStorageBuffer.h"
 #include "Physics/AABB.h"
 #include "Components/AudioComponent.h"
+#include "AI/BehaviourTree.h"
+#include "AI/Event.h"
+#include "AI/Events.h"
+#include "AI/ConditionNode.h"
+#include "AI/ActionNode.h"
+#include <memory>
 
 enum EnemyState {
     PATROL,
@@ -32,8 +38,9 @@ static const char* EnemyStateNames[] = {
 class Enemy : public GameObject {
 public:
 
-    Enemy(glm::vec3 pos, glm::vec3 scale, Shader* sdr, bool applySkinning, GameManager* gameMgr, Grid* grd, std::string texFilename, float yaw = 0.0f)
-		: GameObject(pos, scale, yaw, sdr, applySkinning, gameMgr), grid(grd)
+    Enemy(glm::vec3 pos, glm::vec3 scale, Shader* sdr, bool applySkinning, GameManager* gameMgr, Grid* grd, std::string texFilename, int id, EventManager& eventManager, Player& player, float yaw = 0.0f)
+		: GameObject(pos, scale, yaw, sdr, applySkinning, gameMgr), grid(grd), id_(id), eventManager_(eventManager), health_(100), isPlayerDetected_(false),
+        isPlayerVisible_(false), isPlayerInRange_(false), isTakingDamage_(false), isDead_(false), isInCover_(false), isSeekingCover_(false), isTakingCover_(false), player(player)
     {
         model = std::make_shared<GltfModel>();
 
@@ -60,6 +67,12 @@ public:
         takeDamageAC = new AudioComponent(this);
 		deathAC = new AudioComponent(this);
 		shootAC = new AudioComponent(this);
+
+        BuildBehaviorTree();
+
+        eventManager_.Subscribe<PlayerDetectedEvent>([this](const Event& e) { OnEvent(e); });
+        eventManager_.Subscribe<NPCDamagedEvent>([this](const Event& e) { OnEvent(e); });
+		eventManager_.Subscribe<NPCDiedEvent>([this](const Event& e) { OnEvent(e); });
     }
 
     ~Enemy() 
@@ -71,7 +84,11 @@ public:
 
     void drawObject(glm::mat4 viewMat, glm::mat4 proj) override;
 
-    void Update(float dt, Player& player, float blendFactor, bool playAnimBackwards);
+    void OldUpdate(float dt, Player& player, float blendFactor, bool playAnimBackwards);
+
+    void Update();
+
+    void OnEvent(const Event& event);
 
     glm::vec3 getPosition() {
         return position;
@@ -104,17 +121,24 @@ public:
         yaw = newYaw; 
     }
 
-    void Shoot(Player& player);
+    void Shoot();
 
 	float GetHealth() const { return health; }
 	void SetHealth(float newHealth) { health = newHealth; }
 
 	void TakeDamage(float damage) {
 		SetHealth(GetHealth() - damage);
-		if (GetHealth() <= 0.0f) {
-			OnDeath();
-		}
-	}
+        isTakingDamage_ = true;
+
+        if (health_ <= 0)
+        {
+            eventManager_.Publish(NPCDiedEvent{ id_ });
+        }
+        else
+        {
+            eventManager_.Publish(NPCDamagedEvent{ id_ });
+        }
+    }
 
     void OnDeath();
 
@@ -212,4 +236,45 @@ public:
             grid->snapToGrid(glm::vec3(40.0f, 0.0f, 0.0f)),
             grid->snapToGrid(glm::vec3(40.0f, 0.0f, 70.0f))
     };
+
+    float dt = 0.0f;
+
+    private:
+		Player& player;
+
+        int id_;
+        EventManager& eventManager_;
+        BTNodePtr behaviorTree_;
+
+        int health_;
+        bool isPlayerDetected_;
+        bool isPlayerVisible_;
+        bool isPlayerInRange_;
+        bool isTakingDamage_;
+        bool isDead_;
+        bool isInCover_;
+        bool isSeekingCover_;
+        bool isTakingCover_;
+
+        void BuildBehaviorTree();
+
+        void DetectPlayer();
+
+        bool IsDead();
+        bool IsHealthZeroOrBelow();
+        bool IsTakingDamage();
+        bool IsPlayerDetected();
+        bool IsPlayerVisible();
+        bool IsHealthBelowThreshold();
+        bool IsPlayerInRange();
+        bool IsInCover();
+
+        NodeStatus EnterDyingState();
+        NodeStatus EnterTakingDamageState();
+        NodeStatus AttackShoot();
+        NodeStatus AttackChasePlayer();
+        NodeStatus SeekCover();
+        NodeStatus TakeCover();
+        NodeStatus EnterInCoverState();
+        NodeStatus Patrol();
 };

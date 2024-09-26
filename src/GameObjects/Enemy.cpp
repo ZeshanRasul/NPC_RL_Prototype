@@ -41,7 +41,7 @@ void Enemy::drawObject(glm::mat4 viewMat, glm::mat4 proj)
 	aabb->render(viewMat, proj, modelMat, aabbColor);
 }
 
-void Enemy::Update(float dt, Player& player, float blendFactor, bool playAnimBackwards)
+void Enemy::OldUpdate(float dt, Player& player, float blendFactor, bool playAnimBackwards)
 {    
     if (GetEnemyState() == TAKE_DAMAGE)
 	    damageTimer -= dt;
@@ -146,7 +146,7 @@ void Enemy::Update(float dt, Player& player, float blendFactor, bool playAnimBac
     }
     case ENEMY_SHOOTING:
     {
-        Shoot(player);
+        Shoot();
         SetAnimNum(3);
         SetAnimation(GetAnimNum(), 1.0f, blendFactor, playAnimBackwards);
         enemyShootCooldown = 0.3f;
@@ -210,6 +210,46 @@ void Enemy::Update(float dt, Player& player, float blendFactor, bool playAnimBac
     updateAABB();
     ComputeAudioWorldTransform();
     UpdateComponents(dt);
+}
+
+void Enemy::Update()
+{
+    if (!isDead_)
+    {
+        behaviorTree_->Tick();
+        float playerEnemyDistance = glm::distance(getPosition(), player.getPosition());
+
+        glm::vec3 tempEnemyShootPos = getPosition() + glm::vec3(0.0f, 2.5f, 0.0f);
+        glm::vec3 tempEnemyShootDir = glm::normalize(player.getPosition() - getPosition());
+        glm::vec3 hitPoint = glm::vec3(0.0f);
+
+        if (playerEnemyDistance < 35.0f) DetectPlayer();
+    }
+}
+
+void Enemy::OnEvent(const Event& event)
+{
+    if (const PlayerDetectedEvent* e = dynamic_cast<const PlayerDetectedEvent*>(&event))
+    {
+        if (e->npcID != id_)
+        {
+            isPlayerDetected_ = true;
+        }
+    }
+    else if (const NPCDamagedEvent* e = dynamic_cast<const NPCDamagedEvent*>(&event))
+    {
+        if (e->npcID != id_)
+        {
+            if (isInCover_)
+            {
+                // Come out of cover and provide suppression fire
+                isInCover_ = false;
+                isSeekingCover_ = false;
+                isTakingCover_ = false;
+            }
+        }
+    }
+
 }
 
 void Enemy::ComputeAudioWorldTransform()
@@ -381,11 +421,8 @@ void Enemy::SetAnimation(int animNum, float speedDivider, float blendFactor, boo
     model->playAnimation(animNum, speedDivider, blendFactor, playBackwards);
 }
 
-void Enemy::Shoot(Player& player)
+void Enemy::Shoot()
 {
-    if (GetEnemyState() != ENEMY_SHOOTING)
-        return;
-
 	glm::vec3 accuracyOffset = glm::vec3(0.0f);
 	glm::vec3 accuracyOffsetFactor = glm::vec3(1.0f);
 
@@ -497,7 +534,7 @@ void Enemy::OnHit()
     SetEnemyState(TAKE_DAMAGE);
 	setAABBColor(glm::vec3(1.0f, 0.0f, 1.0f));
     SetAnimNum(4);
-    TakeDamage(50.0f);
+    TakeDamage(64.0f);
     if (GetEnemyState() != DYING)
         takeDamageAC->PlayEvent("event:/EnemyTakeDamage");
 	damageTimer = model->getAnimationEndTime(4);
@@ -535,4 +572,200 @@ Grid::Cover& Enemy::ScoreCoverLocations(Player& player)
 	}
 
     return bestCover;
+}
+
+void Enemy::BuildBehaviorTree()
+{
+
+    auto root = std::make_shared<SelectorNode>();
+    
+    // Dead check sequence
+    auto deadSequence = std::make_shared<SequenceNode>();
+    deadSequence->AddChild(std::make_shared<ConditionNode>([this]() { return IsHealthZeroOrBelow(); }));
+    deadSequence->AddChild(std::make_shared<ActionNode>([this]() { return EnterDyingState(); }));
+    
+    // Taking Damage sequence
+    auto takingDamageSequence = std::make_shared<SequenceNode>();
+    takingDamageSequence->AddChild(std::make_shared<ConditionNode>([this]() { return IsTakingDamage(); }));
+    takingDamageSequence->AddChild(std::make_shared<ActionNode>([this]() { return EnterTakingDamageState(); }));
+    
+    // Seek Cover sequence
+    auto seekCoverSequence = std::make_shared<SequenceNode>();
+    seekCoverSequence->AddChild(std::make_shared<ConditionNode>([this]() { return IsHealthBelowThreshold(); }));
+    seekCoverSequence->AddChild(std::make_shared<ActionNode>([this]() { return SeekCover(); }));
+    seekCoverSequence->AddChild(std::make_shared<ActionNode>([this]() { return TakeCover(); }));
+    seekCoverSequence->AddChild(std::make_shared<ActionNode>([this]() { return EnterInCoverState(); }));
+    
+    //// Attack sequence based on player detection
+    //auto attackSequence = std::make_shared<SelectorNode>();
+    //attackSequence->AddChild(std::make_shared<SequenceNode>([this]() {
+    //    return IsPlayerDetected();
+    //    }));
+    //attackSequence->AddChild(std::make_shared<SequenceNode>([this]() { 
+    //        return AttackChasePlayer();
+    //    }));
+    //attackSequence->AddChild(std::make_shared<SequenceNode>([this]() { 
+    //    return AttackShoot();
+    //}));
+    
+    // Patrol sequence - initial state
+    auto patrolSequence = std::make_shared<SequenceNode>();
+    patrolSequence->AddChild(std::make_shared<ConditionNode>([this]() { return !IsPlayerDetected(); }));
+    patrolSequence->AddChild(std::make_shared<ActionNode>([this]() { return Patrol(); }));
+   
+    // Add all sequences to the root selector
+    root->AddChild(deadSequence);
+    root->AddChild(takingDamageSequence);
+    root->AddChild(seekCoverSequence);
+    //root->AddChild(attackSequence);
+    root->AddChild(patrolSequence);  // Initial patrol state
+    behaviorTree_ = root;
+}
+
+void Enemy::DetectPlayer()
+{
+    isPlayerDetected_ = true;
+    eventManager_.Publish(PlayerDetectedEvent{ id_ });
+}
+
+bool Enemy::IsDead()
+{
+    return isDead_;
+}
+
+bool Enemy::IsHealthZeroOrBelow()
+{
+    return health_ <= 0;
+}
+
+bool Enemy::IsTakingDamage()
+{
+    return isTakingDamage_;
+}
+
+bool Enemy::IsPlayerDetected()
+{
+    return isPlayerDetected_;
+}
+
+bool Enemy::IsPlayerVisible()
+{
+    return isPlayerVisible_;
+}
+
+bool Enemy::IsHealthBelowThreshold()
+{
+    return health_ < 40;
+}
+
+bool Enemy::IsPlayerInRange()
+{
+    return isPlayerInRange_;
+}
+
+bool Enemy::IsInCover()
+{
+    return isInCover_;
+}
+
+NodeStatus Enemy::EnterDyingState()
+{
+    isDead_ = true;
+    std::cout << "Enemy Died!" << std::endl;
+    SetEnemyState(DYING);
+    SetAnimNum(1);
+    deathAC->PlayEvent("event:/EnemyDeath");
+    dyingTimer = 1.5f;
+
+    // After animation completes, send NPCDiedEvent
+    eventManager_.Publish(NPCDiedEvent{ id_ });
+    return NodeStatus::Success;
+}
+
+NodeStatus Enemy::EnterTakingDamageState()
+{
+    Logger::log(1, "Enemy was hit!\n", __FUNCTION__);
+    SetEnemyState(TAKE_DAMAGE);
+    setAABBColor(glm::vec3(1.0f, 0.0f, 1.0f));
+    SetAnimNum(4);
+    TakeDamage(50.0f);
+    if (GetEnemyState() != DYING)
+        takeDamageAC->PlayEvent("event:/EnemyTakeDamage");
+    damageTimer = model->getAnimationEndTime(4);
+    isTakingDamage_ = false;
+    return NodeStatus::Success;
+}
+
+NodeStatus Enemy::AttackShoot()
+{
+    Shoot();
+    return NodeStatus::Running;
+}
+
+NodeStatus Enemy::AttackChasePlayer()
+{
+    std::vector<glm::ivec2> path = grid->findPath(
+        glm::ivec2(getPosition().x / grid->GetCellSize(), getPosition().z / grid->GetCellSize()),
+        glm::ivec2(currentWaypoint.x / grid->GetCellSize(), currentWaypoint.z / grid->GetCellSize()),
+        grid->GetGrid()
+    );
+
+    moveEnemy(path, dt, 1.0f, false);
+    return NodeStatus();
+}
+
+NodeStatus Enemy::SeekCover()
+{
+    isSeekingCover_ = true;
+	ScoreCoverLocations(player);
+    return NodeStatus::Running;
+}
+
+NodeStatus Enemy::TakeCover()
+{
+    isTakingCover_ = true;
+    std::vector<glm::ivec2> path = grid->findPath(
+        glm::ivec2(getPosition().x / grid->GetCellSize(), getPosition().z / grid->GetCellSize()),
+        glm::ivec2(cover.worldPosition.x / grid->GetCellSize(), cover.worldPosition.z / grid->GetCellSize()),
+        grid->GetGrid()
+    );
+    moveEnemy(path, dt, 1.0f, false);
+    return NodeStatus::Running;
+}
+
+NodeStatus Enemy::EnterInCoverState()
+{
+    isInCover_ = true;
+    isSeekingCover_ = false;
+    isTakingCover_ = false;
+    return NodeStatus::Success;
+}
+
+NodeStatus Enemy::Patrol()
+{
+    if (reachedDestination == false)
+    {
+        std::vector<glm::ivec2> path = grid->findPath(
+            glm::ivec2(getPosition().x / grid->GetCellSize(), getPosition().z / grid->GetCellSize()),
+            glm::ivec2(currentWaypoint.x / grid->GetCellSize(), currentWaypoint.z / grid->GetCellSize()),
+            grid->GetGrid()
+        );
+
+        moveEnemy(path, dt, 1.0f, false);
+    }
+    else
+    {
+        currentWaypoint = selectRandomWaypoint(currentWaypoint, waypointPositions);
+
+        std::vector<glm::ivec2> path = grid->findPath(
+            glm::ivec2(getPosition().x / grid->GetCellSize(), getPosition().z / grid->GetCellSize()),
+            glm::ivec2(currentWaypoint.x / grid->GetCellSize(), currentWaypoint.z / grid->GetCellSize()),
+            grid->GetGrid()
+        );
+
+        reachedDestination = false;
+
+        moveEnemy(path, dt, 1.0f, false);
+    }
+    return NodeStatus::Running;
 }

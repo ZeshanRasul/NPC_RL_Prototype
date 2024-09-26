@@ -20,6 +20,9 @@
 #include "Model/GltfModel.h"
 #include "src/Pathfinding/Grid.h"
 
+#include "AI/Event.h"
+#include "AI/Events.h"
+
 class GameManager {
 public:
     GameManager(Window* window, unsigned int width, unsigned int height);
@@ -61,6 +64,8 @@ private:
 
     void calculatePerformance(float deltaTime);
 
+	EventManager& GetEventManager() { return eventManager; }
+
 	float fps = 0.0f;
     int numFramesAvg = 100;
 	float fpsSum = 0.0f;
@@ -72,6 +77,8 @@ private:
     Renderer* renderer;
     Window* window;
     Camera* camera;
+
+	EventManager eventManager;
 
     Player* player;
     Enemy* enemy;
