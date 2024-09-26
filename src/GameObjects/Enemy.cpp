@@ -231,6 +231,13 @@ void Enemy::Update()
 			enemyHasShot = false;
 		}
 
+        if (isDestroyed)
+        {
+            GetGameManager()->GetPhysicsWorld()->removeCollider(GetAABB());
+            GetGameManager()->GetPhysicsWorld()->removeEnemyCollider(GetAABB());
+        }
+
+
 		SetAnimation(GetAnimNum(), 1.0f, 1.0f, false);
     }
 }
@@ -649,6 +656,7 @@ void Enemy::BuildBehaviorTree()
     auto patrolSequence = std::make_shared<SequenceNode>();
     patrolSequence->AddChild(std::make_shared<ConditionNode>([this]() { return !IsPlayerInRange(); }));
     patrolSequence->AddChild(std::make_shared<ConditionNode>([this]() { return !IsHealthBelowThreshold(); }));
+    patrolSequence->AddChild(std::make_shared<ConditionNode>([this]() { return !IsAttacking(); }));
     patrolSequence->AddChild(std::make_shared<ActionNode>([this]() { return Patrol(); }));
 
     // Add sequences to attack selector
@@ -738,7 +746,7 @@ bool Enemy::IsInCover()
 
 bool Enemy::IsAttacking()
 {
-    return false;
+    return isAttacking_;
 }
 
 NodeStatus Enemy::EnterDyingState()

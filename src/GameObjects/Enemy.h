@@ -133,6 +133,8 @@ public:
         if (health_ <= 0)
         {
             eventManager_.Publish(NPCDiedEvent{ id_ });
+            isDead_ = true;
+            isDestroyed = true;
         }
         else
         {
@@ -255,7 +257,7 @@ public:
         bool isInCover_;
         bool isSeekingCover_;
         bool isTakingCover_;
-        bool isAttacking_;
+        bool isAttacking_ = false;
 
         void BuildBehaviorTree();
 
