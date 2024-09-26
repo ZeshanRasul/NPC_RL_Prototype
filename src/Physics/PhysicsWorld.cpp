@@ -58,8 +58,12 @@ bool PhysicsWorld::rayIntersect(const glm::vec3& rayOrigin, const glm::vec3& ray
         closestAABB->owner->OnHit();
     else if (size(missedAABBs) > 0) 
     {
-		for (AABB* missedAABB : missedAABBs)
-        missedAABB->owner->OnMiss();
+        for (AABB* missedAABB : missedAABBs)
+        {
+            if (missedAABB->owner != nullptr)
+                missedAABB->owner->OnMiss();
+
+        }
     }
 
     return hit;
