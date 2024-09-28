@@ -348,6 +348,10 @@ void Enemy::moveEnemy(const std::vector<glm::ivec2>& path, float deltaTime, floa
 
     if (pathIndex >= path.size()) {
         std::cout << "Agent has reached its destination." << std::endl;
+        
+        if (IsPatrolling())
+            reachedDestination = true;
+
 		if (state == PATROL)
 		{
 			reachedDestination = true;
@@ -557,7 +561,7 @@ void Enemy::OnHit()
     SetEnemyState(TAKE_DAMAGE);
 	setAABBColor(glm::vec3(1.0f, 0.0f, 1.0f));
     SetAnimNum(4);
-    TakeDamage(64.0f);
+    TakeDamage(42.0f);
     isTakingDamage_ = true;
     if (GetEnemyState() != DYING)
         takeDamageAC->PlayEvent("event:/EnemyTakeDamage");
@@ -642,14 +646,7 @@ void Enemy::BuildBehaviorTree()
     auto playerNotVisibleSequence = std::make_shared<SequenceNode>();
     playerNotVisibleSequence->AddChild(std::make_shared<ConditionNode>([this]() { return !IsPlayerVisible(); }));
     playerNotVisibleSequence->AddChild(std::make_shared<ActionNode>([this]() { return AttackChasePlayer(); }));
-    
-    // Add the Player Visible and Not Visible sequences to the Player Detected Selector
-    playerDetectedSelector->AddChild(playerVisibleSequence);
-    playerDetectedSelector->AddChild(playerNotVisibleSequence);
-    
-    // Add the Player Detected Selector to the Player Detected Sequence
-    playerDetectedSequence->AddChild(playerDetectedSelector);
-    
+        
     // Health below threshold sequence (Seek Cover)
     auto seekCoverSequence = std::make_shared<SequenceNode>();
     seekCoverSequence->AddChild(std::make_shared<ConditionNode>([this]() { return IsHealthBelowThreshold(); }));
@@ -671,6 +668,13 @@ void Enemy::BuildBehaviorTree()
     patrolSequence->AddChild(std::make_shared<ConditionNode>([this]() { return !IsHealthBelowThreshold(); }));
     patrolSequence->AddChild(std::make_shared<ConditionNode>([this]() { return !IsAttacking(); }));
     patrolSequence->AddChild(std::make_shared<ActionNode>([this]() { return Patrol(); }));
+
+    // Add the Player Visible and Not Visible sequences to the Player Detected Selector
+    playerDetectedSelector->AddChild(playerVisibleSequence);
+    playerDetectedSelector->AddChild(playerNotVisibleSequence);
+
+    // Add the Player Detected Selector to the Player Detected Sequence
+    playerDetectedSequence->AddChild(playerDetectedSelector);
 
     // Add sequences to attack selector
     attackSelector->AddChild(playerDetectedSequence);
@@ -737,7 +741,7 @@ bool Enemy::IsCooldownComplete()
 
 bool Enemy::IsHealthBelowThreshold()
 {
-    return health_ < 40;
+    return health_ < 20;
 }
 
 bool Enemy::IsPlayerInRange()
@@ -765,6 +769,11 @@ bool Enemy::IsInCover()
 bool Enemy::IsAttacking()
 {
     return isAttacking_;
+}
+
+bool Enemy::IsPatrolling()
+{
+    return isPatrolling_;
 }
 
 NodeStatus Enemy::EnterDyingState()
@@ -863,6 +872,7 @@ NodeStatus Enemy::EnterInCoverState()
 NodeStatus Enemy::Patrol()
 {
     isAttacking_ = false;
+	isPatrolling_ = true;
 
     if (reachedDestination == false)
     {

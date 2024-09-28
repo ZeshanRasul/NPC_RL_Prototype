@@ -258,6 +258,8 @@ public:
         bool isSeekingCover_;
         bool isTakingCover_;
         bool isAttacking_ = false;
+        bool isPatrolling_ = false;
+
 
         void BuildBehaviorTree();
 
@@ -273,6 +275,7 @@ public:
         bool IsPlayerInRange();
         bool IsInCover();
         bool IsAttacking();
+        bool IsPatrolling();
 
         NodeStatus EnterDyingState();
         NodeStatus EnterTakingDamageState();
