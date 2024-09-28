@@ -633,9 +633,16 @@ void Enemy::BuildBehaviorTree()
     // Player detected sequence
     auto playerDetectedSequence = std::make_shared<SequenceNode>();
     playerDetectedSequence->AddChild(std::make_shared<ConditionNode>([this]() { return IsPlayerDetected(); }));
+ 
+    // Suppression Fire sequence
+    auto supressionFireSequence = std::make_shared<SequenceNode>();
+    supressionFireSequence->AddChild(std::make_shared<ConditionNode>([this]() { return ShouldProvideSuppressionFire(); }));
 
     // Player Detected Selector: Player Visible or Not Visible
     auto playerDetectedSelector = std::make_shared<SelectorNode>();
+
+    // Player Detected Selector: Player Visible or Not Visible
+    auto supressionFireSelector = std::make_shared<SelectorNode>();
 
     // Player visible sequence
     auto playerVisibleSequence = std::make_shared<SequenceNode>();
@@ -651,6 +658,7 @@ void Enemy::BuildBehaviorTree()
     // Health below threshold sequence (Seek Cover)
     auto seekCoverSequence = std::make_shared<SequenceNode>();
     seekCoverSequence->AddChild(std::make_shared<ConditionNode>([this]() {return !IsInCover(); }));
+    seekCoverSequence->AddChild(std::make_shared<ConditionNode>([this]() {return !ShouldProvideSuppressionFire(); }));
     seekCoverSequence->AddChild(std::make_shared<ConditionNode>([this]() { return IsHealthBelowThreshold(); }));
     seekCoverSequence->AddChild(std::make_shared<ActionNode>([this]() { return SeekCover(); }));
     seekCoverSequence->AddChild(std::make_shared<ActionNode>([this]() { return TakeCover(); }));
@@ -681,6 +689,13 @@ void Enemy::BuildBehaviorTree()
     // Add the Player Detected Selector to the Player Detected Sequence
     playerDetectedSequence->AddChild(playerDetectedSelector);
 
+    // Add the Player Visible and Not Visible sequences to the Suppression Fire Selector
+    supressionFireSelector->AddChild(playerVisibleSequence);
+    supressionFireSelector->AddChild(playerNotVisibleSequence);
+
+    // Add the Supression Fire Selector to the Suppression Fire Sequence
+    supressionFireSequence->AddChild(supressionFireSelector);
+
     // Add sequences to attack selector
     attackSelector->AddChild(playerDetectedSequence);
 	/*attackSelector->AddChild(playerVisibleSequence);
@@ -697,6 +712,7 @@ void Enemy::BuildBehaviorTree()
     root->AddChild(takingDamageSequence);
     root->AddChild(seekCoverSequence);
     root->AddChild(inCoverSequence);
+    root->AddChild(supressionFireSequence);
     root->AddChild(attackSelector);
     root->AddChild(patrolSequence);
 
