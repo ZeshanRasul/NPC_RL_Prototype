@@ -216,10 +216,14 @@ void Enemy::Update()
 {
     if (!isDead_)
     {
-        behaviorTree_->Tick();
         float playerEnemyDistance = glm::distance(getPosition(), player.getPosition());
+        if (playerEnemyDistance < 35.0f && !IsPlayerDetected())
+        {
+            DetectPlayer();
+        }
 
-        if (playerEnemyDistance < 35.0f) DetectPlayer();
+        behaviorTree_->Tick();
+
 
 		if (enemyHasShot)
 		{
@@ -622,6 +626,9 @@ void Enemy::BuildBehaviorTree()
     auto playerDetectedSequence = std::make_shared<SequenceNode>();
     playerDetectedSequence->AddChild(std::make_shared<ConditionNode>([this]() { return IsPlayerDetected(); }));
 
+    // Player Detected Selector: Player Visible or Not Visible
+    auto playerDetectedSelector = std::make_shared<SelectorNode>();
+
     // Player visible sequence
     auto playerVisibleSequence = std::make_shared<SequenceNode>();
     playerVisibleSequence->AddChild(std::make_shared<ConditionNode>([this]() { return IsPlayerVisible(); }));
@@ -632,11 +639,14 @@ void Enemy::BuildBehaviorTree()
     auto playerNotVisibleSequence = std::make_shared<SequenceNode>();
     playerNotVisibleSequence->AddChild(std::make_shared<ConditionNode>([this]() { return !IsPlayerVisible(); }));
     playerNotVisibleSequence->AddChild(std::make_shared<ActionNode>([this]() { return AttackChasePlayer(); }));
-
-    // Build player detected sequence
-    playerDetectedSequence->AddChild(playerVisibleSequence);
-    playerDetectedSequence->AddChild(playerNotVisibleSequence);
-
+    
+    // Add the Player Visible and Not Visible sequences to the Player Detected Selector
+    playerDetectedSelector->AddChild(playerVisibleSequence);
+    playerDetectedSelector->AddChild(playerNotVisibleSequence);
+    
+    // Add the Player Detected Selector to the Player Detected Sequence
+    playerDetectedSequence->AddChild(playerDetectedSelector);
+    
     // Health below threshold sequence (Seek Cover)
     auto seekCoverSequence = std::make_shared<SequenceNode>();
     seekCoverSequence->AddChild(std::make_shared<ConditionNode>([this]() { return IsHealthBelowThreshold(); }));
@@ -661,8 +671,10 @@ void Enemy::BuildBehaviorTree()
 
     // Add sequences to attack selector
     attackSelector->AddChild(playerDetectedSequence);
-    attackSelector->AddChild(seekCoverSequence);
-    attackSelector->AddChild(inCoverSequence);
+	/*attackSelector->AddChild(playerVisibleSequence);
+	attackSelector->AddChild(playerNotVisibleSequence);*/
+   /* attackSelector->AddChild(seekCoverSequence);
+    attackSelector->AddChild(inCoverSequence);*/
     attackSelector->AddChild(patrolSequence);
 
     // Add sequences to root
@@ -730,7 +742,7 @@ bool Enemy::IsPlayerInRange()
     glm::vec3 tempEnemyShootDir = glm::normalize(player.getPosition() - getPosition());
     glm::vec3 hitPoint = glm::vec3(0.0f);
 
-    if (playerEnemyDistance < 35.0f)
+    if (playerEnemyDistance < 35.0f && !IsPlayerDetected())
     {
         DetectPlayer();
         isPlayerInRange_ = true;
@@ -782,6 +794,12 @@ NodeStatus Enemy::AttackShoot()
 {
     Shoot();
 	isAttacking_ = true;
+
+	if (!IsPlayerVisible())
+	{
+		return NodeStatus::Failure;
+	}
+
     return NodeStatus::Running;
 }
 
@@ -795,7 +813,13 @@ NodeStatus Enemy::AttackChasePlayer()
     isAttacking_ = true;
 
     moveEnemy(path, dt, 1.0f, false);
-    return NodeStatus();
+
+    if (!IsPlayerVisible())
+    {
+        return NodeStatus::Running;
+    }
+
+    return NodeStatus::Success;
 }
 
 NodeStatus Enemy::SeekCover()
