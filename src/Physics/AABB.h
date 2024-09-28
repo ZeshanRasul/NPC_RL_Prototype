@@ -34,6 +34,7 @@ public:
     glm::mat4 mModelMatrix = glm::mat4(1.0f);
 
     bool isPlayer = false;
+    bool isEnemy = false;
 
 private:
     glm::vec3 mMin;

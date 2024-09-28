@@ -462,7 +462,7 @@ void Enemy::Shoot()
     UpdateEnemyVectors();
 
     bool hit = false;
-    hit = GetGameManager()->GetPhysicsWorld()->rayIntersect(enemyShootPos, enemyShootDir, hitPoint, aabb);
+    hit = GetGameManager()->GetPhysicsWorld()->rayPlayerIntersect(enemyShootPos, enemyShootDir, hitPoint, aabb);
 
     if (hit) {
         std::cout << "\nRay hit at: " << hitPoint.x << ", " << hitPoint.y << ", " << hitPoint.z << std::endl;
@@ -494,6 +494,7 @@ void Enemy::SetUpAABB()
     updateAABB();
     aabb->setUpMesh();
     aabb->owner = this;
+	aabb->isEnemy = true;
     mGameManager->GetPhysicsWorld()->addCollider(GetAABB());
     mGameManager->GetPhysicsWorld()->addEnemyCollider(GetAABB());
 }
@@ -557,9 +558,11 @@ void Enemy::OnHit()
 	setAABBColor(glm::vec3(1.0f, 0.0f, 1.0f));
     SetAnimNum(4);
     TakeDamage(64.0f);
+    isTakingDamage_ = true;
     if (GetEnemyState() != DYING)
         takeDamageAC->PlayEvent("event:/EnemyTakeDamage");
 	damageTimer = model->getAnimationEndTime(4);
+	std::cout << "Damage Timer: " << damageTimer << std::endl;
 }
 
 Grid::Cover& Enemy::ScoreCoverLocations(Player& player)
@@ -704,6 +707,15 @@ bool Enemy::IsHealthZeroOrBelow()
 
 bool Enemy::IsTakingDamage()
 {
+    if (damageTimer > 0.0f)
+    {
+		isTakingDamage_ = true;
+    } 
+    else
+    {
+		isTakingDamage_ = false;
+    }
+
     return isTakingDamage_;
 }
 
@@ -782,11 +794,16 @@ NodeStatus Enemy::EnterTakingDamageState()
     SetEnemyState(TAKE_DAMAGE);
     setAABBColor(glm::vec3(1.0f, 0.0f, 1.0f));
     SetAnimNum(4);
-    TakeDamage(50.0f);
     if (GetEnemyState() != DYING)
         takeDamageAC->PlayEvent("event:/EnemyTakeDamage");
-    damageTimer = model->getAnimationEndTime(4);
-    isTakingDamage_ = true;
+    
+    if (damageTimer > 0.0f)
+    {
+		damageTimer -= dt;
+		return NodeStatus::Running;
+    }
+
+    isTakingDamage_ = false;
     return NodeStatus::Success;
 }
 
