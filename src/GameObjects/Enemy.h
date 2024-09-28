@@ -259,7 +259,7 @@ public:
         bool isTakingCover_;
         bool isAttacking_ = false;
         bool isPatrolling_ = false;
-
+        bool provideSuppressionFire = false;
 
         void BuildBehaviorTree();
 
@@ -276,6 +276,7 @@ public:
         bool IsInCover();
         bool IsAttacking();
         bool IsPatrolling();
+		bool ShouldProvideSuppressionFire();
 
         NodeStatus EnterDyingState();
         NodeStatus EnterTakingDamageState();
@@ -285,4 +286,5 @@ public:
         NodeStatus TakeCover();
         NodeStatus EnterInCoverState();
         NodeStatus Patrol();
+        NodeStatus InCoverAction();
 };

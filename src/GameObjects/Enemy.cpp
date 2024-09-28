@@ -265,6 +265,7 @@ void Enemy::OnEvent(const Event& event)
                 isInCover_ = false;
                 isSeekingCover_ = false;
                 isTakingCover_ = false;
+                provideSuppressionFire = true;
             }
         }
     }
@@ -561,7 +562,7 @@ void Enemy::OnHit()
     SetEnemyState(TAKE_DAMAGE);
 	setAABBColor(glm::vec3(1.0f, 0.0f, 1.0f));
     SetAnimNum(4);
-    TakeDamage(42.0f);
+    TakeDamage(82.0f);
     isTakingDamage_ = true;
     if (GetEnemyState() != DYING)
         takeDamageAC->PlayEvent("event:/EnemyTakeDamage");
@@ -649,6 +650,7 @@ void Enemy::BuildBehaviorTree()
         
     // Health below threshold sequence (Seek Cover)
     auto seekCoverSequence = std::make_shared<SequenceNode>();
+    seekCoverSequence->AddChild(std::make_shared<ConditionNode>([this]() {return !IsInCover(); }));
     seekCoverSequence->AddChild(std::make_shared<ConditionNode>([this]() { return IsHealthBelowThreshold(); }));
     seekCoverSequence->AddChild(std::make_shared<ActionNode>([this]() { return SeekCover(); }));
     seekCoverSequence->AddChild(std::make_shared<ActionNode>([this]() { return TakeCover(); }));
@@ -656,11 +658,14 @@ void Enemy::BuildBehaviorTree()
 
     // In Cover condition
     auto inCoverCondition = std::make_shared<ConditionNode>([this]() { return IsInCover(); });
-    auto inCoverAction = std::make_shared<ActionNode>([]() { return NodeStatus::Success; });
+    auto inCoverAction = std::make_shared<ActionNode>([this]() { return InCoverAction(); });
 
     auto inCoverSequence = std::make_shared<SequenceNode>();
     inCoverSequence->AddChild(inCoverCondition);
     inCoverSequence->AddChild(inCoverAction);
+    
+    inCoverSequence->AddChild(playerVisibleSequence);
+    inCoverSequence->AddChild(playerNotVisibleSequence);
 
     // Patrol action
     auto patrolSequence = std::make_shared<SequenceNode>();
@@ -690,6 +695,8 @@ void Enemy::BuildBehaviorTree()
     root->AddChild(deadSequence);
     root->AddChild(dyingSequence);
     root->AddChild(takingDamageSequence);
+    root->AddChild(seekCoverSequence);
+    root->AddChild(inCoverSequence);
     root->AddChild(attackSelector);
     root->AddChild(patrolSequence);
 
@@ -741,7 +748,7 @@ bool Enemy::IsCooldownComplete()
 
 bool Enemy::IsHealthBelowThreshold()
 {
-    return health_ < 20;
+    return health_ < 40;
 }
 
 bool Enemy::IsPlayerInRange()
@@ -774,6 +781,11 @@ bool Enemy::IsAttacking()
 bool Enemy::IsPatrolling()
 {
     return isPatrolling_;
+}
+
+bool Enemy::ShouldProvideSuppressionFire()
+{
+    return provideSuppressionFire;
 }
 
 NodeStatus Enemy::EnterDyingState()
@@ -845,12 +857,13 @@ NodeStatus Enemy::AttackChasePlayer()
 NodeStatus Enemy::SeekCover()
 {
     isSeekingCover_ = true;
-	ScoreCoverLocations(player);
-    return NodeStatus::Running;
+	cover = ScoreCoverLocations(player);
+    return NodeStatus::Success;
 }
 
 NodeStatus Enemy::TakeCover()
 {
+    isSeekingCover_ = false;
     isTakingCover_ = true;
     std::vector<glm::ivec2> path = grid->findPath(
         glm::ivec2(getPosition().x / grid->GetCellSize(), getPosition().z / grid->GetCellSize()),
@@ -858,6 +871,10 @@ NodeStatus Enemy::TakeCover()
         grid->GetGrid()
     );
     moveEnemy(path, dt, 1.0f, false);
+
+    if (reachedDestination)
+        return NodeStatus::Success;
+
     return NodeStatus::Running;
 }
 
@@ -898,5 +915,13 @@ NodeStatus Enemy::Patrol()
 
         moveEnemy(path, dt, 1.0f, false);
     }
+    return NodeStatus::Running;
+}
+
+NodeStatus Enemy::InCoverAction()
+{
+    if (provideSuppressionFire)
+        return NodeStatus::Success;
+
     return NodeStatus::Running;
 }
