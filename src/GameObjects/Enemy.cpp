@@ -680,11 +680,14 @@ void Enemy::BuildBehaviorTree()
     attackSelector->AddChild(inCoverSequence);*/
     attackSelector->AddChild(patrolSequence);
 
+    takingDamageSequence->AddChild(attackSelector);
+
     // Add sequences to root
     root->AddChild(deadSequence);
     root->AddChild(dyingSequence);
     root->AddChild(takingDamageSequence);
     root->AddChild(attackSelector);
+    root->AddChild(patrolSequence);
 
     behaviorTree_ = root;
 }
@@ -707,15 +710,6 @@ bool Enemy::IsHealthZeroOrBelow()
 
 bool Enemy::IsTakingDamage()
 {
-    if (damageTimer > 0.0f)
-    {
-		isTakingDamage_ = true;
-    } 
-    else
-    {
-		isTakingDamage_ = false;
-    }
-
     return isTakingDamage_;
 }
 
