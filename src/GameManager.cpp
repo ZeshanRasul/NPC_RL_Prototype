@@ -215,7 +215,9 @@ void GameManager::showDebugUI()
 
     ShowAnimationControlWindow();
 	ShowPerformanceWindow();
-    }
+    ShowEnemyStateWindow();
+
+}
 
     void GameManager::renderDebugUI()
     {
@@ -311,6 +313,21 @@ void GameManager::showDebugUI()
 		ImGui::Text("Elapsed Time: %.1f s", elapsedTime);
 
 		ImGui::End();
+    }
+
+    void GameManager::ShowEnemyStateWindow()
+    {
+        ImGui::Begin("Enemy States");
+
+        for (Enemy* e : enemies)
+        {
+			ImTextureID texID = (void*)(intptr_t)e->mTex.getTexID();
+			ImGui::Text("Enemy %d", e->GetID());
+
+			ImGui::Image(texID, ImVec2(100, 100));
+        }
+
+        ImGui::End();
     }
 
     void GameManager::calculatePerformance(float deltaTime)

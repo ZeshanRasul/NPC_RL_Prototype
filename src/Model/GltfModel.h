@@ -44,6 +44,7 @@ public:
 	int getNodeCount() const { return mNodeCount; }
 
 	std::vector<glm::vec3> getVertices() { return mVertices; }
+	Texture* getTexture() { return &mTex; }
 
     std::string filename;
 

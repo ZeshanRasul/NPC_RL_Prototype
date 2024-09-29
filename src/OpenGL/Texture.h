@@ -10,6 +10,8 @@ public:
     void unbind();
     void cleanup();
 
+	int getTexID() const { return mTexture; }
+
 private:
     GLuint mTexture = 0;
     int mTexWidth = 0;

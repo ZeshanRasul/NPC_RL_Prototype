@@ -61,6 +61,7 @@ private:
     void ShowLightControlWindow(DirLight& light);
     void ShowAnimationControlWindow();
 	void ShowPerformanceWindow();
+	void ShowEnemyStateWindow();
 
     void calculatePerformance(float deltaTime);
 

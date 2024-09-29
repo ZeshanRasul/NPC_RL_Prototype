@@ -90,6 +90,8 @@ public:
 
     void OnEvent(const Event& event);
 
+	int GetID() const { return id_; }
+
     glm::vec3 getPosition() {
         return position;
     }
