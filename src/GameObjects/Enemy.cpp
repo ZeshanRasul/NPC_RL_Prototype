@@ -41,177 +41,6 @@ void Enemy::drawObject(glm::mat4 viewMat, glm::mat4 proj)
 	aabb->render(viewMat, proj, modelMat, aabbColor);
 }
 
-void Enemy::OldUpdate(float dt, Player& player, float blendFactor, bool playAnimBackwards)
-{    
-    if (GetEnemyState() == TAKE_DAMAGE)
-	    damageTimer -= dt;
-
-    if (GetEnemyState() == DYING)
-        dyingTimer -= dt;
-	
-    if (dyingTimer <= 0.0f && (GetEnemyState() == DYING || GetEnemyState() == DEAD))
-    {
-        isDestroyed = true;
-        GetGameManager()->GetPhysicsWorld()->removeCollider(GetAABB());
-        GetGameManager()->GetPhysicsWorld()->removeEnemyCollider(GetAABB());
-        return;
-    }
-
-    if (GetEnemyState() == TAKING_COVER)
-        coverTimer -= dt;
-
-    float playerEnemyDistance = glm::distance(getPosition(), player.getPosition());
-
-    glm::vec3 tempEnemyShootPos = getPosition() + glm::vec3(0.0f, 2.5f, 0.0f);
-    glm::vec3 tempEnemyShootDir = glm::normalize(player.getPosition() - getPosition());
-    glm::vec3 hitPoint = glm::vec3(0.0f);
-
-    if (playerEnemyDistance < 35.0f && enemyShootCooldown > 0.0f && GetEnemyState() != TAKE_DAMAGE && GetEnemyState() != DYING && GetEnemyState() != DEAD && GetEnemyState() != TAKING_COVER && GetEnemyState() != SEEKING_COVER)
-    {
-        playerIsVisible = mGameManager->GetPhysicsWorld()->checkPlayerVisibility(tempEnemyShootPos, tempEnemyShootDir, hitPoint, aabb);
-        if (playerIsVisible)
-        {
-            SetEnemyState(ATTACK);
-        }
-        else
-        {
-            SetEnemyState(PATROL);
-        }
-    }
-    else if (playerEnemyDistance < 35.0f && enemyShootCooldown <= 0.0f && GetEnemyState() != TAKE_DAMAGE && GetEnemyState() != DYING && GetEnemyState() != DEAD && GetEnemyState() != TAKING_COVER && GetEnemyState() != SEEKING_COVER)
-    {
-        playerIsVisible = mGameManager->GetPhysicsWorld()->checkPlayerVisibility(tempEnemyShootPos, tempEnemyShootDir, hitPoint, aabb);
-        if (playerIsVisible)
-        {
-            SetEnemyState(ENEMY_SHOOTING);
-        } 
-        else
-        {
-            SetEnemyState(PATROL);
-        }
-    }
-	else if (GetEnemyState() != DYING && GetEnemyState() != DEAD && GetEnemyState() != TAKING_COVER && health < 51.0f && !reachedCover && damageTimer <= 0.0f)
-	{
-		SetEnemyState(SEEKING_COVER);
-	}
-	else if (GetEnemyState() != TAKE_DAMAGE && GetEnemyState() != DYING && GetEnemyState() != DEAD && GetEnemyState() != TAKING_COVER && GetEnemyState() != SEEKING_COVER)
-    {
-        SetEnemyState(PATROL);
-        enemyHasShot = false;
-    } 
-
-    switch (GetEnemyState())
-    {
-    case PATROL:
-    {
-        if (reachedDestination == false)
-        {
-            std::vector<glm::ivec2> path = grid->findPath(
-                glm::ivec2(getPosition().x / grid->GetCellSize(), getPosition().z / grid->GetCellSize()),
-                glm::ivec2(currentWaypoint.x / grid->GetCellSize(), currentWaypoint.z / grid->GetCellSize()),
-				grid->GetGrid()
-            );
-
-            moveEnemy(path, dt, blendFactor, playAnimBackwards);
-        }
-        else
-        {
-            currentWaypoint = selectRandomWaypoint(currentWaypoint, waypointPositions);
-
-            std::vector<glm::ivec2> path = grid->findPath(
-                glm::ivec2(getPosition().x / grid->GetCellSize(), getPosition().z / grid->GetCellSize()),
-                glm::ivec2(currentWaypoint.x / grid->GetCellSize(), currentWaypoint.z / grid->GetCellSize()),
-                grid->GetGrid()
-            );
-
-            reachedDestination = false;
-
-            moveEnemy(path, dt, blendFactor, playAnimBackwards);
-        }
-
-        break;
-    }
-    case ATTACK:
-    {
-        if (enemyShootCooldown <= 0.0f)
-		{
-			SetEnemyState(ENEMY_SHOOTING);
-		}
-		else
-		{
-			enemyShootCooldown -= dt;
-            enemyRayDebugRenderTimer -= dt;
-		}
-        break;
-    }
-    case ENEMY_SHOOTING:
-    {
-        Shoot();
-        SetAnimNum(3);
-        SetAnimation(GetAnimNum(), 1.0f, blendFactor, playAnimBackwards);
-        enemyShootCooldown = 0.3f;
-        enemyRayDebugRenderTimer = 0.3f;
-        enemyHasShot = true;
-		SetEnemyState(ATTACK);
-		break;
-    }
-    case TAKE_DAMAGE:
-    {
-        SetAnimNum(4);
-        SetAnimation(GetAnimNum(), 1.0f, blendFactor, playAnimBackwards);
-        if (damageTimer <= 0.0f)
-        {
-            state = PATROL;
-        }
-        break;
-    }
-    case SEEKING_COVER:
-    {
-		cover = ScoreCoverLocations(player);
-        SetEnemyState(TAKING_COVER);
-        break;
-    }
-	case TAKING_COVER:
-	{
-		std::vector<glm::ivec2> path = grid->findPath(
-			glm::ivec2(getPosition().x / grid->GetCellSize(), getPosition().z / grid->GetCellSize()),
-			glm::ivec2(cover.worldPosition.x / grid->GetCellSize(), cover.worldPosition.z / grid->GetCellSize()),
-			grid->GetGrid()
-		);
-
-		moveEnemy(path, dt, blendFactor, playAnimBackwards);
-        SetAnimation(GetAnimNum(), 1.0f, blendFactor, playAnimBackwards);
-
-        if (coverTimer <= 0.0f && reachedCover)
-        {
-            inCover = false;
-            SetEnemyState(PATROL);
-        }
-
-		break;
-	}
-    case DYING:
-	{
-        SetAnimation(GetAnimNum(), 1.0f, blendFactor, playAnimBackwards);
-		if (dyingTimer <= 0.0f)
-		{
-			SetEnemyState(DEAD);
-		}
-		break;
-	}
-    case DEAD:
-    {
-        return;
-    }
-    default:
-        break;
-    }
-
-    updateAABB();
-    ComputeAudioWorldTransform();
-    UpdateComponents(dt);
-}
-
 void Enemy::Update()
 {
     if (!isDead_)
@@ -818,8 +647,7 @@ bool Enemy::ShouldProvideSuppressionFire()
 
 NodeStatus Enemy::EnterDyingState()
 {
-    std::cout << "Enemy Died!" << std::endl;
-    SetEnemyState(DYING);
+	EDBTState = "Dying";
     SetAnimNum(1);
     
     if (!isDying_)
@@ -842,7 +670,7 @@ NodeStatus Enemy::EnterDyingState()
 
 NodeStatus Enemy::EnterTakingDamageState()
 {
-    SetEnemyState(TAKE_DAMAGE);
+    EDBTState = "Taking Damage";
     setAABBColor(glm::vec3(1.0f, 0.0f, 1.0f));
     SetAnimNum(4);
 
@@ -858,6 +686,15 @@ NodeStatus Enemy::EnterTakingDamageState()
 
 NodeStatus Enemy::AttackShoot()
 {
+	if (ShouldProvideSuppressionFire())
+	{
+		EDBTState = "Providing Suppression Fire";
+    } 
+    else
+    {
+		EDBTState = "Attacking";
+    }
+
     Shoot();
 	isAttacking_ = true;
 
@@ -871,6 +708,8 @@ NodeStatus Enemy::AttackShoot()
 
 NodeStatus Enemy::AttackChasePlayer()
 {
+    EDBTState = "Chasing Player";
+
     std::vector<glm::ivec2> path = grid->findPath(
         glm::ivec2(getPosition().x / grid->GetCellSize(), getPosition().z / grid->GetCellSize()),
         glm::ivec2(player.getPosition().x / grid->GetCellSize(), player.getPosition().z / grid->GetCellSize()),
@@ -897,6 +736,7 @@ NodeStatus Enemy::SeekCover()
 
 NodeStatus Enemy::TakeCover()
 {
+	EDBTState = "Taking Cover";
     isSeekingCover_ = false;
     isTakingCover_ = true;
     std::vector<glm::ivec2> path = grid->findPath(
@@ -922,6 +762,7 @@ NodeStatus Enemy::EnterInCoverState()
 
 NodeStatus Enemy::Patrol()
 {
+	EDBTState = "Patrolling";
     isAttacking_ = false;
 	isPatrolling_ = true;
 
@@ -957,6 +798,7 @@ NodeStatus Enemy::InCoverAction()
     if (provideSuppressionFire_)
         return NodeStatus::Success;
 
+	EDBTState = "In Cover";
     return NodeStatus::Running;
 }
 
@@ -964,6 +806,7 @@ NodeStatus Enemy::Die()
 {
     isDead_ = true;
     isDestroyed = true;
+	EDBTState = "Dead";
     eventManager_.Publish(NPCDiedEvent{ id_ });
     return NodeStatus::Success;
 }

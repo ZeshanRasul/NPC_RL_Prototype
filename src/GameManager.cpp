@@ -321,10 +321,14 @@ void GameManager::showDebugUI()
 
         for (Enemy* e : enemies)
         {
+			if (e == nullptr || e->isDestroyed)
+				continue;
 			ImTextureID texID = (void*)(intptr_t)e->mTex.getTexID();
-			ImGui::Text("Enemy %d", e->GetID());
-
 			ImGui::Image(texID, ImVec2(100, 100));
+            ImGui::SameLine(); 
+            ImGui::Text("Enemy %d", e->GetID());
+            ImGui::SameLine();
+			ImGui::Text("State: %s", e->EDBTState.c_str());
         }
 
         ImGui::End();

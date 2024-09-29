@@ -182,7 +182,7 @@ public:
 	float health = 100.0f;
     EnemyState state = PATROL;
     float EnemyCameraYaw;
-    float EnemyCameraPitch;
+    float EnemyCameraPitch = 45.0f;
     glm::vec3 EnemyFront;
     glm::vec3 EnemyRight;
     glm::vec3 EnemyUp;
@@ -192,6 +192,7 @@ public:
     bool reachedDestination = false;
     bool reachedPlayer = false;
     glm::vec3 currentWaypoint;
+	std::string EDBTState = "Patrolling";
 
     bool uploadVertexBuffer = true;
     ShaderStorageBuffer mEnemyDualQuatSSBuffer{};
