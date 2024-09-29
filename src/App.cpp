@@ -26,6 +26,7 @@ void App::run()
         deltaTime = currentFrame - lastFrame;
         lastFrame = currentFrame;
 
+        mGameManager->RemoveDestroyedGameObjects();
         mGameManager->setUpDebugUI();
         mGameManager->showDebugUI();
         mWindow->clear();
@@ -37,6 +38,5 @@ void App::run()
 
         mGameManager->renderDebugUI();
         mWindow->mainLoop();
-        mGameManager->RemoveDestroyedGameObjects();
     }
 }

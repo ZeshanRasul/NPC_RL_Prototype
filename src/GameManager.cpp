@@ -122,6 +122,11 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
     gameObjects.push_back(enemy3);  
     gameObjects.push_back(enemy4);  
 
+    enemies.push_back(enemy);
+    enemies.push_back(enemy2);
+    enemies.push_back(enemy3);
+    enemies.push_back(enemy4);
+
     mMusicEvent = audioSystem->PlayEvent("event:/Music");
 }
 
@@ -380,34 +385,18 @@ void GameManager::showDebugUI()
 
 	    player->Update(deltaTime);
 
-        if (enemy != nullptr && !enemy->isDestroyed)
-        {
-			enemy->dt = deltaTime;
-            enemy->Update();
-        }
+		for (Enemy* e : enemies)
+		{
+			if (e == nullptr || e->isDestroyed)
+				continue;
 
-		if (enemy2 != nullptr && !enemy2->isDestroyed)
-        {
-            enemy2->dt = deltaTime;
-            enemy2->Update();
-        }
-
-		if (enemy3 != nullptr && !enemy3->isDestroyed)
-        {
-            enemy3->dt = deltaTime;
-            enemy3->Update();
-        }
-
-		if (enemy4 != nullptr && !enemy4->isDestroyed)
-        {
-            enemy4->dt = deltaTime;
-            enemy4->Update();
-        }
+			e->dt = deltaTime;
+			e->Update();
+		}
  
  	    audioSystem->Update(deltaTime);
 
 		calculatePerformance(deltaTime);
-        RemoveDestroyedGameObjects();
 }
 
 void GameManager::render()

@@ -101,6 +101,7 @@ private:
 	PhysicsWorld* physicsWorld;
 
     std::vector<GameObject*> gameObjects;
+    std::vector<Enemy*> enemies;
 
     Shader playerShader{};
     Shader enemyShader{};
