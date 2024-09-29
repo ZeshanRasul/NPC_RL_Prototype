@@ -129,17 +129,6 @@ public:
 	void TakeDamage(float damage) {
 		SetHealth(GetHealth() - damage);
         isTakingDamage_ = true;
-
-        if (health_ <= 0)
-        {
-            eventManager_.Publish(NPCDiedEvent{ id_ });
-            isDead_ = true;
-            isDestroyed = true;
-        }
-        else
-        {
-            eventManager_.Publish(NPCDamagedEvent{ id_ });
-        }
     }
 
     void OnDeath();
@@ -214,7 +203,6 @@ public:
 	int animNum = 0;
     bool takingDamage = false;
 	float damageTimer = 0.0f;
-    bool isDying = false;
 	float dyingTimer = 0.0f;
 	bool inCover = false;
 	float coverTimer = 0.0f;
@@ -254,12 +242,13 @@ public:
         bool isPlayerInRange_;
         bool isTakingDamage_;
         bool isDead_;
+        bool isDying_ = false;
         bool isInCover_;
         bool isSeekingCover_;
         bool isTakingCover_;
         bool isAttacking_ = false;
         bool isPatrolling_ = false;
-        bool provideSuppressionFire = false;
+        bool provideSuppressionFire_ = false;
 
         void BuildBehaviorTree();
 
@@ -287,4 +276,5 @@ public:
         NodeStatus EnterInCoverState();
         NodeStatus Patrol();
         NodeStatus InCoverAction();
+        NodeStatus Die();
 };

@@ -265,7 +265,7 @@ void Enemy::OnEvent(const Event& event)
                 isInCover_ = false;
                 isSeekingCover_ = false;
                 isTakingCover_ = false;
-                provideSuppressionFire = true;
+                provideSuppressionFire_ = true;
             }
         }
     }
@@ -488,7 +488,6 @@ void Enemy::OnDeath()
     SetEnemyState(DYING);
     SetAnimNum(1);
     deathAC->PlayEvent("event:/EnemyDeath");
-	dyingTimer = 1.5f;
 }
 
 void Enemy::SetUpAABB()
@@ -564,10 +563,10 @@ void Enemy::OnHit()
     SetAnimNum(4);
     TakeDamage(82.0f);
     isTakingDamage_ = true;
-    if (GetEnemyState() != DYING)
-        takeDamageAC->PlayEvent("event:/EnemyTakeDamage");
+    takeDamageAC->PlayEvent("event:/EnemyTakeDamage");
 	damageTimer = model->getAnimationEndTime(4);
 	std::cout << "Damage Timer: " << damageTimer << std::endl;
+    eventManager_.Publish(NPCDamagedEvent{ id_ });
 }
 
 Grid::Cover& Enemy::ScoreCoverLocations(Player& player)
@@ -611,7 +610,10 @@ void Enemy::BuildBehaviorTree()
 
     // Dead check
     auto isDeadCondition = std::make_shared<ConditionNode>([this]() { return IsDead(); });
-    auto deadAction = std::make_shared<ActionNode>([]() { return NodeStatus::Success; });
+    auto deadAction = std::make_shared<ActionNode>([this]() { return Die(); });
+
+    auto isDeadSequence = std::make_shared<SequenceNode>();
+
 
     auto deadSequence = std::make_shared<SequenceNode>();
     deadSequence->AddChild(isDeadCondition);
@@ -622,8 +624,12 @@ void Enemy::BuildBehaviorTree()
     dyingSequence->AddChild(std::make_shared<ConditionNode>([this]() { return IsHealthZeroOrBelow(); }));
     dyingSequence->AddChild(std::make_shared<ActionNode>([this]() { return EnterDyingState(); }));
 
+	isDeadSequence->AddChild(dyingSequence);
+	isDeadSequence->AddChild(deadSequence);
+
     // Taking Damage sequence
     auto takingDamageSequence = std::make_shared<SequenceNode>();
+    takingDamageSequence->AddChild(std::make_shared<ConditionNode>([this]() {return !IsHealthZeroOrBelow(); }));
     takingDamageSequence->AddChild(std::make_shared<ConditionNode>([this]() { return IsTakingDamage(); }));
     takingDamageSequence->AddChild(std::make_shared<ActionNode>([this]() { return EnterTakingDamageState(); }));
 
@@ -632,10 +638,12 @@ void Enemy::BuildBehaviorTree()
 
     // Player detected sequence
     auto playerDetectedSequence = std::make_shared<SequenceNode>();
+    playerDetectedSequence->AddChild(std::make_shared<ConditionNode>([this]() {return !IsHealthZeroOrBelow(); }));
     playerDetectedSequence->AddChild(std::make_shared<ConditionNode>([this]() { return IsPlayerDetected(); }));
  
     // Suppression Fire sequence
     auto supressionFireSequence = std::make_shared<SequenceNode>();
+    supressionFireSequence->AddChild(std::make_shared<ConditionNode>([this]() {return !IsHealthZeroOrBelow(); }));
     supressionFireSequence->AddChild(std::make_shared<ConditionNode>([this]() { return ShouldProvideSuppressionFire(); }));
 
     // Player Detected Selector: Player Visible or Not Visible
@@ -657,6 +665,7 @@ void Enemy::BuildBehaviorTree()
         
     // Health below threshold sequence (Seek Cover)
     auto seekCoverSequence = std::make_shared<SequenceNode>();
+    seekCoverSequence->AddChild(std::make_shared<ConditionNode>([this]() {return !IsHealthZeroOrBelow(); }));
     seekCoverSequence->AddChild(std::make_shared<ConditionNode>([this]() {return !IsInCover(); }));
     seekCoverSequence->AddChild(std::make_shared<ConditionNode>([this]() {return !ShouldProvideSuppressionFire(); }));
     seekCoverSequence->AddChild(std::make_shared<ConditionNode>([this]() { return IsHealthBelowThreshold(); }));
@@ -669,6 +678,7 @@ void Enemy::BuildBehaviorTree()
     auto inCoverAction = std::make_shared<ActionNode>([this]() { return InCoverAction(); });
 
     auto inCoverSequence = std::make_shared<SequenceNode>();
+    inCoverSequence->AddChild(std::make_shared<ConditionNode>([this]() {return !IsHealthZeroOrBelow(); }));
     inCoverSequence->AddChild(inCoverCondition);
     inCoverSequence->AddChild(inCoverAction);
     
@@ -677,6 +687,7 @@ void Enemy::BuildBehaviorTree()
 
     // Patrol action
     auto patrolSequence = std::make_shared<SequenceNode>();
+    patrolSequence->AddChild(std::make_shared<ConditionNode>([this]() {return !IsHealthZeroOrBelow(); }));
     patrolSequence->AddChild(std::make_shared<ConditionNode>([this]() { return !IsPlayerInRange(); }));
     patrolSequence->AddChild(std::make_shared<ConditionNode>([this]() { return !IsHealthBelowThreshold(); }));
     patrolSequence->AddChild(std::make_shared<ConditionNode>([this]() { return !IsAttacking(); }));
@@ -707,8 +718,9 @@ void Enemy::BuildBehaviorTree()
     takingDamageSequence->AddChild(attackSelector);
 
     // Add sequences to root
-    root->AddChild(deadSequence);
-    root->AddChild(dyingSequence);
+    //root->AddChild(deadSequence);
+    //root->AddChild(dyingSequence);
+	root->AddChild(isDeadSequence);
     root->AddChild(takingDamageSequence);
     root->AddChild(seekCoverSequence);
     root->AddChild(inCoverSequence);
@@ -801,33 +813,39 @@ bool Enemy::IsPatrolling()
 
 bool Enemy::ShouldProvideSuppressionFire()
 {
-    return provideSuppressionFire;
+    return provideSuppressionFire_;
 }
 
 NodeStatus Enemy::EnterDyingState()
 {
-    isDead_ = true;
-    isDestroyed = true;
     std::cout << "Enemy Died!" << std::endl;
     SetEnemyState(DYING);
     SetAnimNum(1);
-    deathAC->PlayEvent("event:/EnemyDeath");
-    dyingTimer = 1.5f;
+    
+    if (!isDying_)
+	{
+		deathAC->PlayEvent("event:/EnemyDeath");
+        dyingTimer = model->getAnimationEndTime(1);
+		isDying_ = true;
+	}
 
-    // After animation completes, send NPCDiedEvent
+    if (dyingTimer > 0.0f)
+    {
+        dyingTimer -= dt;
+		return NodeStatus::Running;
+    }
+
+    isDead_ = true;
     eventManager_.Publish(NPCDiedEvent{ id_ });
     return NodeStatus::Success;
 }
 
 NodeStatus Enemy::EnterTakingDamageState()
 {
-    Logger::log(1, "Enemy was hit!\n", __FUNCTION__);
     SetEnemyState(TAKE_DAMAGE);
     setAABBColor(glm::vec3(1.0f, 0.0f, 1.0f));
     SetAnimNum(4);
-    if (GetEnemyState() != DYING)
-        takeDamageAC->PlayEvent("event:/EnemyTakeDamage");
-    
+
     if (damageTimer > 0.0f)
     {
 		damageTimer -= dt;
@@ -936,8 +954,16 @@ NodeStatus Enemy::Patrol()
 
 NodeStatus Enemy::InCoverAction()
 {
-    if (provideSuppressionFire)
+    if (provideSuppressionFire_)
         return NodeStatus::Success;
 
     return NodeStatus::Running;
+}
+
+NodeStatus Enemy::Die()
+{
+    isDead_ = true;
+    isDestroyed = true;
+    eventManager_.Publish(NPCDiedEvent{ id_ });
+    return NodeStatus::Success;
 }

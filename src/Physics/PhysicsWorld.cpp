@@ -54,13 +54,13 @@ bool PhysicsWorld::rayIntersect(const glm::vec3& rayOrigin, const glm::vec3& ray
 		}
     }
 
-    if (hit && closestAABB)
+    if (hit && closestAABB && !closestAABB->owner->isDestroyed)
         closestAABB->owner->OnHit();
     else if (size(missedAABBs) > 0) 
     {
         for (AABB* missedAABB : missedAABBs)
         {
-            if (missedAABB->owner != nullptr)
+            if (missedAABB->owner != nullptr && !missedAABB->owner->isDestroyed)
                 missedAABB->owner->OnMiss();
 
         }
@@ -93,9 +93,9 @@ bool PhysicsWorld::rayEnemyIntersect(const glm::vec3& rayOrigin, const glm::vec3
         }
     }
 
-    if (hit && closestAABB && !closestAABB->isPlayer)
+    if (hit && closestAABB && !closestAABB->isPlayer && !closestAABB->owner->isDestroyed)
         closestAABB->owner->OnHit();
-    else if (missedAABB && !missedAABB->isPlayer)
+    else if (missedAABB && !missedAABB->isPlayer && !missedAABB->owner->isDestroyed)
     {
         hit = false;
         missedAABB->owner->OnMiss();
@@ -128,9 +128,9 @@ bool PhysicsWorld::rayPlayerIntersect(const glm::vec3& rayOrigin, const glm::vec
         }
     }
 
-    if (hit && closestAABB && !closestAABB->isEnemy)
+    if (hit && closestAABB && !closestAABB->isEnemy && !closestAABB->owner->isDestroyed)
         closestAABB->owner->OnHit();
-    else if (missedAABB && !missedAABB->isEnemy)
+    else if (missedAABB && !missedAABB->isEnemy && !missedAABB->owner->isDestroyed)
     {
         hit = false;
         missedAABB->owner->OnMiss();
