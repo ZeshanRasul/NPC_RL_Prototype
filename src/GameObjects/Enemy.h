@@ -223,7 +223,8 @@ public:
 	Grid* grid;
     Grid::Cover cover;
     size_t pathIndex = 0;
-
+    size_t prevPathIndex = 0;
+	std::vector<glm::ivec2> prevPath = {};
 
     std::vector<glm::vec3> waypointPositions = {
             grid->snapToGrid(glm::vec3(0.0f, 0.0f, 0.0f)),

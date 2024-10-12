@@ -164,7 +164,10 @@ void Enemy::EnemyProcessMouseMovement(float xOffset, float yOffset, bool constra
 
 void Enemy::moveEnemy(const std::vector<glm::ivec2>& path, float deltaTime, float blendFactor, bool playAnimBackwards) {
 //    static size_t pathIndex = 0;
-    if (path.empty()) return;
+    if (path.empty())
+    {
+        return;
+    }
 
     const float tolerance = 0.1f; // Smaller tolerance for better alignment
     const float agentRadius = 0.5f; // Adjust this value to match the agent's radius
@@ -262,7 +265,8 @@ void Enemy::moveEnemy(const std::vector<glm::ivec2>& path, float deltaTime, floa
     }
         
 
-	if (glm::distance(getPosition(), targetPos) < grid->GetGridSize() / 2.0f) {
+	if (glm::distance(getPosition(), targetPos) < grid->GetGridSize() / 2.0f) 
+    {
 		grid->OccupyCell(path[pathIndex].x, path[pathIndex].y, id_);
 		
 	}
@@ -271,10 +275,13 @@ void Enemy::moveEnemy(const std::vector<glm::ivec2>& path, float deltaTime, floa
 
     // Check if the enemy has reached the current target position within a tolerance
     if (glm::distance(getPosition(), targetPos) < tolerance) {
+		grid->VacateCell(path[pathIndex].x, path[pathIndex].y, id_);
+
         pathIndex++;
         if (pathIndex >= path.size()) {
 			grid->VacateCell(path[pathIndex - 1].x, path[pathIndex - 1].y, id_);
             pathIndex = 0; // Reset path index if the end is reached
+
         }
     }
 }
@@ -720,12 +727,30 @@ NodeStatus Enemy::AttackChasePlayer()
 {
     EDBTState = "Chasing Player";
 
+
+
     std::vector<glm::ivec2> path = grid->findPath(
         glm::ivec2(getPosition().x / grid->GetCellSize(), getPosition().z / grid->GetCellSize()),
         glm::ivec2(player.getPosition().x / grid->GetCellSize(), player.getPosition().z / grid->GetCellSize()),
         grid->GetGrid(),
         id_
     );
+
+	if (prevPath.empty())
+	{
+		prevPathIndex = pathIndex;
+		prevPath = path;
+	}
+	else if (prevPath != path)
+	{
+		for (size_t i = 0; i <= prevPathIndex; i++)
+		{
+			grid->VacateCell(prevPath[i].x, prevPath[i].y, id_);
+		}
+		prevPathIndex = pathIndex;
+		prevPath = path;
+	}
+
     isAttacking_ = true;
 
     moveEnemy(path, dt, 1.0f, false);
@@ -756,6 +781,22 @@ NodeStatus Enemy::TakeCover()
         grid->GetGrid(),
         id_
     );
+
+	if (prevPath.empty())
+	{
+		prevPathIndex = pathIndex;
+		prevPath = path;
+	}
+	else if (prevPath != path)
+	{
+		for (size_t i = 0; i <= prevPathIndex; i++)
+		{
+			grid->VacateCell(prevPath[i].x, prevPath[i].y, id_);
+		}
+		prevPathIndex = pathIndex;
+		prevPath = path;
+	}
+
     moveEnemy(path, dt, 1.0f, false);
 
     if (reachedDestination)
@@ -787,6 +828,21 @@ NodeStatus Enemy::Patrol()
             id_
         );
 
+		if (prevPath.empty())
+		{
+			prevPathIndex = pathIndex;
+			prevPath = path;
+		}
+		else if (prevPath != path)
+		{
+			for (size_t i = 0; i <= prevPathIndex; i++)
+			{
+				grid->VacateCell(prevPath[i].x, prevPath[i].y, id_);
+			}
+			prevPathIndex = pathIndex;
+			prevPath = path;
+		}
+
         moveEnemy(path, dt, 1.0f, false);
     }
     else
@@ -799,6 +855,21 @@ NodeStatus Enemy::Patrol()
             grid->GetGrid(),
             id_
         );
+
+		if (prevPath.empty())
+		{
+			prevPathIndex = pathIndex;
+			prevPath = path;
+		}
+		else if (prevPath != path)
+		{
+			for (size_t i = 0; i < prevPathIndex; i++)
+			{
+				grid->VacateCell(prevPath[i].x, prevPath[i].y, id_);
+			}
+			prevPathIndex = pathIndex;
+			prevPath = path;
+		}
 
         reachedDestination = false;
 
