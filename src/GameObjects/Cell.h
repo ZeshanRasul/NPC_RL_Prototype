@@ -9,7 +9,7 @@
 class Cell {
 public:
     Cell(bool isObs, glm::vec3 col)
-        : isObstacle(isObs), color(col), isOccupied(false), occupantId(-1)
+		: isObstacle(isObs), color(col), isOccupied(false), occupantId(-1), isCover(false)
     {
         SetUpVAO();
     }

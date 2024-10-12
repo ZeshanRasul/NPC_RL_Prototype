@@ -13,7 +13,7 @@ class Grid {
 public:
 	struct Cover {
 		glm::vec3 worldPosition;
-		Cell gridPos;
+		Cell* gridPos;
 	};
 
     std::vector<glm::vec3> coverPositions = {

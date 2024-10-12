@@ -440,7 +440,7 @@ Grid::Cover& Enemy::ScoreCoverLocations(Player& player)
             score += 20.0f;
         }
 
-		if (cover.gridPos.IsOccupied() && !cover.gridPos.IsOccupiedBy(id_))
+		if (cover.gridPos->IsOccupied() && !cover.gridPos->IsOccupiedBy(id_))
 		{
 			score = -100.0f;
 		}
@@ -451,8 +451,8 @@ Grid::Cover& Enemy::ScoreCoverLocations(Player& player)
 		}
 	}
 
-	bestCover.gridPos.SetOccupied(true);
-	bestCover.gridPos.SetOccupantId(id_);
+	bestCover.gridPos->SetOccupied(true);
+	bestCover.gridPos->SetOccupantId(id_);
 
     return bestCover;
 }
