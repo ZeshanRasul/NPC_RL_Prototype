@@ -153,6 +153,10 @@ void Grid::OccupyCell(int x, int y, int npcId)
     grid[x][y].SetOccupied(true);
     grid[x][y].SetOccupantId(npcId);
     grid[x][y].SetColor(glm::vec3(0.0f, 0.0f, 1.0f));
+
+	if (grid[x][y].IsCover()) {
+		grid[x][y].SetColor(glm::vec3(1.0f, 0.0f, 1.0f));
+	}
 }
 
 void Grid::VacateCell(int x, int y, int npcId)
@@ -161,6 +165,10 @@ void Grid::VacateCell(int x, int y, int npcId)
 	grid[x][y].SetOccupied(false);
     grid[x][y].SetOccupantId(-1);
 	grid[x][y].SetColor(glm::vec3(0.0f, 1.0f, 0.0f));
+
+	if (grid[x][y].IsCover()) {
+		grid[x][y].SetColor(glm::vec3(1.0f, 0.4f, 0.0f));
+	}
 }
 
 

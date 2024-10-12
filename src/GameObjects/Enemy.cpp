@@ -419,7 +419,7 @@ Grid::Cover& Enemy::ScoreCoverLocations(Player& player)
 {
     float bestScore = -100000.0f;
 
-	Grid::Cover bestCover;
+	Grid::Cover& bestCover = cover;
 
 	for (Grid::Cover& cover : grid->GetCoverLocations())
 	{
@@ -440,11 +440,19 @@ Grid::Cover& Enemy::ScoreCoverLocations(Player& player)
             score += 20.0f;
         }
 
+		if (cover.gridPos.IsOccupied() && !cover.gridPos.IsOccupiedBy(id_))
+		{
+			score = -100.0f;
+		}
+
 		if (score > bestScore) {
 			bestScore = score;
 			bestCover = cover;
 		}
 	}
+
+	bestCover.gridPos.SetOccupied(true);
+	bestCover.gridPos.SetOccupantId(id_);
 
     return bestCover;
 }
@@ -743,7 +751,7 @@ NodeStatus Enemy::AttackChasePlayer()
 	}
 	else if (prevPath != path)
 	{
-		for (size_t i = 0; i <= prevPathIndex; i++)
+		for (size_t i = 0; i < prevPath.size(); i++)
 		{
 			grid->VacateCell(prevPath[i].x, prevPath[i].y, id_);
 		}
@@ -789,7 +797,7 @@ NodeStatus Enemy::TakeCover()
 	}
 	else if (prevPath != path)
 	{
-		for (size_t i = 0; i <= prevPathIndex; i++)
+		for (size_t i = 0; i < prevPath.size(); i++)
 		{
 			grid->VacateCell(prevPath[i].x, prevPath[i].y, id_);
 		}
@@ -835,7 +843,7 @@ NodeStatus Enemy::Patrol()
 		}
 		else if (prevPath != path)
 		{
-			for (size_t i = 0; i <= prevPathIndex; i++)
+			for (size_t i = 0; i < prevPath.size(); i++)
 			{
 				grid->VacateCell(prevPath[i].x, prevPath[i].y, id_);
 			}
@@ -863,7 +871,7 @@ NodeStatus Enemy::Patrol()
 		}
 		else if (prevPath != path)
 		{
-			for (size_t i = 0; i < prevPathIndex; i++)
+			for (size_t i = 0; i < prevPath.size(); i++)
 			{
 				grid->VacateCell(prevPath[i].x, prevPath[i].y, id_);
 			}

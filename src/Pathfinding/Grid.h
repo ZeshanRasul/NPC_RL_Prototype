@@ -54,7 +54,7 @@ public:
 
 	glm::vec3 ConvertCellToWorldSpace(const int gridX, const int gridZ) const
 	{
-		return glm::vec3(gridX * CELL_SIZE + CELL_SIZE / 2.0f, 0.0f, gridZ * CELL_SIZE + CELL_SIZE / 2.0f);
+		return glm::vec3(gridX * CELL_SIZE, 0.0f, gridZ * CELL_SIZE);
 	}
 
     std::vector<glm::ivec2> findPath(const glm::ivec2& start, const glm::ivec2& goal, const std::vector<std::vector<Cell>>& grid, int npcId);
