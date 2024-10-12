@@ -178,7 +178,8 @@ void Enemy::moveEnemy(const std::vector<glm::ivec2>& path, float deltaTime, floa
 
     if (pathIndex >= path.size()) {
         std::cout << "Agent has reached its destination." << std::endl;
-        
+		grid->VacateCell(path[pathIndex - 1].x, path[pathIndex - 1].y, id_);
+
         if (IsPatrolling())
             reachedDestination = true;
 
@@ -264,9 +265,9 @@ void Enemy::moveEnemy(const std::vector<glm::ivec2>& path, float deltaTime, floa
 	if (glm::distance(getPosition(), targetPos) < grid->GetGridSize() / 2.0f) {
 		grid->OccupyCell(path[pathIndex].x, path[pathIndex].y, id_);
 		
-        if (pathIndex >= 1)
-            grid->VacateCell(path[pathIndex - 1].x, path[pathIndex - 1].y, id_);
 	}
+    if (pathIndex >= 1)
+       grid->VacateCell(path[pathIndex - 1].x, path[pathIndex - 1].y, id_);
 
     // Check if the enemy has reached the current target position within a tolerance
     if (glm::distance(getPosition(), targetPos) < tolerance) {
