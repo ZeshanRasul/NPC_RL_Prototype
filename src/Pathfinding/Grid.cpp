@@ -96,10 +96,10 @@ struct Node {
 };
 
 float heuristic(const glm::ivec2& a, const glm::ivec2& b) {
-    return (std::abs(a.x - b.x) + std::abs(a.y - b.y)) * glm::min((a.x - b.x), (a.y - b.y));
+    return std::abs(a.x - b.x) + std::abs(a.y - b.y);
 }
 
-std::vector<glm::ivec2> Grid::findPath(const glm::ivec2& start, const glm::ivec2& goal, const std::vector<std::vector<Cell>>& grid) {
+std::vector<glm::ivec2> Grid::findPath(const glm::ivec2& start, const glm::ivec2& goal, const std::vector<std::vector<Cell>>& grid, int npcId) {
     std::priority_queue<Node> openSet;
     std::unordered_map<glm::ivec2, Node, ivec2_hash> allNodes;
     std::unordered_set<glm::ivec2, ivec2_hash> closedSet;
@@ -132,7 +132,7 @@ std::vector<glm::ivec2> Grid::findPath(const glm::ivec2& start, const glm::ivec2
         for (const glm::ivec2& neighbor : neighbors) {
             if (neighbor.x < 0 || neighbor.y < 0 || neighbor.x >= GRID_SIZE || neighbor.y >= GRID_SIZE)
                 continue;
-            if (grid[neighbor.x][neighbor.y].IsObstacle() || closedSet.count(neighbor))
+            if (grid[neighbor.x][neighbor.y].IsObstacle() || (grid[neighbor.x][neighbor.y].IsOccupied() && !grid[neighbor.x][neighbor.y].IsOccupiedBy(npcId)) || closedSet.count(neighbor))
                 continue;
 
             float tentativeGCost = current.gCost + 1.0f;
@@ -146,4 +146,22 @@ std::vector<glm::ivec2> Grid::findPath(const glm::ivec2& start, const glm::ivec2
 
     return {};
 }
+
+void Grid::OccupyCell(int x, int y, int npcId)
+{
+	if (grid[x][y].IsObstacle() || grid[x][y].IsOccupied()) return;
+    grid[x][y].SetOccupied(true);
+    grid[x][y].SetOccupantId(npcId);
+    grid[x][y].SetColor(glm::vec3(0.0f, 0.0f, 1.0f));
+}
+
+void Grid::VacateCell(int x, int y, int npcId)
+{
+	if (grid[x][y].IsObstacle() || !grid[x][y].IsOccupiedBy(npcId)) return;
+	grid[x][y].SetOccupied(false);
+    grid[x][y].SetOccupantId(-1);
+	grid[x][y].SetColor(glm::vec3(0.0f, 1.0f, 0.0f));
+}
+
+
 

@@ -57,7 +57,10 @@ public:
 		return glm::vec3(gridX * CELL_SIZE + CELL_SIZE / 2.0f, 0.0f, gridZ * CELL_SIZE + CELL_SIZE / 2.0f);
 	}
 
-    std::vector<glm::ivec2> findPath(const glm::ivec2& start, const glm::ivec2& goal, const std::vector<std::vector<Cell>>& grid);
+    std::vector<glm::ivec2> findPath(const glm::ivec2& start, const glm::ivec2& goal, const std::vector<std::vector<Cell>>& grid, int npcId);
+
+    void OccupyCell(int x, int y, int npcId);
+    void VacateCell(int x, int y, int npcId);
 
     std::vector<std::vector<Cell>> GetGrid() const { return grid; }
     std::vector<Cover> GetCoverLocations() const { return coverLocations; }

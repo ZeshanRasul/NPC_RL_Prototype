@@ -9,7 +9,7 @@
 class Cell {
 public:
     Cell(bool isObs, glm::vec3 col)
-        : isObstacle(isObs), color(col)
+        : isObstacle(isObs), color(col), isOccupied(false), occupantId(-1)
     {
         SetUpVAO();
     }
@@ -74,6 +74,26 @@ public:
 		color = col;
 	}
 
+	bool IsOccupied() const {
+		return isOccupied;
+	}
+
+    void SetOccupied(bool occ) {
+        isOccupied = occ;
+    }
+
+	bool IsOccupiedBy(int id) const {
+		return occupantId == id;
+	}
+
+	void SetOccupantId(int id) {
+		occupantId = id;
+	}
+
+	int GetOccupantId() const {
+		return occupantId;
+	}   
+
     Texture mTex{};
 private:
     GLuint cellVAO = 0;
@@ -93,6 +113,8 @@ private:
 
     bool isObstacle;
     glm::vec3 color;
+    bool isOccupied;
+    int occupantId;
     bool isCover;
 
 };
