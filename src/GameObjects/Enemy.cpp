@@ -170,7 +170,7 @@ void Enemy::moveEnemy(const std::vector<glm::ivec2>& path, float deltaTime, floa
     }
 
     const float tolerance = 0.1f; // Smaller tolerance for better alignment
-    const float agentRadius = 0.5f; // Adjust this value to match the agent's radius
+    const float agentRadius = 0.1f; // Adjust this value to match the agent's radius
     float speed = 5.0f; // Ensure this speed is appropriate for the grid size and cell size
     
     if (!reachedPlayer && !inCover)
@@ -192,7 +192,7 @@ void Enemy::moveEnemy(const std::vector<glm::ivec2>& path, float deltaTime, floa
             {
                 reachedCover = true;
                 isInCover_ = true;
-				SetAnimNum(3);
+				SetAnimNum(0);
 				SetAnimation(GetAnimNum(), 1.0f, blendFactor, playAnimBackwards);
             }
 		}
@@ -210,13 +210,6 @@ void Enemy::moveEnemy(const std::vector<glm::ivec2>& path, float deltaTime, floa
 		//}
 		
         return; // Stop moving if the agent has reached its destination
-    }
-
-    float cellOffset = 0.0f;
-
-    if (pathIndex < path.size())
-    {
-        cellOffset = grid->GetCellSize() / 2.0f;
     }
 
     // Calculate the target position from the current path node
@@ -446,17 +439,17 @@ void Enemy::ScoreCoverLocations(Player& player)
             score += 20.0f;
         }
 
-		//if (grid->GetGrid()[cover->gridX][cover->gridZ].IsOccupied())
-		//{
-		//	score -= 10000.0f;
-		//}
+		if (grid->GetGrid()[cover->gridX][cover->gridZ].IsOccupied() && grid->GetGrid()[cover->gridX][cover->gridZ].IsOccupiedBy(id_))
+		{
+			score -= 100.0f;
+		}
 
 		if (score > bestScore) {
 			bestScore = score;
 			selectedCover = cover;
 		}
 	}
-
+    grid->OccupyCell(selectedCover->gridX, selectedCover->gridZ, id_);
 }
 
 void Enemy::BuildBehaviorTree()
@@ -785,9 +778,12 @@ NodeStatus Enemy::TakeCover()
 	EDBTState = "Taking Cover";
     isSeekingCover_ = false;
     isTakingCover_ = true;
+
+	glm::vec3 snappedCurrentPos = grid->snapToGrid(getPosition());
+
     std::vector<glm::ivec2> path = grid->findPath(
-        glm::ivec2(getPosition().x / grid->GetCellSize(), getPosition().z / grid->GetCellSize()),
-        glm::ivec2(selectedCover->gridX, selectedCover->gridZ),
+        glm::ivec2(snappedCurrentPos.x / grid->GetCellSize(), snappedCurrentPos.z / grid->GetCellSize()),
+		glm::ivec2(selectedCover->worldPosition.x / grid->GetCellSize(), selectedCover->worldPosition.z / grid->GetCellSize()),
         grid->GetGrid(),
         id_
     );
@@ -832,7 +828,7 @@ NodeStatus Enemy::Patrol()
     if (reachedDestination == false)
     {
         std::vector<glm::ivec2> path = grid->findPath(
-            glm::ivec2(getPosition().x / grid->GetCellSize(), getPosition().z / grid->GetCellSize()),
+            glm::ivec2((int)(getPosition().x / grid->GetCellSize()), (int)(getPosition().z / grid->GetCellSize())),
             glm::ivec2(currentWaypoint.x / grid->GetCellSize(), currentWaypoint.z / grid->GetCellSize()),
             grid->GetGrid(),
             id_
