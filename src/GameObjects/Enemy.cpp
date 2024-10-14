@@ -43,7 +43,7 @@ void Enemy::drawObject(glm::mat4 viewMat, glm::mat4 proj)
 
 void Enemy::Update()
 {
-    if (!isDead_)
+    if (!isDead_ || !isDestroyed)
     {
         float playerEnemyDistance = glm::distance(getPosition(), player.getPosition());
         if (playerEnemyDistance < 35.0f && !IsPlayerDetected())
@@ -188,12 +188,16 @@ void Enemy::moveEnemy(const std::vector<glm::ivec2>& path, float deltaTime, floa
 
 		if (isTakingCover_)
 		{
-            if (glm::distance(getPosition(), selectedCover->worldPosition) < grid->GetCellSize() / 2.0f)
+			if (glm::distance(getPosition(), selectedCover->worldPosition) < 0.5f)
             {
                 reachedCover = true;
                 isInCover_ = true;
-				SetAnimNum(0);
-				SetAnimation(GetAnimNum(), 1.0f, blendFactor, playAnimBackwards);
+			    SetAnimNum(0);
+			    SetAnimation(GetAnimNum(), 1.0f, blendFactor, playAnimBackwards);
+            }
+            else
+            {
+				setPosition(getPosition() + (glm::normalize(selectedCover->worldPosition - getPosition()) * 2.0f) * speed * deltaTime);
             }
 		}
 		else if (state == ATTACK)
@@ -245,7 +249,7 @@ void Enemy::moveEnemy(const std::vector<glm::ivec2>& path, float deltaTime, floa
     }
     else {
         // If the new position is within an obstacle, try to adjust the position slightly
-        newPos = getPosition() + direction * (speed * deltaTime * 0.5f);
+        newPos = getPosition() + direction * (speed * deltaTime * 0.01f);
         isObstacleFree = true;
         for (float xOffset = -agentRadius; xOffset <= agentRadius; xOffset += agentRadius * 2) {
             for (float zOffset = -agentRadius; zOffset <= agentRadius; zOffset += agentRadius * 2) {
@@ -263,6 +267,13 @@ void Enemy::moveEnemy(const std::vector<glm::ivec2>& path, float deltaTime, floa
         }
     }
         
+
+    if (pathIndex == 0) {
+        // Snap the enemy to the center of the starting grid cell when the path starts
+        glm::vec3 startCellCenter = glm::vec3(path[pathIndex].x * grid->GetCellSize() + grid->GetCellSize() / 2.0f, getPosition().y, path[pathIndex].y * grid->GetCellSize() + grid->GetCellSize() / 2.0f);
+        setPosition(startCellCenter);
+    }
+
 
 	if (glm::distance(getPosition(), targetPos) < grid->GetGridSize() / 2.0f) 
     {
@@ -780,10 +791,12 @@ NodeStatus Enemy::TakeCover()
     isTakingCover_ = true;
 
 	glm::vec3 snappedCurrentPos = grid->snapToGrid(getPosition());
+    glm::vec3 snappedCoverPos = grid->snapToGrid(selectedCover->worldPosition);
+    
 
     std::vector<glm::ivec2> path = grid->findPath(
         glm::ivec2(snappedCurrentPos.x / grid->GetCellSize(), snappedCurrentPos.z / grid->GetCellSize()),
-		glm::ivec2(selectedCover->worldPosition.x / grid->GetCellSize(), selectedCover->worldPosition.z / grid->GetCellSize()),
+		glm::ivec2(snappedCoverPos.x / grid->GetCellSize(), snappedCoverPos.z / grid->GetCellSize()),
         grid->GetGrid(),
         id_
     );

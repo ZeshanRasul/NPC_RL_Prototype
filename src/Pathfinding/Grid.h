@@ -19,10 +19,10 @@ public:
 	};
 
     std::vector<glm::vec3> coverPositions = {
-        glm::vec3(18.0f, 3.5f, 18.0f),
-        glm::vec3(48.0f, 3.5f, 18.0f),
+        glm::vec3(15.0f, 3.5f, 10.0f),
+        glm::vec3(45.0f, 3.5f, 10.0f),
         glm::vec3(30.0f, 3.5f, 10.0f),
-        glm::vec3(22.0f, 3.5f, 10.0f)
+        glm::vec3(25.0f, 3.5f, 10.0f)
     };
 
     std::vector<glm::vec3> snappedCoverPositions;
@@ -76,7 +76,7 @@ private:
     UniformBuffer mGridColorUniformBuffer{};
 
     int GRID_SIZE = 15;
-    int CELL_SIZE = 7;
+    int CELL_SIZE = 10;
     std::vector<std::vector<Cell>> grid;
 
     bool firstLoad = true;
