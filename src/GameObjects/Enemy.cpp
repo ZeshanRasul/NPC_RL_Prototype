@@ -191,6 +191,7 @@ void Enemy::moveEnemy(const std::vector<glm::ivec2>& path, float deltaTime, floa
 			if (glm::distance(getPosition(), selectedCover->worldPosition) < 0.5f)
             {
                 reachedCover = true;
+                isTakingCover_ = false;
                 isInCover_ = true;
 			    SetAnimNum(0);
 			    SetAnimation(GetAnimNum(), 1.0f, blendFactor, playAnimBackwards);
