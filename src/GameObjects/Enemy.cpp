@@ -186,22 +186,28 @@ void Enemy::moveEnemy(const std::vector<glm::ivec2>& path, float deltaTime, floa
         if (IsPatrolling())
             reachedDestination = true;
 
-		if (state == PATROL)
+		if (isTakingCover_)
 		{
-			reachedDestination = true;
+            if (glm::distance(getPosition(), selectedCover->worldPosition) < grid->GetCellSize() / 2.0f)
+            {
+                reachedCover = true;
+                isInCover_ = true;
+				SetAnimNum(3);
+				SetAnimation(GetAnimNum(), 1.0f, blendFactor, playAnimBackwards);
+            }
 		}
 		else if (state == ATTACK)
 		{
 			reachedPlayer = true;
 		} 
-		else if (state == TAKING_COVER && !reachedCover)
-		{
-			reachedCover = true;
-			inCover = true;
-            coverTimer = 6.4f;
-            SetAnimNum(3);
-            SetAnimation(GetAnimNum(), 1.0f, blendFactor, playAnimBackwards);
-		}
+		//else if (state == TAKING_COVER && !reachedCover)
+		//{
+		//	reachedCover = true;
+		//	inCover = true;
+  //          coverTimer = 6.4f;
+  //          SetAnimNum(3);
+  //          SetAnimation(GetAnimNum(), 1.0f, blendFactor, playAnimBackwards);
+		//}
 		
         return; // Stop moving if the agent has reached its destination
     }
@@ -415,23 +421,23 @@ void Enemy::OnHit()
     eventManager_.Publish(NPCDamagedEvent{ id_ });
 }
 
-Grid::Cover& Enemy::ScoreCoverLocations(Player& player)
+void Enemy::ScoreCoverLocations(Player& player)
 {
     float bestScore = -100000.0f;
 
-	Grid::Cover& bestCover = cover;
+	Grid::Cover* bestCover = selectedCover;
 
-	for (Grid::Cover& cover : grid->GetCoverLocations())
+	for (Grid::Cover* cover : grid->GetCoverLocations())
 	{
         float score = 0.0f; 
 		
-        float distanceToPlayer = glm::distance(cover.worldPosition, player.getPosition());
+        float distanceToPlayer = glm::distance(cover->worldPosition, player.getPosition());
         score += distanceToPlayer * 0.5f;
 
-		float distanceToEnemy = glm::distance(cover.worldPosition, getPosition());
+		float distanceToEnemy = glm::distance(cover->worldPosition, getPosition());
 		score -= (1.0f / distanceToEnemy + 1.0f) * 1.0f;
 
-		glm::vec3 rayOrigin = cover.worldPosition + glm::vec3(0.0f, 2.5f, 0.0f);
+		glm::vec3 rayOrigin = cover->worldPosition + glm::vec3(0.0f, 2.5f, 0.0f);
 		glm::vec3 rayDirection = glm::normalize(player.getPosition() - rayOrigin);
         glm::vec3 hitPoint = glm::vec3(0.0f);
 
@@ -440,21 +446,17 @@ Grid::Cover& Enemy::ScoreCoverLocations(Player& player)
             score += 20.0f;
         }
 
-		if (cover.gridPos->IsOccupied() && !cover.gridPos->IsOccupiedBy(id_))
-		{
-			score = -100.0f;
-		}
+		//if (grid->GetGrid()[cover->gridX][cover->gridZ].IsOccupied())
+		//{
+		//	score -= 10000.0f;
+		//}
 
 		if (score > bestScore) {
 			bestScore = score;
-			bestCover = cover;
+			selectedCover = cover;
 		}
 	}
 
-	bestCover.gridPos->SetOccupied(true);
-	bestCover.gridPos->SetOccupantId(id_);
-
-    return bestCover;
 }
 
 void Enemy::BuildBehaviorTree()
@@ -774,7 +776,7 @@ NodeStatus Enemy::AttackChasePlayer()
 NodeStatus Enemy::SeekCover()
 {
     isSeekingCover_ = true;
-	cover = ScoreCoverLocations(player);
+	ScoreCoverLocations(player);
     return NodeStatus::Success;
 }
 
@@ -785,7 +787,7 @@ NodeStatus Enemy::TakeCover()
     isTakingCover_ = true;
     std::vector<glm::ivec2> path = grid->findPath(
         glm::ivec2(getPosition().x / grid->GetCellSize(), getPosition().z / grid->GetCellSize()),
-        glm::ivec2(cover.worldPosition.x / grid->GetCellSize(), cover.worldPosition.z / grid->GetCellSize()),
+        glm::ivec2(selectedCover->gridX, selectedCover->gridZ),
         grid->GetGrid(),
         id_
     );
@@ -807,7 +809,7 @@ NodeStatus Enemy::TakeCover()
 
     moveEnemy(path, dt, 1.0f, false);
 
-    if (reachedDestination)
+    if (reachedCover)
         return NodeStatus::Success;
 
     return NodeStatus::Running;

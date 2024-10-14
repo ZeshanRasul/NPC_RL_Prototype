@@ -159,7 +159,7 @@ public:
         aabbColor = glm::vec3(1.0f, 1.0f, 1.0f);
     }
     
-    Grid::Cover& ScoreCoverLocations(Player& player);
+    void ScoreCoverLocations(Player& player);
 
     glm::vec3 selectRandomWaypoint(const glm::vec3& currentWaypoint, const std::vector<glm::vec3>& allWaypoints) {
 
@@ -221,7 +221,7 @@ public:
 	bool playerIsVisible = false;
 
 	Grid* grid;
-    Grid::Cover cover;
+    Grid::Cover* selectedCover = nullptr;
     size_t pathIndex = 0;
     size_t prevPathIndex = 0;
 	std::vector<glm::ivec2> prevPath = {};

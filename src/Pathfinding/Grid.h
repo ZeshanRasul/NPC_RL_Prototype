@@ -14,6 +14,8 @@ public:
 	struct Cover {
 		glm::vec3 worldPosition;
 		Cell* gridPos;
+        int gridX;
+		int gridZ;
 	};
 
     std::vector<glm::vec3> coverPositions = {
@@ -45,7 +47,7 @@ public:
 		{
 			int gridX = static_cast<int>(coverPos.x / CELL_SIZE);
 			int gridZ = static_cast<int>(coverPos.z / CELL_SIZE);
-            snappedCoverPositions.push_back(glm::vec3(gridX * CELL_SIZE + CELL_SIZE / 2.0f, coverPos.y, gridZ * CELL_SIZE + CELL_SIZE / 2.0f));
+            snappedCoverPositions.push_back(glm::vec3(gridX * CELL_SIZE + CELL_SIZE / 2.0f, 0.0f, gridZ * CELL_SIZE + CELL_SIZE / 2.0f));
 	    
         }
 		;
@@ -63,12 +65,12 @@ public:
     void VacateCell(int x, int y, int npcId);
 
     std::vector<std::vector<Cell>> GetGrid() const { return grid; }
-    std::vector<Cover> GetCoverLocations() const { return coverLocations; }
+    std::vector<Cover*> GetCoverLocations() const { return coverLocations; }
 
 	int GetGridSize() const { return GRID_SIZE; }
     int GetCellSize() const { return CELL_SIZE; }
 
-    std::vector<Cover> coverLocations;
+    std::vector<Cover*> coverLocations;
 private:
     UniformBuffer mGridUniformBuffer{};
     UniformBuffer mGridColorUniformBuffer{};
