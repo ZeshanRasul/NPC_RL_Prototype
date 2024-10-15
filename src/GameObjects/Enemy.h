@@ -176,7 +176,6 @@ public:
         int randomIndex = std::rand() % availableWaypoints.size();
         return availableWaypoints[randomIndex];
     }
-
 	glm::vec3 aabbColor = glm::vec3(0.0f, 0.0f, 1.0f);
     glm::vec3 aabbScale = glm::vec3(4.5f, 3.0f, 4.5f);
 

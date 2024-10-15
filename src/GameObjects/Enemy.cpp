@@ -451,14 +451,15 @@ void Enemy::ScoreCoverLocations(Player& player)
             score += 20.0f;
         }
 
-		if (score > bestScore) {
+		if (score > bestScore && !(grid->GetGrid()[cover->gridX][cover->gridZ].IsOccupied()))
+	    {
 			bestScore = score;
 			selectedCover = cover;
 		}
     }
 
     // TODO: Make cell occupied and choose cover that isn't occupied
-    //grid->OccupyCell(selectedCover->gridX, selectedCover->gridZ, id_);
+    grid->OccupyCell(selectedCover->gridX, selectedCover->gridZ, id_);
 }
 
 void Enemy::BuildBehaviorTree()
