@@ -144,7 +144,6 @@ void GameManager::setupCamera(unsigned int width, unsigned int height)
 			camera->Mode = FLY;
             return;
         }
-        camera->Pitch = 10.0f;
         camera->FollowTarget(enemy->getPosition(), enemy->EnemyFront, camera->enemyCamRearOffset, camera->enemyCamHeightOffset);
         view = camera->GetViewMatrixEnemyFollow(enemy->getPosition(), glm::vec3(0.0f, 1.0f, 0.0f));
     }

@@ -451,15 +451,20 @@ void Enemy::ScoreCoverLocations(Player& player)
             score += 20.0f;
         }
 
-		if (score > bestScore && !(grid->GetGrid()[cover->gridX][cover->gridZ].IsOccupied()))
+        if (grid->GetGrid()[cover->gridX][cover->gridZ].IsOccupied())
+            continue;
+
+		if (score > bestScore)
 	    {
 			bestScore = score;
 			selectedCover = cover;
+        // TODO: Make cell occupied and choose cover that isn't occupied
+       //     grid->OccupyCell(selectedCover->gridX, selectedCover->gridZ, id_);
+       //     if (cover != selectedCover)
+			    //grid->VacateCell(cover->gridX, cover->gridZ, id_);
 		}
     }
 
-    // TODO: Make cell occupied and choose cover that isn't occupied
-    grid->OccupyCell(selectedCover->gridX, selectedCover->gridZ, id_);
 }
 
 void Enemy::BuildBehaviorTree()
@@ -789,9 +794,14 @@ NodeStatus Enemy::TakeCover()
     isSeekingCover_ = false;
     isTakingCover_ = true;
 
+	if (grid->GetGrid()[selectedCover->gridX][selectedCover->gridZ].IsOccupied())
+	{
+		ScoreCoverLocations(player);
+	}
+
 	glm::vec3 snappedCurrentPos = grid->snapToGrid(getPosition());
     glm::vec3 snappedCoverPos = grid->snapToGrid(selectedCover->worldPosition);
-    
+   
 
     std::vector<glm::ivec2> path = grid->findPath(
         glm::ivec2(snappedCurrentPos.x / grid->GetCellSize(), snappedCurrentPos.z / grid->GetCellSize()),

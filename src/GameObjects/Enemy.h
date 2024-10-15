@@ -180,10 +180,10 @@ public:
     glm::vec3 aabbScale = glm::vec3(4.5f, 3.0f, 4.5f);
 
 	float health = 100.0f;
-    float speed = 4.0f;
+    float speed = 6.0f;
     EnemyState state = PATROL;
     float EnemyCameraYaw;
-    float EnemyCameraPitch = 45.0f;
+    float EnemyCameraPitch = 10.0f;
     glm::vec3 EnemyFront;
     glm::vec3 EnemyRight;
     glm::vec3 EnemyUp;
