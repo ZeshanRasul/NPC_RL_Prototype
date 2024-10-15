@@ -154,4 +154,6 @@ private:
     int currentStateIndex = 0;
 
     SoundEvent mMusicEvent;
+
+    bool firstFlyCamSwitch = true;
 };

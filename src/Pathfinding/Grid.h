@@ -76,7 +76,7 @@ private:
     UniformBuffer mGridColorUniformBuffer{};
 
     int GRID_SIZE = 15;
-    int CELL_SIZE = 10;
+    int CELL_SIZE = 7;
     std::vector<std::vector<Cell>> grid;
 
     bool firstLoad = true;

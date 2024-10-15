@@ -20,9 +20,9 @@ enum CameraMode {
 	MODE_COUNT
 };
 
-const float YAW = -90.0f;
+const float YAW = -180.0f;
 const float PITCH = 0.0f;
-const float SPEED = 7.5f;
+const float SPEED = 12.5f;
 const float SENSITIVITY = 0.1f;
 const float ZOOM = 45.0f;
 

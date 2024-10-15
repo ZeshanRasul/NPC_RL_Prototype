@@ -138,7 +138,7 @@ public:
     void updateAABB() {
         glm::mat4 modelMatrix = glm::translate(glm::mat4(1.0f), position) *
             glm::rotate(glm::mat4(1.0f), glm::radians(-yaw + 90.0f), glm::vec3(0.0f, 1.0f, 0.0f)) *
-            glm::scale(glm::mat4(1.0f), scale);
+            glm::scale(glm::mat4(1.0f), aabbScale);
         aabb->mModelMatrix = modelMatrix;
         aabb->update(modelMatrix);
     };
@@ -178,8 +178,10 @@ public:
     }
 
 	glm::vec3 aabbColor = glm::vec3(0.0f, 0.0f, 1.0f);
+    glm::vec3 aabbScale = glm::vec3(4.5f, 3.0f, 4.5f);
 
 	float health = 100.0f;
+    float speed = 4.0f;
     EnemyState state = PATROL;
     float EnemyCameraYaw;
     float EnemyCameraPitch = 45.0f;

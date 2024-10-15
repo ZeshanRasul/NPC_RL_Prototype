@@ -171,7 +171,6 @@ void Enemy::moveEnemy(const std::vector<glm::ivec2>& path, float deltaTime, floa
 
     const float tolerance = 0.1f; // Smaller tolerance for better alignment
     const float agentRadius = 0.1f; // Adjust this value to match the agent's radius
-    float speed = 5.0f; // Ensure this speed is appropriate for the grid size and cell size
     
     if (!reachedPlayer && !inCover)
     {
@@ -188,11 +187,12 @@ void Enemy::moveEnemy(const std::vector<glm::ivec2>& path, float deltaTime, floa
 
 		if (isTakingCover_)
 		{
-			if (glm::distance(getPosition(), selectedCover->worldPosition) < 0.5f)
+			if (glm::distance(getPosition(), selectedCover->worldPosition) < grid->GetCellSize() / 4.0f)
             {
                 reachedCover = true;
                 isTakingCover_ = false;
                 isInCover_ = true;
+				grid->OccupyCell(selectedCover->gridX, selectedCover->gridZ, id_);
 			    SetAnimNum(0);
 			    SetAnimation(GetAnimNum(), 1.0f, blendFactor, playAnimBackwards);
             }
@@ -451,17 +451,14 @@ void Enemy::ScoreCoverLocations(Player& player)
             score += 20.0f;
         }
 
-		if (grid->GetGrid()[cover->gridX][cover->gridZ].IsOccupied() && grid->GetGrid()[cover->gridX][cover->gridZ].IsOccupiedBy(id_))
-		{
-			score -= 100.0f;
-		}
-
 		if (score > bestScore) {
 			bestScore = score;
 			selectedCover = cover;
 		}
-	}
-    grid->OccupyCell(selectedCover->gridX, selectedCover->gridZ, id_);
+    }
+
+    // TODO: Make cell occupied and choose cover that isn't occupied
+    //grid->OccupyCell(selectedCover->gridX, selectedCover->gridZ, id_);
 }
 
 void Enemy::BuildBehaviorTree()

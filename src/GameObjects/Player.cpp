@@ -126,7 +126,7 @@ void Player::PlayerProcessKeyboard(CameraMovement direction, float deltaTime)
 
 void Player::PlayerProcessMouseMovement(float xOffset)
 {
-//    xOffset *= SENSITIVITY;  
+    xOffset *= SENSITIVITY;  
 
     yaw += xOffset;
     mRecomputeWorldTransform = true;

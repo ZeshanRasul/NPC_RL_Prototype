@@ -3,7 +3,7 @@
 
 Camera::Camera(glm::vec3 position, glm::vec3 up, float yaw, float pitch)
 	:
-	Front(glm::vec3(0.0f, 0.0f, -1.0f)),
+	Front(glm::vec3(-1.0f, 0.0f, 0.0f)),
 	MovementSpeed(SPEED),
 	MouseSensitivity(SENSITIVITY),
 	Zoom(ZOOM)
@@ -17,7 +17,7 @@ Camera::Camera(glm::vec3 position, glm::vec3 up, float yaw, float pitch)
 
 Camera::Camera(float posX, float posY, float posZ, float upX, float upY, float upZ, float yaw, float pitch)
 	:
-	Front(glm::vec3(0.0f, 0.0f, -1.0f)),
+	Front(glm::vec3(-1.0f, 0.0f, 0.0f)),
 	MovementSpeed(SPEED),
 	MouseSensitivity(SENSITIVITY),
 	Zoom(ZOOM)
