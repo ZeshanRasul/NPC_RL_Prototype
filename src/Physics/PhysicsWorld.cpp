@@ -176,18 +176,9 @@ bool PhysicsWorld::checkPlayerVisibility(const glm::vec3& rayOrigin, const glm::
 
 bool PhysicsWorld::rayAABBIntersect(const glm::vec3& rayOrigin, const glm::vec3& rayDirection, AABB* aabb, glm::vec3& hitPoint) {
 
-	aabb->update(aabb->mModelMatrix);
-
     // Use the transformed AABB for the intersection test
     glm::vec3 min = aabb->transformedMin;
     glm::vec3 max = aabb->transformedMax;
-    
-    //// Check if the ray origin is inside the AABB
-    //if (rayOrigin.x >= min.x && rayOrigin.x <= max.x &&
-    //    rayOrigin.y >= min.y && rayOrigin.y <= max.y &&
-    //    rayOrigin.z >= min.z && rayOrigin.z <= max.z) {
-    //    return false; // Ray origin is inside the AABB, so we skip this intersection
-    //}
 
     // Initialize tMin and tMax to infinite intervals
     float tMin = 0.0f;
@@ -215,15 +206,8 @@ bool PhysicsWorld::rayAABBIntersect(const glm::vec3& rayOrigin, const glm::vec3&
                 return false; // No intersection
             }
         }
-    }
-
-    //if (tMin > 0.0f) {
-    //    hitPoint = rayOrigin + rayDirection * tMin; // Ensure tMin > 0
-    //    return true;
-    //}    
+    }  
     
-    hitPoint = rayOrigin + rayDirection * tMin; // Ensure tMin > 0
+    hitPoint = rayOrigin + rayDirection * tMin; 
     return true;
-
-    //return false;
 }

@@ -31,8 +31,6 @@ public:
     glm::vec3 transformedMax = glm::vec3(1.0f);
 	GameObject* owner = nullptr;
 
-    glm::mat4 mModelMatrix = glm::mat4(1.0f);
-
     bool isPlayer = false;
     bool isEnemy = false;
 

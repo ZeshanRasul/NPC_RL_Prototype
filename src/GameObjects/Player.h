@@ -96,7 +96,6 @@ public:
         glm::mat4 modelMatrix = glm::translate(glm::mat4(1.0f), position) *
             glm::rotate(glm::mat4(1.0f), glm::radians(-yaw + 180.0f), glm::vec3(0.0f, 1.0f, 0.0f)) *
             glm::scale(glm::mat4(1.0f), scale);
-        aabb->mModelMatrix = modelMatrix;
         aabb->update(modelMatrix);
     }
 

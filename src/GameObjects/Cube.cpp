@@ -114,7 +114,7 @@ void Cube::renderAABB(glm::mat4 proj, glm::mat4 viewMat, glm::mat4 model, Shader
 	aabbShader->setVec3("color", aabbColor);
 
 	glBindVertexArray(VAO);
-	glDrawArrays(GL_LINES, 0, lineVertices.size());
+	glDrawArrays(GL_LINES, 0, (GLsizei)lineVertices.size());
 	glBindVertexArray(0);
 
 	glDeleteVertexArrays(1, &VAO);

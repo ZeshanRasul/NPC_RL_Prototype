@@ -45,16 +45,16 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
     cell->SetUpVAO();
     cell->LoadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/Cell.png");
     gameGrid = new Grid();
-	cover1 = new Cube(gameGrid->snapToGrid(gameGrid->coverPositions[0]), glm::vec3(gameGrid->GetCellSize()), &cubeShader, false, this);
+	cover1 = new Cube(gameGrid->snapToGrid(gameGrid->coverPositions[0]), glm::vec3((float)gameGrid->GetCellSize()), &cubeShader, false, this);
     cover1->SetAABBShader(&aabbShader);
     cover1->LoadMesh();
-	cover2 = new Cube(gameGrid->snapToGrid(gameGrid->coverPositions[1]), glm::vec3(gameGrid->GetCellSize()), &cubeShader, false, this);
+	cover2 = new Cube(gameGrid->snapToGrid(gameGrid->coverPositions[1]), glm::vec3((float)gameGrid->GetCellSize()), &cubeShader, false, this);
     cover2->SetAABBShader(&aabbShader);
     cover2->LoadMesh();
-	cover3 = new Cube(gameGrid->snapToGrid(gameGrid->coverPositions[2]), glm::vec3(gameGrid->GetCellSize()), &cubeShader, false, this);
+	cover3 = new Cube(gameGrid->snapToGrid(gameGrid->coverPositions[2]), glm::vec3((float)gameGrid->GetCellSize()), &cubeShader, false, this);
     cover3->SetAABBShader(&aabbShader);
     cover3->LoadMesh();
-	cover4 = new Cube(gameGrid->snapToGrid(gameGrid->coverPositions[3]), glm::vec3(gameGrid->GetCellSize()), &cubeShader, false, this);
+	cover4 = new Cube(gameGrid->snapToGrid(gameGrid->coverPositions[3]), glm::vec3((float)gameGrid->GetCellSize()), &cubeShader, false, this);
     cover4->SetAABBShader(&aabbShader);
     cover4->LoadMesh();
 
@@ -70,19 +70,19 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
     std::string texture4 = "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Models/GLTF/Enemies/Ely/ely-vanguardsoldier-kerwinatienza_diffuse 4.png";
 
     enemy = new Enemy(gameGrid->snapToGrid(glm::vec3(33.0f, 0.0f, 23.0f)), glm::vec3(3.0f), &enemyShader, true, this, gameGrid, texture, 0, GetEventManager(), *player);
-	enemy->aabbShader = &aabbShader;
+    enemy->SetAABBShader(&aabbShader);
     enemy->SetUpAABB();
 
     enemy2 = new Enemy(gameGrid->snapToGrid(glm::vec3(3.0f, 0.0f, 53.0f)), glm::vec3(3.0f), &enemyShader, true, this, gameGrid, texture2, 1, GetEventManager(), *player);
-	enemy2->aabbShader = &aabbShader;
+	enemy2->SetAABBShader(&aabbShader);
     enemy2->SetUpAABB();
 
-    enemy3 = new Enemy(gameGrid->snapToGrid(glm::vec3(43.0f, 0.0f, 53.0f)), glm::vec3(3.0f), &enemyShader, true, this, gameGrid, texture3, 2, GetEventManager(), *player);
-    enemy3->aabbShader = &aabbShader;
+	enemy3 = new Enemy(gameGrid->snapToGrid(glm::vec3(43.0f, 0.0f, 53.0f)), glm::vec3(3.0f), &enemyShader, true, this, gameGrid, texture3, 2, GetEventManager(), *player);
+	enemy3->SetAABBShader(&aabbShader);
     enemy3->SetUpAABB();
 
     enemy4 = new Enemy(gameGrid->snapToGrid(glm::vec3(11.0f, 0.0f, 23.0f)), glm::vec3(3.0f), &enemyShader, true, this, gameGrid, texture4, 3, GetEventManager(), *player);
-    enemy4->aabbShader = &aabbShader;
+    enemy4->SetAABBShader(&aabbShader);
     enemy4->SetUpAABB();
 
 	crosshair = new Crosshair(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f), &crosshairShader, false, this);
@@ -144,7 +144,7 @@ void GameManager::setupCamera(unsigned int width, unsigned int height)
 			camera->Mode = FLY;
             return;
         }
-        camera->FollowTarget(enemy->getPosition(), enemy->EnemyFront, camera->enemyCamRearOffset, camera->enemyCamHeightOffset);
+        camera->FollowTarget(enemy->getPosition(), enemy->GetEnemyFront(), camera->enemyCamRearOffset, camera->enemyCamHeightOffset);
         view = camera->GetViewMatrixEnemyFollow(enemy->getPosition(), glm::vec3(0.0f, 1.0f, 0.0f));
     }
     else if (camera->Mode == FLY)
@@ -194,32 +194,6 @@ void GameManager::showDebugUI()
     ImGui::InputFloat("Player Aim Pitch", &player->aimPitch);
 
     ImGui::End();
-
-    if (!enemy->isDestroyed)
-    {
-
-        ImGui::Begin("Enemy");
-
-        float newYaw;
-
-        ImGui::InputFloat3("Position", &enemy->getPosition()[0]);
-        ImGui::InputFloat("EnemyCamPitch", &enemy->EnemyCameraPitch);
-        ImGui::InputFloat("EnemyYaw", &newYaw);
-        ImGui::InputFloat3("EnemyFront", &enemy->Front[0]);
-        enemy->SetYaw(newYaw);
-
-        if (enemy->state == PATROL)
-            currentStateIndex = 0;
-        if (enemy->state == ATTACK)
-            currentStateIndex = 1;
-
-        if (ImGui::Combo("Enemy States", &currentStateIndex, EnemyStateNames, 2))
-        {
-            enemy->state = static_cast<EnemyState>(currentStateIndex);
-        }
-
-        ImGui::End();
-    }
 
     ShowAnimationControlWindow();
 	ShowPerformanceWindow();
@@ -336,7 +310,7 @@ void GameManager::showDebugUI()
             ImGui::SameLine(); 
             ImGui::Text("Enemy %d", e->GetID());
             ImGui::SameLine();
-			ImGui::Text("State: %s", e->EDBTState.c_str());
+			ImGui::Text("State: %s", e->GetEDBTState().c_str());
         }
 
         ImGui::End();
@@ -419,7 +393,7 @@ void GameManager::showDebugUI()
 			if (e == nullptr || e->isDestroyed)
 				continue;
 
-			e->dt = deltaTime;
+			e->SetDeltaTime(deltaTime);
 			e->Update();
 		}
  
@@ -518,44 +492,44 @@ void GameManager::render()
 
     if (enemy != nullptr && !enemy->isDestroyed)
     {
-        if (enemy->enemyHasShot && enemy->enemyRayDebugRenderTimer > 0.0f)
+        if (enemy->GetEnemyHasShot() && enemy->GetEnemyDebugRayRenderTimer() > 0.0f)
         {
 	    	glm::vec3 enemyLineColor = glm::vec3(1.0f, 1.0f, 0.0f);
-	    	glm::vec3 enemyRayEnd = enemy->enemyShootPos + enemy->enemyShootDir * enemy->enemyShootDistance;
-            enemyLine->UpdateVertexBuffer(enemy->enemyShootPos, enemyRayEnd);
+	    	glm::vec3 enemyRayEnd = enemy->GetEnemyShootPos() + enemy->GetEnemyShootDir() * enemy->GetEnemyShootDistance();
+            enemyLine->UpdateVertexBuffer(enemy->GetEnemyShootPos(), enemyRayEnd);
 	    	enemyLine->DrawLine(view, projection, enemyLineColor);
         }
     }
 
     if (enemy2 != nullptr && !enemy2->isDestroyed)
     {
-        if (enemy2->enemyHasShot && enemy2->enemyRayDebugRenderTimer > 0.0f)
+        if (enemy2->GetEnemyHasShot() && enemy2->GetEnemyDebugRayRenderTimer() > 0.0f)
         {
             glm::vec3 enemy2LineColor = glm::vec3(1.0f, 1.0f, 0.0f);
-            glm::vec3 enemy2RayEnd = enemy2->enemyShootPos + enemy2->enemyShootDir * enemy2->enemyShootDistance;
-            enemy2Line->UpdateVertexBuffer(enemy2->enemyShootPos, enemy2RayEnd);
+            glm::vec3 enemy2RayEnd = enemy2->GetEnemyShootPos() + enemy2->GetEnemyShootDir() * enemy2->GetEnemyShootDistance();
+            enemy2Line->UpdateVertexBuffer(enemy2->GetEnemyShootPos(), enemy2RayEnd);
             enemy2Line->DrawLine(view, projection, enemy2LineColor);
         }
     }
 
     if (enemy3 != nullptr && !enemy3->isDestroyed)
     {
-        if (enemy3->enemyHasShot && enemy3->enemyRayDebugRenderTimer > 0.0f)
+        if (enemy3->GetEnemyHasShot() && enemy3->GetEnemyDebugRayRenderTimer() > 0.0f)
         {
             glm::vec3 enemy3LineColor = glm::vec3(1.0f, 1.0f, 0.0f);
-            glm::vec3 enemy3RayEnd = enemy3->enemyShootPos + enemy3->enemyShootDir * enemy3->enemyShootDistance;
-            enemy3Line->UpdateVertexBuffer(enemy3->enemyShootPos, enemy3RayEnd);
+            glm::vec3 enemy3RayEnd = enemy3->GetEnemyShootPos() + enemy3->GetEnemyShootDir() * enemy3->GetEnemyShootDistance();
+            enemy3Line->UpdateVertexBuffer(enemy3->GetEnemyShootPos(), enemy3RayEnd);
             enemy3Line->DrawLine(view, projection, enemy3LineColor);
         }
     }
 
     if (enemy4 != nullptr && !enemy4->isDestroyed)
     {
-        if (enemy4->enemyHasShot && enemy4->enemyRayDebugRenderTimer > 0.0f)
+        if (enemy4->GetEnemyHasShot() && enemy4->GetEnemyDebugRayRenderTimer() > 0.0f)
         {
             glm::vec3 enemy4LineColor = glm::vec3(1.0f, 1.0f, 0.0f);
-            glm::vec3 enemy4RayEnd = enemy4->enemyShootPos + enemy4->enemyShootDir * enemy4->enemyShootDistance;
-            enemy4Line->UpdateVertexBuffer(enemy4->enemyShootPos, enemy4RayEnd);
+            glm::vec3 enemy4RayEnd = enemy4->GetEnemyShootPos() + enemy4->GetEnemyShootDir() * enemy4->GetEnemyShootDistance();
+            enemy4Line->UpdateVertexBuffer(enemy4->GetEnemyShootPos(), enemy4RayEnd);
             enemy4Line->DrawLine(view, projection, enemy4LineColor);
         }
     }
