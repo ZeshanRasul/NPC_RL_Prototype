@@ -150,6 +150,15 @@ void InputManager::processInput(GLFWwindow* window, float deltaTime)
 		player->SetPlayerState(AIMING);
 	}
 
+	bool rKeyCurrentlyPressed = glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS;
+
+	if (rKeyCurrentlyPressed && !rKeyPressed)
+	{
+        // TODO: Reset Enemies
+        player->ResetEnemies();
+    }
+
+	rKeyPressed = rKeyCurrentlyPressed;
 
     handlePlayerMovement(window, *player, *camera, deltaTime);
 }

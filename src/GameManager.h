@@ -24,23 +24,78 @@
 #include "AI/Events.h"
 
 class GameManager {
+private:
+	void SaveQTable(const std::map<std::pair<Enemy::NashState, Enemy::NashAction>, float>& qTable, const std::string& filename) {
+		std::ofstream outFile(filename, std::ios::app);
+		if (!outFile) {
+			std::cerr << "Error opening file for writing: " << filename << std::endl;
+			return;
+		}
+
+		for (const auto& entry : qTable) {
+			const Enemy::NashState& state = entry.first.first;
+			const Enemy::NashAction& action = entry.first.second;
+			float value = entry.second;
+
+			// Save state, action, and Q-value as comma-separated values
+			outFile << state.playerDetected << "," << state.playerVisible << "," << state.distanceToPlayer << ","
+				<< state.isSuppressionFire << "," << state.health << ","
+				<< action << "," << value << "\n";
+		}
+		outFile.close();
+	}
+
+	void LoadQTable(std::map<std::pair<Enemy::NashState, Enemy::NashAction>, float>& qTable, const std::string& filename) {
+		std::ifstream inFile(filename);
+		if (!inFile) {
+			std::cerr << "Error opening file for reading: " << filename << std::endl;
+			return;
+		}
+
+		std::string line;
+		while (getline(inFile, line)) {
+			std::istringstream iss(line);
+			Enemy::NashState state;
+			Enemy::NashAction action;
+			float value;
+			char comma;
+
+			// Parse state values
+			iss >> state.playerDetected >> comma
+				>> state.playerVisible >> comma
+				>> state.distanceToPlayer >> comma
+				>> state.isSuppressionFire >> comma
+				>> state.health >> comma
+				>> (int&)action >> comma
+				>> value;
+
+			// Load the Q-value into the Q-table
+			qTable[{state, action}] = value;
+		}
+		inFile.close();
+	}
+
 public:
     GameManager(Window* window, unsigned int width, unsigned int height);
 
     ~GameManager() {
+		for (int enemyID = 0; enemyID < 4; ++enemyID) {
+			SaveQTable(mEnemyStateQTable[enemyID], std::to_string(enemyID) + mEnemyStateFilename);
+		}
+
         delete camera;
         for (auto it = gameObjects.begin(); it != gameObjects.end(); ) {
             if (*it) {
-                delete* it;            
+                delete* it;
             }
-            it = gameObjects.erase(it); 
+            it = gameObjects.erase(it);
         }
         delete inputManager;
     }
 
     void setupCamera(unsigned int width, unsigned int height);
     void setSceneData();
-	AudioSystem* getAudioSystem() { return audioSystem; }
+    AudioSystem* getAudioSystem() { return audioSystem; }
 
     void update(float deltaTime);
 
@@ -52,22 +107,44 @@ public:
 
     bool camSwitchedToAim = false;
 
-	PhysicsWorld* GetPhysicsWorld() { return physicsWorld; }
-    
+    PhysicsWorld* GetPhysicsWorld() { return physicsWorld; }
+
     void RemoveDestroyedGameObjects();
+
+    void ResetEnemies();
 
 private:
     void ShowCameraControlWindow(Camera& cam);
     void ShowLightControlWindow(DirLight& light);
     void ShowAnimationControlWindow();
-	void ShowPerformanceWindow();
-	void ShowEnemyStateWindow();
+    void ShowPerformanceWindow();
+    void ShowEnemyStateWindow();
 
     void calculatePerformance(float deltaTime);
 
-	EventManager& GetEventManager() { return eventManager; }
+    EventManager& GetEventManager() { return eventManager; }
 
-	float fps = 0.0f;
+    std::string mEnemyStateFilename = "EnemyStateQTable.csv";
+    std::map<std::pair<Enemy::NashState, Enemy::NashAction>, float> mEnemyStateQTable[4];
+    std::vector<Enemy::NashState> enemyStates =
+    {
+
+            { false, false, 100.0f, 100.0f, false },
+            { false, false, 100.0f, 100.0f, false },
+            { false, false, 100.0f, 100.0f, false },
+            { false, false, 100.0f, 100.0f, false }
+
+    };
+    std::vector<Enemy::NashAction> squadActions =
+    {
+        Enemy::NashAction::PATROL,
+        Enemy::NashAction::PATROL,
+        Enemy::NashAction::PATROL,
+        Enemy::NashAction::PATROL
+    };
+
+
+    float fps = 0.0f;
     int numFramesAvg = 100;
 	float fpsSum = 0.0f;
 	int frameCount = 0;

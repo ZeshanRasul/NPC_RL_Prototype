@@ -51,7 +51,7 @@ void Enemy::Update()
             DetectPlayer();
         }
 
-        behaviorTree_->Tick();
+        //behaviorTree_->Tick();
 
 
 		if (enemyHasShot)

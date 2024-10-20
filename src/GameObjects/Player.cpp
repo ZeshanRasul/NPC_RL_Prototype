@@ -256,3 +256,8 @@ void Player::OnDeath()
 //	deathAC->PlayEvent("event:/PlayerDeath");
 }
 
+void Player::ResetEnemies()
+{
+    mGameManager->ResetEnemies();
+}
+

@@ -49,4 +49,6 @@ private:
     bool spaceKeyPressed = false;
 	bool shiftKeyPressed = false;
 	bool leftClickPressed = false;
+	bool rKeyBeenPressed = false;
+	bool rKeyPressed = false;
 };

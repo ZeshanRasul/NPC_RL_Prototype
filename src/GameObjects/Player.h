@@ -128,6 +128,8 @@ public:
     int GetAnimNum() const { return animNum; }
     void SetAnimNum(int newAnimNum) { animNum = newAnimNum; }
 
+    void ResetEnemies();
+
 public:
     float PlayerYaw;
     glm::vec3 PlayerFront;

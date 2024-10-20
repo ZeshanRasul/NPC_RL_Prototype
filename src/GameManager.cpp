@@ -16,6 +16,12 @@ DirLight dirLight = {
 GameManager::GameManager(Window* window, unsigned int width, unsigned int height)
     : window(window)
 {
+
+    for (int enemyID = 0; enemyID < 4; ++enemyID)
+    {
+        LoadQTable(mEnemyStateQTable[enemyID], std::to_string(enemyID) + mEnemyStateFilename);
+    }
+
     inputManager = new InputManager();
 	audioSystem = new AudioSystem(this);
 
@@ -201,266 +207,299 @@ void GameManager::showDebugUI()
 
 }
 
-    void GameManager::renderDebugUI()
+void GameManager::renderDebugUI()
+{
+    ImGui::Render();
+    ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+}
+
+void GameManager::ShowLightControlWindow(DirLight& light)
+{
+    ImGui::Begin("Directional Light Control");
+
+    ImGui::Text("Light Direction");
+    ImGui::DragFloat3("Direction", (float*)&light.direction, dirLight.direction.x, dirLight.direction.y, dirLight.direction.z);
+
+    ImGui::ColorEdit4("Ambient", (float*)&light.ambient);
+
+    ImGui::ColorEdit4("Diffuse", (float*)&light.diffuse);
+
+    ImGui::ColorEdit4("Specular", (float*)&light.specular);
+
+    ImGui::End();
+}
+
+void GameManager::ShowAnimationControlWindow()
+{
+    ImGui::Begin("Player Animation Control");
+
+    ImGui::Checkbox("Blending Type: ", &playerCrossBlend);
+    ImGui::SameLine();
+    if (playerCrossBlend)
     {
-        ImGui::Render();
-        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+        ImGui::Text("Cross");
+    }
+    else 
+    { 
+	    ImGui::Text("Single");
     }
 
-    void GameManager::ShowLightControlWindow(DirLight& light)
-    {
-        ImGui::Begin("Directional Light Control");
+    if (playerCrossBlend)
+        ImGui::BeginDisabled();
 
-        ImGui::Text("Light Direction");
-        ImGui::DragFloat3("Direction", (float*)&light.direction, dirLight.direction.x, dirLight.direction.y, dirLight.direction.z);
+    ImGui::Text("Player Blend Factor");
+    ImGui::SameLine();
+    ImGui::SliderFloat("##PlayerBlendFactor", &playerAnimBlendFactor, 0.0f, 1.0f);
 
-        ImGui::ColorEdit4("Ambient", (float*)&light.ambient);
+    if (playerCrossBlend)
+        ImGui::EndDisabled();
 
-        ImGui::ColorEdit4("Diffuse", (float*)&light.diffuse);
+    if (!playerCrossBlend)
+	    ImGui::BeginDisabled();
 
-        ImGui::ColorEdit4("Specular", (float*)&light.specular);
+    ImGui::Text("Source Clip   ");
+    ImGui::SameLine();
+    ImGui::SliderInt("##SourceClip", &playerCrossBlendSourceClip, 0, player->model->getAnimClipsSize() - 1);
 
-        ImGui::End();
+
+    ImGui::Text("Dest Clip   ");
+    ImGui::SameLine();
+    ImGui::SliderInt("##DestClip", &playerCrossBlendDestClip, 0, player->model->getAnimClipsSize() - 1);
+
+    ImGui::Text("Cross Blend ");
+    ImGui::SameLine();
+    ImGui::SliderFloat("##CrossBlendFactor", &playerAnimCrossBlendFactor, 0.0f, 1.0f);
+
+    ImGui::Checkbox("Additive Blending", &playerAdditiveBlend);
+
+    if (!playerAdditiveBlend) {
+        ImGui::BeginDisabled();
+    }
+    ImGui::Text("Split Node  ");
+    ImGui::SameLine();
+    ImGui::SliderInt("##SplitNode", &playerSkeletonSplitNode, 0, player->model->getNodeCount() - 1);
+    ImGui::Text("Split Node Name: %s", playerSkeletonSplitNodeName.c_str());
+
+    if (!playerAdditiveBlend) {
+        ImGui::EndDisabled();
     }
 
-    void GameManager::ShowAnimationControlWindow()
-    {
-        ImGui::Begin("Player Animation Control");
+    if (!playerCrossBlend)
+	    ImGui::EndDisabled();
 
-	    ImGui::Checkbox("Blending Type: ", &playerCrossBlend);
+    ImGui::End();
+
+}
+
+void GameManager::ShowPerformanceWindow()
+{
+	ImGui::Begin("Performance");
+
+	ImGui::Text("FPS: %.1f", fps);
+	ImGui::Text("Avg FPS: %.1f", avgFPS);
+	ImGui::Text("Frame Time: %.1f ms", frameTime);
+	ImGui::Text("Elapsed Time: %.1f s", elapsedTime);
+
+	ImGui::End();
+}
+
+void GameManager::ShowEnemyStateWindow()
+{
+    ImGui::Begin("Enemy States");
+
+    for (Enemy* e : enemies)
+    {
+		if (e == nullptr || e->isDestroyed)
+			continue;
+		ImTextureID texID = (void*)(intptr_t)e->mTex.getTexID();
+		ImGui::Image(texID, ImVec2(100, 100));
+        ImGui::SameLine(); 
+        ImGui::Text("Enemy %d", e->GetID());
         ImGui::SameLine();
-        if (playerCrossBlend)
-        {
-            ImGui::Text("Cross");
-        }
-        else 
-        { 
-		    ImGui::Text("Single");
-        }
-
-        if (playerCrossBlend)
-            ImGui::BeginDisabled();
-
-        ImGui::Text("Player Blend Factor");
-        ImGui::SameLine();
-	    ImGui::SliderFloat("##PlayerBlendFactor", &playerAnimBlendFactor, 0.0f, 1.0f);
-
-        if (playerCrossBlend)
-            ImGui::EndDisabled();
-
-        if (!playerCrossBlend)
-		    ImGui::BeginDisabled();
-
-        ImGui::Text("Source Clip   ");
-        ImGui::SameLine();
-        ImGui::SliderInt("##SourceClip", &playerCrossBlendSourceClip, 0, player->model->getAnimClipsSize() - 1);
-
-
-	    ImGui::Text("Dest Clip   ");
-	    ImGui::SameLine();
-	    ImGui::SliderInt("##DestClip", &playerCrossBlendDestClip, 0, player->model->getAnimClipsSize() - 1);
-
-        ImGui::Text("Cross Blend ");
-        ImGui::SameLine();
-        ImGui::SliderFloat("##CrossBlendFactor", &playerAnimCrossBlendFactor, 0.0f, 1.0f);
-
-        ImGui::Checkbox("Additive Blending", &playerAdditiveBlend);
-
-        if (!playerAdditiveBlend) {
-            ImGui::BeginDisabled();
-        }
-        ImGui::Text("Split Node  ");
-        ImGui::SameLine();
-        ImGui::SliderInt("##SplitNode", &playerSkeletonSplitNode, 0, player->model->getNodeCount() - 1);
-        ImGui::Text("Split Node Name: %s", playerSkeletonSplitNodeName.c_str());
-
-        if (!playerAdditiveBlend) {
-            ImGui::EndDisabled();
-        }
-
-        if (!playerCrossBlend)
-		    ImGui::EndDisabled();
-
-        ImGui::End();
-
+		ImGui::Text("State: %s", e->GetEDBTState().c_str());
     }
 
-    void GameManager::ShowPerformanceWindow()
+    ImGui::End();
+}
+
+void GameManager::calculatePerformance(float deltaTime)
+{
+    fps = 1.0f / deltaTime;
+
+	fpsSum += fps;
+    frameCount++;
+
+    if (frameCount == numFramesAvg)
     {
-		ImGui::Begin("Performance");
-
-		ImGui::Text("FPS: %.1f", fps);
-		ImGui::Text("Avg FPS: %.1f", avgFPS);
-		ImGui::Text("Frame Time: %.1f ms", frameTime);
-		ImGui::Text("Elapsed Time: %.1f s", elapsedTime);
-
-		ImGui::End();
+		avgFPS = fpsSum / numFramesAvg;
+		fpsSum = 0.0f;
+		frameCount = 0;
     }
 
-    void GameManager::ShowEnemyStateWindow()
-    {
-        ImGui::Begin("Enemy States");
+	frameTime = deltaTime * 1000.0f;
 
-        for (Enemy* e : enemies)
-        {
-			if (e == nullptr || e->isDestroyed)
-				continue;
-			ImTextureID texID = (void*)(intptr_t)e->mTex.getTexID();
-			ImGui::Image(texID, ImVec2(100, 100));
-            ImGui::SameLine(); 
-            ImGui::Text("Enemy %d", e->GetID());
-            ImGui::SameLine();
-			ImGui::Text("State: %s", e->GetEDBTState().c_str());
+    elapsedTime += deltaTime;
+}
+
+void GameManager::RemoveDestroyedGameObjects()
+{
+    for (auto it = gameObjects.begin(); it != gameObjects.end(); ) {
+        if ((*it)->isDestroyed) {
+            delete* it; 
+            *it = nullptr;
+            it = gameObjects.erase(it); 
         }
-
-        ImGui::End();
-    }
-
-    void GameManager::calculatePerformance(float deltaTime)
-    {
-        fps = 1.0f / deltaTime;
-
-		fpsSum += fps;
-        frameCount++;
-
-        if (frameCount == numFramesAvg)
-        {
-			avgFPS = fpsSum / numFramesAvg;
-			fpsSum = 0.0f;
-			frameCount = 0;
-        }
-
-		frameTime = deltaTime * 1000.0f;
-
-        elapsedTime += deltaTime;
-    }
-
-    void GameManager::RemoveDestroyedGameObjects()
-    {
-        for (auto it = gameObjects.begin(); it != gameObjects.end(); ) {
-            if ((*it)->isDestroyed) {
-                delete* it; 
-                *it = nullptr;
-                it = gameObjects.erase(it); 
-            }
-            else {
-                ++it;
-            }
+        else {
+            ++it;
         }
     }
 
-    void GameManager::ShowCameraControlWindow(Camera& cam)
+    ResetEnemies();
+}
+
+void GameManager::ResetEnemies()
+{
+	enemy->isDestroyed = false;
+	enemy2->isDestroyed = false;
+	enemy3->isDestroyed = false;
+	enemy4->isDestroyed = false;
+	enemy->setPosition(enemy->getInitialPosition());
+	enemy2->setPosition(enemy2->getInitialPosition());
+	enemy3->setPosition(enemy3->getInitialPosition());
+	enemy4->setPosition(enemy4->getInitialPosition());
+	enemies.push_back(enemy);
+	enemies.push_back(enemy2);
+	enemies.push_back(enemy3);
+	enemies.push_back(enemy4);
+	gameObjects.push_back(enemy);
+	gameObjects.push_back(enemy2);
+	gameObjects.push_back(enemy3);
+	gameObjects.push_back(enemy4);
+
+	for (Enemy* emy : enemies)
+	{
+		emy->SetHealth(100);
+	}
+
+}
+
+void GameManager::ShowCameraControlWindow(Camera& cam)
+{
+    ImGui::Begin("Camera Control");
+
+    std::string modeText = "";
+
+    if (cam.Mode == FLY)
     {
-        ImGui::Begin("Camera Control");
-
-        std::string modeText = "";
-
-        if (cam.Mode == FLY)
-        {
-            modeText = "Flycam";
+        modeText = "Flycam";
 
 
-            cam.UpdateCameraVectors();
-        }
-        else if (cam.Mode == PLAYER_FOLLOW)
-            modeText = "Player Follow";
-        else if (cam.Mode == ENEMY_FOLLOW)
-            modeText = "Enemy Follow";
-        else if (cam.Mode == PLAYER_AIM)
-            modeText = "Player Aim"
-            ;
-        ImGui::Text(modeText.c_str());
-
-        ImGui::InputFloat3("Position", (float*)&cam.Position);
-
-        ImGui::InputFloat("Pitch", (float*)&cam.Pitch);
-        ImGui::InputFloat("Yaw", (float*)&cam.Yaw);
-        ImGui::InputFloat("Zoom", (float*)&cam.Zoom);
-
-        ImGui::End();
+        cam.UpdateCameraVectors();
     }
+    else if (cam.Mode == PLAYER_FOLLOW)
+        modeText = "Player Follow";
+    else if (cam.Mode == ENEMY_FOLLOW)
+        modeText = "Enemy Follow";
+    else if (cam.Mode == PLAYER_AIM)
+        modeText = "Player Aim"
+        ;
+    ImGui::Text(modeText.c_str());
 
-    void GameManager::update(float deltaTime)
-    {
-        inputManager->processInput(window->getWindow(), deltaTime);
-        player->UpdatePlayerVectors();
-        player->UpdatePlayerAimVectors();
+    ImGui::InputFloat3("Position", (float*)&cam.Position);
 
-	    player->Update(deltaTime);
+    ImGui::InputFloat("Pitch", (float*)&cam.Pitch);
+    ImGui::InputFloat("Yaw", (float*)&cam.Yaw);
+    ImGui::InputFloat("Zoom", (float*)&cam.Zoom);
 
-		for (Enemy* e : enemies)
-		{
-			if (e == nullptr || e->isDestroyed)
-				continue;
+    ImGui::End();
+}
 
-			e->SetDeltaTime(deltaTime);
-			e->Update();
-		}
- 
- 	    audioSystem->Update(deltaTime);
+void GameManager::update(float deltaTime)
+{
+    inputManager->processInput(window->getWindow(), deltaTime);
+    player->UpdatePlayerVectors();
+    player->UpdatePlayerAimVectors();
 
-		calculatePerformance(deltaTime);
+    player->Update(deltaTime);
+
+    int enemyID = 0;
+	for (Enemy* e : enemies)
+	{
+		if (e == nullptr || e->isDestroyed)
+			continue;
+
+		e->SetDeltaTime(deltaTime);
+		e->Update();
+	}
+        enemy->EnemyDecision(enemyStates[enemy->GetID()], enemy->GetID(), squadActions, deltaTime, mEnemyStateQTable);
+        enemy2->EnemyDecision(enemyStates[enemy2->GetID()], enemy2->GetID(), squadActions, enemy->GetID(), mEnemyStateQTable);
+        enemy3->EnemyDecision(enemyStates[enemy3->GetID()], enemy3->GetID(), squadActions, deltaTime, mEnemyStateQTable);
+        enemy4->EnemyDecision(enemyStates[enemy4->GetID()], enemy4->GetID(), squadActions, deltaTime, mEnemyStateQTable);
+
+    audioSystem->Update(deltaTime);
+
+	calculatePerformance(deltaTime);
 }
 
 void GameManager::render()
 {
-    static bool blendingChanged = playerCrossBlend;
-    if (blendingChanged != playerCrossBlend)
-    {
-        blendingChanged = playerCrossBlend;
-        if (!playerCrossBlend)
-        {
-            playerAdditiveBlend = false;
-        }
-        player->model->resetNodeData();
-    }
+	static bool blendingChanged = playerCrossBlend;
+	if (blendingChanged != playerCrossBlend)
+	{
+		blendingChanged = playerCrossBlend;
+		if (!playerCrossBlend)
+		{
+			playerAdditiveBlend = false;
+		}
+		player->model->resetNodeData();
+	}
 
-    static bool additiveBlendingChanged = playerAdditiveBlend;
-    if (additiveBlendingChanged != playerAdditiveBlend) {
-        additiveBlendingChanged = playerAdditiveBlend;
-        /* reset split when additive blending is disabled */
-        if (!playerAdditiveBlend) {
-            playerSkeletonSplitNode = player->model->getNodeCount() - 1;
-        }
-        player->model->resetNodeData();
-    }
+	static bool additiveBlendingChanged = playerAdditiveBlend;
+	if (additiveBlendingChanged != playerAdditiveBlend) {
+		additiveBlendingChanged = playerAdditiveBlend;
+		/* reset split when additive blending is disabled */
+		if (!playerAdditiveBlend) {
+			playerSkeletonSplitNode = player->model->getNodeCount() - 1;
+		}
+		player->model->resetNodeData();
+	}
 
-    static int skelSplitNode = playerSkeletonSplitNode;
-    if (skelSplitNode != playerSkeletonSplitNode) {
-        player->model->setSkeletonSplitNode(playerSkeletonSplitNode);
-        playerSkeletonSplitNodeName = player->model->getNodeName(playerSkeletonSplitNode);
-        skelSplitNode = playerSkeletonSplitNode;
-        player->model->resetNodeData();
-    }
+	static int skelSplitNode = playerSkeletonSplitNode;
+	if (skelSplitNode != playerSkeletonSplitNode) {
+		player->model->setSkeletonSplitNode(playerSkeletonSplitNode);
+		playerSkeletonSplitNodeName = player->model->getNodeName(playerSkeletonSplitNode);
+		skelSplitNode = playerSkeletonSplitNode;
+		player->model->resetNodeData();
+	}
 
-    if (playerCrossBlend)
-    {
-        player->model->playAnimation(playerCrossBlendSourceClip, playerCrossBlendDestClip, 1.0f, playerAnimCrossBlendFactor, false);
-    }
-    else
-    {
-        if (player->GetVelocity() > 0.01f && player->GetVelocity() < 0.4f)
-            player->SetAnimNum(15);
-        else if (player->GetVelocity() >= 0.4f)
-            player->SetAnimNum(10);
-        else
-            player->SetAnimNum(0);
-    }
+	if (playerCrossBlend)
+	{
+		player->model->playAnimation(playerCrossBlendSourceClip, playerCrossBlendDestClip, 1.0f, playerAnimCrossBlendFactor, false);
+	}
+	else
+	{
+		if (player->GetVelocity() > 0.01f && player->GetVelocity() < 0.4f)
+			player->SetAnimNum(15);
+		else if (player->GetVelocity() >= 0.4f)
+			player->SetAnimNum(10);
+		else
+			player->SetAnimNum(0);
+	}
 
 	glEnable(GL_DEPTH_TEST);
-    glDisable(GL_BLEND);
+	glDisable(GL_BLEND);
 
-    for (auto obj : gameObjects) {
-        renderer->draw(obj, view, projection);
-    }
-    
-    gameGrid->drawGrid(gridShader, view, projection);
+	for (auto obj : gameObjects) {
+		renderer->draw(obj, view, projection);
+	}
 
-    if ((player->GetPlayerState() == AIMING || player->GetPlayerState() == SHOOTING) && camSwitchedToAim == false)
-    {
-	    glDisable(GL_DEPTH_TEST);
-        glEnable(GL_BLEND);
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	gameGrid->drawGrid(gridShader, view, projection);
+
+	if ((player->GetPlayerState() == AIMING || player->GetPlayerState() == SHOOTING) && camSwitchedToAim == false)
+	{
+		glDisable(GL_DEPTH_TEST);
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 		glm::vec3 rayO = player->GetShootPos();
 		glm::vec3 rayD = glm::normalize(player->PlayerAimFront);
@@ -470,67 +509,67 @@ void GameManager::render()
 
 		glm::vec3 lineColor = glm::vec3(1.0f, 0.0f, 0.0f);
 
-        glm::vec3 hitPoint;
+		glm::vec3 hitPoint;
 
-        if (player->GetPlayerState() == SHOOTING)
-        {
+		if (player->GetPlayerState() == SHOOTING)
+		{
 			lineColor = glm::vec3(0.0f, 1.0f, 0.0f);
-        }
-        
-        glm::vec2 ndcPos = crosshair->CalculateCrosshairPosition(rayEnd, window->GetWidth(), window->GetHeight(), projection, view);
-   
-        float ndcX = (ndcPos.x / window->GetWidth()) * 2.0f - 1.0f;
-        float ndcY = (ndcPos.y / window->GetHeight()) * 2.0f - 1.0f;
-        
-        crosshair->DrawCrosshair(glm::vec2(ndcX, ndcY));
-        line->UpdateVertexBuffer(rayO, rayEnd);
-        line->DrawLine(view, projection, lineColor);
+		}
 
-    }
-    if (camSwitchedToAim)
+		glm::vec2 ndcPos = crosshair->CalculateCrosshairPosition(rayEnd, window->GetWidth(), window->GetHeight(), projection, view);
+
+		float ndcX = (ndcPos.x / window->GetWidth()) * 2.0f - 1.0f;
+		float ndcY = (ndcPos.y / window->GetHeight()) * 2.0f - 1.0f;
+
+		crosshair->DrawCrosshair(glm::vec2(ndcX, ndcY));
+		line->UpdateVertexBuffer(rayO, rayEnd);
+		line->DrawLine(view, projection, lineColor);
+
+	}
+	if (camSwitchedToAim)
 		camSwitchedToAim = false;
 
-    if (enemy != nullptr && !enemy->isDestroyed)
-    {
-        if (enemy->GetEnemyHasShot() && enemy->GetEnemyDebugRayRenderTimer() > 0.0f)
-        {
-	    	glm::vec3 enemyLineColor = glm::vec3(1.0f, 1.0f, 0.0f);
-	    	glm::vec3 enemyRayEnd = enemy->GetEnemyShootPos() + enemy->GetEnemyShootDir() * enemy->GetEnemyShootDistance();
-            enemyLine->UpdateVertexBuffer(enemy->GetEnemyShootPos(), enemyRayEnd);
-	    	enemyLine->DrawLine(view, projection, enemyLineColor);
-        }
-    }
+	if (enemy != nullptr && !enemy->isDestroyed)
+	{
+		if (enemy->GetEnemyHasShot() && enemy->GetEnemyDebugRayRenderTimer() > 0.0f)
+		{
+			glm::vec3 enemyLineColor = glm::vec3(1.0f, 1.0f, 0.0f);
+			glm::vec3 enemyRayEnd = enemy->GetEnemyShootPos() + enemy->GetEnemyShootDir() * enemy->GetEnemyShootDistance();
+			enemyLine->UpdateVertexBuffer(enemy->GetEnemyShootPos(), enemyRayEnd);
+			enemyLine->DrawLine(view, projection, enemyLineColor);
+		}
+	}
 
-    if (enemy2 != nullptr && !enemy2->isDestroyed)
-    {
-        if (enemy2->GetEnemyHasShot() && enemy2->GetEnemyDebugRayRenderTimer() > 0.0f)
-        {
-            glm::vec3 enemy2LineColor = glm::vec3(1.0f, 1.0f, 0.0f);
-            glm::vec3 enemy2RayEnd = enemy2->GetEnemyShootPos() + enemy2->GetEnemyShootDir() * enemy2->GetEnemyShootDistance();
-            enemy2Line->UpdateVertexBuffer(enemy2->GetEnemyShootPos(), enemy2RayEnd);
-            enemy2Line->DrawLine(view, projection, enemy2LineColor);
-        }
-    }
+	if (enemy2 != nullptr && !enemy2->isDestroyed)
+	{
+		if (enemy2->GetEnemyHasShot() && enemy2->GetEnemyDebugRayRenderTimer() > 0.0f)
+		{
+			glm::vec3 enemy2LineColor = glm::vec3(1.0f, 1.0f, 0.0f);
+			glm::vec3 enemy2RayEnd = enemy2->GetEnemyShootPos() + enemy2->GetEnemyShootDir() * enemy2->GetEnemyShootDistance();
+			enemy2Line->UpdateVertexBuffer(enemy2->GetEnemyShootPos(), enemy2RayEnd);
+			enemy2Line->DrawLine(view, projection, enemy2LineColor);
+		}
+	}
 
-    if (enemy3 != nullptr && !enemy3->isDestroyed)
-    {
-        if (enemy3->GetEnemyHasShot() && enemy3->GetEnemyDebugRayRenderTimer() > 0.0f)
-        {
-            glm::vec3 enemy3LineColor = glm::vec3(1.0f, 1.0f, 0.0f);
-            glm::vec3 enemy3RayEnd = enemy3->GetEnemyShootPos() + enemy3->GetEnemyShootDir() * enemy3->GetEnemyShootDistance();
-            enemy3Line->UpdateVertexBuffer(enemy3->GetEnemyShootPos(), enemy3RayEnd);
-            enemy3Line->DrawLine(view, projection, enemy3LineColor);
-        }
-    }
+	if (enemy3 != nullptr && !enemy3->isDestroyed)
+	{
+		if (enemy3->GetEnemyHasShot() && enemy3->GetEnemyDebugRayRenderTimer() > 0.0f)
+		{
+			glm::vec3 enemy3LineColor = glm::vec3(1.0f, 1.0f, 0.0f);
+			glm::vec3 enemy3RayEnd = enemy3->GetEnemyShootPos() + enemy3->GetEnemyShootDir() * enemy3->GetEnemyShootDistance();
+			enemy3Line->UpdateVertexBuffer(enemy3->GetEnemyShootPos(), enemy3RayEnd);
+			enemy3Line->DrawLine(view, projection, enemy3LineColor);
+		}
+	}
 
-    if (enemy4 != nullptr && !enemy4->isDestroyed)
-    {
-        if (enemy4->GetEnemyHasShot() && enemy4->GetEnemyDebugRayRenderTimer() > 0.0f)
-        {
-            glm::vec3 enemy4LineColor = glm::vec3(1.0f, 1.0f, 0.0f);
-            glm::vec3 enemy4RayEnd = enemy4->GetEnemyShootPos() + enemy4->GetEnemyShootDir() * enemy4->GetEnemyShootDistance();
-            enemy4Line->UpdateVertexBuffer(enemy4->GetEnemyShootPos(), enemy4RayEnd);
-            enemy4Line->DrawLine(view, projection, enemy4LineColor);
-        }
-    }
+	if (enemy4 != nullptr && !enemy4->isDestroyed)
+	{
+		if (enemy4->GetEnemyHasShot() && enemy4->GetEnemyDebugRayRenderTimer() > 0.0f)
+		{
+			glm::vec3 enemy4LineColor = glm::vec3(1.0f, 1.0f, 0.0f);
+			glm::vec3 enemy4RayEnd = enemy4->GetEnemyShootPos() + enemy4->GetEnemyShootDir() * enemy4->GetEnemyShootDistance();
+			enemy4Line->UpdateVertexBuffer(enemy4->GetEnemyShootPos(), enemy4RayEnd);
+			enemy4Line->DrawLine(view, projection, enemy4LineColor);
+		}
+	}
 }
