@@ -354,7 +354,8 @@ void GameManager::RemoveDestroyedGameObjects()
         }
     }
 
-    ResetEnemies();
+    if (enemies.size() == 0)
+        ResetEnemies();
 }
 
 void GameManager::ResetEnemies()
@@ -431,11 +432,21 @@ void GameManager::update(float deltaTime)
 		e->SetDeltaTime(deltaTime);
 		e->Update();
 	}
-        enemy->EnemyDecision(enemyStates[enemy->GetID()], enemy->GetID(), squadActions, deltaTime, mEnemyStateQTable);
-        enemy2->EnemyDecision(enemyStates[enemy2->GetID()], enemy2->GetID(), squadActions, enemy->GetID(), mEnemyStateQTable);
-        enemy3->EnemyDecision(enemyStates[enemy3->GetID()], enemy3->GetID(), squadActions, deltaTime, mEnemyStateQTable);
-        enemy4->EnemyDecision(enemyStates[enemy4->GetID()], enemy4->GetID(), squadActions, deltaTime, mEnemyStateQTable);
+   /* enemy->EnemyDecision(enemyStates[enemy->GetID()], enemy->GetID(), squadActions, deltaTime, mEnemyStateQTable);
+    enemy2->EnemyDecision(enemyStates[enemy2->GetID()], enemy2->GetID(), squadActions, enemy->GetID(), mEnemyStateQTable);
+    enemy3->EnemyDecision(enemyStates[enemy3->GetID()], enemy3->GetID(), squadActions, deltaTime, mEnemyStateQTable);
+    enemy4->EnemyDecision(enemyStates[enemy4->GetID()], enemy4->GetID(), squadActions, deltaTime, mEnemyStateQTable);*/
 
+	decisionTimer += deltaTime;
+    if (decisionTimer > decisionInterval)
+    {
+	    enemy->EnemyDecisionPrecomputedQ(enemyStates[enemy->GetID()], enemy->GetID(), squadActions, deltaTime, mEnemyStateQTable);
+	    enemy2->EnemyDecisionPrecomputedQ(enemyStates[enemy2->GetID()], enemy2->GetID(), squadActions, deltaTime, mEnemyStateQTable);
+	    enemy3->EnemyDecisionPrecomputedQ(enemyStates[enemy3->GetID()], enemy3->GetID(), squadActions, deltaTime, mEnemyStateQTable);
+	    enemy4->EnemyDecisionPrecomputedQ(enemyStates[enemy4->GetID()], enemy4->GetID(), squadActions, deltaTime, mEnemyStateQTable);
+		decisionTimer = 0.0f;
+    }
+    
     audioSystem->Update(deltaTime);
 
 	calculatePerformance(deltaTime);

@@ -45,13 +45,13 @@ void Enemy::Update()
 {
     if (!isDead_ || !isDestroyed)
     {
-        float playerEnemyDistance = glm::distance(getPosition(), player.getPosition());
-        if (playerEnemyDistance < 35.0f && !IsPlayerDetected())
-        {
-            DetectPlayer();
-        }
+		//float playerEnemyDistance = glm::distance(getPosition(), player.getPosition());
+		//if (playerEnemyDistance < 35.0f && !IsPlayerDetected())
+		//{
+		//	DetectPlayer();
+		//}
 
-        //behaviorTree_->Tick();
+		//behaviorTree_->Tick();
 
 
 		if (enemyHasShot)

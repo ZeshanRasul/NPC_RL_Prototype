@@ -1,4 +1,5 @@
 #pragma once
+#include <unordered_map>
 
 #include "src/OpenGL/Renderer.h"
 #include "src/OpenGL/RenderData.h"
@@ -25,27 +26,27 @@
 
 class GameManager {
 private:
-	void SaveQTable(const std::map<std::pair<Enemy::NashState, Enemy::NashAction>, float>& qTable, const std::string& filename) {
-		std::ofstream outFile(filename, std::ios::app);
-		if (!outFile) {
-			std::cerr << "Error opening file for writing: " << filename << std::endl;
-			return;
-		}
+	//void SaveQTable(const std::map<std::pair<Enemy::NashState, Enemy::NashAction>, float>& qTable, const std::string& filename) {
+	//	std::ofstream outFile(filename, std::ios::app);
+	//	if (!outFile) {
+	//		std::cerr << "Error opening file for writing: " << filename << std::endl;
+	//		return;
+	//	}
 
-		for (const auto& entry : qTable) {
-			const Enemy::NashState& state = entry.first.first;
-			const Enemy::NashAction& action = entry.first.second;
-			float value = entry.second;
+	//	for (const auto& entry : qTable) {
+	//		const Enemy::NashState& state = entry.first.first;
+	//		const Enemy::NashAction& action = entry.first.second;
+	//		float value = entry.second;
 
-			// Save state, action, and Q-value as comma-separated values
-			outFile << state.playerDetected << "," << state.playerVisible << "," << state.distanceToPlayer << ","
-				<< state.isSuppressionFire << "," << state.health << ","
-				<< action << "," << value << "\n";
-		}
-		outFile.close();
-	}
+	//		// Save state, action, and Q-value as comma-separated values
+	//		outFile << state.playerDetected << "," << state.playerVisible << "," << state.distanceToPlayer << ","
+	//			<< state.isSuppressionFire << "," << state.health << ","
+	//			<< action << "," << value << "\n";
+	//	}
+	//	outFile.close();
+	//}
 
-	void LoadQTable(std::map<std::pair<Enemy::NashState, Enemy::NashAction>, float>& qTable, const std::string& filename) {
+	void LoadQTable(std::unordered_map<std::pair<NashState, NashAction>, float, PairHash>& qTable, const std::string& filename) {
 		std::ifstream inFile(filename);
 		if (!inFile) {
 			std::cerr << "Error opening file for reading: " << filename << std::endl;
@@ -55,8 +56,8 @@ private:
 		std::string line;
 		while (getline(inFile, line)) {
 			std::istringstream iss(line);
-			Enemy::NashState state;
-			Enemy::NashAction action;
+			NashState state;
+			NashAction action;
 			float value;
 			char comma;
 
@@ -79,9 +80,9 @@ public:
     GameManager(Window* window, unsigned int width, unsigned int height);
 
     ~GameManager() {
-		for (int enemyID = 0; enemyID < 4; ++enemyID) {
-			SaveQTable(mEnemyStateQTable[enemyID], std::to_string(enemyID) + mEnemyStateFilename);
-		}
+		//for (int enemyID = 0; enemyID < 4; ++enemyID) {
+		//	SaveQTable(mEnemyStateQTable[enemyID], std::to_string(enemyID) + mEnemyStateFilename);
+		//}
 
         delete camera;
         for (auto it = gameObjects.begin(); it != gameObjects.end(); ) {
@@ -125,8 +126,8 @@ private:
     EventManager& GetEventManager() { return eventManager; }
 
     std::string mEnemyStateFilename = "EnemyStateQTable.csv";
-    std::map<std::pair<Enemy::NashState, Enemy::NashAction>, float> mEnemyStateQTable[4];
-    std::vector<Enemy::NashState> enemyStates =
+    std::unordered_map<std::pair<NashState, NashAction>, float, PairHash> mEnemyStateQTable[4];
+    std::vector<NashState> enemyStates =
     {
 
             { false, false, 100.0f, 100.0f, false },
@@ -135,14 +136,16 @@ private:
             { false, false, 100.0f, 100.0f, false }
 
     };
-    std::vector<Enemy::NashAction> squadActions =
+    std::vector<NashAction> squadActions =
     {
-        Enemy::NashAction::PATROL,
-        Enemy::NashAction::PATROL,
-        Enemy::NashAction::PATROL,
-        Enemy::NashAction::PATROL
+        NashAction::PATROL,
+        NashAction::PATROL,
+        NashAction::PATROL,
+        NashAction::PATROL
     };
 
+	float decisionTimer = 0.0f;
+	float decisionInterval = 0.5f; 
 
     float fps = 0.0f;
     int numFramesAvg = 100;
