@@ -337,7 +337,7 @@ void Enemy::OnHit()
 	Logger::log(1, "Enemy was hit!\n", __FUNCTION__);
 	setAABBColor(glm::vec3(1.0f, 0.0f, 1.0f));
     SetAnimNum(4);
-    TakeDamage(82.0f);
+    TakeDamage(50.0f);
     isTakingDamage_ = true;
     takeDamageAC->PlayEvent("event:/EnemyTakeDamage");
 	damageTimer = model->getAnimationEndTime(4);
@@ -347,6 +347,8 @@ void Enemy::OnHit()
 void Enemy::OnDeath()
 {
 	Logger::log(1, "%s Enemy Died!\n", __FUNCTION__);
+    isDying_ = true;
+	dyingTimer = model->getAnimationEndTime(1);
 	SetAnimNum(1);
 	deathAC->PlayEvent("event:/EnemyDeath");
 }

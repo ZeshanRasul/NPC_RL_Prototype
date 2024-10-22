@@ -84,6 +84,7 @@ public:
     glm::vec3 position;
 
     bool isDestroyed = false;
+    bool isEnemy = false;
 
     Texture mTex{};
 

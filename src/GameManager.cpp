@@ -317,6 +317,8 @@ void GameManager::ShowEnemyStateWindow()
         ImGui::Text("Enemy %d", e->GetID());
         ImGui::SameLine();
 		ImGui::Text("State: %s", e->GetEDBTState().c_str());
+        ImGui::SameLine();
+        ImGui::Text("Health %d", e->GetHealth());
     }
 
     ImGui::End();
@@ -343,18 +345,37 @@ void GameManager::calculatePerformance(float deltaTime)
 
 void GameManager::RemoveDestroyedGameObjects()
 {
-    for (auto it = gameObjects.begin(); it != gameObjects.end(); ) {
-        if ((*it)->isDestroyed) {
-            delete* it; 
-            *it = nullptr;
-            it = gameObjects.erase(it); 
-        }
-        else {
-            ++it;
-        }
-    }
+    //for (auto it = gameObjects.begin(); it != gameObjects.end(); ) {
+    //    if ((*it)->isDestroyed) {
+    //        if ((*it)->isEnemy)
+    //        {
+				//for (auto it2 = enemies.begin(); it2 != enemies.end(); )
+				//{
+				//	if ((*it2) == (*it))
+				//	{
+				//		delete* it2;
+				//		*it2 = nullptr;
+				//		it2 = enemies.erase(it2);
+				//	}
+				//	else
+				//	{
+				//		++it2;
+				//	}
+				//}
+    //        }
+    //        else
+    //        {
+    //            delete* it; 
+    //            *it = nullptr;
+    //        }
+    //        it = gameObjects.erase(it); 
+    //    }
+    //    else {
+    //        ++it;
+    //    }
+    //}
 
-    if (enemies.size() == 0)
+    if (enemy->isDestroyed && enemy2->isDestroyed && enemy3->isDestroyed && enemy4->isDestroyed)
         ResetEnemies();
 }
 
@@ -364,18 +385,28 @@ void GameManager::ResetEnemies()
 	enemy2->isDestroyed = false;
 	enemy3->isDestroyed = false;
 	enemy4->isDestroyed = false;
+    enemy->isDead_ = false;
+	enemy2->isDead_ = false;
+	enemy3->isDead_ = false;
+	enemy4->isDead_ = false;
 	enemy->setPosition(enemy->getInitialPosition());
 	enemy2->setPosition(enemy2->getInitialPosition());
 	enemy3->setPosition(enemy3->getInitialPosition());
 	enemy4->setPosition(enemy4->getInitialPosition());
-	enemies.push_back(enemy);
-	enemies.push_back(enemy2);
-	enemies.push_back(enemy3);
-	enemies.push_back(enemy4);
-	gameObjects.push_back(enemy);
-	gameObjects.push_back(enemy2);
-	gameObjects.push_back(enemy3);
-	gameObjects.push_back(enemy4);
+	enemyStates = {
+		{ false, false, 100.0f, 100.0f, false },
+		{ false, false, 100.0f, 100.0f, false },
+		{ false, false, 100.0f, 100.0f, false },
+		{ false, false, 100.0f, 100.0f, false }
+	};
+	//enemies.push_back(enemy);
+	//enemies.push_back(enemy2);
+	//enemies.push_back(enemy3);
+	//enemies.push_back(enemy4);
+	//gameObjects.push_back(enemy);
+	//gameObjects.push_back(enemy2);
+	//gameObjects.push_back(enemy3);
+	//gameObjects.push_back(enemy4);
 
 	for (Enemy* emy : enemies)
 	{
@@ -424,29 +455,26 @@ void GameManager::update(float deltaTime)
     player->Update(deltaTime);
 
     int enemyID = 0;
-	for (Enemy* e : enemies)
-	{
-		if (e == nullptr || e->isDestroyed)
-			continue;
-
-		e->SetDeltaTime(deltaTime);
-		e->Update();
-	}
-   /* enemy->EnemyDecision(enemyStates[enemy->GetID()], enemy->GetID(), squadActions, deltaTime, mEnemyStateQTable);
-    enemy2->EnemyDecision(enemyStates[enemy2->GetID()], enemy2->GetID(), squadActions, enemy->GetID(), mEnemyStateQTable);
-    enemy3->EnemyDecision(enemyStates[enemy3->GetID()], enemy3->GetID(), squadActions, deltaTime, mEnemyStateQTable);
-    enemy4->EnemyDecision(enemyStates[enemy4->GetID()], enemy4->GetID(), squadActions, deltaTime, mEnemyStateQTable);*/
-
-	decisionTimer += deltaTime;
-    if (decisionTimer > decisionInterval)
+    for (Enemy* e : enemies)
     {
-	    enemy->EnemyDecisionPrecomputedQ(enemyStates[enemy->GetID()], enemy->GetID(), squadActions, deltaTime, mEnemyStateQTable);
-	    enemy2->EnemyDecisionPrecomputedQ(enemyStates[enemy2->GetID()], enemy2->GetID(), squadActions, deltaTime, mEnemyStateQTable);
-	    enemy3->EnemyDecisionPrecomputedQ(enemyStates[enemy3->GetID()], enemy3->GetID(), squadActions, deltaTime, mEnemyStateQTable);
-	    enemy4->EnemyDecisionPrecomputedQ(enemyStates[enemy4->GetID()], enemy4->GetID(), squadActions, deltaTime, mEnemyStateQTable);
-		decisionTimer = 0.0f;
+        if (e == nullptr || e->isDestroyed)
+            continue;
+
+        e->SetDeltaTime(deltaTime);
+
+        if (training)
+        {
+            e->EnemyDecision(enemyStates[e->GetID()], e->GetID(), squadActions, deltaTime, mEnemyStateQTable);
+        }
+        else
+        {
+            e->EnemyDecisionPrecomputedQ(enemyStates[e->GetID()], e->GetID(), squadActions, deltaTime, mEnemyStateQTable);
+
+        }
+
+        e->Update();
     }
-    
+
     audioSystem->Update(deltaTime);
 
 	calculatePerformance(deltaTime);
@@ -501,6 +529,8 @@ void GameManager::render()
 	glDisable(GL_BLEND);
 
 	for (auto obj : gameObjects) {
+        if (obj->isDestroyed)
+            continue;
 		renderer->draw(obj, view, projection);
 	}
 
@@ -540,7 +570,7 @@ void GameManager::render()
 	if (camSwitchedToAim)
 		camSwitchedToAim = false;
 
-	if (enemy != nullptr && !enemy->isDestroyed)
+	if (!enemy->isDestroyed)
 	{
 		if (enemy->GetEnemyHasShot() && enemy->GetEnemyDebugRayRenderTimer() > 0.0f)
 		{
@@ -551,7 +581,7 @@ void GameManager::render()
 		}
 	}
 
-	if (enemy2 != nullptr && !enemy2->isDestroyed)
+	if (!enemy2->isDestroyed)
 	{
 		if (enemy2->GetEnemyHasShot() && enemy2->GetEnemyDebugRayRenderTimer() > 0.0f)
 		{
@@ -562,7 +592,7 @@ void GameManager::render()
 		}
 	}
 
-	if (enemy3 != nullptr && !enemy3->isDestroyed)
+	if (!enemy3->isDestroyed)
 	{
 		if (enemy3->GetEnemyHasShot() && enemy3->GetEnemyDebugRayRenderTimer() > 0.0f)
 		{
@@ -573,7 +603,7 @@ void GameManager::render()
 		}
 	}
 
-	if (enemy4 != nullptr && !enemy4->isDestroyed)
+	if (!enemy4->isDestroyed)
 	{
 		if (enemy4->GetEnemyHasShot() && enemy4->GetEnemyDebugRayRenderTimer() > 0.0f)
 		{
