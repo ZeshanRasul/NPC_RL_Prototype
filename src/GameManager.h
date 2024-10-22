@@ -116,7 +116,7 @@ public:
 
     void RemoveDestroyedGameObjects();
 
-    void ResetEnemies();
+    void ResetGame();
 
 private:
     void ShowCameraControlWindow(Camera& cam);

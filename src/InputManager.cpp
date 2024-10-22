@@ -155,7 +155,7 @@ void InputManager::processInput(GLFWwindow* window, float deltaTime)
 	if (rKeyCurrentlyPressed && !rKeyPressed)
 	{
         // TODO: Reset Enemies
-        player->ResetEnemies();
+        player->ResetGame();
     }
 
 	rKeyPressed = rKeyCurrentlyPressed;

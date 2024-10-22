@@ -375,12 +375,14 @@ void GameManager::RemoveDestroyedGameObjects()
     //    }
     //}
 
-    if (enemy->isDestroyed && enemy2->isDestroyed && enemy3->isDestroyed && enemy4->isDestroyed)
-        ResetEnemies();
+    if ((enemy->isDestroyed && enemy2->isDestroyed && enemy3->isDestroyed && enemy4->isDestroyed) || player->isDestroyed)
+        ResetGame();
 }
 
-void GameManager::ResetEnemies()
+void GameManager::ResetGame()
 {
+    player->setPosition(player->initialPos);
+    player->SetAnimNum(4);
 	enemy->isDestroyed = false;
 	enemy2->isDestroyed = false;
 	enemy3->isDestroyed = false;

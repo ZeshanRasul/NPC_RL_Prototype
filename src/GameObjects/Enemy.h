@@ -222,22 +222,22 @@ public:
 		float reward = 0.0f;
 
 		if (action == ATTACK) {
-			reward += (state.playerVisible && state.playerDetected) ? 10.0f : -5.0f;
+			reward += (state.playerVisible && state.playerDetected) ? 15.0f : -10.0f;
 		}
 		else if (action == ADVANCE) {
-			reward += (state.distanceToPlayer > 10.0f && state.playerDetected || (state.playerDetected && !state.playerVisible)) ? 5.0f : -2.0f;
+			reward += (state.distanceToPlayer > 15.0f && state.playerDetected || (state.playerDetected && !state.playerVisible)) ? 10.0f : -5.0f;
 		}
 		else if (action == RETREAT) {
-			reward += (state.health < 30) ? 5.0f : -1.0f;
+			reward += (state.health < 30) ? 8.0f : -3.0f;
 		}
 		else if (action == PATROL) {
-			reward += (!state.playerDetected) ? 7.0f : -10.0f;
+			reward += (!state.playerDetected) ? 5.0f : -15.0f;
 		}
 
 		// Additional reward for coordinated behavior
 		int numAttacking = std::count(squadActions.begin(), squadActions.end(), ATTACK);
-		if (action == ATTACK && numAttacking > 1) {
-			reward += 5.0f; // Reward for attacking when other squad members are also attacking
+		if (action == ATTACK && numAttacking > 1 && (state.playerVisible && state.playerDetected)) {
+			reward += 8.0f; // Reward for attacking when other squad members are also attacking
 		}
 
 		return reward;

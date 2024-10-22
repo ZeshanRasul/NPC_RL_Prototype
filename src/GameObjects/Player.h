@@ -22,6 +22,8 @@ public:
     Player(glm::vec3 pos, glm::vec3 scale, Shader* shdr, bool applySkinning, GameManager* gameMgr, float yaw = -90.0f)
         : GameObject(pos, scale, yaw, shdr, applySkinning, gameMgr)
     {
+        initialPos = pos;
+
         model = std::make_shared<GltfModel>();
 
         std::string modelFilename = "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Models/GLTF/SwatPlayer/Swat.gltf";
@@ -128,7 +130,7 @@ public:
     int GetAnimNum() const { return animNum; }
     void SetAnimNum(int newAnimNum) { animNum = newAnimNum; }
 
-    void ResetEnemies();
+    void ResetGame();
 
 public:
     float PlayerYaw;
@@ -160,4 +162,5 @@ public:
     float health = 100.0f;
 
     int animNum = 4;
+	glm::vec3 initialPos = glm::vec3(0.0f, 0.0f, 0.0f);
 };
