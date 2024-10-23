@@ -332,6 +332,16 @@ public:
 	void EnemyDecision(NashState& currentState, int enemyId, std::vector<NashAction>& squadActions,
 		float deltaTime, std::unordered_map<std::pair<NashState, NashAction>, float, PairHash>* qTable) {
 		
+		if (enemyHasShot)
+		{
+			enemyRayDebugRenderTimer -= dt_;
+			enemyShootCooldown -= dt_;
+		}
+		if (enemyShootCooldown <= 0.0f)
+		{
+			enemyHasShot = false;
+		}
+
 		if (damageTimer > 0.0f)
 		{
 			damageTimer -= deltaTime;
@@ -413,6 +423,11 @@ public:
 		else if (chosenAction == ATTACK) {
 			EDBTState = "ATTACK";
 
+			if (enemyShootCooldown > 0.0f)
+			{
+				return;
+			}
+
 			Shoot();
 
 			nextState.playerDetected = IsPlayerDetected();
@@ -476,6 +491,16 @@ public:
 	void EnemyDecisionPrecomputedQ(NashState& currentState, int enemyId, std::vector<NashAction>& squadActions,
 		float deltaTime, std::unordered_map<std::pair<NashState, NashAction>, float, PairHash>* qTable) {
 		
+		if (enemyHasShot)
+		{
+			enemyRayDebugRenderTimer -= dt_;
+			enemyShootCooldown -= dt_;
+		}
+		if (enemyShootCooldown <= 0.0f)
+		{
+			enemyHasShot = false;
+		}
+
 		if (damageTimer > 0.0f)
 		{
 			damageTimer -= deltaTime;
@@ -554,6 +579,11 @@ public:
 		else if (chosenAction == ATTACK) 
 		{
 			EDBTState = "ATTACK";
+
+			if (enemyShootCooldown > 0.0f)
+			{
+				return;
+			}
 
 			Shoot();
 

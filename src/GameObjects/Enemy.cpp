@@ -54,15 +54,15 @@ void Enemy::Update()
 		//behaviorTree_->Tick();
 
 
-		if (enemyHasShot)
-		{
-			enemyRayDebugRenderTimer -= dt_;
-            enemyShootCooldown -= dt_;
-		}
-		if (enemyShootCooldown <= 0.0f)
-		{
-			enemyHasShot = false;
-		}
+		//if (enemyHasShot)
+		//{
+		//	enemyRayDebugRenderTimer -= dt_;
+  //          enemyShootCooldown -= dt_;
+		//}
+		//if (enemyShootCooldown <= 0.0f)
+		//{
+		//	enemyHasShot = false;
+		//}
 
         if (isDestroyed)
         {
