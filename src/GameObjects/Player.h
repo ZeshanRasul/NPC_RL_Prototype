@@ -23,6 +23,7 @@ public:
         : GameObject(pos, scale, yaw, shdr, applySkinning, gameMgr)
     {
         initialPos = pos;
+        initialYaw = yaw;
 
         model = std::make_shared<GltfModel>();
 
@@ -72,6 +73,13 @@ public:
         position = newPos;
 		mRecomputeWorldTransform = true;
     }
+
+    float GetInitialYaw() const { return initialYaw; }
+
+    void SetYaw(float newYaw) {
+        yaw = newYaw;
+        mRecomputeWorldTransform = true;
+    };
 
     void ComputeAudioWorldTransform() override;
 
@@ -132,6 +140,9 @@ public:
 
     void ResetGame();
 
+	void HasDealtDamage() override {};
+	void HasKilledPlayer() override {};
+
 public:
     float PlayerYaw;
     glm::vec3 PlayerFront;
@@ -146,6 +157,8 @@ public:
     AudioComponent* deathAC;
 
 	float aimPitch = 0.0f;
+
+	float initialYaw = -90.0f;
 
     glm::vec3 mShootStartPos = getPosition() + (glm::vec3(0.0f, 2.5f, 0.0f));
     float shootDistance = 100000.0f;

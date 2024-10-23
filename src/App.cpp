@@ -9,7 +9,11 @@ App::App(unsigned int screenWidth, unsigned int screenHeight)
     if (!mWindow->init(screenWidth, screenHeight, "NPC AI System")) {
         Logger::log(1, "%s error: Window init error\n", __FUNCTION__);
     }
-    }
+
+	mGameManager = new GameManager(mWindow, width, height);
+}
+
+
 
 App::~App()
 {
@@ -19,7 +23,6 @@ App::~App()
 
 void App::run()
 {
-	mGameManager = new GameManager(mWindow, width, height);
     while (mWindow->isOpen()) {
         mGameManager->RemoveDestroyedGameObjects();
 

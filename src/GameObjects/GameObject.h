@@ -88,6 +88,9 @@ public:
 
     Texture mTex{};
 
+    virtual void HasDealtDamage() = 0;
+    virtual void HasKilledPlayer() = 0;
+
 protected:
     virtual void drawObject(glm::mat4 viewMat, glm::mat4 proj) = 0;
 

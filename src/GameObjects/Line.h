@@ -26,6 +26,10 @@ public:
     void OnHit() override {};
     void OnMiss() override {};
 
+	void HasDealtDamage() override {};
+	void HasKilledPlayer() override {};
+
+
 private:
 
     float vertices[6] = {

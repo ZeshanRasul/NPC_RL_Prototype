@@ -43,6 +43,10 @@ public:
     void setAABBColor(glm::vec3 color) { aabbColor = color; }
 
 	void SetAABBShader(Shader* shdr) { aabbShader = shdr; }
+
+	void HasDealtDamage() override {};
+	void HasKilledPlayer() override {};
+
 private:
 
     float vertices[192] = {

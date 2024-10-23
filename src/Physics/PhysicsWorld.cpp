@@ -129,12 +129,23 @@ bool PhysicsWorld::rayPlayerIntersect(const glm::vec3& rayOrigin, const glm::vec
     }
 
     if (hit && closestAABB && !closestAABB->isEnemy && !closestAABB->owner->isDestroyed)
+    {
         closestAABB->owner->OnHit();
+		if (closestAABB->isPlayer)
+		{
+			selfAABB->owner->HasDealtDamage();
+            if (closestAABB->owner->isDestroyed)
+                selfAABB->owner->HasKilledPlayer();
+		}
+
+    }
     else if (missedAABB && !missedAABB->isEnemy && !missedAABB->owner->isDestroyed)
     {
         hit = false;
         missedAABB->owner->OnMiss();
     }
+
+   
 
     return hit;
 }

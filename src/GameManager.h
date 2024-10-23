@@ -180,7 +180,11 @@ private:
     Cube* cover1;
     Cube* cover2;
     Cube* cover3;
-    Cube* cover4;
+	Cube* cover4; 
+    Cube* cover5;
+	Cube* cover6;
+	Cube* cover7;
+	Cube* cover8;
 
     InputManager* inputManager;
 	AudioSystem* audioSystem;

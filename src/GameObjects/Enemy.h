@@ -44,7 +44,7 @@ struct PairHash {
 		const NashState& state = pair.first;
 		NashAction action = pair.second;
 		return ((std::hash<bool>()(state.playerDetected) ^ (std::hash<bool>()(state.playerVisible) << 1)) >> 1) ^
-			(std::hash<bool>()(state.isSuppressionFire) << 1) ^ (std::hash<int>()(state.health) << 2) ^
+			(std::hash<bool>()(state.isSuppressionFire) << 1) ^ (std::hash<int>()((int)state.health) << 2) ^
 			std::hash<int>()(action);
 	}
 };
@@ -70,6 +70,8 @@ public:
 		isPlayerVisible_(false), isPlayerInRange_(false), isTakingDamage_(false), isDead_(false), isInCover_(false), isSeekingCover_(false), isTakingCover_(false), player(player), initialPosition(pos)
     {
 		isEnemy = true;
+
+		id_ = id;
 
         model = std::make_shared<GltfModel>();
 
@@ -160,6 +162,7 @@ public:
 			return;
 		}
         isTakingDamage_ = true;
+		hasTakenDamage_ = true;
     }
 
     void OnDeath();
@@ -223,21 +226,57 @@ public:
 
 		if (action == ATTACK) {
 			reward += (state.playerVisible && state.playerDetected) ? 15.0f : -10.0f;
+			if (hasDealtDamage_)
+			{
+				reward += 6.0f;
+				hasDealtDamage_ = false;
+				
+				if (hasKilledPlayer_)
+				{
+					reward += 20.0f;
+					hasKilledPlayer_ = false;
+				}
+			}
 		}
 		else if (action == ADVANCE) {
 			reward += (state.distanceToPlayer > 15.0f && state.playerDetected || (state.playerDetected && !state.playerVisible)) ? 10.0f : -5.0f;
 		}
 		else if (action == RETREAT) {
-			reward += (state.health < 30) ? 8.0f : -3.0f;
+			reward += (state.health <= 40) ? 8.0f : -3.0f;
 		}
 		else if (action == PATROL) {
 			reward += (!state.playerDetected) ? 5.0f : -15.0f;
 		}
 
 		// Additional reward for coordinated behavior
-		int numAttacking = std::count(squadActions.begin(), squadActions.end(), ATTACK);
+		int numAttacking = (int)std::count(squadActions.begin(), squadActions.end(), ATTACK);
 		if (action == ATTACK && numAttacking > 1 && (state.playerVisible && state.playerDetected)) {
 			reward += 8.0f; // Reward for attacking when other squad members are also attacking
+		}
+
+		if (hasTakenDamage_)
+		{
+			reward -= 5.0f;
+			hasTakenDamage_ = false;
+		}
+
+		if (hasDied_)
+		{
+			reward -= 20.0f;
+			hasDied_ = false;
+
+			if (numDeadAllies = 3)
+			{
+				reward -= 30.0f;
+				numDeadAllies = 0;
+			}
+		}
+
+		if (allyHasDied)
+		{
+			reward -= 10.0f;
+			allyHasDied = false;
+
 		}
 
 		return reward;
@@ -316,7 +355,7 @@ public:
 
 		// Simulate taking action and getting a reward
 		NashState nextState = currentState;
-		int numAttacking = std::count(squadActions.begin(), squadActions.end(), ATTACK);
+		int numAttacking = (int)std::count(squadActions.begin(), squadActions.end(), ATTACK);
 		bool isSuppressionFire = numAttacking > 0;
 		float playerDistance = glm::distance(getPosition(), player.getPosition());
 
@@ -344,16 +383,26 @@ public:
 		}
 		else if (chosenAction == RETREAT) {
 			EDBTState = "RETREAT";
-			// Modify retreat logic to move further away from the player
-			glm::vec3 retreatDirection = glm::normalize(getPosition() - player.getPosition());
-			glm::vec3 retreatTarget = getPosition() + retreatDirection * 5.0f;
+
+			if (!selectedCover_ || grid_->GetGrid()[selectedCover_->gridX][selectedCover_->gridZ].IsOccupied())
+			{
+				ScoreCoverLocations(player);
+			}
+
+			glm::vec3 snappedCurrentPos = grid_->snapToGrid(getPosition());
+			glm::vec3 snappedCoverPos = grid_->snapToGrid(selectedCover_->worldPosition);
+
+
 			currentPath_ = grid_->findPath(
-				glm::ivec2(getPosition().x / grid_->GetCellSize(), getPosition().z / grid_->GetCellSize()),
-				glm::ivec2(retreatTarget.x / grid_->GetCellSize(), retreatTarget.z / grid_->GetCellSize()),
+				glm::ivec2(snappedCurrentPos.x / grid_->GetCellSize(), snappedCurrentPos.z / grid_->GetCellSize()),
+				glm::ivec2(snappedCoverPos.x / grid_->GetCellSize(), snappedCoverPos.z / grid_->GetCellSize()),
 				grid_->GetGrid(),
-				enemyId
+				id_
 			);
-			moveEnemy(currentPath_, deltaTime, 1.0f, false);
+
+			VacatePreviousCell();
+
+			moveEnemy(currentPath_, dt_, 1.0f, false);
 
 			nextState.playerDetected = IsPlayerDetected();
 			nextState.distanceToPlayer = glm::distance(getPosition(), player.getPosition());
@@ -375,8 +424,11 @@ public:
 		else if (chosenAction == PATROL) {
 			EDBTState = "PATROL";
 
+
 			// Select a random way point to patrol to
-			currentWaypoint = selectRandomWaypoint(currentWaypoint, waypointPositions);
+			if (reachedDestination)
+				currentWaypoint = selectRandomWaypoint(currentWaypoint, waypointPositions);
+
 			currentPath_ = grid_->findPath(
 				glm::ivec2(getPosition().x / grid_->GetCellSize(), getPosition().z / grid_->GetCellSize()),
 				glm::ivec2(currentWaypoint.x / grid_->GetCellSize(), currentWaypoint.z / grid_->GetCellSize()),
@@ -410,7 +462,7 @@ public:
 	// Choose an action based on the highest Q-value for a specific enemy
 	NashAction ChooseActionFromTrainedQTable(const NashState& state, int enemyId, std::unordered_map<std::pair<NashState, NashAction>, float, PairHash>* qTable) {
 		float maxQ = -std::numeric_limits<float>::infinity();
-		NashAction bestAction = ATTACK;
+		NashAction bestAction = PATROL;
 		for (auto action : { ATTACK, ADVANCE, RETREAT, PATROL }) {
 			auto it = qTable[enemyId].find({ state, action });
 			if (it != qTable[enemyId].end() && it->second > maxQ) {
@@ -445,7 +497,7 @@ public:
 
 		NashAction chosenAction = ChooseActionFromTrainedQTable(currentState, enemyId, qTable);
 		
-		int numAttacking = std::count(squadActions.begin(), squadActions.end(), ATTACK);
+		int numAttacking = (int)std::count(squadActions.begin(), squadActions.end(), ATTACK);
 		bool isSuppressionFire = numAttacking > 0;
 		float playerDistance = glm::distance(getPosition(), player.getPosition());
 		if (!IsPlayerDetected() && (playerDistance < 15.0f) && IsPlayerVisible())
@@ -473,17 +525,26 @@ public:
 		else if (chosenAction == RETREAT) 
 		{
 			EDBTState = "RETREAT";
-			// Modify retreat logic to move further away from the player
-			glm::vec3 retreatDirection = glm::normalize(getPosition() - player.getPosition());
-			glm::vec3 retreatTarget = getPosition() + retreatDirection * 5.0f;
-			currentPath_ = grid_->findPath(
-				glm::ivec2(getPosition().x / grid_->GetCellSize(), getPosition().z / grid_->GetCellSize()),
-				glm::ivec2(retreatTarget.x / grid_->GetCellSize(), retreatTarget.z / grid_->GetCellSize()),
-				grid_->GetGrid(),
-				enemyId
-			);
-			moveEnemy(currentPath_, deltaTime, 1.0f, false);
 
+			if (!selectedCover_ || grid_->GetGrid()[selectedCover_->gridX][selectedCover_->gridZ].IsOccupied())
+			{
+				ScoreCoverLocations(player);
+			}
+
+			glm::vec3 snappedCurrentPos = grid_->snapToGrid(getPosition());
+			glm::vec3 snappedCoverPos = grid_->snapToGrid(selectedCover_->worldPosition);
+
+
+			currentPath_ = grid_->findPath(
+				glm::ivec2(snappedCurrentPos.x / grid_->GetCellSize(), snappedCurrentPos.z / grid_->GetCellSize()),
+				glm::ivec2(snappedCoverPos.x / grid_->GetCellSize(), snappedCoverPos.z / grid_->GetCellSize()),
+				grid_->GetGrid(),
+				id_
+			);
+
+			VacatePreviousCell();
+
+			moveEnemy(currentPath_, dt_, 1.0f, false);
 			currentState.playerDetected = IsPlayerDetected();
 			currentState.distanceToPlayer = glm::distance(getPosition(), player.getPosition());
 			currentState.playerVisible = IsPlayerVisible();
@@ -506,7 +567,9 @@ public:
 			EDBTState = "PATROL";
 
 			// Select a random way point to patrol to
-			currentWaypoint = selectRandomWaypoint(currentWaypoint, waypointPositions);
+			if (reachedDestination)
+				currentWaypoint = selectRandomWaypoint(currentWaypoint, waypointPositions);
+
 			currentPath_ = grid_->findPath(
 				glm::ivec2(getPosition().x / grid_->GetCellSize(), getPosition().z / grid_->GetCellSize()),
 				glm::ivec2(currentWaypoint.x / grid_->GetCellSize(), currentWaypoint.z / grid_->GetCellSize()),
@@ -535,6 +598,9 @@ public:
 
 	bool isDead_ = false;
 
+	void HasDealtDamage() override { hasDealtDamage_ = true; }
+	void HasKilledPlayer() override { hasKilledPlayer_ = true; }
+
 private:
 	std::vector<glm::vec3> waypointPositions = {
 		grid_->snapToGrid(glm::vec3(0.0f, 0.0f, 0.0f)),
@@ -554,13 +620,21 @@ private:
     bool isPlayerVisible_;
     bool isPlayerInRange_;
     bool isTakingDamage_;
+	bool hasTakenDamage_ = false;
     bool isDying_ = false;
+	bool hasDied_ = false;
     bool isInCover_;
     bool isSeekingCover_;
     bool isTakingCover_;
     bool isAttacking_ = false;
+	bool hasDealtDamage_ = false;
+	bool hasKilledPlayer_ = false;
     bool isPatrolling_ = false;
     bool provideSuppressionFire_ = false;
+	bool allyHasDied = false;
+
+	int numDeadAllies = 0;
+
     std::vector<glm::ivec2> currentPath_;
 	float dt_ = 0.0f;
 	Grid::Cover* selectedCover_ = nullptr;

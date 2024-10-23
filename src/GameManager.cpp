@@ -16,12 +16,6 @@ DirLight dirLight = {
 GameManager::GameManager(Window* window, unsigned int width, unsigned int height)
     : window(window)
 {
-
-    for (int enemyID = 0; enemyID < 4; ++enemyID)
-    {
-        LoadQTable(mEnemyStateQTable[enemyID], std::to_string(enemyID) + mEnemyStateFilename);
-    }
-
     inputManager = new InputManager();
 	audioSystem = new AudioSystem(this);
 
@@ -62,7 +56,19 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
     cover3->LoadMesh();
 	cover4 = new Cube(gameGrid->snapToGrid(gameGrid->coverPositions[3]), glm::vec3((float)gameGrid->GetCellSize()), &cubeShader, false, this);
     cover4->SetAABBShader(&aabbShader);
-    cover4->LoadMesh();
+    cover4->LoadMesh();	
+    cover5 = new Cube(gameGrid->snapToGrid(gameGrid->coverPositions[4]), glm::vec3((float)gameGrid->GetCellSize()), &cubeShader, false, this);
+    cover5->SetAABBShader(&aabbShader);
+    cover5->LoadMesh();
+	cover6 = new Cube(gameGrid->snapToGrid(gameGrid->coverPositions[5]), glm::vec3((float)gameGrid->GetCellSize()), &cubeShader, false, this);
+	cover6->SetAABBShader(&aabbShader);
+	cover6->LoadMesh();
+	cover7 = new Cube(gameGrid->snapToGrid(gameGrid->coverPositions[6]), glm::vec3((float)gameGrid->GetCellSize()), &cubeShader, false, this);
+	cover7->SetAABBShader(&aabbShader);
+	cover7->LoadMesh();
+	cover8 = new Cube(gameGrid->snapToGrid(gameGrid->coverPositions[7]), glm::vec3((float)gameGrid->GetCellSize()), &cubeShader, false, this);
+    cover8->SetAABBShader(&aabbShader);
+    cover8->LoadMesh();
 
     gameGrid->initializeGrid();
 
@@ -123,7 +129,11 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
     gameObjects.push_back(cover1);
     gameObjects.push_back(cover2);
     gameObjects.push_back(cover3);
-    gameObjects.push_back(cover4);
+	gameObjects.push_back(cover4);    
+    gameObjects.push_back(cover5);
+	gameObjects.push_back(cover6);
+	gameObjects.push_back(cover7);
+	gameObjects.push_back(cover8);
     gameObjects.push_back(enemy2);  
     gameObjects.push_back(enemy3);  
     gameObjects.push_back(enemy4);  
@@ -132,6 +142,14 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
     enemies.push_back(enemy2);
     enemies.push_back(enemy3);
     enemies.push_back(enemy4);
+
+	for (auto& enem : enemies)
+	{
+        int enemyID = enem->GetID();
+		Logger::log(1, "%s Loading Q Table for Enemy %d\n", __FUNCTION__, enemyID);
+		LoadQTable(mEnemyStateQTable[enemyID], std::to_string(enemyID) + mEnemyStateFilename);
+		Logger::log(1, "%s Loaded Q Table for Enemy %d\n", __FUNCTION__, enemyID);
+	}
 
     mMusicEvent = audioSystem->PlayEvent("event:/Music");
 }
@@ -382,7 +400,10 @@ void GameManager::RemoveDestroyedGameObjects()
 void GameManager::ResetGame()
 {
     player->setPosition(player->initialPos);
+    player->SetYaw(player->GetInitialYaw());
     player->SetAnimNum(4);
+    player->isDestroyed = false;
+    player->SetHealth(100.0f);
 	enemy->isDestroyed = false;
 	enemy2->isDestroyed = false;
 	enemy3->isDestroyed = false;

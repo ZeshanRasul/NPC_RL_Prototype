@@ -97,7 +97,12 @@ void Enemy::OnEvent(const Event& event)
                 provideSuppressionFire_ = true;
             }
         }
-    }
+	}
+	else if (const NPCDiedEvent* e = dynamic_cast<const NPCDiedEvent*>(&event))
+	{
+        allyHasDied = true;
+        numDeadAllies++;
+	}
 
 }
 
@@ -181,7 +186,7 @@ void Enemy::moveEnemy(const std::vector<glm::ivec2>& path, float deltaTime, floa
         Logger::log(1, "%s success: Agent has reached its destination.\n", __FUNCTION__);
 		grid_->VacateCell(path[pathIndex_ - 1].x, path[pathIndex_ - 1].y, id_);
 
-        if (IsPatrolling())
+        if (IsPatrolling() || EDBTState == "Patrol")
             reachedDestination = true;
 
 		if (isTakingCover_)
@@ -337,7 +342,7 @@ void Enemy::OnHit()
 	Logger::log(1, "Enemy was hit!\n", __FUNCTION__);
 	setAABBColor(glm::vec3(1.0f, 0.0f, 1.0f));
     SetAnimNum(4);
-    TakeDamage(50.0f);
+    TakeDamage(20.0f);
     isTakingDamage_ = true;
     takeDamageAC->PlayEvent("event:/EnemyTakeDamage");
 	damageTimer = model->getAnimationEndTime(4);
@@ -351,6 +356,8 @@ void Enemy::OnDeath()
 	dyingTimer = model->getAnimationEndTime(1);
 	SetAnimNum(1);
 	deathAC->PlayEvent("event:/EnemyDeath");
+    hasDied_ = true;
+	eventManager_.Publish(NPCDiedEvent{ id_ });
 }
 
 void Enemy::ScoreCoverLocations(Player& player)
