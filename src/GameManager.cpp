@@ -336,7 +336,7 @@ void GameManager::ShowEnemyStateWindow()
         ImGui::SameLine();
 		ImGui::Text("State: %s", e->GetEDBTState().c_str());
         ImGui::SameLine();
-        ImGui::Text("Health %d", e->GetHealth());
+        ImGui::Text("Health %f", e->GetHealth());
     }
 
     ImGui::End();

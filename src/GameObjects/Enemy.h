@@ -225,7 +225,7 @@ public:
 		float reward = 0.0f;
 
 		if (action == ATTACK) {
-			reward += (state.playerVisible && state.playerDetected) ? 15.0f : -10.0f;
+			reward += (state.playerVisible && state.playerDetected) ? 15.0f : -20.0f;
 			if (hasDealtDamage_)
 			{
 				reward += 6.0f;
@@ -251,7 +251,7 @@ public:
 		// Additional reward for coordinated behavior
 		int numAttacking = (int)std::count(squadActions.begin(), squadActions.end(), ATTACK);
 		if (action == ATTACK && numAttacking > 1 && (state.playerVisible && state.playerDetected)) {
-			reward += 8.0f; // Reward for attacking when other squad members are also attacking
+			reward += 8.0f; 
 		}
 
 		if (hasTakenDamage_)
@@ -278,6 +278,9 @@ public:
 			allyHasDied = false;
 
 		}
+
+		hasDealtDamage_ = false;
+		hasKilledPlayer_ = false;
 
 		return reward;
 	}
@@ -351,6 +354,7 @@ public:
 		if (dyingTimer > 0.0f && isDying_)
 		{
 			dyingTimer -= deltaTime;
+			return;
 		}
 		else if (dyingTimer <= 0.0f && isDying_)
 		{
@@ -382,6 +386,8 @@ public:
 				grid_->GetGrid(),
 				enemyId
 			);
+
+			VacatePreviousCell();
 
 			moveEnemy(currentPath_, deltaTime, 1.0f, false);
 
@@ -439,18 +445,36 @@ public:
 		else if (chosenAction == PATROL) {
 			EDBTState = "PATROL";
 
+			if (reachedDestination == false)
+			{
+				currentPath_ = grid_->findPath(
+					glm::ivec2((int)(getPosition().x / grid_->GetCellSize()), (int)(getPosition().z / grid_->GetCellSize())),
+					glm::ivec2(currentWaypoint.x / grid_->GetCellSize(), currentWaypoint.z / grid_->GetCellSize()),
+					grid_->GetGrid(),
+					id_
+				);
 
-			// Select a random way point to patrol to
-			if (reachedDestination)
+				VacatePreviousCell();
+
+				moveEnemy(currentPath_, dt_, 1.0f, false);
+			}
+			else
+			{
 				currentWaypoint = selectRandomWaypoint(currentWaypoint, waypointPositions);
 
-			currentPath_ = grid_->findPath(
-				glm::ivec2(getPosition().x / grid_->GetCellSize(), getPosition().z / grid_->GetCellSize()),
-				glm::ivec2(currentWaypoint.x / grid_->GetCellSize(), currentWaypoint.z / grid_->GetCellSize()),
-				grid_->GetGrid(),
-				enemyId
-			);
-			moveEnemy(currentPath_, deltaTime, 1.0f, false);
+				currentPath_ = grid_->findPath(
+					glm::ivec2(getPosition().x / grid_->GetCellSize(), getPosition().z / grid_->GetCellSize()),
+					glm::ivec2(currentWaypoint.x / grid_->GetCellSize(), currentWaypoint.z / grid_->GetCellSize()),
+					grid_->GetGrid(),
+					id_
+				);
+
+				VacatePreviousCell();
+
+				reachedDestination = false;
+
+				moveEnemy(currentPath_, dt_, 1.0f, false);
+			}
 
 			nextState.playerDetected = IsPlayerDetected();
 			nextState.distanceToPlayer = glm::distance(getPosition(), player.getPosition());
@@ -510,6 +534,7 @@ public:
 		if (dyingTimer > 0.0f && isDying_)
 		{
 			dyingTimer -= deltaTime;
+			return;
 		}
 		else if (dyingTimer <= 0.0f && isDying_)
 		{
@@ -538,6 +563,8 @@ public:
 				grid_->GetGrid(),
 				enemyId
 			);
+
+			VacatePreviousCell();
 
 			moveEnemy(currentPath_, deltaTime, 1.0f, false);
 
@@ -596,17 +623,37 @@ public:
 		else if (chosenAction == PATROL) {
 			EDBTState = "PATROL";
 
-			// Select a random way point to patrol to
-			if (reachedDestination)
+			if (reachedDestination == false)
+			{
+				currentPath_ = grid_->findPath(
+					glm::ivec2((int)(getPosition().x / grid_->GetCellSize()), (int)(getPosition().z / grid_->GetCellSize())),
+					glm::ivec2(currentWaypoint.x / grid_->GetCellSize(), currentWaypoint.z / grid_->GetCellSize()),
+					grid_->GetGrid(),
+					id_
+				);
+
+				VacatePreviousCell();
+
+				moveEnemy(currentPath_, dt_, 1.0f, false);
+			}
+			else
+			{
 				currentWaypoint = selectRandomWaypoint(currentWaypoint, waypointPositions);
 
-			currentPath_ = grid_->findPath(
-				glm::ivec2(getPosition().x / grid_->GetCellSize(), getPosition().z / grid_->GetCellSize()),
-				glm::ivec2(currentWaypoint.x / grid_->GetCellSize(), currentWaypoint.z / grid_->GetCellSize()),
-				grid_->GetGrid(),
-				enemyId
-			);
-			moveEnemy(currentPath_, deltaTime, 1.0f, false);
+				currentPath_ = grid_->findPath(
+					glm::ivec2(getPosition().x / grid_->GetCellSize(), getPosition().z / grid_->GetCellSize()),
+					glm::ivec2(currentWaypoint.x / grid_->GetCellSize(), currentWaypoint.z / grid_->GetCellSize()),
+					grid_->GetGrid(),
+					id_
+				);
+
+				VacatePreviousCell();
+
+				reachedDestination = false;
+
+				moveEnemy(currentPath_, dt_, 1.0f, false);
+			}
+
 
 			currentState.playerDetected = IsPlayerDetected();
 			currentState.distanceToPlayer = glm::distance(getPosition(), player.getPosition());

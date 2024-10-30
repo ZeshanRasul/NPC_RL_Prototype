@@ -186,7 +186,7 @@ void Enemy::moveEnemy(const std::vector<glm::ivec2>& path, float deltaTime, floa
         Logger::log(1, "%s success: Agent has reached its destination.\n", __FUNCTION__);
 		grid_->VacateCell(path[pathIndex_ - 1].x, path[pathIndex_ - 1].y, id_);
 
-        if (IsPatrolling() || EDBTState == "Patrol")
+        if (IsPatrolling() || EDBTState == "Patrol" || EDBTState == "PATROL")
             reachedDestination = true;
 
 		if (isTakingCover_)
