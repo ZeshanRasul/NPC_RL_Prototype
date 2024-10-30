@@ -221,6 +221,13 @@ public:
 
     // NASH LEARNING
 
+	const float BUCKET_SIZE = 10.0f;  
+	const float TOLERANCE = 5.0f;     
+
+	int getDistanceBucket(float distance) {
+		return static_cast<int>(distance / BUCKET_SIZE);
+	}
+
     float CalculateReward(const NashState& state, NashAction action, int enemyId, const std::vector<NashAction>& squadActions) {
 		float reward = 0.0f;
 
@@ -287,11 +294,19 @@ public:
 
 	float GetMaxQValue(const NashState& state, int enemyId, std::unordered_map<std::pair<NashState, NashAction>, float, PairHash>* qTable) {
 		float maxQ = -std::numeric_limits<float>::infinity();
+		int targetBucket = getDistanceBucket(state.distanceToPlayer);
+
 		for (auto action : { ATTACK, ADVANCE, RETREAT, PATROL }) {
-			auto it = qTable[enemyId].find({ state, action });
-			if (it != qTable[enemyId].end()) {
-				maxQ = std::max(maxQ, it->second);
-			}
+		    for (int bucketOffset = -1; bucketOffset <= 1; ++bucketOffset) {
+		        int bucket = targetBucket + bucketOffset;
+		        NashState modifiedState = state;
+		        modifiedState.distanceToPlayer = bucket * BUCKET_SIZE; // Discretized distance
+		        
+		        auto it = qTable[enemyId].find({ modifiedState, action });
+		        if (it != qTable[enemyId].end() && std::abs(it->first.first.distanceToPlayer - state.distanceToPlayer) <= TOLERANCE) {
+		            maxQ = std::max(maxQ, it->second);
+		        }
+		    }
 		}
 		return (maxQ == -std::numeric_limits<float>::infinity()) ? 0.0f : maxQ;
 	}
@@ -373,7 +388,7 @@ public:
 		bool isSuppressionFire = numAttacking > 0;
 		float playerDistance = glm::distance(getPosition(), player.getPosition());
 
-		if (!IsPlayerDetected() && (playerDistance < 15.0f) && IsPlayerVisible())
+		if (!IsPlayerDetected() && (playerDistance < 35.0f) && IsPlayerVisible())
 		{
 			DetectPlayer();
 		}
@@ -502,13 +517,25 @@ public:
 	NashAction ChooseActionFromTrainedQTable(const NashState& state, int enemyId, std::unordered_map<std::pair<NashState, NashAction>, float, PairHash>* qTable) {
 		float maxQ = -std::numeric_limits<float>::infinity();
 		NashAction bestAction = PATROL;
+		int targetBucket = getDistanceBucket(state.distanceToPlayer);
+
 		for (auto action : { ATTACK, ADVANCE, RETREAT, PATROL }) {
-			auto it = qTable[enemyId].find({ state, action });
-			if (it != qTable[enemyId].end() && it->second > maxQ) {
-				maxQ = it->second;
-				bestAction = action;
+			for (int bucketOffset = -1; bucketOffset <= 1; ++bucketOffset) {
+				int bucket = targetBucket + bucketOffset;
+				NashState modifiedState = state;
+				modifiedState.distanceToPlayer = bucket * BUCKET_SIZE;  // Use discretized distance
+
+				auto it = qTable[enemyId].find({ modifiedState, action });
+				// Check if entry exists and is within tolerance range
+				if (it != qTable[enemyId].end() && std::abs(it->first.first.distanceToPlayer - state.distanceToPlayer) <= TOLERANCE) {
+					if (it->second > maxQ) {
+						maxQ = it->second;
+						bestAction = action;
+					}
+				}
 			}
 		}
+
 		return bestAction;
 	}
 
@@ -550,7 +577,7 @@ public:
 		int numAttacking = (int)std::count(squadActions.begin(), squadActions.end(), ATTACK);
 		bool isSuppressionFire = numAttacking > 0;
 		float playerDistance = glm::distance(getPosition(), player.getPosition());
-		if (!IsPlayerDetected() && (playerDistance < 15.0f) && IsPlayerVisible())
+		if (!IsPlayerDetected() && (playerDistance < 35.0f) && IsPlayerVisible())
 		{
 			DetectPlayer();
 		}
