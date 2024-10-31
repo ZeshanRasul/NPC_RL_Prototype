@@ -129,7 +129,7 @@ private:
 
     EventManager& GetEventManager() { return eventManager; }
 
-    bool training = false;
+    bool training = true;
     std::string mEnemyStateFilename = "EnemyStateQTable.csv";
     std::unordered_map<std::pair<NashState, NashAction>, float, PairHash> mEnemyStateQTable[4];
     std::vector<NashState> enemyStates =

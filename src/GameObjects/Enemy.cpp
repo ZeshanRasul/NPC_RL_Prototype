@@ -82,6 +82,7 @@ void Enemy::OnEvent(const Event& event)
         if (e->npcID != id_)
         {
             isPlayerDetected_ = true;
+			Logger::log(1, "Player detected by enemy %d\n", id_);
         }
     }
     else if (const NPCDamagedEvent* e = dynamic_cast<const NPCDamagedEvent*>(&event))

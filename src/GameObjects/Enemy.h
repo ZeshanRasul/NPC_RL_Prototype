@@ -58,7 +58,7 @@ private:
 
 	const float learningRate = 0.1f;
 	const float discountFactor = 0.9f;
-	const float explorationRate = 0.1f;
+	const float explorationRate = 0.5f;
 
 	Player& player;
 
@@ -232,33 +232,48 @@ public:
 		float reward = 0.0f;
 
 		if (action == ATTACK) {
-			reward += (state.playerVisible && state.playerDetected) ? 15.0f : -20.0f;
+			reward += (state.playerVisible && state.playerDetected) ? 20.0f : -10.0f;
 			if (hasDealtDamage_)
 			{
-				reward += 6.0f;
+				reward += 8.0f;
 				hasDealtDamage_ = false;
 				
 				if (hasKilledPlayer_)
 				{
-					reward += 20.0f;
+					reward += 25.0f;
 					hasKilledPlayer_ = false;
 				}
 			}
+
+			if (state.health <= 20)
+			{
+				reward -= 5.0f;
+			}
 		}
 		else if (action == ADVANCE) {
-			reward += (state.distanceToPlayer > 15.0f && state.playerDetected || (state.playerDetected && !state.playerVisible)) ? 10.0f : -5.0f;
+			reward += (state.distanceToPlayer > 15.0f && state.playerDetected || (state.playerDetected && !state.playerVisible)) ? 12.0f : -3.0f;
+
+			if (state.distanceToPlayer < 10.0f)
+			{
+				reward -= 5.0f;
+			}
 		}
 		else if (action == RETREAT) {
-			reward += (state.health <= 40) ? 8.0f : -3.0f;
+			reward += (state.health <= 40) ? 10.0f : -5.0f;
+
+			if (state.health <= 20 && state.distanceToPlayer > 20.0f)
+			{
+				reward += 5.0f;
+			}
 		}
 		else if (action == PATROL) {
-			reward += (!state.playerDetected) ? 5.0f : -15.0f;
+			reward += (!state.playerDetected) ? 5.0f : -10.0f;
 		}
 
 		// Additional reward for coordinated behavior
 		int numAttacking = (int)std::count(squadActions.begin(), squadActions.end(), ATTACK);
 		if (action == ATTACK && numAttacking > 1 && (state.playerVisible && state.playerDetected)) {
-			reward += 8.0f; 
+			reward += 10.0f; 
 		}
 
 		if (hasTakenDamage_)
