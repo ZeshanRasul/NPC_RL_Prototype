@@ -210,6 +210,10 @@ private:
 	Cube* cover6;
 	Cube* cover7;
 	Cube* cover8;
+	Cube* cover9;
+	Cube* cover10;
+	Cube* cover11;
+	Cube* cover12;
 
     InputManager* inputManager;
 	AudioSystem* audioSystem;

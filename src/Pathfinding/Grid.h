@@ -19,14 +19,18 @@ public:
 	};
 
     std::vector<glm::vec3> coverPositions = {
-        glm::vec3(15.0f, 3.5f, 10.0f),
-        glm::vec3(45.0f, 3.5f, 10.0f),
-        glm::vec3(30.0f, 3.5f, 10.0f),
-        glm::vec3(25.0f, 3.5f, 10.0f),
-        glm::vec3(30.0f, 3.5f, 50.0f),
-        glm::vec3(30.0f, 3.5f, 57.0f),
-        glm::vec3(30.0f, 3.5f, 64.0f),
-        glm::vec3(30.0f, 3.5f, 71.0f),
+        //glm::vec3(30.0f, 3.5f, 27.0f),
+        //glm::vec3(30.0f, 3.5f, 34.0f),
+        //glm::vec3(30.0f, 3.5f, 41.0f),
+        //glm::vec3(30.0f, 3.5f, 48.0f),
+        glm::vec3(50.0f, 3.5f, 50.0f),
+        glm::vec3(50.0f, 3.5f, 57.0f),
+        glm::vec3(50.0f, 3.5f, 64.0f),
+        glm::vec3(50.0f, 3.5f, 71.0f),
+        glm::vec3(70.0f, 3.5f, 27.0f),
+        glm::vec3(70.0f, 3.5f, 34.0f),
+        glm::vec3(70.0f, 3.5f, 41.0f),
+        glm::vec3(70.0f, 3.5f, 48.0f),
     };
 
     std::vector<glm::vec3> snappedCoverPositions;

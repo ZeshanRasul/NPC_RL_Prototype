@@ -247,7 +247,7 @@ void Player::OnHit()
 {
 	std::cout << "Player hit!" << std::endl;
 	setAABBColor(glm::vec3(1.0f, 0.0f, 1.0f));
-    TakeDamage(2.0f);
+    TakeDamage(0.4f);
 }
 
 void Player::OnDeath()

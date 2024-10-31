@@ -69,6 +69,19 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 	cover8 = new Cube(gameGrid->snapToGrid(gameGrid->coverPositions[7]), glm::vec3((float)gameGrid->GetCellSize()), &cubeShader, false, this);
     cover8->SetAABBShader(&aabbShader);
     cover8->LoadMesh();
+	//cover9 = new Cube(gameGrid->snapToGrid(gameGrid->coverPositions[8]), glm::vec3((float)gameGrid->GetCellSize()), &cubeShader, false, this);
+	//cover9->SetAABBShader(&aabbShader);
+	//cover9->LoadMesh();
+	//cover10 = new Cube(gameGrid->snapToGrid(gameGrid->coverPositions[9]), glm::vec3((float)gameGrid->GetCellSize()), &cubeShader, false, this);
+	//cover10->SetAABBShader(&aabbShader);
+	//cover10->LoadMesh();
+	//cover11 = new Cube(gameGrid->snapToGrid(gameGrid->coverPositions[10]), glm::vec3((float)gameGrid->GetCellSize()), &cubeShader, false, this);
+	//cover11->SetAABBShader(&aabbShader);
+	//cover11->LoadMesh();
+	//cover12 = new Cube(gameGrid->snapToGrid(gameGrid->coverPositions[11]), glm::vec3((float)gameGrid->GetCellSize()), &cubeShader, false, this);
+	//cover12->SetAABBShader(&aabbShader);
+	//cover12->LoadMesh();
+
 
     gameGrid->initializeGrid();
 
@@ -133,7 +146,11 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
     gameObjects.push_back(cover5);
 	gameObjects.push_back(cover6);
 	gameObjects.push_back(cover7);
-	gameObjects.push_back(cover8);
+	gameObjects.push_back(cover8);    
+ //   gameObjects.push_back(cover9);
+	//gameObjects.push_back(cover10);
+	//gameObjects.push_back(cover11);
+	//gameObjects.push_back(cover12);
     gameObjects.push_back(enemy2);  
     gameObjects.push_back(enemy3);  
     gameObjects.push_back(enemy4);  
@@ -336,7 +353,9 @@ void GameManager::ShowPerformanceWindow()
 
 void GameManager::ShowEnemyStateWindow()
 {
-    ImGui::Begin("Enemy States");
+    ImGui::Begin("Game States");
+
+	ImGui::Text("Player Health: %f", player->GetHealth());
 
     for (Enemy* e : enemies)
     {
@@ -511,7 +530,7 @@ void GameManager::update(float deltaTime)
         e->Update();
     }
 
-    audioSystem->Update(deltaTime);
+    //audioSystem->Update(deltaTime);
 
 	calculatePerformance(deltaTime);
 }

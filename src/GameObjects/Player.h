@@ -163,7 +163,7 @@ public:
     glm::vec3 mShootStartPos = getPosition() + (glm::vec3(0.0f, 2.5f, 0.0f));
     float shootDistance = 100000.0f;
 
-    float MovementSpeed = 7.5f;
+    float MovementSpeed = 15.0f;
     float mVelocity = 0.0f;
 
     bool uploadVertexBuffer = true;
