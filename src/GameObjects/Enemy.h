@@ -58,7 +58,18 @@ private:
 
 	const float learningRate = 0.1f;
 	const float discountFactor = 0.9f;
-	const float explorationRate = 0.5f;
+	float explorationRate;
+	float initialExplorationRate = 0.5f;
+	float minExplorationRate = 0.1f;
+	int targetQTableSize = 100000;  
+
+	float DecayExplorationRate(float initialRate, float minRate, int currentSize, int targetSize) {
+		if (currentSize >= targetSize) {
+			return minRate;  
+		}
+		float decayedRate = minRate + (initialRate - minRate) * (1.0f - static_cast<float>(currentSize) / targetSize);
+		return decayedRate;
+	}
 
 	Player& player;
 
@@ -331,6 +342,9 @@ public:
 		static std::random_device rd;
 		static std::mt19937 gen(rd());
 		static std::uniform_real_distribution<> dis(0.0, 1.0);
+
+		int currentQTableSize = qTable[enemyId].size();
+		explorationRate = DecayExplorationRate(initialExplorationRate, minExplorationRate, currentQTableSize, targetQTableSize);
 
 		if (dis(gen) < explorationRate) {
 			// Exploration: choose a random action
