@@ -222,7 +222,7 @@ public:
     // NASH LEARNING
 
 	const float BUCKET_SIZE = 10.0f;  
-	const float TOLERANCE = 5.0f;     
+	const float TOLERANCE = 10.0f;     
 
 	int getDistanceBucket(float distance) {
 		return static_cast<int>(distance / BUCKET_SIZE);

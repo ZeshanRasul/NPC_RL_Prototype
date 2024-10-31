@@ -143,13 +143,26 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
     enemies.push_back(enemy3);
     enemies.push_back(enemy4);
 
-	for (auto& enem : enemies)
-	{
-        int enemyID = enem->GetID();
-		Logger::log(1, "%s Loading Q Table for Enemy %d\n", __FUNCTION__, enemyID);
-		LoadQTable(mEnemyStateQTable[enemyID], std::to_string(enemyID) + mEnemyStateFilename);
-		Logger::log(1, "%s Loaded Q Table for Enemy %d\n", __FUNCTION__, enemyID);
+    if (initializeQTable)
+    {
+		for (auto& enem : enemies)
+		{
+			int enemyID = enem->GetID();
+			Logger::log(1, "%s Initializing Q Table for Enemy %d\n", __FUNCTION__, enemyID);
+			InitializeQTable(mEnemyStateQTable[enemyID]);
+			Logger::log(1, "%s Initialized Q Table for Enemy %d\n", __FUNCTION__, enemyID);
+		}
 	}
+    else
+    {
+        for (auto& enem : enemies)
+        {
+            int enemyID = enem->GetID();
+            Logger::log(1, "%s Loading Q Table for Enemy %d\n", __FUNCTION__, enemyID);
+            LoadQTable(mEnemyStateQTable[enemyID], std::to_string(enemyID) + mEnemyStateFilename);
+            Logger::log(1, "%s Loaded Q Table for Enemy %d\n", __FUNCTION__, enemyID);
+        }
+    }
 
     mMusicEvent = audioSystem->PlayEvent("event:/Music");
 }

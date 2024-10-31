@@ -76,6 +76,31 @@ private:
 		inFile.close();
 	}
 
+	void InitializeQTable(std::unordered_map<std::pair<NashState, NashAction>, float, PairHash>& qTable) {
+		std::random_device rd;
+		std::mt19937 gen(rd());
+		std::uniform_real_distribution<float> dist(-0.1f, 0.1f);
+
+		std::vector<float> distances = { 0.0f, 10.0f, 20.0f, 30.0f, 40.0f, 50.0f, 60.0f, 70.0f, 80.0f, 90.0f, 100.0f };
+		std::vector<float> healthLevels = { 20.0f, 40.0f, 60.0f, 80.0f, 100.0f };  
+
+		for (bool playerDetected : {true, false}) {
+			for (bool playerVisible : {true, false}) {
+				for (float distanceToPlayer : distances) {
+					for (float health : healthLevels) {
+						for (bool isSuppressionFire : {true, false}) {
+							NashState state = { playerDetected, playerVisible, distanceToPlayer, health, isSuppressionFire };
+							for (auto action : { NashAction::ATTACK, NashAction::ADVANCE, NashAction::RETREAT, NashAction::PATROL }) {
+								qTable[{state, action}] = dist(gen);  // Assign random initial Q-value
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
+
 public:
     GameManager(Window* window, unsigned int width, unsigned int height);
 
@@ -129,24 +154,24 @@ private:
 
     EventManager& GetEventManager() { return eventManager; }
 
-    bool training = true;
+    bool initializeQTable = false;
+    bool training = false;
     std::string mEnemyStateFilename = "EnemyStateQTable.csv";
     std::unordered_map<std::pair<NashState, NashAction>, float, PairHash> mEnemyStateQTable[4];
     std::vector<NashState> enemyStates =
     {
 
-            { false, false, 100.0f, 100.0f, false },
-            { false, false, 100.0f, 100.0f, false },
-            { false, false, 100.0f, 100.0f, false },
-            { false, false, 100.0f, 100.0f, false }
-
+        { true, true, 30.0f, 60.0f, false },   
+        { false, true, 50.0f, 80.0f, true },   
+        { true, false, 75.0f, 40.0f, false },  
+        { false, false, 100.0f, 100.0f, false }
     };
     std::vector<NashAction> squadActions =
     {
+        NashAction::ADVANCE,
         NashAction::PATROL,
-        NashAction::PATROL,
-        NashAction::PATROL,
-        NashAction::PATROL
+        NashAction::RETREAT,
+        NashAction::ATTACK
     };
 
 	float decisionTimer = 0.0f;
