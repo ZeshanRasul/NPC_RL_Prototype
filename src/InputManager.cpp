@@ -46,10 +46,10 @@ void InputManager::handleMouseMovement(double xPosIn, double yPosIn)
     {
 		player->PlayerYaw = camera->Yaw;
         player->aimPitch = camera->Pitch;
-        if (player->aimPitch > 19.0f)
-            player->aimPitch = 19.0f;
-        if (player->aimPitch < -19.0f)
-            player->aimPitch = -19.0f;
+        //if (player->aimPitch > 19.0f)
+        //    player->aimPitch = 19.0f;
+        //if (player->aimPitch < -19.0f)
+        //    player->aimPitch = -19.0f;
         player->UpdatePlayerVectors();
 		player->UpdatePlayerAimVectors();
     }

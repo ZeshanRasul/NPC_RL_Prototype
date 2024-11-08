@@ -38,8 +38,22 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 	lineShader.loadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/line_vert.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/line_frag.glsl");
 	aabbShader.loadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/aabb_vert.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/aabb_frag.glsl");   
     cubeShader.loadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/vertex.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/fragment.glsl");
+    cubemapShader.loadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/cubemap_vertex.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/cubemap_fragment.glsl");
 
 	physicsWorld = new PhysicsWorld();
+
+    cubemapFaces = {
+		"C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/Skybox/right.png",
+		"C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/Skybox/left.png",
+		"C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/Skybox/top.png",
+		"C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/Skybox/bottom.png",
+		"C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/Skybox/front.png",
+		"C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/Skybox/back.png"
+	};
+
+    cubemap = new Cubemap(&cubemapShader);
+    cubemap->LoadMesh();
+    cubemap->LoadCubemap(cubemapFaces);
 
     cell = new Cell();
     cell->SetUpVAO();
@@ -217,6 +231,7 @@ void GameManager::setupCamera(unsigned int width, unsigned int height)
         camera->FollowTarget(player->getPosition() + (player->PlayerAimRight * -1.3f), player->PlayerAimFront, camera->playerCamRearOffset, camera->playerCamHeightOffset);
         view = camera->GetViewMatrixPlayerFollow(player->getPosition() + (player->PlayerAimRight * -1.3f), glm::vec3(0.0f, 1.0f, 0.0f));
     }
+	cubemapView = glm::mat4(glm::mat3(camera->GetViewMatrixPlayerFollow(player->getPosition(), glm::vec3(0.0f, 1.0f, 0.0f))));
 
     projection = glm::perspective(glm::radians(camera->Zoom), (float)width / (float)height, 0.1f, 500.0f);
 
@@ -225,7 +240,7 @@ void GameManager::setupCamera(unsigned int width, unsigned int height)
 
 void GameManager::setSceneData()
 {
-    renderer->setScene(view, projection, dirLight);
+    renderer->setScene(view, projection, cubemapView, dirLight);
 }
 
 void GameManager::setUpDebugUI()
@@ -628,7 +643,10 @@ void GameManager::render()
 		line->UpdateVertexBuffer(rayO, rayEnd);
 		line->DrawLine(view, projection, lineColor);
 
+		glEnable(GL_DEPTH_TEST);
+		glDisable(GL_BLEND);
 	}
+
 	if (camSwitchedToAim)
 		camSwitchedToAim = false;
 
@@ -675,4 +693,6 @@ void GameManager::render()
 			enemy4Line->DrawLine(view, projection, enemy4LineColor);
 		}
 	}
+//	renderer->setScene(view, projection, dirLight);
+	renderer->drawCubemap(cubemap);
 }

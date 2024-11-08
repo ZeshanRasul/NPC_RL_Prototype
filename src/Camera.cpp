@@ -69,13 +69,13 @@ void Camera::ProcessMouseMovement(float xOffset, float yOffset, GLboolean constr
 			if (Pitch < -89.0f)
 				Pitch = -89.0f;
 		} 
-		else if (Mode == PLAYER_AIM)
-		{
-			if (Pitch > 19.0f)
-				Pitch = 19.0f;
-			if (Pitch < -19.0f)
-				Pitch = -19.0f;
-		}
+		//else if (Mode == PLAYER_AIM)
+		//{
+		//	if (Pitch > 19.0f)
+		//		Pitch = 19.0f;
+		//	if (Pitch < -19.0f)
+		//		Pitch = -19.0f;
+		//}
 	}
 
 	UpdateCameraVectors();

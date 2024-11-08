@@ -150,6 +150,9 @@
     <ClCompile Include="src\GameObjects\Cube.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\OpenGL\Cubemap.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\ShaderOld.h">
@@ -317,6 +320,9 @@
     <ClInclude Include="src\AI\ActionNode.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\OpenGL\Cubemap.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="src\Shaders\vertex.glsl" />
@@ -336,6 +342,8 @@
     <None Include="src\Shaders\line_frag.glsl" />
     <None Include="src\Shaders\aabb_vert.glsl" />
     <None Include="src\Shaders\aabb_frag.glsl" />
+    <None Include="src\Shaders\cubemap_vertex.glsl" />
+    <None Include="src\Shaders\cubemap_fragment.glsl" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="src\Assets\Models\backpack\specular.jpg">

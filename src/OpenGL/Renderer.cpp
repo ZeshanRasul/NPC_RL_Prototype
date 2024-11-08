@@ -36,10 +36,11 @@ bool Renderer::init(unsigned int width, unsigned int height)
 	return true;
 }
 
-void Renderer::setScene(glm::mat4 viewMat, glm::mat4 proj, DirLight light)
+void Renderer::setScene(glm::mat4 viewMat, glm::mat4 proj, glm::mat4 cmapView, DirLight light)
 {
 	view = viewMat;
 	projection = proj;
+	cubemapView = cmapView;
 	sun = light;
 }
 
@@ -52,9 +53,17 @@ void Renderer::draw(GameObject* gameObj, glm::mat4 viewMat, glm::mat4 proj)
 	shader->setVec3("dirLight.diffuse", sun.diffuse);
 	shader->setVec3("dirLight.specular", sun.specular);
 
-
-//	gameObj->ApplySkinning();
 	gameObj->Draw(viewMat, proj);
+}
+
+void Renderer::drawCubemap(Cubemap* cubemap)
+{
+	cubemap->GetShader()->use();
+	cubemap->GetShader()->setMat4("view", cubemapView);
+	cubemap->GetShader()->setMat4("projection", projection);
+
+	cubemap->Draw();
+
 }
 
 void Renderer::clear()
