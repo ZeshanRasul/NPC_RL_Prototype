@@ -12,6 +12,16 @@ void Cube::LoadMesh()
 	SetUpAABB();
 }
 
+bool Cube::LoadTexture(std::string textureFilename)
+{
+	if (!mTex.loadTexture(textureFilename, false)) {
+		Logger::log(1, "%s: texture loading failed\n", __FUNCTION__);
+		return false;
+	}
+	Logger::log(1, "%s: Crosshair texture successfully loaded\n", __FUNCTION__, textureFilename);
+	return true;
+}
+
 void Cube::drawObject(glm::mat4 viewMat, glm::mat4 proj)
 {
 	glm::mat4 modelMat = glm::mat4(1.0f);
@@ -24,9 +34,11 @@ void Cube::drawObject(glm::mat4 viewMat, glm::mat4 proj)
 	matrixData.push_back(modelMat);
 	mUniformBuffer.uploadUboData(matrixData, 0);
 
+	mTex.bind();
 	glBindVertexArray(mVAO);
 	glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
 	glBindVertexArray(0);
+	mTex.unbind();
 	aabb->render(viewMat, proj, modelMat, aabbColor);
 }
 
@@ -67,56 +79,4 @@ void Cube::SetUpAABB()
 	updateAABB();
 	mGameManager->GetPhysicsWorld()->addCollider(GetAABB());
 
-}
-
-void Cube::renderAABB(glm::mat4 proj, glm::mat4 viewMat, glm::mat4 model, Shader* shader)
-{
-	glm::vec3 min = aabb->transformedMin;
-	glm::vec3 max = aabb->transformedMax;
-
-	std::vector<glm::vec3> lineVertices = {
-		{min.x, min.y, min.z}, {max.x, min.y, min.z},
-		{max.x, min.y, min.z}, {max.x, max.y, min.z},
-		{max.x, max.y, min.z}, {min.x, max.y, min.z},
-		{min.x, max.y, min.z}, {min.x, min.y, min.z},
-
-		{min.x, min.y, max.z}, {max.x, min.y, max.z},
-		{max.x, min.y, max.z}, {max.x, max.y, max.z},
-		{max.x, max.y, max.z}, {min.x, max.y, max.z},
-		{min.x, max.y, max.z}, {min.x, min.y, max.z},
-
-		{min.x, min.y, min.z}, {min.x, min.y, max.z},
-		{max.x, min.y, min.z}, {max.x, min.y, max.z},
-		{max.x, max.y, min.z}, {max.x, max.y, max.z},
-		{min.x, max.y, min.z}, {min.x, max.y, max.z}
-	};
-
-	GLuint VAO, VBO;
-	glGenVertexArrays(1, &VAO);
-	glGenBuffers(1, &VBO);
-
-	glBindVertexArray(VAO);
-
-	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	glBufferData(GL_ARRAY_BUFFER, lineVertices.size() * sizeof(glm::vec3), lineVertices.data(), GL_STATIC_DRAW);
-
-	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), (void*)0);
-
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	glBindVertexArray(0);
-
-	aabbShader->use();
-
-	aabbShader->setMat4("projection", proj);
-	aabbShader->setMat4("view", viewMat);
-	aabbShader->setMat4("model", model);
-	aabbShader->setVec3("color", aabbColor);
-
-	glBindVertexArray(VAO);
-	glDrawArrays(GL_LINES, 0, (GLsizei)lineVertices.size());
-	glBindVertexArray(0);
-
-	glDeleteVertexArrays(1, &VAO);
-	glDeleteBuffers(1, &VBO);
 }

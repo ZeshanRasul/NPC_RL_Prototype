@@ -5,14 +5,15 @@
 
 class Cube : public GameObject {
 public:
-    Cube(glm::vec3 pos, glm::vec3 scale, Shader* shdr, bool applySkinning, GameManager* gameMgr, float yaw = 0.0f)
+    Cube(glm::vec3 pos, glm::vec3 scale, Shader* shdr, bool applySkinning, GameManager* gameMgr, std::string texFilename, float yaw = 0.0f)
         : GameObject(pos, scale, yaw, shdr, applySkinning, gameMgr)
     {
-
-        ComputeAudioWorldTransform();
+        LoadTexture(texFilename);
+		ComputeAudioWorldTransform();
     }
 
     void LoadMesh();
+    bool LoadTexture(std::string textureFilename);
 
     void drawObject(glm::mat4 viewMat, glm::mat4 proj) override;
 
@@ -38,7 +39,6 @@ public:
     void SetUpAABB();
 
     AABB* GetAABB() const { return aabb; }
-    void renderAABB(glm::mat4 proj, glm::mat4 viewMat, glm::mat4 model, Shader* shader);
 
     void setAABBColor(glm::vec3 color) { aabbColor = color; }
 

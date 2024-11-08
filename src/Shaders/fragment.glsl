@@ -13,10 +13,10 @@ struct DirLight {
 };
 
 uniform DirLight dirLight;
+uniform sampler2D tex;
 
 vec3 CalcDirLight(DirLight light, vec3 normal);
 
-//uniform sampler2D tex;
 
 
 void main() {
@@ -35,11 +35,8 @@ vec3 CalcDirLight(DirLight light, vec3 normal)
 	float diff = max(dot(normal, lightDir), 0.0);
 
 	// combine results
-//	vec3 ambient = light.ambient * vec3(texture(tex, texCoord));
-//	vec3 diffuse = light.diffuse * diff * vec3(texture(tex, texCoord));
-
-	vec3 ambient = light.ambient * (1.0, 0.4, 0.6);
-	vec3 diffuse = light.diffuse * diff * (1.0, 0.4, 0.6);
+ 	vec3 ambient = light.ambient * vec3(texture(tex, texCoord));
+ 	vec3 diffuse = light.diffuse * diff * vec3(texture(tex, texCoord));
 
 	return (ambient + diffuse);
 }
