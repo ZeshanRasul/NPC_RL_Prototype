@@ -14,6 +14,6 @@ layout (std140, binding = 0) uniform Matrices {
 
 void main() {
   gl_Position = projection * view * model * vec4(aPos, 1.0);
-  normal = aNormal;
+  normal = vec3(transpose(inverse(model)) * vec4(aNormal, 1.0));
   texCoord = aTexCoord;
 }
