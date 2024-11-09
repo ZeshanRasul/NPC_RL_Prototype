@@ -94,7 +94,7 @@ private:
     std::vector<GLuint> mVertexVBO{};
     GLuint mIndexVBO = 0;
     std::map<std::string, GLint> attributes =
-    { {"POSITION", 0}, {"NORMAL", 1}, {"TEXCOORD_0", 2}, { "JOINTS_0", 3 }, { "WEIGHTS_0", 4 }
+    { {"POSITION", 0}, {"NORMAL", 1}, {"TEXCOORD_0", 2}, { "TEXCOORD_1", 3 }, { "COLOR_0", 4 }, { "COLOR_1", 5 }, { "JOINTS_0", 6 }, { "WEIGHTS_0", 7 }
 };
 
     Texture mTex{};

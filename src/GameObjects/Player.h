@@ -174,6 +174,6 @@ public:
     Shader* aabbShader;
     float health = 100.0f;
 
-    int animNum = 4;
+    int animNum = 0;
 	glm::vec3 initialPos = glm::vec3(0.0f, 0.0f, 0.0f);
 };

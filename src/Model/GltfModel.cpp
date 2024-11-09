@@ -202,8 +202,9 @@ void GltfModel::createVertexBuffers() {
         const tinygltf::Buffer& buffer = mModel->buffers.at(bufferView.buffer);
 
         if ((attribType.compare("POSITION") != 0) && (attribType.compare("NORMAL") != 0)
-            && (attribType.compare("TEXCOORD_0") != 0) && (attribType.compare("JOINTS_0") != 0
-                && (attribType.compare("WEIGHTS_0") != 0))) {
+            && (attribType.compare("TEXCOORD_0") != 0) && (attribType.compare("JOINTS_0") != 0)
+                && (attribType.compare("WEIGHTS_0") != 0) && (attribType.compare("COLOR_0") != 0)
+                && (attribType.compare("COLOR_1") != 0 && (attribType.compare("TEXCOORD_1") != 0))) {
             Logger::log(1, "%s: skipping attribute type %s\n", __FUNCTION__, attribType.c_str());
             continue;
         }
@@ -291,7 +292,7 @@ void GltfModel::createIndexBuffer() {
 }
 
 void GltfModel::uploadVertexBuffers() {
-    for (int i = 0; i < 5; ++i) {
+    for (int i = 0; i < 8; ++i) {
         const tinygltf::Accessor& accessor = mModel->accessors.at(i);
         const tinygltf::BufferView& bufferView = mModel->bufferViews.at(accessor.bufferView);
         const tinygltf::Buffer& buffer = mModel->buffers.at(bufferView.buffer);

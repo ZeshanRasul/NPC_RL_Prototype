@@ -344,6 +344,7 @@
     <None Include="src\Shaders\aabb_frag.glsl" />
     <None Include="src\Shaders\cubemap_vertex.glsl" />
     <None Include="src\Shaders\cubemap_fragment.glsl" />
+    <None Include="src\Shaders\vertex_gpu_dquat2.glsl" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="src\Assets\Models\backpack\specular.jpg">

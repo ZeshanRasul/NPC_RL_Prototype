@@ -319,6 +319,7 @@ void Enemy::Shoot()
     bool hit = false;
     hit = GetGameManager()->GetPhysicsWorld()->rayPlayerIntersect(enemyShootPos, enemyShootDir, hitPoint, aabb);
 
+    SetAnimNum(3);
     shootAC->PlayEvent("event:/EnemyShoot");
     enemyRayDebugRenderTimer = 0.3f;
     enemyHasShot = true;
