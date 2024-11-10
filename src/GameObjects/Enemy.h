@@ -802,7 +802,7 @@ private:
 	AudioComponent* takeDamageAC;
 	AudioComponent* shootAC;
 	AudioComponent* deathAC;
-	int animNum = 0;
+	int animNum = 1;
 	bool takingDamage = false;
 	float damageTimer = 0.0f;
 	float dyingTimer = 0.0f;

@@ -179,7 +179,7 @@ void Enemy::moveEnemy(const std::vector<glm::ivec2>& path, float deltaTime, floa
     
     if (!reachedPlayer && !inCover)
     {
-        SetAnimNum(2);
+        SetAnimNum(1);
         SetAnimation(GetAnimNum(), 1.0f, blendFactor, playAnimBackwards);
     }
 
@@ -198,7 +198,7 @@ void Enemy::moveEnemy(const std::vector<glm::ivec2>& path, float deltaTime, floa
                 isTakingCover_ = false;
                 isInCover_ = true;
 				grid_->OccupyCell(selectedCover_->gridX, selectedCover_->gridZ, id_);
-			    SetAnimNum(0);
+			    SetAnimNum(2);
 			    SetAnimation(GetAnimNum(), 1.0f, blendFactor, playAnimBackwards);
             }
             else
@@ -319,7 +319,7 @@ void Enemy::Shoot()
     bool hit = false;
     hit = GetGameManager()->GetPhysicsWorld()->rayPlayerIntersect(enemyShootPos, enemyShootDir, hitPoint, aabb);
 
-    SetAnimNum(3);
+    SetAnimNum(2);
     shootAC->PlayEvent("event:/EnemyShoot");
     enemyRayDebugRenderTimer = 0.3f;
     enemyHasShot = true;
@@ -343,7 +343,7 @@ void Enemy::OnHit()
 {
 	Logger::log(1, "Enemy was hit!\n", __FUNCTION__);
 	setAABBColor(glm::vec3(1.0f, 0.0f, 1.0f));
-    SetAnimNum(4);
+    SetAnimNum(3);
     TakeDamage(20.0f);
     isTakingDamage_ = true;
     takeDamageAC->PlayEvent("event:/EnemyTakeDamage");
@@ -356,7 +356,7 @@ void Enemy::OnDeath()
 	Logger::log(1, "%s Enemy Died!\n", __FUNCTION__);
     isDying_ = true;
 	dyingTimer = model->getAnimationEndTime(1);
-	SetAnimNum(1);
+	SetAnimNum(0);
 	deathAC->PlayEvent("event:/EnemyDeath");
     hasDied_ = true;
 	eventManager_.Publish(NPCDiedEvent{ id_ });
@@ -626,7 +626,7 @@ bool Enemy::ShouldProvideSuppressionFire()
 NodeStatus Enemy::EnterDyingState()
 {
 	EDBTState = "Dying";
-    SetAnimNum(1);
+    SetAnimNum(0);
     
     if (!isDying_)
 	{
@@ -650,7 +650,7 @@ NodeStatus Enemy::EnterTakingDamageState()
 {
     EDBTState = "Taking Damage";
     setAABBColor(glm::vec3(1.0f, 0.0f, 1.0f));
-    SetAnimNum(4);
+    SetAnimNum(3);
 
     if (damageTimer > 0.0f)
     {
