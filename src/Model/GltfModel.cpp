@@ -120,7 +120,7 @@ std::shared_ptr<GltfModel> GltfModel::clone() const
     return newModel;
 }
 
-bool GltfModel::loadModel(std::string modelFilename) {
+bool GltfModel::loadModel(std::string modelFilename, bool isEnemy) {
     mModel = std::make_shared<tinygltf::Model>();
 
     filename = modelFilename;
@@ -152,7 +152,7 @@ bool GltfModel::loadModel(std::string modelFilename) {
     glGenVertexArrays(1, &mVAO);
     glBindVertexArray(mVAO);
 
-    createVertexBuffers();
+    createVertexBuffers(isEnemy);
     createIndexBuffer();
 
     glBindVertexArray(0);
@@ -188,7 +188,7 @@ bool GltfModel::loadModel(std::string modelFilename) {
     return true;
 }
 
-void GltfModel::createVertexBuffers() {
+void GltfModel::createVertexBuffers(bool isEnemy) {
     const tinygltf::Primitive& primitives = mModel->meshes.at(0).primitives.at(0);
     mVertexVBO.resize(primitives.attributes.size());
     mAttribAccessors.resize(primitives.attributes.size());
@@ -233,7 +233,14 @@ void GltfModel::createVertexBuffers() {
             }
         }
 
-        mAttribAccessors.at(attributes.at(attribType)) = accessorNum;
+        if (isEnemy)
+        {
+            mAttribAccessors.at(enemyAttributes.at(attribType)) = accessorNum;
+        }
+        else 
+        {
+            mAttribAccessors.at(attributes.at(attribType)) = accessorNum;
+        }
 
         int dataSize = 1;
         switch (accessor.type) {
@@ -272,14 +279,29 @@ void GltfModel::createVertexBuffers() {
             break;
         }
 
-        glGenBuffers(1, &mVertexVBO.at(attributes.at(attribType)));
-        glBindBuffer(GL_ARRAY_BUFFER, mVertexVBO.at(attributes.at(attribType)));
+        if (isEnemy)
+        {
+			glGenBuffers(1, &mVertexVBO.at(enemyAttributes.at(attribType)));
+			glBindBuffer(GL_ARRAY_BUFFER, mVertexVBO.at(enemyAttributes.at(attribType)));
 
-        glVertexAttribPointer(attributes.at(attribType), dataSize, dataType, GL_FALSE,
-            0, (void*)0);
-        glEnableVertexAttribArray(attributes.at(attribType));
+			glVertexAttribPointer(enemyAttributes.at(attribType), dataSize, dataType, GL_FALSE,
+				0, (void*)0);
+			glEnableVertexAttribArray(enemyAttributes.at(attribType));
 
-        glBindBuffer(GL_ARRAY_BUFFER, 0);
+			glBindBuffer(GL_ARRAY_BUFFER, 0);
+        } 
+        else
+        {
+			glGenBuffers(1, &mVertexVBO.at(attributes.at(attribType)));
+			glBindBuffer(GL_ARRAY_BUFFER, mVertexVBO.at(attributes.at(attribType)));
+
+			glVertexAttribPointer(attributes.at(attribType), dataSize, dataType, GL_FALSE,
+				0, (void*)0);
+			glEnableVertexAttribArray(attributes.at(attribType));
+
+			glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+        }
     }
 }
 
@@ -303,6 +325,20 @@ void GltfModel::uploadVertexBuffers() {
         glBindBuffer(GL_ARRAY_BUFFER, 0);
     }
 }
+
+void GltfModel::uploadEnemyVertexBuffers() {
+	for (int i = 0; i < 6; ++i) {
+		const tinygltf::Accessor& accessor = mModel->accessors.at(i);
+		const tinygltf::BufferView& bufferView = mModel->bufferViews.at(accessor.bufferView);
+		const tinygltf::Buffer& buffer = mModel->buffers.at(bufferView.buffer);
+
+		glBindBuffer(GL_ARRAY_BUFFER, mVertexVBO.at(i));
+		glBufferData(GL_ARRAY_BUFFER, bufferView.byteLength,
+			&buffer.data.at(0) + bufferView.byteOffset, GL_STATIC_DRAW);
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+	}
+}
+
 
 void GltfModel::uploadVertexBuffersNoAnimations() {
     for (int i = 0; i < 3; ++i) {

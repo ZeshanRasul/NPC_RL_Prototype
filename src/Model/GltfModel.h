@@ -15,13 +15,14 @@ class GltfModel {
 public:
     std::shared_ptr<GltfModel> clone() const;
 
-    bool loadModel(std::string modelFilename);
+    bool loadModel(std::string modelFilename, bool isEnemy = false);
     bool loadModelNoAnim(std::string modelFilename);
 	Texture loadTexture(std::string textureFilename, bool flip);
 
     void draw(Texture tex);
     void cleanup();
     void uploadVertexBuffers();
+    void uploadEnemyVertexBuffers();
     void uploadVertexBuffersNoAnimations();
     void uploadIndexBuffer();
     std::shared_ptr<Mesh> getSkeleton(bool enableSkinning);
@@ -49,7 +50,7 @@ public:
     std::string filename;
 
 private:
-    void createVertexBuffers();
+    void createVertexBuffers(bool isEnemy = false);
     void createIndexBuffer();
     int getTriangleCount();
     void getSkeletonPerNode(std::shared_ptr<GltfNode> treeNode, bool enableSkinning);
@@ -94,8 +95,11 @@ private:
     std::vector<GLuint> mVertexVBO{};
     GLuint mIndexVBO = 0;
     std::map<std::string, GLint> attributes =
-    { {"POSITION", 0}, {"NORMAL", 1}, {"TEXCOORD_0", 2}, { "TEXCOORD_1", 3 }, { "COLOR_0", 4 }, { "COLOR_1", 5 }, { "JOINTS_0", 6 }, { "WEIGHTS_0", 7 }
-};
+    { {"POSITION", 0}, {"NORMAL", 1}, {"TEXCOORD_0", 2}, { "TEXCOORD_1", 3 }, { "COLOR_0", 4 }, { "COLOR_1", 5 }, { "JOINTS_0", 6 }, { "WEIGHTS_0", 7 }};
+
+	std::map<std::string, GLint> enemyAttributes =
+	{ {"POSITION", 0}, {"NORMAL", 1}, {"TEXCOORD_0", 2}, { "TEXCOORD_1", 3 }, { "JOINTS_0", 4 }, { "WEIGHTS_0", 5 } };
+
 
     Texture mTex{};
 };

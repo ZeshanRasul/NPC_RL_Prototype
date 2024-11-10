@@ -9,7 +9,7 @@ void Enemy::SetUpModel()
 {
     if (uploadVertexBuffer)
     {
-        model->uploadVertexBuffers();
+        model->uploadEnemyVertexBuffers();
         uploadVertexBuffer = false;
     }
 

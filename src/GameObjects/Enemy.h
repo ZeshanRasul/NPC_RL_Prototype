@@ -86,9 +86,9 @@ public:
 
         model = std::make_shared<GltfModel>();
 
-        std::string modelFilename = "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Models/GLTF/SwatPlayer/Swat.gltf";
+        std::string modelFilename = "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Models/GLTF/Enemies/Ely/EnemyEly.gltf";
 
-        if (!model->loadModel(modelFilename)) {
+        if (!model->loadModel(modelFilename, true)) {
             Logger::log(1, "%s: loading glTF model '%s' failed\n", __FUNCTION__, modelFilename.c_str());
         }
 
