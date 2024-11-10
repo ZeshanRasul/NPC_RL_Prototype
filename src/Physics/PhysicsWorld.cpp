@@ -139,7 +139,7 @@ bool PhysicsWorld::rayPlayerIntersect(const glm::vec3& rayOrigin, const glm::vec
 		}
 
     }
-    else if (missedAABB && !missedAABB->isEnemy && !missedAABB->owner->isDestroyed)
+    else if (!hit && missedAABB && !missedAABB->isEnemy && !missedAABB->owner->isDestroyed)
     {
         hit = false;
         missedAABB->owner->OnMiss();

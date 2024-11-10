@@ -41,28 +41,31 @@ void Enemy::drawObject(glm::mat4 viewMat, glm::mat4 proj)
 	aabb->render(viewMat, proj, modelMat, aabbColor);
 }
 
-void Enemy::Update()
+void Enemy::Update(bool shouldUseEDBT)
 {
     if (!isDead_ || !isDestroyed)
     {
-		//float playerEnemyDistance = glm::distance(getPosition(), player.getPosition());
-		//if (playerEnemyDistance < 35.0f && !IsPlayerDetected())
-		//{
-		//	DetectPlayer();
-		//}
+        if (shouldUseEDBT)
+        {
+			float playerEnemyDistance = glm::distance(getPosition(), player.getPosition());
+			if (playerEnemyDistance < 35.0f && !IsPlayerDetected())
+			{
+				DetectPlayer();
+			}
 
-		//behaviorTree_->Tick();
+			behaviorTree_->Tick();
 
 
-		//if (enemyHasShot)
-		//{
-		//	enemyRayDebugRenderTimer -= dt_;
-  //          enemyShootCooldown -= dt_;
-		//}
-		//if (enemyShootCooldown <= 0.0f)
-		//{
-		//	enemyHasShot = false;
-		//}
+			if (enemyHasShot)
+			{
+				enemyRayDebugRenderTimer -= dt_;
+				enemyShootCooldown -= dt_;
+			}
+			if (enemyShootCooldown <= 0.0f)
+			{
+				enemyHasShot = false;
+			}
+        }
 
         if (isDestroyed)
         {
@@ -297,27 +300,36 @@ void Enemy::SetAnimation(int animNum, float speedDivider, float blendFactor, boo
 
 void Enemy::Shoot()
 {
-	glm::vec3 accuracyOffset = glm::vec3(0.0f);
-	glm::vec3 accuracyOffsetFactor = glm::vec3(1.0f);
+    glm::vec3 accuracyOffset = glm::vec3(0.0f);
+    glm::vec3 accuracyOffsetFactor = glm::vec3(1.0f);
 
     std::random_device dev;
     std::mt19937 rng(dev());
     std::uniform_int_distribution<std::mt19937::result_type> dist100(0, 100); // distribution in range [1, 100]
 
-	if (dist100(rng) < 60)
-	{
-		accuracyOffset = accuracyOffset + (accuracyOffsetFactor * (float)dist100(rng));
-	}
+    if (dist100(rng) < 60)
+    {
+        accuracyOffset = accuracyOffset + (accuracyOffsetFactor * (float)dist100(rng));
+    }
 
-	enemyShootPos = getPosition() + glm::vec3(0.0f, 2.5f, 0.0f);
+    enemyShootPos = getPosition() + glm::vec3(0.0f, 2.5f, 0.0f);
     enemyShootDir = (player.getPosition() - getPosition()) + accuracyOffset;
-	glm::vec3 hitPoint = glm::vec3(0.0f);
+    glm::vec3 hitPoint = glm::vec3(0.0f);
 
     yaw = glm::degrees(glm::atan(enemyShootDir.z, enemyShootDir.x));
     UpdateEnemyVectors();
 
     bool hit = false;
-    hit = GetGameManager()->GetPhysicsWorld()->rayPlayerIntersect(enemyShootPos, enemyShootDir, hitPoint, aabb);
+    hit = GetGameManager()->GetPhysicsWorld()->rayPlayerIntersect(enemyShootPos, enemyShootDir, enemyHitPoint, aabb);
+
+    if (hit)
+    {
+        enemyHasHit = true;
+    }
+    else
+    {
+		enemyHasHit = false;
+    }
 
     SetAnimNum(2);
     shootAC->PlayEvent("event:/EnemyShoot");
@@ -347,7 +359,7 @@ void Enemy::OnHit()
     TakeDamage(20.0f);
     isTakingDamage_ = true;
     takeDamageAC->PlayEvent("event:/EnemyTakeDamage");
-	damageTimer = model->getAnimationEndTime(4);
+	damageTimer = model->getAnimationEndTime(3);
     eventManager_.Publish(NPCDamagedEvent{ id_ });
 }
 
@@ -355,7 +367,7 @@ void Enemy::OnDeath()
 {
 	Logger::log(1, "%s Enemy Died!\n", __FUNCTION__);
     isDying_ = true;
-	dyingTimer = model->getAnimationEndTime(1);
+	dyingTimer = model->getAnimationEndTime(0);
 	SetAnimNum(0);
 	deathAC->PlayEvent("event:/EnemyDeath");
     hasDied_ = true;

@@ -33,7 +33,7 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 
     playerShader.loadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/vertex_gpu_dquat2.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/fragment_gpu_dquat.glsl");
     enemyShader.loadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/vertex_gpu_dquat.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/fragment_gpu_dquat.glsl");
-    gridShader.loadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/vertex.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/fragment.glsl");
+    gridShader.loadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/gridVertex.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/gridFragment.glsl");
 	crosshairShader.loadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/crosshair_vert.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/crosshair_frag.glsl");
 	lineShader.loadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/line_vert.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/line_frag.glsl");
 	aabbShader.loadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/aabb_vert.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/aabb_frag.glsl");   
@@ -371,6 +371,8 @@ void GameManager::ShowEnemyStateWindow()
 {
     ImGui::Begin("Game States");
 
+	ImGui::Checkbox("Use EDBT", &useEDBT);
+
 	ImGui::Text("Player Health: %f", player->GetHealth());
 
     for (Enemy* e : enemies)
@@ -533,17 +535,19 @@ void GameManager::update(float deltaTime)
 
         e->SetDeltaTime(deltaTime);
 
-        if (training)
-        {
-            e->EnemyDecision(enemyStates[e->GetID()], e->GetID(), squadActions, deltaTime, mEnemyStateQTable);
-        }
-        else
-        {
-            e->EnemyDecisionPrecomputedQ(enemyStates[e->GetID()], e->GetID(), squadActions, deltaTime, mEnemyStateQTable);
+		if (!useEDBT)
+		{
+			if (training)
+			{
+				e->EnemyDecision(enemyStates[e->GetID()], e->GetID(), squadActions, deltaTime, mEnemyStateQTable);
+			}
+			else
+			{
+				e->EnemyDecisionPrecomputedQ(enemyStates[e->GetID()], e->GetID(), squadActions, deltaTime, mEnemyStateQTable);
+			}
+		}
 
-        }
-
-        e->Update();
+        e->Update(useEDBT);
     }
 
     //audioSystem->Update(deltaTime);
@@ -652,9 +656,21 @@ void GameManager::render()
 
 	if (!enemy->isDestroyed)
 	{
+		glm::vec3 enemyRayEnd = glm::vec3(0.0f);
+
 		if (enemy->GetEnemyHasShot() && enemy->GetEnemyDebugRayRenderTimer() > 0.0f)
 		{
 			glm::vec3 enemyLineColor = glm::vec3(1.0f, 1.0f, 0.0f);
+
+			if (enemy->GetEnemyHasHit())
+			{
+				enemyRayEnd = enemy->GetEnemyHitPoint();
+			}
+			else
+			{
+				enemyRayEnd = enemy->GetEnemyShootPos() + enemy->GetEnemyShootDir() * enemy->GetEnemyShootDistance();
+			}
+
 			glm::vec3 enemyRayEnd = enemy->GetEnemyShootPos() + enemy->GetEnemyShootDir() * enemy->GetEnemyShootDistance();
 			enemyLine->UpdateVertexBuffer(enemy->GetEnemyShootPos(), enemyRayEnd);
 			enemyLine->DrawLine(view, projection, enemyLineColor);
@@ -663,10 +679,19 @@ void GameManager::render()
 
 	if (!enemy2->isDestroyed)
 	{
+		glm::vec3 enemy2RayEnd = glm::vec3(0.0f);
 		if (enemy2->GetEnemyHasShot() && enemy2->GetEnemyDebugRayRenderTimer() > 0.0f)
 		{
 			glm::vec3 enemy2LineColor = glm::vec3(1.0f, 1.0f, 0.0f);
-			glm::vec3 enemy2RayEnd = enemy2->GetEnemyShootPos() + enemy2->GetEnemyShootDir() * enemy2->GetEnemyShootDistance();
+            if (enemy2->GetEnemyHasHit())
+            {
+                enemy2RayEnd = enemy2->GetEnemyHitPoint();
+            } 
+            else
+            {
+			    enemy2RayEnd = enemy2->GetEnemyShootPos() + enemy2->GetEnemyShootDir() * enemy2->GetEnemyShootDistance();
+            }
+
 			enemy2Line->UpdateVertexBuffer(enemy2->GetEnemyShootPos(), enemy2RayEnd);
 			enemy2Line->DrawLine(view, projection, enemy2LineColor);
 		}
@@ -674,10 +699,21 @@ void GameManager::render()
 
 	if (!enemy3->isDestroyed)
 	{
+		glm::vec3 enemy3RayEnd = glm::vec3(0.0f);
+
 		if (enemy3->GetEnemyHasShot() && enemy3->GetEnemyDebugRayRenderTimer() > 0.0f)
 		{
 			glm::vec3 enemy3LineColor = glm::vec3(1.0f, 1.0f, 0.0f);
-			glm::vec3 enemy3RayEnd = enemy3->GetEnemyShootPos() + enemy3->GetEnemyShootDir() * enemy3->GetEnemyShootDistance();
+
+			if (enemy3->GetEnemyHasHit())
+			{
+				enemy3RayEnd = enemy3->GetEnemyHitPoint();
+			}
+			else
+			{
+				enemy3RayEnd = enemy3->GetEnemyShootPos() + enemy3->GetEnemyShootDir() * enemy3->GetEnemyShootDistance();
+			}
+
 			enemy3Line->UpdateVertexBuffer(enemy3->GetEnemyShootPos(), enemy3RayEnd);
 			enemy3Line->DrawLine(view, projection, enemy3LineColor);
 		}
@@ -685,10 +721,20 @@ void GameManager::render()
 
 	if (!enemy4->isDestroyed)
 	{
+		glm::vec3 enemy4RayEnd = glm::vec3(0.0f);
+
 		if (enemy4->GetEnemyHasShot() && enemy4->GetEnemyDebugRayRenderTimer() > 0.0f)
 		{
 			glm::vec3 enemy4LineColor = glm::vec3(1.0f, 1.0f, 0.0f);
-			glm::vec3 enemy4RayEnd = enemy4->GetEnemyShootPos() + enemy4->GetEnemyShootDir() * enemy4->GetEnemyShootDistance();
+			if (enemy3->GetEnemyHasHit())
+			{
+				enemy4RayEnd = enemy4->GetEnemyHitPoint();
+			}
+			else
+			{
+				enemy4RayEnd = enemy4->GetEnemyShootPos() + enemy4->GetEnemyShootDir() * enemy4->GetEnemyShootDistance();
+			}
+
 			enemy4Line->UpdateVertexBuffer(enemy4->GetEnemyShootPos(), enemy4RayEnd);
 			enemy4Line->DrawLine(view, projection, enemy4LineColor);
 		}

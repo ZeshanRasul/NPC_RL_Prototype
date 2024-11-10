@@ -144,6 +144,8 @@ public:
 
     void ResetGame();
 
+	bool ShouldUseEDBT() const { return useEDBT; }
+
 private:
     void ShowCameraControlWindow(Camera& cam);
     void ShowLightControlWindow(DirLight& light);
@@ -155,6 +157,7 @@ private:
 
     EventManager& GetEventManager() { return eventManager; }
 
+	bool useEDBT = false;
     bool initializeQTable = false;
     bool training = false;
     std::string mEnemyStateFilename = "EnemyStateQTable.csv";
