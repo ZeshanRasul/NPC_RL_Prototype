@@ -157,7 +157,7 @@ private:
 
     EventManager& GetEventManager() { return eventManager; }
 
-	bool useEDBT = false;
+	bool useEDBT = true;
     bool initializeQTable = false;
     bool training = false;
     std::string mEnemyStateFilename = "EnemyStateQTable.csv";

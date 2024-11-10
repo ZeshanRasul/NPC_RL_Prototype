@@ -233,9 +233,9 @@ void Enemy::moveEnemy(const std::vector<glm::ivec2>& path, float deltaTime, floa
     for (float xOffset = -agentRadius; xOffset <= agentRadius; xOffset += agentRadius * 2) {
         for (float zOffset = -agentRadius; zOffset <= agentRadius; zOffset += agentRadius * 2) {
             glm::ivec2 checkPos = glm::ivec2((newPos.x + xOffset) / grid_->GetCellSize(), (newPos.z + zOffset) / grid_->GetCellSize());
-            if (checkPos.x < 0 || checkPos.x >= grid_->GetCellSize() || checkPos.y < 0 || checkPos.y >= grid_->GetGridSize() 
-                || grid_->GetGrid()[checkPos.x][checkPos.y].IsObstacle() || (grid_->GetGrid()[checkPos.x][checkPos.y].IsOccupied() 
-                    && !grid_->GetGrid()[checkPos.x][checkPos.y].IsOccupiedBy(id_))) {
+            if (checkPos.x < 0 || checkPos.x >= grid_->GetGridSize() || checkPos.y < 0 || checkPos.y >= grid_->GetGridSize()
+				|| grid_->GetGrid()[checkPos.x][checkPos.y].IsObstacle() || (grid_->GetGrid()[checkPos.x][checkPos.y].IsOccupied()
+					&& !grid_->GetGrid()[checkPos.x][checkPos.y].IsOccupiedBy(id_))) {
                 isObstacleFree = false;
                 break;
             }
@@ -253,7 +253,7 @@ void Enemy::moveEnemy(const std::vector<glm::ivec2>& path, float deltaTime, floa
         for (float xOffset = -agentRadius; xOffset <= agentRadius; xOffset += agentRadius * 2) {
             for (float zOffset = -agentRadius; zOffset <= agentRadius; zOffset += agentRadius * 2) {
                 glm::ivec2 checkPos = glm::ivec2((newPos.x + xOffset) / grid_->GetCellSize(), (newPos.z + zOffset) / grid_->GetCellSize());
-                if (checkPos.x < 0 || checkPos.x >= grid_->GetCellSize() || checkPos.y < 0 || checkPos.y >= grid_->GetCellSize() 
+                if (checkPos.x < 0 || checkPos.x >= grid_->GetGridSize() || checkPos.y < 0 || checkPos.y >= grid_->GetGridSize()
                     || grid_->GetGrid()[checkPos.x][checkPos.y].IsObstacle()) {
                     isObstacleFree = false;
                     break;
@@ -267,11 +267,11 @@ void Enemy::moveEnemy(const std::vector<glm::ivec2>& path, float deltaTime, floa
         }
     }
         
-    if (pathIndex_ == 0) {
-        // Snap the enemy to the center of the starting grid cell when the path starts
-        glm::vec3 startCellCenter = glm::vec3(path[pathIndex_].x * grid_->GetCellSize() + grid_->GetCellSize() / 2.0f, getPosition().y, path[pathIndex_].y * grid_->GetCellSize() + grid_->GetCellSize() / 2.0f);
-        setPosition(startCellCenter);
-    }
+    //if (pathIndex_ == 0) {
+    //    // Snap the enemy to the center of the starting grid cell when the path starts
+    //    glm::vec3 startCellCenter = glm::vec3(path[pathIndex_].x * grid_->GetCellSize() + grid_->GetCellSize() / 2.0f, getPosition().z, path[pathIndex_].y * grid_->GetCellSize() + grid_->GetCellSize() / 2.0f);
+    //    setPosition(startCellCenter);
+    //}
 
 	if (glm::distance(getPosition(), targetPos) < grid_->GetCellSize() / 2.0f) 
     {
