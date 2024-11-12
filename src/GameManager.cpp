@@ -592,12 +592,6 @@ void GameManager::render()
 	}
 	else
 	{
-		if (player->GetVelocity() > 0.01f && player->GetVelocity() < 0.4f)
-			player->SetAnimNum(6);
-		else if (player->GetVelocity() >= 0.4f)
-			player->SetAnimNum(2);
-		else
-			player->SetAnimNum(0);
 	}
 
 	glEnable(GL_DEPTH_TEST);

@@ -42,8 +42,42 @@ void Player::Update(float dt)
  //   updateAABB();
     ComputeAudioWorldTransform();
     UpdateComponents(dt);
-    SetAnimation(GetAnimNum(), 1.0f, 1.0f, false);
-}
+
+	if (destAnim != 0 && mVelocity == 0.0f)
+	{
+		SetSourceAnimNum(destAnim);
+		SetDestAnimNum(0);
+		resetBlend = true;
+		//		blendFactor = 0.0f;
+		blendAnim = true;
+		destAnimSet = true;
+        prevDirection = STATIONARY;
+	}
+
+    if (resetBlend)
+    {
+        blendAnim = true;
+        blendFactor = 0.0f;
+		resetBlend = false;
+    }
+
+    if (blendAnim)
+    {
+        blendFactor = std::lerp(blendFactor, 1.0f, dt);
+        SetAnimation(GetSourceAnimNum(), GetDestAnimNum(), 1.0f, blendFactor, false);
+		if (blendFactor >= 1.0f)
+		{
+			blendAnim = false;
+			blendFactor = 0.0f;
+			//SetSourceAnimNum(GetDestAnimNum());
+		}
+    }
+    else
+    {
+		SetAnimation(GetSourceAnimNum(), 1.0f, 1.0f, false);
+        blendFactor = 0.0f;
+    }
+ }
 
 
 void Player::ComputeAudioWorldTransform()
@@ -98,6 +132,22 @@ void Player::PlayerProcessKeyboard(CameraMovement direction, float deltaTime)
 		mRecomputeWorldTransform = true;
         ComputeAudioWorldTransform();
         UpdateComponents(deltaTime);
+		if (prevDirection != direction && mVelocity > 0.01f && mVelocity < 0.3f)
+		{
+			SetSourceAnimNum(destAnim);
+			SetDestAnimNum(6);
+//			blendFactor = 0.0f;
+			blendAnim = true;
+		}
+		if (mVelocity >= 0.3f)
+		{
+			SetSourceAnimNum(destAnim);
+			SetDestAnimNum(2);
+//			blendFactor = 0.0f;
+			blendAnim = true;
+		}
+		if (prevDirection != direction)
+			resetBlend = true;
     }
     if (direction == BACKWARD)
     {
@@ -105,6 +155,26 @@ void Player::PlayerProcessKeyboard(CameraMovement direction, float deltaTime)
         mRecomputeWorldTransform = true;
         ComputeAudioWorldTransform();
         UpdateComponents(deltaTime);
+		if (prevDirection != direction && mVelocity > 0.01f && mVelocity < 0.3f)
+		{
+            if (destAnim != 6)
+            {
+                SetSourceAnimNum(destAnim);
+                SetDestAnimNum(6);
+                blendAnim = true;
+            }
+		}
+		if (mVelocity >= 0.3f)
+		{
+            if (destAnim != 2)
+            {
+				SetSourceAnimNum(destAnim);
+				SetDestAnimNum(2);
+				blendAnim = true;
+            }
+		}
+		if (prevDirection != direction)
+			resetBlend = true;
     }
     if (direction == LEFT)
     {
@@ -112,7 +182,17 @@ void Player::PlayerProcessKeyboard(CameraMovement direction, float deltaTime)
         mRecomputeWorldTransform = true;
         ComputeAudioWorldTransform();
         UpdateComponents(deltaTime);
-        SetAnimNum(4);
+
+        if (destAnim != 4 && prevDirection != direction && mVelocity > 0.01f)
+        {
+
+			SetSourceAnimNum(destAnim);
+			SetDestAnimNum(4);
+			//            blendFactor = 0.0f;
+			blendAnim = true;
+        }
+		if (prevDirection != direction)
+			resetBlend = true;
     }
     if (direction == RIGHT)
     {
@@ -120,8 +200,18 @@ void Player::PlayerProcessKeyboard(CameraMovement direction, float deltaTime)
         mRecomputeWorldTransform = true;
         ComputeAudioWorldTransform();
         UpdateComponents(deltaTime);
-        SetAnimNum(5);
+		if (destAnim != 5 && prevDirection != direction && mVelocity > 0.01f)
+		{
+			SetSourceAnimNum(destAnim);
+			SetDestAnimNum(5);
+			//		    blendFactor = 0.0f;
+			blendAnim = true;
+		}
+		if (prevDirection != direction)
+			resetBlend = true;
     }
+
+    prevDirection = direction;
 }
 
 void Player::PlayerProcessMouseMovement(float xOffset)
@@ -140,6 +230,11 @@ void Player::PlayerProcessMouseMovement(float xOffset)
 void Player::SetAnimation(int animNum, float speedDivider, float blendFactor, bool playAnimBackwards)
 {
     model->playAnimation(animNum, speedDivider, blendFactor, playAnimBackwards);
+}
+
+void Player::SetAnimation(int srcAnimNum, int destAnimNum, float speedDivider, float blendFactor, bool playAnimBackwards)
+{
+    model->playAnimation(srcAnimNum, destAnimNum, speedDivider, blendFactor, playAnimBackwards);
 }
 
 void Player::SetPlayerState(PlayerState newState)
@@ -164,7 +259,9 @@ void Player::Shoot()
 		return;
 
     shootAC->PlayEvent("event:/PlayerShoot");
-    SetAnimNum(3);
+    SetDestAnimNum(3);
+	blendFactor = 0.0f;
+	blendAnim = true;
     UpdatePlayerVectors();
     UpdatePlayerAimVectors();
 

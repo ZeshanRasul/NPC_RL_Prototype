@@ -89,8 +89,6 @@ public:
     void PlayerProcessKeyboard(CameraMovement direction, float deltaTime);
     void PlayerProcessMouseMovement(float xOffset);
 
-    void SetAnimation(int animNum, float speedDivider, float blendFactor, bool playAnimBackwards);
-
     float GetVelocity() const { return mVelocity; }
 	void SetVelocity(float newVelocity) { mVelocity = newVelocity; }
 
@@ -136,7 +134,18 @@ public:
     }
 
     int GetAnimNum() const { return animNum; }
+	int GetSourceAnimNum() const { return sourceAnim; }
+    int GetDestAnimNum() const { return destAnim; }
     void SetAnimNum(int newAnimNum) { animNum = newAnimNum; }
+	void SetSourceAnimNum(int newSrcAnim) { sourceAnim = newSrcAnim; }
+    void SetDestAnimNum(int newDestAnim) { 
+        destAnim = newDestAnim;
+		destAnimSet = true;
+    }
+
+	void SetAnimation(int animNum, float speedDivider, float blendFactor, bool playAnimBackwards);
+	void SetAnimation(int srcAnimNum, int destAnimNum, float speedDivider, float blendFactor, bool playAnimBackwards);
+
 
     void ResetGame();
 
@@ -175,5 +184,13 @@ public:
     float health = 100.0f;
 
     int animNum = 0;
+	int sourceAnim = 0;
+	int destAnim = 0;
+    bool destAnimSet = false;
+	float blendFactor = 0.0f;
+    bool blendAnim = false;
+    bool resetBlend = false;
+    CameraMovement prevDirection;
+
 	glm::vec3 initialPos = glm::vec3(0.0f, 0.0f, 0.0f);
 };

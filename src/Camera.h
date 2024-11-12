@@ -9,7 +9,8 @@ enum CameraMovement {
 	FORWARD,
 	BACKWARD,
 	LEFT,
-	RIGHT
+	RIGHT,
+	STATIONARY
 };
 
 enum CameraMode {
