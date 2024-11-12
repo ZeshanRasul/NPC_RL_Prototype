@@ -50,7 +50,6 @@ void Player::Update(float dt)
 		resetBlend = true;
 		//		blendFactor = 0.0f;
 		blendAnim = true;
-		destAnimSet = true;
         prevDirection = STATIONARY;
 	}
 
@@ -63,7 +62,7 @@ void Player::Update(float dt)
 
     if (blendAnim)
     {
-        blendFactor = std::lerp(blendFactor, 1.0f, dt);
+        blendFactor += (1.0f - blendFactor) * blendSpeed * dt;
         SetAnimation(GetSourceAnimNum(), GetDestAnimNum(), 1.0f, blendFactor, false);
 		if (blendFactor >= 1.0f)
 		{
