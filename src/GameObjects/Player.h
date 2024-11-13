@@ -187,7 +187,7 @@ public:
 	int sourceAnim = 0;
 	int destAnim = 0;
     bool destAnimSet = false;
-    float blendSpeed = 5.0f;
+    float blendSpeed = 10.0f;
 	float blendFactor = 0.0f;
     bool blendAnim = false;
     bool resetBlend = false;
