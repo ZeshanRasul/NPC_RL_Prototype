@@ -155,6 +155,7 @@ public:
     void moveEnemy(const std::vector<glm::ivec2>& path, float deltaTime, float blendFactor, bool playAnimBackwards);
 
     void SetAnimation(int animNum, float speedDivider, float blendFactor, bool playBackwards);
+    void SetAnimation(int srcAnimNum, int destAnimNum, float speedDivider, float blendFactor, bool playBackwards);
 
 	void SetYaw(float newYaw) { 
         yaw = newYaw; 
@@ -191,7 +192,14 @@ public:
 	void setAABBColor(glm::vec3 color) { aabbColor = color; }
 
     int GetAnimNum() const { return animNum; }
+	int GetSourceAnimNum() const { return sourceAnim; }
+	int GetDestAnimNum() const { return destAnim; }
 	void SetAnimNum(int newAnimNum) { animNum = newAnimNum; }
+	void SetSourceAnimNum(int newSrcAnim) { sourceAnim = newSrcAnim; }
+	void SetDestAnimNum(int newDestAnim) {
+		destAnim = newDestAnim;
+		destAnimSet = true;
+	}
 
     glm::vec3 GetEnemyShootPos() const { return enemyShootPos; }
     glm::vec3 GetEnemyShootDir() const { return enemyShootDir; }
@@ -804,7 +812,16 @@ private:
 	AudioComponent* takeDamageAC;
 	AudioComponent* shootAC;
 	AudioComponent* deathAC;
+	
 	int animNum = 1;
+	int sourceAnim = 1;
+	int destAnim = 1;
+	bool destAnimSet = false;
+	float blendSpeed = 5.0f;
+	float blendFactor = 0.0f;
+	bool blendAnim = false;
+	bool resetBlend = false;
+
 	bool takingDamage = false;
 	float damageTimer = 0.0f;
 	float dyingTimer = 0.0f;

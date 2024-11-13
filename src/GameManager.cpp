@@ -611,39 +611,39 @@ void GameManager::render()
 
 	gameGrid->drawGrid(gridShader, view, projection);
 
-	if ((player->GetPlayerState() == AIMING || player->GetPlayerState() == SHOOTING) && camSwitchedToAim == false)
-	{
-		glDisable(GL_DEPTH_TEST);
-		glEnable(GL_BLEND);
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	//if ((player->GetPlayerState() == AIMING || player->GetPlayerState() == SHOOTING) && camSwitchedToAim == false)
+	//{
+	//	glDisable(GL_DEPTH_TEST);
+	//	glEnable(GL_BLEND);
+	//	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-		glm::vec3 rayO = player->GetShootPos();
-		glm::vec3 rayD = glm::normalize(player->PlayerAimFront);
-		float dist = player->GetShootDistance();
+	//	glm::vec3 rayO = player->GetShootPos();
+	//	glm::vec3 rayD = glm::normalize(player->PlayerAimFront);
+	//	float dist = player->GetShootDistance();
 
-		glm::vec3 rayEnd = rayO + rayD * dist;
+	//	glm::vec3 rayEnd = rayO + rayD * dist;
 
-		glm::vec3 lineColor = glm::vec3(1.0f, 0.0f, 0.0f);
+	//	glm::vec3 lineColor = glm::vec3(1.0f, 0.0f, 0.0f);
 
-		glm::vec3 hitPoint;
+	//	glm::vec3 hitPoint;
 
-		if (player->GetPlayerState() == SHOOTING)
-		{
-			lineColor = glm::vec3(0.0f, 1.0f, 0.0f);
-		}
+	//	if (player->GetPlayerState() == SHOOTING)
+	//	{
+	//		lineColor = glm::vec3(0.0f, 1.0f, 0.0f);
+	//	}
 
-		glm::vec2 ndcPos = crosshair->CalculateCrosshairPosition(rayEnd, window->GetWidth(), window->GetHeight(), projection, view);
+	//	glm::vec2 ndcPos = crosshair->CalculateCrosshairPosition(rayEnd, window->GetWidth(), window->GetHeight(), projection, view);
 
-		float ndcX = (ndcPos.x / window->GetWidth()) * 2.0f - 1.0f;
-		float ndcY = (ndcPos.y / window->GetHeight()) * 2.0f - 1.0f;
+	//	float ndcX = (ndcPos.x / window->GetWidth()) * 2.0f - 1.0f;
+	//	float ndcY = (ndcPos.y / window->GetHeight()) * 2.0f - 1.0f;
 
-		crosshair->DrawCrosshair(glm::vec2(ndcX, ndcY));
-		line->UpdateVertexBuffer(rayO, rayEnd);
-		line->DrawLine(view, projection, lineColor);
+	//	crosshair->DrawCrosshair(glm::vec2(ndcX, ndcY));
+	//	line->UpdateVertexBuffer(rayO, rayEnd);
+	//	line->DrawLine(view, projection, lineColor);
 
-		glEnable(GL_DEPTH_TEST);
-		glDisable(GL_BLEND);
-	}
+	//	glEnable(GL_DEPTH_TEST);
+	//	glDisable(GL_BLEND);
+	//}
 
 	if (camSwitchedToAim)
 		camSwitchedToAim = false;
@@ -735,4 +735,38 @@ void GameManager::render()
 	}
 //	renderer->setScene(view, projection, dirLight);
 	renderer->drawCubemap(cubemap);
+	if ((player->GetPlayerState() == AIMING || player->GetPlayerState() == SHOOTING) && camSwitchedToAim == false)
+	{
+		glDisable(GL_DEPTH_TEST);
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+		glm::vec3 rayO = player->GetShootPos();
+		glm::vec3 rayD = glm::normalize(player->PlayerAimFront);
+		float dist = player->GetShootDistance();
+
+		glm::vec3 rayEnd = rayO + rayD * dist;
+
+		glm::vec3 lineColor = glm::vec3(1.0f, 0.0f, 0.0f);
+
+		glm::vec3 hitPoint;
+
+		if (player->GetPlayerState() == SHOOTING)
+		{
+			lineColor = glm::vec3(0.0f, 1.0f, 0.0f);
+		}
+
+		glm::vec2 ndcPos = crosshair->CalculateCrosshairPosition(rayEnd, window->GetWidth(), window->GetHeight(), projection, view);
+
+		float ndcX = (ndcPos.x / window->GetWidth()) * 2.0f - 1.0f;
+		float ndcY = (ndcPos.y / window->GetHeight()) * 2.0f - 1.0f;
+
+		crosshair->DrawCrosshair(glm::vec2(ndcX, ndcY));
+		line->UpdateVertexBuffer(rayO, rayEnd);
+		line->DrawLine(view, projection, lineColor);
+
+		glEnable(GL_DEPTH_TEST);
+		glDisable(GL_BLEND);
+	}
+
 }

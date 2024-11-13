@@ -73,8 +73,29 @@ void Enemy::Update(bool shouldUseEDBT)
             GetGameManager()->GetPhysicsWorld()->removeEnemyCollider(GetAABB());
         }
 
+		if (resetBlend)
+		{
+			blendAnim = true;
+			blendFactor = 0.0f;
+			resetBlend = false;
+		}
 
-		SetAnimation(GetAnimNum(), 1.0f, 1.0f, false);
+		if (blendAnim)
+		{
+			blendFactor += (1.0f - blendFactor) * blendSpeed * dt_;
+			SetAnimation(GetSourceAnimNum(), GetDestAnimNum(), 1.0f, blendFactor, false);
+			if (blendFactor >= 1.0f)
+			{
+				blendAnim = false;
+				blendFactor = 0.0f;
+				//SetSourceAnimNum(GetDestAnimNum());
+			}
+		}
+		else
+		{
+			SetAnimation(GetSourceAnimNum(), 1.0f, 1.0f, false);
+			blendFactor = 0.0f;
+		}
     }
 }
 
@@ -182,8 +203,14 @@ void Enemy::moveEnemy(const std::vector<glm::ivec2>& path, float deltaTime, floa
     
     if (!reachedPlayer && !inCover)
     {
-        SetAnimNum(1);
-        SetAnimation(GetAnimNum(), 1.0f, blendFactor, playAnimBackwards);
+        if (destAnim != 1)
+        {
+            SetSourceAnimNum(destAnim);
+			SetDestAnimNum(1);
+            blendAnim = true;
+            resetBlend = true;
+        }
+        //SetAnimation(GetAnimNum(), 1.0f, blendFactor, playAnimBackwards);
     }
 
     if (pathIndex_ >= path.size()) {
@@ -201,8 +228,11 @@ void Enemy::moveEnemy(const std::vector<glm::ivec2>& path, float deltaTime, floa
                 isTakingCover_ = false;
                 isInCover_ = true;
 				grid_->OccupyCell(selectedCover_->gridX, selectedCover_->gridZ, id_);
-			    SetAnimNum(2);
-			    SetAnimation(GetAnimNum(), 1.0f, blendFactor, playAnimBackwards);
+				SetSourceAnimNum(destAnim);
+			    SetDestAnimNum(2);
+                blendAnim = true;
+                resetBlend = true;
+			    //SetAnimation(GetAnimNum(), 1.0f, blendFactor, playAnimBackwards);
             }
             else
             {
@@ -298,6 +328,11 @@ void Enemy::SetAnimation(int animNum, float speedDivider, float blendFactor, boo
     model->playAnimation(animNum, speedDivider, blendFactor, playBackwards);
 }
 
+void Enemy::SetAnimation(int srcAnimNum, int destAnimNum, float speedDivider, float blendFactor, bool playBackwards)
+{
+	model->playAnimation(srcAnimNum, destAnimNum, speedDivider, blendFactor, playBackwards);
+}
+
 void Enemy::Shoot()
 {
     glm::vec3 accuracyOffset = glm::vec3(0.0f);
@@ -330,8 +365,11 @@ void Enemy::Shoot()
     {
 		enemyHasHit = false;
     }
-
-    SetAnimNum(2);
+    
+    SetSourceAnimNum(destAnim);
+    SetDestAnimNum(2);
+    blendAnim = true;
+    resetBlend = true;
     shootAC->PlayEvent("event:/EnemyShoot");
     enemyRayDebugRenderTimer = 0.3f;
     enemyHasShot = true;
@@ -355,11 +393,10 @@ void Enemy::OnHit()
 {
 	Logger::log(1, "Enemy was hit!\n", __FUNCTION__);
 	setAABBColor(glm::vec3(1.0f, 0.0f, 1.0f));
-    SetAnimNum(3);
     TakeDamage(20.0f);
     isTakingDamage_ = true;
     takeDamageAC->PlayEvent("event:/EnemyTakeDamage");
-	damageTimer = model->getAnimationEndTime(3);
+	damageTimer = 0.2f;
     eventManager_.Publish(NPCDamagedEvent{ id_ });
 }
 
@@ -367,8 +404,14 @@ void Enemy::OnDeath()
 {
 	Logger::log(1, "%s Enemy Died!\n", __FUNCTION__);
     isDying_ = true;
-	dyingTimer = model->getAnimationEndTime(0);
-	SetAnimNum(0);
+	dyingTimer = 0.4f;
+    if (destAnim != 0)
+    {
+		SetSourceAnimNum(destAnim);
+		SetDestAnimNum(0);
+		blendAnim = true;
+		resetBlend = true;
+    }
 	deathAC->PlayEvent("event:/EnemyDeath");
     hasDied_ = true;
 	eventManager_.Publish(NPCDiedEvent{ id_ });
@@ -638,12 +681,12 @@ bool Enemy::ShouldProvideSuppressionFire()
 NodeStatus Enemy::EnterDyingState()
 {
 	EDBTState = "Dying";
-    SetAnimNum(0);
+    //SetAnimNum(0);
     
     if (!isDying_)
 	{
 		deathAC->PlayEvent("event:/EnemyDeath");
-        dyingTimer = model->getAnimationEndTime(1);
+        dyingTimer = 0.5f;
 		isDying_ = true;
 	}
 
@@ -662,7 +705,14 @@ NodeStatus Enemy::EnterTakingDamageState()
 {
     EDBTState = "Taking Damage";
     setAABBColor(glm::vec3(1.0f, 0.0f, 1.0f));
-    SetAnimNum(3);
+    //SetAnimNum(3);
+	if (destAnim != 3)
+	{
+		SetSourceAnimNum(destAnim);
+		SetDestAnimNum(3);
+		blendAnim = true;
+		resetBlend = true;
+	}
 
     if (damageTimer > 0.0f)
     {
