@@ -789,7 +789,7 @@ private:
 	glm::vec3 aabbScale = glm::vec3(4.5f, 3.0f, 4.5f);
 
 	float health = 100.0f;
-	float speed = 6.0f;
+	float speed = 4.5f;
 	float EnemyCameraYaw;
 	float EnemyCameraPitch = 10.0f;
 	glm::vec3 EnemyFront;
@@ -827,6 +827,7 @@ private:
 	float dyingTimer = 0.0f;
 	bool inCover = false;
 	float coverTimer = 0.0f;
+	float coverCooldown = 0.0f;
 	bool reachedCover = false;
 
 	float accuracy = 60.0f;
@@ -852,7 +853,7 @@ private:
     bool IsPlayerDetected();
     bool IsPlayerVisible();
     bool IsCooldownComplete();
-    bool IsHealthBelowThreshold();
+    bool ShouldTakeCover();
     bool IsPlayerInRange();
     bool IsInCover();
     bool IsAttacking();

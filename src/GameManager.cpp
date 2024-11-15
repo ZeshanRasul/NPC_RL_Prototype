@@ -557,43 +557,6 @@ void GameManager::update(float deltaTime)
 
 void GameManager::render()
 {
-	static bool blendingChanged = playerCrossBlend;
-	if (blendingChanged != playerCrossBlend)
-	{
-		blendingChanged = playerCrossBlend;
-		if (!playerCrossBlend)
-		{
-			playerAdditiveBlend = false;
-		}
-		player->model->resetNodeData();
-	}
-
-	static bool additiveBlendingChanged = playerAdditiveBlend;
-	if (additiveBlendingChanged != playerAdditiveBlend) {
-		additiveBlendingChanged = playerAdditiveBlend;
-		/* reset split when additive blending is disabled */
-		if (!playerAdditiveBlend) {
-			playerSkeletonSplitNode = player->model->getNodeCount() - 1;
-		}
-		player->model->resetNodeData();
-	}
-
-	static int skelSplitNode = playerSkeletonSplitNode;
-	if (skelSplitNode != playerSkeletonSplitNode) {
-		player->model->setSkeletonSplitNode(playerSkeletonSplitNode);
-		playerSkeletonSplitNodeName = player->model->getNodeName(playerSkeletonSplitNode);
-		skelSplitNode = playerSkeletonSplitNode;
-		player->model->resetNodeData();
-	}
-
-	if (playerCrossBlend)
-	{
-		player->model->playAnimation(playerCrossBlendSourceClip, playerCrossBlendDestClip, 1.0f, playerAnimCrossBlendFactor, false);
-	}
-	else
-	{
-	}
-
 	glEnable(GL_DEPTH_TEST);
 	glDisable(GL_BLEND);
 
@@ -610,40 +573,6 @@ void GameManager::render()
 	gridShader.setVec3("dirLight.specular", dirLight.specular);
 
 	gameGrid->drawGrid(gridShader, view, projection);
-
-	//if ((player->GetPlayerState() == AIMING || player->GetPlayerState() == SHOOTING) && camSwitchedToAim == false)
-	//{
-	//	glDisable(GL_DEPTH_TEST);
-	//	glEnable(GL_BLEND);
-	//	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-	//	glm::vec3 rayO = player->GetShootPos();
-	//	glm::vec3 rayD = glm::normalize(player->PlayerAimFront);
-	//	float dist = player->GetShootDistance();
-
-	//	glm::vec3 rayEnd = rayO + rayD * dist;
-
-	//	glm::vec3 lineColor = glm::vec3(1.0f, 0.0f, 0.0f);
-
-	//	glm::vec3 hitPoint;
-
-	//	if (player->GetPlayerState() == SHOOTING)
-	//	{
-	//		lineColor = glm::vec3(0.0f, 1.0f, 0.0f);
-	//	}
-
-	//	glm::vec2 ndcPos = crosshair->CalculateCrosshairPosition(rayEnd, window->GetWidth(), window->GetHeight(), projection, view);
-
-	//	float ndcX = (ndcPos.x / window->GetWidth()) * 2.0f - 1.0f;
-	//	float ndcY = (ndcPos.y / window->GetHeight()) * 2.0f - 1.0f;
-
-	//	crosshair->DrawCrosshair(glm::vec2(ndcX, ndcY));
-	//	line->UpdateVertexBuffer(rayO, rayEnd);
-	//	line->DrawLine(view, projection, lineColor);
-
-	//	glEnable(GL_DEPTH_TEST);
-	//	glDisable(GL_BLEND);
-	//}
 
 	if (camSwitchedToAim)
 		camSwitchedToAim = false;
@@ -733,8 +662,8 @@ void GameManager::render()
 			enemy4Line->DrawLine(view, projection, enemy4LineColor);
 		}
 	}
-//	renderer->setScene(view, projection, dirLight);
-	renderer->drawCubemap(cubemap);
+
+    renderer->drawCubemap(cubemap);
 	if ((player->GetPlayerState() == AIMING || player->GetPlayerState() == SHOOTING) && camSwitchedToAim == false)
 	{
 		glDisable(GL_DEPTH_TEST);

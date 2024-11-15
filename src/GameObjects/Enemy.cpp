@@ -45,6 +45,11 @@ void Enemy::Update(bool shouldUseEDBT)
 {
     if (!isDead_ || !isDestroyed)
     {
+		if (coverCooldown > 0.0f)
+		{
+			coverCooldown -= dt_;
+		}
+
         if (shouldUseEDBT)
         {
 			float playerEnemyDistance = glm::distance(getPosition(), player.getPosition());
@@ -522,6 +527,7 @@ void Enemy::BuildBehaviorTree()
 
     // Player visible sequence
     auto playerVisibleSequence = std::make_shared<SequenceNode>();
+    playerVisibleSequence->AddChild(std::make_shared<ConditionNode>([this]() { return IsPlayerInRange(); }));
     playerVisibleSequence->AddChild(std::make_shared<ConditionNode>([this]() { return IsPlayerVisible(); }));
     playerVisibleSequence->AddChild(std::make_shared<ConditionNode>([this]() { return IsCooldownComplete(); }));
     playerVisibleSequence->AddChild(std::make_shared<ActionNode>([this]() { return AttackShoot(); }));
@@ -536,7 +542,7 @@ void Enemy::BuildBehaviorTree()
     seekCoverSequence->AddChild(std::make_shared<ConditionNode>([this]() {return !IsHealthZeroOrBelow(); }));
     seekCoverSequence->AddChild(std::make_shared<ConditionNode>([this]() {return !IsInCover(); }));
     seekCoverSequence->AddChild(std::make_shared<ConditionNode>([this]() {return !ShouldProvideSuppressionFire(); }));
-    seekCoverSequence->AddChild(std::make_shared<ConditionNode>([this]() { return IsHealthBelowThreshold(); }));
+    seekCoverSequence->AddChild(std::make_shared<ConditionNode>([this]() { return ShouldTakeCover(); }));
     seekCoverSequence->AddChild(std::make_shared<ActionNode>([this]() { return SeekCover(); }));
     seekCoverSequence->AddChild(std::make_shared<ActionNode>([this]() { return TakeCover(); }));
     seekCoverSequence->AddChild(std::make_shared<ActionNode>([this]() { return EnterInCoverState(); }));
@@ -557,7 +563,7 @@ void Enemy::BuildBehaviorTree()
     auto patrolSequence = std::make_shared<SequenceNode>();
     patrolSequence->AddChild(std::make_shared<ConditionNode>([this]() {return !IsHealthZeroOrBelow(); }));
     patrolSequence->AddChild(std::make_shared<ConditionNode>([this]() { return !IsPlayerInRange(); }));
-    patrolSequence->AddChild(std::make_shared<ConditionNode>([this]() { return !IsHealthBelowThreshold(); }));
+    patrolSequence->AddChild(std::make_shared<ConditionNode>([this]() { return !ShouldTakeCover(); }));
     patrolSequence->AddChild(std::make_shared<ConditionNode>([this]() { return !IsAttacking(); }));
     patrolSequence->AddChild(std::make_shared<ActionNode>([this]() { return Patrol(); }));
 
@@ -636,13 +642,14 @@ bool Enemy::IsCooldownComplete()
     return enemyShootCooldown <= 0.0f;
 }
 
-bool Enemy::IsHealthBelowThreshold()
+bool Enemy::ShouldTakeCover()
 {
-    return health_ < 40;
+    return health_ < 40 && coverCooldown <= 0.0f;
 }
 
 bool Enemy::IsPlayerInRange()
 {
+	isPlayerInRange_ = false;
     float playerEnemyDistance = glm::distance(getPosition(), player.getPosition());
 
     glm::vec3 tempEnemyShootPos = getPosition() + glm::vec3(0.0f, 2.5f, 0.0f);
@@ -660,7 +667,7 @@ bool Enemy::IsPlayerInRange()
 
 bool Enemy::IsInCover()
 {
-    return isInCover_;
+    return isInCover_ && coverTimer > 0.0f;
 }
 
 bool Enemy::IsAttacking()
@@ -675,7 +682,7 @@ bool Enemy::IsPatrolling()
 
 bool Enemy::ShouldProvideSuppressionFire()
 {
-    return provideSuppressionFire_;
+    return provideSuppressionFire_ && isInCover_;
 }
 
 NodeStatus Enemy::EnterDyingState()
@@ -729,6 +736,15 @@ NodeStatus Enemy::AttackShoot()
 	if (ShouldProvideSuppressionFire())
 	{
 		EDBTState = "Providing Suppression Fire";
+		coverTimer -= dt_;
+        if (coverTimer < 0.0f)
+        {
+            provideSuppressionFire_ = false;
+            coverCooldown = 10.0f;
+            isInCover_ = false;
+            isAttacking_ = false;
+            return NodeStatus::Failure;
+        }
     } 
     else
     {
@@ -813,8 +829,10 @@ NodeStatus Enemy::TakeCover()
 NodeStatus Enemy::EnterInCoverState()
 {
     isInCover_ = true;
+	coverTimer = 10.0f;
     isSeekingCover_ = false;
     isTakingCover_ = false;
+
     return NodeStatus::Success;
 }
 
@@ -859,11 +877,29 @@ NodeStatus Enemy::Patrol()
 
 NodeStatus Enemy::InCoverAction()
 {
-    if (provideSuppressionFire_)
-        return NodeStatus::Success;
-
 	EDBTState = "In Cover";
-    return NodeStatus::Running;
+
+    if (coverTimer > 0.0f)
+    {
+        coverTimer -= dt_;
+	}
+
+
+	if (coverTimer > 0.0f)
+	{
+		if (ShouldProvideSuppressionFire())
+			return NodeStatus::Success;
+
+		return NodeStatus::Running;
+	}
+    else
+    {
+        provideSuppressionFire_ = false;
+        isAttacking_ = false;
+        isInCover_ = false;
+        coverCooldown = 10.0f;
+		return NodeStatus::Success;
+    }
 }
 
 NodeStatus Enemy::Die()
