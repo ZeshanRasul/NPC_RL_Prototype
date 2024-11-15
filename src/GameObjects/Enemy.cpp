@@ -729,6 +729,19 @@ NodeStatus Enemy::AttackShoot()
 	if (ShouldProvideSuppressionFire())
 	{
 		EDBTState = "Providing Suppression Fire";
+		coverTimer += dt_;
+		if (coverTimer > 1.0f)
+		{
+			health_ += 10.0f;
+			coverTimer = 0.0f;
+
+			if (health_ > 40.0f)
+			{
+				isInCover_ = false;
+                provideSuppressionFire_ = false;
+				return NodeStatus::Success;
+			}
+		}
     } 
     else
     {
@@ -815,6 +828,7 @@ NodeStatus Enemy::EnterInCoverState()
     isInCover_ = true;
     isSeekingCover_ = false;
     isTakingCover_ = false;
+    coverTimer = 0.0f;
     return NodeStatus::Success;
 }
 
@@ -859,6 +873,19 @@ NodeStatus Enemy::Patrol()
 
 NodeStatus Enemy::InCoverAction()
 {
+    coverTimer += dt_;
+    if (coverTimer > 1.0f)
+    {
+		health_ += 10.0f;
+		coverTimer = 0.0f;
+
+        if (health_ > 40.0f)
+        {
+            isInCover_ = false;
+            return NodeStatus::Success;
+        }
+	}
+
     if (provideSuppressionFire_)
         return NodeStatus::Success;
 
