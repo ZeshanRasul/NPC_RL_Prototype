@@ -37,7 +37,8 @@ void App::run()
         mGameManager->setupCamera(width, height);
         mGameManager->setSceneData();
         mGameManager->update(deltaTime);
-        mGameManager->render();
+        mGameManager->render(true);
+        mGameManager->render(false);
 
         mGameManager->renderDebugUI();
         mWindow->mainLoop();

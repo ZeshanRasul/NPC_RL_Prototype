@@ -19,6 +19,7 @@
 #include "GameObjects/Crosshair.h"
 #include "GameObjects/Line.h"
 #include "GameObjects/Cube.h"
+#include "GameObjects/MinimapQuad.h"
 #include "Model/GltfModel.h"
 #include "src/Pathfinding/Grid.h"
 
@@ -130,7 +131,7 @@ public:
 
     void update(float deltaTime);
 
-    void render();
+    void render(bool minimap);
 
     void setUpDebugUI();
     void showDebugUI();
@@ -189,9 +190,13 @@ private:
 	float elapsedTime = 0.0f;
 	float avgFPS = 0.0f;
 
+    int screenWidth;
+	int screenHeight;
+
     Renderer* renderer;
     Window* window;
     Camera* camera;
+	Camera* minimapCamera;
 
 	EventManager eventManager;
 
@@ -218,6 +223,7 @@ private:
 	Cube* cover10;
 	Cube* cover11;
 	Cube* cover12;
+	MinimapQuad* minimapQuad;
 
     InputManager* inputManager;
 	AudioSystem* audioSystem;
@@ -234,6 +240,7 @@ private:
 	Shader aabbShader{};
 	Shader cubeShader{};
     Shader cubemapShader{};
+    Shader minimapShader{};
 
     ShaderStorageBuffer mPlayerSSBuffer{};
     ShaderStorageBuffer mEnemySSBuffer{};
@@ -266,6 +273,8 @@ private:
     glm::mat4 view = glm::mat4(1.0f);
     glm::mat4 projection = glm::mat4(1.0f);
     glm::mat4 cubemapView = glm::mat4(1.0f);
+	glm::mat4 minimapView = glm::mat4(1.0f);
+	glm::mat4 minimapProjection = glm::mat4(1.0f);
 
     Cell* cell;
     Grid* gameGrid;

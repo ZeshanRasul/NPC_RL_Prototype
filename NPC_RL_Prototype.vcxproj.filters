@@ -323,6 +323,9 @@
     <ClInclude Include="src\OpenGL\Cubemap.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\GameObjects\MinimapQuad.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="src\Shaders\vertex.glsl" />
@@ -345,6 +348,8 @@
     <None Include="src\Shaders\cubemap_vertex.glsl" />
     <None Include="src\Shaders\cubemap_fragment.glsl" />
     <None Include="src\Shaders\vertex_gpu_dquat2.glsl" />
+    <None Include="src\Shaders\minimap_vertex.glsl" />
+    <None Include="src\Shaders\minimap_fragment.glsl" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="src\Assets\Models\backpack\specular.jpg">

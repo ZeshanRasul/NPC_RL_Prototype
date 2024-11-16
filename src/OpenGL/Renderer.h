@@ -2,6 +2,7 @@
 #include "RenderData.h"
 #include "src/Camera.h"
 #include "src/GameObjects/GameObject.h"
+#include "src/GameObjects/MinimapQuad.h"
 #include "Shader.h"
 #include "Cubemap.h"
 
@@ -12,10 +13,15 @@ public:
 	Renderer(GLFWwindow* window);
 
 	bool init(unsigned int width, unsigned int height);
-	
+	void SetUpMinimapFBO(unsigned int width, unsigned int height);
+
 	void setScene(glm::mat4 viewMat, glm::mat4 proj, glm::mat4 cmapView, DirLight light);
 	void draw(GameObject* gameObj, glm::mat4 viewMat, glm::mat4 proj);
 	void drawCubemap(Cubemap* cubemap);
+	void drawMinimap(MinimapQuad* minimapQuad, Shader* minimapShader);
+
+	void bindMinimapFBO(unsigned int width, unsigned int height);
+	void unbindMinimapFBO();
 	void clear();
 
 	void cleanup();
@@ -28,4 +34,7 @@ private:
 	glm::mat4 cubemapView = glm::mat4(1.0f);
 	
 	DirLight sun;
+	GLuint minimapFBO;
+	GLuint minimapColorTex;
+	GLuint minimapRBO;
 };

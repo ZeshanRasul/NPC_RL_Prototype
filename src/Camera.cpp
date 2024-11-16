@@ -1,7 +1,7 @@
 #include "Camera.h"
 #include "GameManager.h"
 
-Camera::Camera(glm::vec3 position, glm::vec3 up, float yaw, float pitch)
+Camera::Camera(glm::vec3 position, glm::vec3 up, float yaw, float pitch, glm::vec3 front)
 	:
 	Front(glm::vec3(-1.0f, 0.0f, 0.0f)),
 	MovementSpeed(SPEED),

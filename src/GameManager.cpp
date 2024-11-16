@@ -14,7 +14,7 @@ DirLight dirLight = {
 };
 
 GameManager::GameManager(Window* window, unsigned int width, unsigned int height)
-    : window(window)
+	: window(window), screenWidth(width), screenHeight(height)
 {
     inputManager = new InputManager();
 	audioSystem = new AudioSystem(this);
@@ -30,6 +30,7 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
     window->setInputManager(inputManager);
     
     renderer = window->getRenderer();
+	renderer->SetUpMinimapFBO(width, height);
 
     playerShader.loadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/vertex_gpu_dquat2.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/fragment_gpu_dquat.glsl");
     enemyShader.loadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/vertex_gpu_dquat.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/fragment_gpu_dquat.glsl");
@@ -39,6 +40,7 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 	aabbShader.loadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/aabb_vert.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/aabb_frag.glsl");   
     cubeShader.loadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/vertex.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/fragment.glsl");
     cubemapShader.loadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/cubemap_vertex.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/cubemap_fragment.glsl");
+    minimapShader.loadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/minimap_vertex.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/minimap_fragment.glsl");
 
 	physicsWorld = new PhysicsWorld();
 
@@ -101,6 +103,11 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
     gameGrid->initializeGrid();
 
     camera = new Camera(glm::vec3(50.0f, 3.0f, 80.0f));
+	minimapCamera = new Camera(glm::vec3((gameGrid->GetCellSize() * gameGrid->GetGridSize()) / 2.0f, 140.0f, (gameGrid->GetCellSize() * gameGrid->GetGridSize()) / 2.0f), glm::vec3(0.0f, -1.0f, 0.0f), 0.0f, -90.0f, glm::vec3(0.0f, 0.0f, -1.0f));
+	
+	minimapQuad = new MinimapQuad();
+	minimapQuad->SetUpVAO();
+
     player = new Player(gameGrid->snapToGrid(glm::vec3(90.0f, 0.0f, 25.0f)), glm::vec3(3.0f), &playerShader, true, this);
     player->aabbShader = &aabbShader;
 
@@ -234,6 +241,9 @@ void GameManager::setupCamera(unsigned int width, unsigned int height)
 	cubemapView = glm::mat4(glm::mat3(camera->GetViewMatrixPlayerFollow(player->getPosition(), glm::vec3(0.0f, 1.0f, 0.0f))));
 
     projection = glm::perspective(glm::radians(camera->Zoom), (float)width / (float)height, 0.1f, 500.0f);
+
+	minimapView = minimapCamera->GetViewMatrix();
+	minimapProjection = glm::perspective(glm::radians(camera->Zoom), (float)width / (float)height, 0.1f, 500.0f);
 
     audioSystem->SetListener(view);
 }
@@ -555,7 +565,7 @@ void GameManager::update(float deltaTime)
 	calculatePerformance(deltaTime);
 }
 
-void GameManager::render()
+void GameManager::render(bool minimap)
 {
 	static bool blendingChanged = playerCrossBlend;
 	if (blendingChanged != playerCrossBlend)
@@ -597,10 +607,20 @@ void GameManager::render()
 	glEnable(GL_DEPTH_TEST);
 	glDisable(GL_BLEND);
 
+	if (minimap)
+		renderer->bindMinimapFBO(screenWidth, screenHeight);
+
 	for (auto obj : gameObjects) {
         if (obj->isDestroyed)
             continue;
-		renderer->draw(obj, view, projection);
+		if (minimap)
+		{
+			renderer->draw(obj, minimapView, minimapProjection);
+		}
+		else
+		{
+			renderer->draw(obj, view, projection);
+		}
 	}
 
     gridShader.use();
@@ -609,41 +629,14 @@ void GameManager::render()
 	gridShader.setVec3("dirLight.diffuse", dirLight.diffuse);
 	gridShader.setVec3("dirLight.specular", dirLight.specular);
 
-	gameGrid->drawGrid(gridShader, view, projection);
-
-	//if ((player->GetPlayerState() == AIMING || player->GetPlayerState() == SHOOTING) && camSwitchedToAim == false)
-	//{
-	//	glDisable(GL_DEPTH_TEST);
-	//	glEnable(GL_BLEND);
-	//	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-	//	glm::vec3 rayO = player->GetShootPos();
-	//	glm::vec3 rayD = glm::normalize(player->PlayerAimFront);
-	//	float dist = player->GetShootDistance();
-
-	//	glm::vec3 rayEnd = rayO + rayD * dist;
-
-	//	glm::vec3 lineColor = glm::vec3(1.0f, 0.0f, 0.0f);
-
-	//	glm::vec3 hitPoint;
-
-	//	if (player->GetPlayerState() == SHOOTING)
-	//	{
-	//		lineColor = glm::vec3(0.0f, 1.0f, 0.0f);
-	//	}
-
-	//	glm::vec2 ndcPos = crosshair->CalculateCrosshairPosition(rayEnd, window->GetWidth(), window->GetHeight(), projection, view);
-
-	//	float ndcX = (ndcPos.x / window->GetWidth()) * 2.0f - 1.0f;
-	//	float ndcY = (ndcPos.y / window->GetHeight()) * 2.0f - 1.0f;
-
-	//	crosshair->DrawCrosshair(glm::vec2(ndcX, ndcY));
-	//	line->UpdateVertexBuffer(rayO, rayEnd);
-	//	line->DrawLine(view, projection, lineColor);
-
-	//	glEnable(GL_DEPTH_TEST);
-	//	glDisable(GL_BLEND);
-	//}
+	if (minimap)
+	{
+		gameGrid->drawGrid(gridShader, minimapView, minimapProjection);
+	}
+	else
+	{
+		gameGrid->drawGrid(gridShader, view, projection);
+	}
 
 	if (camSwitchedToAim)
 		camSwitchedToAim = false;
@@ -667,7 +660,14 @@ void GameManager::render()
 
 			glm::vec3 enemyRayEnd = enemy->GetEnemyShootPos() + enemy->GetEnemyShootDir() * enemy->GetEnemyShootDistance();
 			enemyLine->UpdateVertexBuffer(enemy->GetEnemyShootPos(), enemyRayEnd);
-			enemyLine->DrawLine(view, projection, enemyLineColor);
+			if (minimap)
+			{
+				enemyLine->DrawLine(minimapView, minimapProjection, enemyLineColor);
+			}
+			else
+			{
+				enemyLine->DrawLine(view, projection, enemyLineColor);
+			}
 		}
 	}
 
@@ -687,7 +687,14 @@ void GameManager::render()
             }
 
 			enemy2Line->UpdateVertexBuffer(enemy2->GetEnemyShootPos(), enemy2RayEnd);
-			enemy2Line->DrawLine(view, projection, enemy2LineColor);
+			if (minimap)
+			{
+				enemy2Line->DrawLine(minimapView, minimapProjection, enemy2LineColor);
+			}
+			else
+			{
+				enemy2Line->DrawLine(view, projection, enemy2LineColor);
+			}
 		}
 	}
 
@@ -709,7 +716,14 @@ void GameManager::render()
 			}
 
 			enemy3Line->UpdateVertexBuffer(enemy3->GetEnemyShootPos(), enemy3RayEnd);
-			enemy3Line->DrawLine(view, projection, enemy3LineColor);
+			if (minimap)
+			{
+				enemy3Line->DrawLine(minimapView, minimapProjection, enemy3LineColor);
+			}
+			else
+			{
+				enemy3Line->DrawLine(view, projection, enemy3LineColor);
+			}
 		}
 	}
 
@@ -730,7 +744,14 @@ void GameManager::render()
 			}
 
 			enemy4Line->UpdateVertexBuffer(enemy4->GetEnemyShootPos(), enemy4RayEnd);
-			enemy4Line->DrawLine(view, projection, enemy4LineColor);
+			if (minimap)
+			{
+				enemy4Line->DrawLine(minimapView, minimapProjection, enemy4LineColor);
+			}
+			else
+			{
+				enemy4Line->DrawLine(view, projection, enemy4LineColor);
+			}
 		}
 	}
 //	renderer->setScene(view, projection, dirLight);
@@ -761,12 +782,32 @@ void GameManager::render()
 		float ndcX = (ndcPos.x / window->GetWidth()) * 2.0f - 1.0f;
 		float ndcY = (ndcPos.y / window->GetHeight()) * 2.0f - 1.0f;
 
-		crosshair->DrawCrosshair(glm::vec2(ndcX, ndcY));
+		if (!minimap)
+			crosshair->DrawCrosshair(glm::vec2(ndcX, ndcY));
+
 		line->UpdateVertexBuffer(rayO, rayEnd);
-		line->DrawLine(view, projection, lineColor);
+
+		if (minimap)
+		{
+			line->DrawLine(minimapView, minimapProjection, lineColor);
+		}
+		else
+		{
+			line->DrawLine(view, projection, lineColor);
+		}
 
 		glEnable(GL_DEPTH_TEST);
 		glDisable(GL_BLEND);
+
+	}
+	
+	if (!minimap)
+	{
+		renderer->drawMinimap(minimapQuad, &minimapShader);
 	}
 
+	if (minimap)
+	{
+		renderer->unbindMinimapFBO();
+	}
 }
