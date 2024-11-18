@@ -789,7 +789,7 @@ private:
 	glm::vec3 aabbScale = glm::vec3(4.5f, 3.0f, 4.5f);
 
 	float health = 100.0f;
-	float speed = 5.0f;
+	float speed = 7.5f;
 	float EnemyCameraYaw;
 	float EnemyCameraPitch = 10.0f;
 	glm::vec3 EnemyFront;
