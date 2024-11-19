@@ -95,7 +95,7 @@ public:
     PlayerState GetPlayerState() const { return mPlayerState; }
     void SetPlayerState(PlayerState newState);
 
-	glm::vec3 GetShootPos() { return getPosition() + glm::vec3(0.0f, 2.5f, 0.0f) + (5.0f * PlayerFront); }
+	glm::vec3 GetShootPos() { return getPosition() + glm::vec3(0.0f, 4.0f, 0.0f) + (3.0f * PlayerFront); }
 	float GetShootDistance() const { return shootDistance; }
     glm::vec3 GetPlayerHitPoint() const { return playerShootHitPoint; }
 

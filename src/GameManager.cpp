@@ -6,11 +6,11 @@
 #include "imgui/backend/imgui_impl_opengl3.h"
 
 DirLight dirLight = {
-        glm::vec3(-0.2f, -1.0f, -0.3f),
+		glm::vec3(-0.2f, -1.0f, -0.4f),
 
-        glm::vec3(0.25f, 0.25f, 0.25f),
-        glm::vec3(0.8f),
-        glm::vec3(0.1f, 0.1f, 0.1f)
+        glm::vec3(0.15f, 0.2f, 0.25f),
+        glm::vec3(0.8f, 0.6f, 0.5f),
+        glm::vec3(0.8f, 0.9f, 1.0f)
 };
 
 GameManager::GameManager(Window* window, unsigned int width, unsigned int height)
@@ -238,6 +238,9 @@ void GameManager::setupCamera(unsigned int width, unsigned int height)
     else if (camera->Mode == PLAYER_AIM)
     {
 		camera->Zoom = 40.0f;
+		if (camera->Pitch > 16.0f)
+			camera->Pitch = 16.0f;
+
         camera->FollowTarget(player->getPosition() + (player->PlayerFront * camera->playerPosOffset) + (player->PlayerRight * camera->playerAimRightOffset), player->PlayerAimFront, camera->playerCamRearOffset, camera->playerCamHeightOffset);
         view = camera->GetViewMatrixPlayerFollow(player->getPosition() + (player->PlayerFront * camera->playerPosOffset), player->PlayerAimUp);
     }
