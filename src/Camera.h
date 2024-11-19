@@ -46,8 +46,9 @@ public:
 	float MouseSensitivity;
 	float Zoom;
 
-	float playerCamRearOffset = 15.0f;
-	float playerCamHeightOffset = 5.0f;
+	float playerCamRearOffset = 25.0f;
+	float playerCamHeightOffset = 7.0f;
+	float playerPosOffset = 12.0f;
 	float enemyCamRearOffset = 15.0f;
 	float enemyCamHeightOffset = 5.0f;
 

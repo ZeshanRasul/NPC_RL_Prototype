@@ -8,7 +8,7 @@
 DirLight dirLight = {
         glm::vec3(-0.2f, -1.0f, -0.3f),
 
-        glm::vec3(0.55f, 0.55f, 0.55f),
+        glm::vec3(0.25f, 0.25f, 0.25f),
         glm::vec3(0.8f),
         glm::vec3(0.1f, 0.1f, 0.1f)
 };
@@ -34,7 +34,7 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 
     playerShader.loadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/vertex_gpu_dquat2.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/fragment_gpu_dquat.glsl");
     enemyShader.loadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/vertex_gpu_dquat.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/fragment_gpu_dquat.glsl");
-    gridShader.loadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/gridVertex.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/gridFragment.glsl");
+    gridShader.loadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/vertex.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/fragment.glsl");
 	crosshairShader.loadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/crosshair_vert.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/crosshair_frag.glsl");
 	lineShader.loadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/line_vert.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/line_frag.glsl");
 	aabbShader.loadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/aabb_vert.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/aabb_frag.glsl");   
@@ -208,10 +208,12 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 
 void GameManager::setupCamera(unsigned int width, unsigned int height)
 {
+	camera->Zoom = 45.0f;
     if (camera->Mode == PLAYER_FOLLOW)
     {
-        camera->FollowTarget(player->getPosition(), player->PlayerFront, camera->playerCamRearOffset, camera->playerCamHeightOffset);
-        view = camera->GetViewMatrixPlayerFollow(player->getPosition(), glm::vec3(0.0f, 1.0f, 0.0f));
+		camera->Pitch = 45.0f;
+        camera->FollowTarget(player->getPosition() + (player->PlayerFront * camera->playerPosOffset), player->PlayerFront, camera->playerCamRearOffset, camera->playerCamHeightOffset);
+        view = camera->GetViewMatrixPlayerFollow(player->getPosition() + (player->PlayerFront * camera->playerPosOffset), glm::vec3(0.0f, 1.0f, 0.0f));
     }
     else if (camera->Mode == ENEMY_FOLLOW)
     {
@@ -235,8 +237,9 @@ void GameManager::setupCamera(unsigned int width, unsigned int height)
     }
     else if (camera->Mode == PLAYER_AIM)
     {
+		camera->Zoom = 40.0f;
         camera->FollowTarget(player->getPosition() + (player->PlayerAimRight * -1.3f), player->PlayerAimFront, camera->playerCamRearOffset, camera->playerCamHeightOffset);
-        view = camera->GetViewMatrixPlayerFollow(player->getPosition() + (player->PlayerAimRight * -1.3f), glm::vec3(0.0f, 1.0f, 0.0f));
+        view = camera->GetViewMatrixPlayerFollow(player->getPosition() + (player->PlayerAimRight * -1.3f), player->PlayerAimUp);
     }
 	cubemapView = glm::mat4(glm::mat3(camera->GetViewMatrixPlayerFollow(player->getPosition(), glm::vec3(0.0f, 1.0f, 0.0f))));
 
@@ -262,23 +265,24 @@ void GameManager::setUpDebugUI()
 
 void GameManager::showDebugUI()
 {
-    ShowLightControlWindow(dirLight);
-    ShowCameraControlWindow(*camera);
+	ShowLightControlWindow(dirLight);
+	ShowCameraControlWindow(*camera);
 
-    ImGui::Begin("Player");
+	ImGui::Begin("Player");
 
-    ImGui::InputFloat3("Position", &player->getPosition()[0]);
-    ImGui::InputFloat("Yaw", &player->PlayerYaw);
+	ImGui::InputFloat3("Position", &player->getPosition()[0]);
+	ImGui::InputFloat("Yaw", &player->PlayerYaw);
 	ImGui::InputFloat3("Player Front", &player->PlayerFront[0]);
-    ImGui::InputFloat3("Player Aim Front", &player->PlayerAimFront[0]);
-    ImGui::InputFloat("Player Aim Pitch", &player->aimPitch);
+	ImGui::InputFloat3("Player Aim Front", &player->PlayerAimFront[0]);
+	ImGui::InputFloat("Player Aim Pitch", &player->aimPitch);
+	ImGui::InputFloat("Player Rear Offset", &camera->playerCamRearOffset);
+	ImGui::InputFloat("Player Height Offset", &camera->playerCamHeightOffset);
+	ImGui::InputFloat("Player Pos Offset", &camera->playerPosOffset);
+	ImGui::End();
+	ShowAnimationControlWindow();
 
-    ImGui::End();
-
-    ShowAnimationControlWindow();
 	ShowPerformanceWindow();
     ShowEnemyStateWindow();
-
 }
 
 void GameManager::renderDebugUI()
@@ -383,7 +387,7 @@ void GameManager::ShowEnemyStateWindow()
 
 	ImGui::Checkbox("Use EDBT", &useEDBT);
 
-	ImGui::Text("Player Health: %f", player->GetHealth());
+	ImGui::Text("Player Health: %d", (int)player->GetHealth());
 
     for (Enemy* e : enemies)
     {
@@ -396,7 +400,7 @@ void GameManager::ShowEnemyStateWindow()
         ImGui::SameLine();
 		ImGui::Text("State: %s", e->GetEDBTState().c_str());
         ImGui::SameLine();
-        ImGui::Text("Health %f", e->GetHealth());
+        ImGui::Text("Health %d", (int)e->GetHealth());
     }
 
     ImGui::End();
@@ -464,6 +468,7 @@ void GameManager::ResetGame()
     player->SetAnimNum(0);
     player->isDestroyed = false;
     player->SetHealth(100.0f);
+	player->aabbColor = glm::vec3(0.0f, 0.0f, 1.0f);
 	enemy->isDestroyed = false;
 	enemy2->isDestroyed = false;
 	enemy3->isDestroyed = false;
@@ -493,6 +498,7 @@ void GameManager::ResetGame()
 
 	for (Enemy* emy : enemies)
 	{
+		emy->ResetState();
 		emy->SetHealth(100);
 	}
 
@@ -560,7 +566,7 @@ void GameManager::update(float deltaTime)
         e->Update(useEDBT);
     }
 
-    //audioSystem->Update(deltaTime);
+    audioSystem->Update(deltaTime);
 
 	calculatePerformance(deltaTime);
 }

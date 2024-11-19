@@ -744,6 +744,57 @@ public:
 	void HasDealtDamage() override { hasDealtDamage_ = true; }
 	void HasKilledPlayer() override { hasKilledPlayer_ = true; }
 
+	void ResetState() 
+	{
+		isPlayerDetected_ = false;
+		isPlayerVisible_ = false;
+		isPlayerInRange_ = false;
+		isTakingDamage_ = false;
+		hasTakenDamage_ = false;
+		isDying_ = false;
+		hasDied_ = false;
+		isInCover_ = false;
+		isSeekingCover_ = false;
+		isTakingCover_ = false;
+		isAttacking_ = false;
+		hasDealtDamage_ = false;
+		hasKilledPlayer_ = false;
+		isPatrolling_ = false;
+		provideSuppressionFire_ = false;
+		allyHasDied = false;
+
+		numDeadAllies = 0;
+		
+		selectedCover_ = nullptr;
+
+		takingDamage = false;
+		damageTimer = 0.0f;
+		dyingTimer = 0.0f;
+		inCover = false;
+		coverTimer = 0.0f;
+		reachedCover = false;
+
+		reachedDestination = false;
+		reachedPlayer = false;
+
+		aabbColor = glm::vec3(0.0f, 0.0f, 1.0f);
+
+		animNum = 1;
+		sourceAnim = 1;
+		destAnim = 1;
+		destAnimSet = false;
+		blendSpeed = 5.0f;
+		blendFactor = 0.0f;
+		blendAnim = false;
+		resetBlend = false;
+
+		enemyShootCooldown = 0.0f;
+		enemyRayDebugRenderTimer = 0.3f;
+		enemyHasShot = false;
+		enemyHasHit = false;
+		playerIsVisible = false;
+	}
+
 private:
 	std::vector<glm::vec3> waypointPositions = {
 		grid_->snapToGrid(glm::vec3(0.0f, 0.0f, 0.0f)),

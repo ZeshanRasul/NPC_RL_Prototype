@@ -83,7 +83,7 @@ void Enemy::Update(bool shouldUseEDBT)
 		if (blendAnim)
 		{
 			blendFactor += (1.0f - blendFactor) * blendSpeed * dt_;
-			SetAnimation(GetSourceAnimNum(), GetDestAnimNum(), 1.5f, blendFactor, false);
+			SetAnimation(GetSourceAnimNum(), GetDestAnimNum(), 1.0f, blendFactor, false);
 			if (blendFactor >= 1.0f)
 			{
 				blendAnim = false;
@@ -93,7 +93,7 @@ void Enemy::Update(bool shouldUseEDBT)
 		}
 		else
 		{
-			SetAnimation(GetSourceAnimNum(), 0.5f, 1.0f, false);
+			SetAnimation(GetSourceAnimNum(), 1.0f, 1.0f, false);
 			blendFactor = 0.0f;
 		}
     }
@@ -307,8 +307,8 @@ void Enemy::moveEnemy(const std::vector<glm::ivec2>& path, float deltaTime, floa
 	if (glm::distance(getPosition(), targetPos) < grid_->GetCellSize()) 
     {
 		grid_->OccupyCell(path[pathIndex_].x, path[pathIndex_].y, id_);
-		
 	}
+
     if (pathIndex_ >= 1)
        grid_->VacateCell(path[pathIndex_ - 1].x, path[pathIndex_ - 1].y, id_);
 
@@ -343,17 +343,23 @@ void Enemy::Shoot()
     std::mt19937 rng(dev());
     std::uniform_int_distribution<std::mt19937::result_type> dist100(0, 100); // distribution in range [1, 100]
 
+    bool enemyMissed = false;
+
     if (dist100(rng) < 60)
     {
         accuracyOffset = accuracyOffset + (accuracyOffsetFactor * (float)dist100(rng));
+        enemyMissed = true;
     }
 
     enemyShootPos = getPosition() + glm::vec3(0.0f, 2.5f, 0.0f);
     enemyShootDir = (player.getPosition() - getPosition()) + accuracyOffset;
     glm::vec3 hitPoint = glm::vec3(0.0f);
 
-    yaw = glm::degrees(glm::atan(enemyShootDir.z, enemyShootDir.x));
-    UpdateEnemyVectors();
+    if (!enemyMissed)
+    {
+        yaw = glm::degrees(glm::atan(enemyShootDir.z, enemyShootDir.x));
+        UpdateEnemyVectors();
+    }
 
     bool hit = false;
     hit = GetGameManager()->GetPhysicsWorld()->rayPlayerIntersect(enemyShootPos, enemyShootDir, enemyHitPoint, aabb);
