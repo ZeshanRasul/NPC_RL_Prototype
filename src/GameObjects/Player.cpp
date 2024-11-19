@@ -265,9 +265,19 @@ void Player::Shoot()
     UpdatePlayerAimVectors();
 
     glm::vec3 rayO = GetShootPos();
-    glm::vec3 rayD = glm::normalize(PlayerAimFront);
+    glm::vec3 rayD;
     float dist = GetShootDistance();
 
+    glm::vec4 clipCoords = glm::vec4(0.0f, 0.5f, 1.0f, 1.0f);
+
+    glm::vec4 cameraCoords = glm::inverse(projection) * clipCoords;
+    cameraCoords /= cameraCoords.w;
+
+    glm::vec4 worldCoords = glm::inverse(view) * cameraCoords;
+    glm::vec3 rayEnd = glm::vec3(worldCoords) / worldCoords.w;
+
+    rayD = glm::normalize(rayEnd - rayO);
+    
     glm::vec3 hitPoint = glm::vec3(0.0f);
 
 	GameManager* gmeMgr = GetGameManager();
@@ -278,12 +288,11 @@ void Player::Shoot()
 
     if (hit) {
         std::cout << "\nRay hit at: " << hitPoint.x << ", " << hitPoint.y << ", " << hitPoint.z << std::endl;
-		hitPoint = glm::vec3(0.0f);
     }
     else {
         std::cout << "\nNo hit detected." << std::endl;
     }
-	rayD = glm::vec3(0.0f);
+
     UpdatePlayerAimVectors();
 }
 

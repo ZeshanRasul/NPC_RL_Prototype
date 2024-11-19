@@ -238,8 +238,8 @@ void GameManager::setupCamera(unsigned int width, unsigned int height)
     else if (camera->Mode == PLAYER_AIM)
     {
 		camera->Zoom = 40.0f;
-        camera->FollowTarget(player->getPosition() + (player->PlayerAimRight * -1.3f), player->PlayerAimFront, camera->playerCamRearOffset, camera->playerCamHeightOffset);
-        view = camera->GetViewMatrixPlayerFollow(player->getPosition() + (player->PlayerAimRight * -1.3f), player->PlayerAimUp);
+        camera->FollowTarget(player->getPosition() + (player->PlayerFront * camera->playerPosOffset) + (player->PlayerRight * camera->playerAimRightOffset), player->PlayerAimFront, camera->playerCamRearOffset, camera->playerCamHeightOffset);
+        view = camera->GetViewMatrixPlayerFollow(player->getPosition() + (player->PlayerFront * camera->playerPosOffset), player->PlayerAimUp);
     }
 	cubemapView = glm::mat4(glm::mat3(camera->GetViewMatrixPlayerFollow(player->getPosition(), glm::vec3(0.0f, 1.0f, 0.0f))));
 
@@ -247,6 +247,8 @@ void GameManager::setupCamera(unsigned int width, unsigned int height)
 
 	minimapView = minimapCamera->GetViewMatrix();
 	minimapProjection = glm::perspective(glm::radians(camera->Zoom), (float)width / (float)height, 0.1f, 500.0f);
+
+	player->SetCameraMatrices(view, projection);
 
     audioSystem->SetListener(view);
 }
@@ -278,6 +280,7 @@ void GameManager::showDebugUI()
 	ImGui::InputFloat("Player Rear Offset", &camera->playerCamRearOffset);
 	ImGui::InputFloat("Player Height Offset", &camera->playerCamHeightOffset);
 	ImGui::InputFloat("Player Pos Offset", &camera->playerPosOffset);
+	ImGui::InputFloat("Player Aim Right Offset", &camera->playerAimRightOffset);
 	ImGui::End();
 	ShowAnimationControlWindow();
 
@@ -789,7 +792,17 @@ void GameManager::render(bool minimap)
 		float ndcY = (ndcPos.y / window->GetHeight()) * 2.0f - 1.0f;
 
 		if (!minimap)
-			crosshair->DrawCrosshair(glm::vec2(ndcX, ndcY));
+			crosshair->DrawCrosshair(glm::vec2(0.0f, 0.5f));
+
+		glm::vec4 rayEndWorldSpace = glm::vec4(rayEnd, 1.0f);
+		glm::vec4 rayEndCameraSpace = view * rayEndWorldSpace;
+		glm::vec4 rayEndNDC = projection * rayEndCameraSpace;
+		
+		glm::vec4 targetNDC(0.0f, 0.5f, rayEndNDC.z / rayEndNDC.w, 1.0f); 
+		glm::vec4 targetCameraSpace = glm::inverse(projection) * targetNDC;
+		glm::vec4 targetWorldSpace = glm::inverse(view) * targetCameraSpace;
+		
+		rayEnd = glm::vec3(targetWorldSpace) / targetWorldSpace.w;
 
 		line->UpdateVertexBuffer(rayO, rayEnd);
 

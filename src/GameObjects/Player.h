@@ -95,10 +95,16 @@ public:
     PlayerState GetPlayerState() const { return mPlayerState; }
     void SetPlayerState(PlayerState newState);
 
-	glm::vec3 GetShootPos() { return getPosition() + glm::vec3(0.0f, 2.5f, 0.0f) + (10.0f * PlayerAimFront); }
+	glm::vec3 GetShootPos() { return getPosition() + glm::vec3(0.0f, 2.5f, 0.0f) + (5.0f * PlayerFront); }
 	float GetShootDistance() const { return shootDistance; }
+    glm::vec3 GetPlayerHitPoint() const { return playerShootHitPoint; }
 
     void Shoot();
+
+    void SetCameraMatrices(glm::mat4 viewMat, glm::mat4 proj) {
+        view = viewMat;
+        projection = proj;
+    }
 
     void updateAABB() {
         glm::mat4 modelMatrix = glm::translate(glm::mat4(1.0f), position) *
@@ -161,6 +167,9 @@ public:
     glm::vec3 PlayerAimRight;
     glm::vec3 PlayerAimUp;
 
+    glm::mat4 view = glm::mat4(1.0f);
+    glm::mat4 projection = glm::mat4(1.0f);
+
     AudioComponent* takeDamageAC;
     AudioComponent* shootAC;
     AudioComponent* deathAC;
@@ -171,6 +180,7 @@ public:
 
     glm::vec3 mShootStartPos = getPosition() + (glm::vec3(0.0f, 2.5f, 0.0f));
     float shootDistance = 100000.0f;
+    glm::vec3 playerShootHitPoint = glm::vec3(0.0f);
 
     float MovementSpeed = 7.5f;
     float mVelocity = 0.0f;
