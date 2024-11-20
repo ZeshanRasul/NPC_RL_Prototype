@@ -97,6 +97,8 @@ public:
         }
         Logger::log(1, "%s: glTF model texture '%s' successfully loaded\n", __FUNCTION__, texFilename.c_str());
 
+		mNormalMap.loadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Models/GLTF/Enemies/Ely/ely-vanguardsoldier-kerwinatienza_normal.png");
+
         SetUpModel();
 
         ComputeAudioWorldTransform();
@@ -796,6 +798,9 @@ public:
 	}
 
 private:
+
+	Texture mNormalMap{};
+
 	std::vector<glm::vec3> waypointPositions = {
 		grid_->snapToGrid(glm::vec3(0.0f, 0.0f, 0.0f)),
 		grid_->snapToGrid(glm::vec3(0.0f, 0.0f, 70.0f)),

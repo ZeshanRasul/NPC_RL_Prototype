@@ -35,8 +35,11 @@ void Enemy::drawObject(glm::mat4 viewMat, glm::mat4 proj)
     mUniformBuffer.uploadUboData(matrixData, 0);
 
     GetShader()->use();
+	shader->setVec3("viewPos", mGameManager->GetCamera()->Position);
     mEnemyDualQuatSSBuffer.uploadSsboData(model->getJointDualQuats(), 2);
 
+	mNormalMap.bind(1);
+	shader->setInt("normalMap", 1);
     model->draw(mTex);
 	aabb->render(viewMat, proj, modelMat, aabbColor);
 }

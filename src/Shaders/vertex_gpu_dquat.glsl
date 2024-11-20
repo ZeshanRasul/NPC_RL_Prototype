@@ -8,6 +8,10 @@ layout (location = 6) in vec3 aTangent;
 
 layout (location = 0) out vec3 normal;
 layout (location = 1) out vec2 texCoord;
+layout (location = 2) out vec3 FragPos;
+layout (location = 3) out vec3 TangentLightPos;
+layout (location = 4) out vec3 TangentViewPos;
+layout (location = 5) out vec3 TangentFragPos;
 
 layout (std140, binding = 0) uniform Matrices {
     mat4 view;
@@ -18,6 +22,9 @@ layout (std140, binding = 0) uniform Matrices {
 layout (std430, binding = 2) readonly buffer JointDualQuats {
     mat2x4 jointDQs[];
 };
+
+uniform vec3 lightPos;
+uniform vec3 viewPos;
 
 mat2x4 getJointTransform(ivec4 joints, vec4 weights) {
   // read dual quaterions from buffer
@@ -72,6 +79,19 @@ mat4 skinMat() {
 }
 
 void main() {
+    FragPos = vec3(model * vec4(aPos, 1.0));   
+
+    mat3 normalMatrix = transpose(inverse(mat3(model)));
+    vec3 T = normalize(normalMatrix * aTangent);
+    vec3 N = normalize(normalMatrix * aNormal);
+    T = normalize(T - dot(T, N) * N);
+    vec3 B = cross(N, T);
+
+    mat3 TBN = transpose(mat3(T, B, N));    
+    TangentLightPos = TBN * lightPos;
+    TangentViewPos  = TBN * viewPos;
+    TangentFragPos  = TBN * FragPos;
+
     mat4 skinMatrix = skinMat();
 	gl_Position = projection * view * model * skinMatrix * vec4(aPos, 1.0);
     normal = vec3(transpose(inverse(skinMatrix)) * vec4(aNormal, 1.0));
