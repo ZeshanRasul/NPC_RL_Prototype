@@ -12,9 +12,9 @@ void Cube::LoadMesh()
 	SetUpAABB();
 }
 
-bool Cube::LoadTexture(std::string textureFilename)
+bool Cube::LoadTexture(std::string textureFilename, Texture* tex)
 {
-	if (!mTex.loadTexture(textureFilename, false)) {
+	if (!tex->loadTexture(textureFilename, false)) {
 		Logger::log(1, "%s: texture loading failed\n", __FUNCTION__);
 		return false;
 	}
@@ -35,6 +35,15 @@ void Cube::drawObject(glm::mat4 viewMat, glm::mat4 proj)
 	mUniformBuffer.uploadUboData(matrixData, 0);
 
 	mTex.bind();
+	shader->setInt("albedoMap", 0);
+	mNormal.bind(1);
+	shader->setInt("normalMap", 1);
+	mMetallic.bind(2);
+	shader->setInt("metallicMap", 2);
+	mRoughness.bind(3);
+	shader->setInt("roughnessMap", 3);
+	mAO.bind(4);
+	shader->setInt("aoMap", 4);
 	glBindVertexArray(mVAO);
 	glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
 	glBindVertexArray(0);

@@ -8,12 +8,17 @@ public:
     Cube(glm::vec3 pos, glm::vec3 scale, Shader* shdr, bool applySkinning, GameManager* gameMgr, std::string texFilename, float yaw = 0.0f)
         : GameObject(pos, scale, yaw, shdr, applySkinning, gameMgr)
     {
-        LoadTexture(texFilename);
+        LoadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/Wall/TCom_Scifi_Pattern_512_albedo.png", &mTex);
+        LoadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/Wall/TCom_Scifi_Pattern_512_normal.png", &mNormal);
+        LoadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/Wall/TCom_Scifi_Pattern_512_metallic.png", &mMetallic);
+        LoadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/Wall/TCom_Scifi_Pattern_512_roughness.png", &mRoughness);
+        LoadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/Wall/TCom_Scifi_Pattern_512_ao.png", &mAO);
+
 		ComputeAudioWorldTransform();
     }
 
     void LoadMesh();
-    bool LoadTexture(std::string textureFilename);
+    bool LoadTexture(std::string textureFilename, Texture* tex);
 
     void drawObject(glm::mat4 viewMat, glm::mat4 proj) override;
 
