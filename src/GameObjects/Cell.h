@@ -38,13 +38,13 @@ public:
         glBindVertexArray(0);
     }
 
-    bool LoadTexture(std::string textureFilename)
+    bool LoadTexture(std::string textureFilename, Texture* tex)
     {
-        if (!mTex.loadTexture(textureFilename, false)) {
+        if (!tex->loadTexture(textureFilename, false)) {
             Logger::log(1, "%s: texture loading failed\n", __FUNCTION__);
             return false;
         }
-        Logger::log(1, "%s: Crosshair texture successfully loaded\n", __FUNCTION__, textureFilename);
+        Logger::log(1, "%s: %s texture successfully loaded\n", __FUNCTION__, textureFilename);
         return true;
     }
 
@@ -97,6 +97,11 @@ public:
 	}   
 
     Texture mTex{};
+	Texture mNormal{};
+	Texture mMetallic{};
+	Texture mRoughness{};
+	Texture mAO{};
+
 private:
     GLuint cellVAO = 0;
     GLuint cellVBO = 0;

@@ -111,6 +111,11 @@ private:
     GLuint mVAO;
     GLuint mVBO;
     GLuint mEBO;
+    
+    Texture mNormal{};
+    Texture mMetallic{};
+    Texture mRoughness{};
+    Texture mAO{};
 
     AABB* aabb;
     Shader* aabbShader;

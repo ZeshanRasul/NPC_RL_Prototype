@@ -19,6 +19,15 @@ bool Texture::loadTexture(std::string textureFilename, bool flipImage) {
         return false;
     }
 
+	GLenum format;
+	if (mNumberOfChannels == 1)
+		format = GL_RED;
+	else if (mNumberOfChannels == 3)
+		format = GL_RGB;
+	else if (mNumberOfChannels == 4)
+		format = GL_RGBA;
+
+
     glGenTextures(1, &mTexture);
     glBindTexture(GL_TEXTURE_2D, mTexture);
 
@@ -27,7 +36,7 @@ bool Texture::loadTexture(std::string textureFilename, bool flipImage) {
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, mTexWidth, mTexHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, textureData);
+    glTexImage2D(GL_TEXTURE_2D, 0, format, mTexWidth, mTexHeight, 0, format, GL_UNSIGNED_BYTE, textureData);
     glGenerateMipmap(GL_TEXTURE_2D);
     glBindTexture(GL_TEXTURE_2D, 0);
 
@@ -37,7 +46,8 @@ bool Texture::loadTexture(std::string textureFilename, bool flipImage) {
     return true;
 }
 
-void Texture::bind() {
+void Texture::bind(int texIndex) {
+    glActiveTexture(GL_TEXTURE0 + texIndex);
     glBindTexture(GL_TEXTURE_2D, mTexture);
 }
 

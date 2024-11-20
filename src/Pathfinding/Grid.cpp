@@ -63,18 +63,31 @@ void Grid::initializeGrid() {
 
 }
 
-void Grid::drawGrid(Shader& gridShader, glm::mat4 viewMat, glm::mat4 projMat) 
+void Grid::drawGrid(Shader& gridShader, glm::mat4 viewMat, glm::mat4 projMat, glm::vec3 camPos) 
 {
 //    glEnable(GL_BLEND);
 //    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     gridShader.use();
     if (firstLoad) 
     {
-        grid[0][0].LoadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/Ground.png");
+        grid[0][0].LoadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/Floor/TCom_Scifi_Floor2_512_albedo.png", &grid[0][0].mTex);
+        grid[0][0].LoadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/Floor/TCom_Scifi_Floor2_512_normal.png", &grid[0][0].mNormal);
+        grid[0][0].LoadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/Floor/TCom_Scifi_Floor2_512_metallic.png", &grid[0][0].mMetallic);
+        grid[0][0].LoadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/Floor/TCom_Scifi_Floor2_512_roughness.png", &grid[0][0].mRoughness);
+        grid[0][0].LoadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/Floor/TCom_Scifi_Floor2_512_ao.png", &grid[0][0].mAO);
 		firstLoad = false;
     }
 
 	grid[0][0].mTex.bind();
+    gridShader.setInt("albedoMap", 0);
+	grid[0][0].mNormal.bind(1);
+    gridShader.setInt("normalMap", 1);
+	grid[0][0].mMetallic.bind(2);
+    gridShader.setInt("metallicMap", 2);
+	grid[0][0].mRoughness.bind(3);
+    gridShader.setInt("roughnessMap", 3);
+	grid[0][0].mAO.bind(4);
+    gridShader.setInt("aoMap", 4);
     for (int i = 0; i < GRID_SIZE; ++i) {
         for (int j = 0; j < GRID_SIZE; ++j) {
             glm::vec3 position = glm::vec3(i * CELL_SIZE, 0.0f, j * CELL_SIZE);
@@ -87,12 +100,18 @@ void Grid::drawGrid(Shader& gridShader, glm::mat4 viewMat, glm::mat4 projMat)
             mGridUniformBuffer.uploadUboData(matrixData, 0);
 			glm::vec3 cellColor = grid[i][j].GetColor();
             gridShader.setVec3("color", cellColor);
+            gridShader.setVec3("cameraPos", camPos);
             // Render cell
 			grid[i][j].BindVAO();
             glDrawArrays(GL_TRIANGLES, 0, 6);
         }
     }
     grid[0][0].mTex.unbind();
+	grid[0][0].mNormal.unbind();
+	grid[0][0].mMetallic.unbind();
+	grid[0][0].mRoughness.unbind();
+	grid[0][0].mAO.unbind();
+
 }
 
 #include <unordered_set>

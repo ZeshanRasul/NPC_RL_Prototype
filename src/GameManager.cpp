@@ -13,6 +13,8 @@ DirLight dirLight = {
         glm::vec3(0.8f, 0.9f, 1.0f)
 };
 
+glm::vec3 dirLightPBRColour = glm::vec3(10.f, 10.0f, 10.0f);
+
 GameManager::GameManager(Window* window, unsigned int width, unsigned int height)
 	: window(window), screenWidth(width), screenHeight(height)
 {
@@ -34,7 +36,7 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 
     playerShader.loadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/vertex_gpu_dquat2.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/fragment_gpu_dquat.glsl");
     enemyShader.loadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/vertex_gpu_dquat.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/fragment_gpu_dquat.glsl");
-    gridShader.loadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/vertex.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/fragment.glsl");
+    gridShader.loadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/pbr_vertex.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/pbr_fragment.glsl");
 	crosshairShader.loadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/crosshair_vert.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/crosshair_frag.glsl");
 	lineShader.loadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/line_vert.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/line_frag.glsl");
 	aabbShader.loadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/aabb_vert.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/aabb_frag.glsl");   
@@ -59,7 +61,7 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 
     cell = new Cell();
     cell->SetUpVAO();
-    cell->LoadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/Ground.png");
+//    cell->LoadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/Ground.png", cell->mTex);
 	std::string cubeTexFilename = "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/Cover.png";
     gameGrid = new Grid();
 	cover1 = new Cube(gameGrid->snapToGrid(gameGrid->coverPositions[0]), glm::vec3((float)gameGrid->GetCellSize()), &cubeShader, false, this, cubeTexFilename);
@@ -307,6 +309,7 @@ void GameManager::ShowLightControlWindow(DirLight& light)
     ImGui::ColorEdit4("Ambient", (float*)&light.ambient);
 
     ImGui::ColorEdit4("Diffuse", (float*)&light.diffuse);
+    ImGui::ColorEdit4("PBR Color", (float*)&dirLightPBRColour);
 
     ImGui::ColorEdit4("Specular", (float*)&light.specular);
 
@@ -638,16 +641,16 @@ void GameManager::render(bool minimap)
     gridShader.use();
 	gridShader.setVec3("dirLight.direction", dirLight.direction);
 	gridShader.setVec3("dirLight.ambient", dirLight.ambient);
-	gridShader.setVec3("dirLight.diffuse", dirLight.diffuse);
+	gridShader.setVec3("dirLight.diffuse", dirLightPBRColour);
 	gridShader.setVec3("dirLight.specular", dirLight.specular);
 
 	if (minimap)
 	{
-		gameGrid->drawGrid(gridShader, minimapView, minimapProjection);
+		gameGrid->drawGrid(gridShader, minimapView, minimapProjection, camera->Position);
 	}
 	else
 	{
-		gameGrid->drawGrid(gridShader, view, projection);
+		gameGrid->drawGrid(gridShader, view, projection, camera->Position);
 	}
 
 	if (camSwitchedToAim)

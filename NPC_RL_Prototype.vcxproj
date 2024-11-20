@@ -254,6 +254,8 @@
     <None Include="src\Shaders\line_vert.glsl" />
     <None Include="src\Shaders\minimap_fragment.glsl" />
     <None Include="src\Shaders\minimap_vertex.glsl" />
+    <None Include="src\Shaders\pbr_fragment.glsl" />
+    <None Include="src\Shaders\pbr_vertex.glsl" />
     <None Include="src\Shaders\vertex_gpu_dquat.glsl" />
     <None Include="src\Shaders\fragment_gpu.glsl" />
     <None Include="src\Shaders\fragment.glsl" />
