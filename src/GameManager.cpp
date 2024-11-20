@@ -6,14 +6,14 @@
 #include "imgui/backend/imgui_impl_opengl3.h"
 
 DirLight dirLight = {
-		glm::vec3(-0.2f, -1.0f, -0.4f),
+		glm::vec3(-5.0f, -3.0f, 5.0f),
 
         glm::vec3(0.15f, 0.2f, 0.25f),
         glm::vec3(0.8f, 0.6f, 0.5f),
         glm::vec3(0.8f, 0.9f, 1.0f)
 };
 
-glm::vec3 dirLightPBRColour = glm::vec3(10.f, 10.0f, 10.0f);
+glm::vec3 dirLightPBRColour = glm::vec3(20.f, 20.0f, 20.0f);
 
 GameManager::GameManager(Window* window, unsigned int width, unsigned int height)
 	: window(window), screenWidth(width), screenHeight(height)
