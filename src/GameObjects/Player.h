@@ -36,6 +36,8 @@ public:
 
         mTex = model->loadTexture(modelTextureFilename, false);
 
+        mNormalMap.loadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Models/GLTF/SwatPlayer/Ch15_1001_Normal.png");
+
         model->uploadIndexBuffer();
         Logger::log(1, "%s: glTF model '%s' succesfully loaded\n", __FUNCTION__, modelFilename.c_str());
 
@@ -169,6 +171,8 @@ public:
 
     glm::mat4 view = glm::mat4(1.0f);
     glm::mat4 projection = glm::mat4(1.0f);
+
+    Texture mNormalMap{};
 
     AudioComponent* takeDamageAC;
     AudioComponent* shootAC;

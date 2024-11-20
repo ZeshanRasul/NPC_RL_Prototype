@@ -190,8 +190,14 @@ bool GltfModel::loadModel(std::string modelFilename, bool isEnemy) {
 
 void GltfModel::createVertexBuffers(bool isEnemy) {
     const tinygltf::Primitive& primitives = mModel->meshes.at(0).primitives.at(0);
-    mVertexVBO.resize(primitives.attributes.size());
+    mVertexVBO.resize(primitives.attributes.size() + 1);
     mAttribAccessors.resize(primitives.attributes.size());
+
+	std::vector<glm::vec3> tangents(mVertices.size(), glm::vec3(0.0f));
+
+	std::vector<glm::vec3> vertPositions(mVertices.size(), glm::vec3(0.0f));
+	std::vector<glm::vec3> normals(mVertices.size(), glm::vec3(0.0f));
+	std::vector<glm::vec2> texCoords(mVertices.size(), glm::vec2(0.0f));
 
     for (const auto& attrib : primitives.attributes) {
         const std::string attribType = attrib.first;
@@ -203,8 +209,8 @@ void GltfModel::createVertexBuffers(bool isEnemy) {
 
         if ((attribType.compare("POSITION") != 0) && (attribType.compare("NORMAL") != 0)
             && (attribType.compare("TEXCOORD_0") != 0) && (attribType.compare("JOINTS_0") != 0)
-                && (attribType.compare("WEIGHTS_0") != 0) && (attribType.compare("COLOR_0") != 0)
-                && (attribType.compare("COLOR_1") != 0 && (attribType.compare("TEXCOORD_1") != 0))) {
+            && (attribType.compare("WEIGHTS_0") != 0) && (attribType.compare("COLOR_0") != 0)
+            && (attribType.compare("COLOR_1") != 0 && (attribType.compare("TEXCOORD_1") != 0))) {
             Logger::log(1, "%s: skipping attribute type %s\n", __FUNCTION__, attribType.c_str());
             continue;
         }
@@ -228,10 +234,92 @@ void GltfModel::createVertexBuffers(bool isEnemy) {
                 buffer.data.data() + bufferView.byteOffset + accessor.byteOffset);
 
             mVertices.resize(numPositionEntries);
+            vertPositions.resize(numPositionEntries);
+            tangents.resize(numPositionEntries);
+            normals.resize(numPositionEntries);
+            texCoords.resize(numPositionEntries);
             for (int i = 0; i < numPositionEntries; ++i) {
                 mVertices[i] = glm::vec3(positions[i * 3 + 0], positions[i * 3 + 1], positions[i * 3 + 2]);
+                vertPositions[i] = glm::vec3(positions[i * 3 + 0], positions[i * 3 + 1], positions[i * 3 + 2]);
             }
+        } else if (attribType.compare("NORMAL") == 0) {
+			int numNormalEntries = accessor.count;
+			const float* normalsData = reinterpret_cast<const float*>(
+				buffer.data.data() + bufferView.byteOffset + accessor.byteOffset);
+			normals.resize(numNormalEntries);
+			for (int i = 0; i < numNormalEntries; ++i) {
+				normals[i] = glm::vec3(normalsData[i * 3 + 0], normalsData[i * 3 + 1], normalsData[i * 3 + 2]);
+			}
         }
+        else if (attribType.compare("TEXCOORD_0") == 0) {
+			int numTexCoordEntries = accessor.count;
+			const float* texCoordsData = reinterpret_cast<const float*>(
+				buffer.data.data() + bufferView.byteOffset + accessor.byteOffset);
+			texCoords.resize(numTexCoordEntries);
+			for (int i = 0; i < numTexCoordEntries; ++i) {
+				texCoords[i] = glm::vec2(texCoordsData[i * 2 + 0], texCoordsData[i * 2 + 1]);
+			}
+
+			const tinygltf::Accessor& indexAccessor = mModel->accessors[primitives.indices];
+			const tinygltf::BufferView& indBufferView = mModel->bufferViews[indexAccessor.bufferView];
+			const tinygltf::Buffer& indbuffer = mModel->buffers[bufferView.buffer];
+
+			const unsigned char* dataPtr = indbuffer.data.data() + indBufferView.byteOffset + indexAccessor.byteOffset;
+
+			std::vector<unsigned int> indices(indexAccessor.count);
+
+			if (indexAccessor.componentType == TINYGLTF_COMPONENT_TYPE_UNSIGNED_SHORT) {
+				const unsigned short* buf = reinterpret_cast<const unsigned short*>(dataPtr);
+				for (size_t i = 0; i < indexAccessor.count; ++i) {
+					indices[i] = static_cast<unsigned int>(buf[i]);
+				}
+			}
+			else if (indexAccessor.componentType == TINYGLTF_COMPONENT_TYPE_UNSIGNED_INT) {
+				const unsigned int* buf = reinterpret_cast<const unsigned int*>(dataPtr);
+				for (size_t i = 0; i < indexAccessor.count; ++i) {
+					indices[i] = buf[i];
+				}
+			}
+
+			// Calculate tangents
+			for (size_t i = 0; i < indices.size(); i += 3) {
+				// Get vertex indices
+				int idx0 = indices[i];
+				int idx1 = indices[i + 1];
+				int idx2 = indices[i + 2];
+
+				// Get vertex positions and texture coordinates
+				glm::vec3 v0 = vertPositions[idx0];
+				glm::vec3 v1 = vertPositions[idx1];
+				glm::vec3 v2 = vertPositions[idx2];
+
+				glm::vec2 uv0 = texCoords[idx0];
+				glm::vec2 uv1 = texCoords[idx1];
+				glm::vec2 uv2 = texCoords[idx2];
+
+				// Calculate edges and delta UVs
+				glm::vec3 deltaPos1 = v1 - v0;
+				glm::vec3 deltaPos2 = v2 - v0;
+
+				glm::vec2 deltaUV1 = uv1 - uv0;
+				glm::vec2 deltaUV2 = uv2 - uv0;
+
+				// Tangent calculation
+				float r = 1.0f / (deltaUV1.x * deltaUV2.y - deltaUV1.y * deltaUV2.x);
+				glm::vec3 tangent = (deltaPos1 * deltaUV2.y - deltaPos2 * deltaUV1.y) * r;
+
+				// Accumulate tangents
+				tangents[idx0] += tangent;
+				tangents[idx1] += tangent;
+				tangents[idx2] += tangent;
+			}
+
+			// Normalize tangents
+			for (size_t i = 0; i < tangents.size(); ++i) {
+				tangents[i] = glm::normalize(tangents[i]);
+			}
+        }
+
 
         if (isEnemy)
         {
@@ -288,6 +376,23 @@ void GltfModel::createVertexBuffers(bool isEnemy) {
 				0, (void*)0);
 			glEnableVertexAttribArray(enemyAttributes.at(attribType));
 
+            if (attribType == "WEIGHTS_0")
+            {
+				GLuint tangentBuffer;
+				glGenBuffers(1, &tangentBuffer);
+				glBindBuffer(GL_ARRAY_BUFFER, tangentBuffer);
+				glBufferData(GL_ARRAY_BUFFER, tangents.size() * sizeof(glm::vec3), tangents.data(), GL_STATIC_DRAW);
+
+				// Define tangent attribute
+                const GLuint tangentLocation = enemyAttributes["TANGENT"]; 
+                glVertexAttribPointer(tangentLocation, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
+				glEnableVertexAttribArray(tangentLocation);
+
+				// Add to mVertexVBO
+				mVertexVBO.push_back(tangentBuffer);
+
+            }
+
 			glBindBuffer(GL_ARRAY_BUFFER, 0);
         } 
         else
@@ -298,6 +403,21 @@ void GltfModel::createVertexBuffers(bool isEnemy) {
 			glVertexAttribPointer(attributes.at(attribType), dataSize, dataType, GL_FALSE,
 				0, (void*)0);
 			glEnableVertexAttribArray(attributes.at(attribType));
+
+			if (attribType == "WEIGHTS_0")
+			{
+				GLuint tangentBuffer;
+				glGenBuffers(1, &tangentBuffer);
+				glBindBuffer(GL_ARRAY_BUFFER, tangentBuffer);
+				glBufferData(GL_ARRAY_BUFFER, tangents.size() * sizeof(glm::vec3), tangents.data(), GL_STATIC_DRAW);
+
+				const GLuint tangentLocation = attributes["TANGENT"];
+
+				glVertexAttribPointer(tangentLocation, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
+				glEnableVertexAttribArray(tangentLocation);
+
+				mVertexVBO.push_back(tangentBuffer);
+			}
 
 			glBindBuffer(GL_ARRAY_BUFFER, 0);
 
@@ -314,7 +434,7 @@ void GltfModel::createIndexBuffer() {
 }
 
 void GltfModel::uploadVertexBuffers() {
-    for (int i = 0; i < 8; ++i) {
+    for (int i = 0; i < 9; ++i) {
         const tinygltf::Accessor& accessor = mModel->accessors.at(i);
         const tinygltf::BufferView& bufferView = mModel->bufferViews.at(accessor.bufferView);
         const tinygltf::Buffer& buffer = mModel->buffers.at(bufferView.buffer);
@@ -327,7 +447,7 @@ void GltfModel::uploadVertexBuffers() {
 }
 
 void GltfModel::uploadEnemyVertexBuffers() {
-	for (int i = 0; i < 6; ++i) {
+	for (int i = 0; i < 7; ++i) {
 		const tinygltf::Accessor& accessor = mModel->accessors.at(i);
 		const tinygltf::BufferView& bufferView = mModel->bufferViews.at(accessor.bufferView);
 		const tinygltf::Buffer& buffer = mModel->buffers.at(bufferView.buffer);

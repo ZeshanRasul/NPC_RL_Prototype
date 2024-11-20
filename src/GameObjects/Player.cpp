@@ -15,6 +15,8 @@ void Player::drawObject(glm::mat4 viewMat, glm::mat4 proj)
 
     mPlayerDualQuatSSBuffer.uploadSsboData(model->getJointDualQuats(), 2);
 
+    shader->setVec3("viewPos", mGameManager->GetCamera()->Position);
+
 //    model->playAnimation(0, 0.8f);
 
     if (uploadVertexBuffer)
@@ -33,6 +35,8 @@ void Player::drawObject(glm::mat4 viewMat, glm::mat4 proj)
     }
 
     updateAABB();
+    mNormalMap.bind(1);
+    shader->setInt("normalMap", 1);
     model->draw(mTex);
 	aabb->render(viewMat, proj, modelMat, aabbColor);
 }

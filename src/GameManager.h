@@ -140,6 +140,7 @@ public:
     bool camSwitchedToAim = false;
 
     PhysicsWorld* GetPhysicsWorld() { return physicsWorld; }
+    Camera* GetCamera() { return camera; }
 
     void RemoveDestroyedGameObjects();
 

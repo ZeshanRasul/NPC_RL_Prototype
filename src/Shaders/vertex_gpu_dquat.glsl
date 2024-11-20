@@ -4,6 +4,7 @@ layout (location = 1) in vec3 aNormal;
 layout (location = 2) in vec2 aTexCoord;
 layout (location = 4) in vec4 aJointNum;
 layout (location = 5) in vec4 aJointWeight;
+layout (location = 6) in vec3 aTangent;
 
 layout (location = 0) out vec3 normal;
 layout (location = 1) out vec2 texCoord;
