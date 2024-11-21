@@ -9,7 +9,7 @@ DirLight dirLight = {
 		glm::vec3(-5.0f, -3.0f, 5.0f),
 
         glm::vec3(0.15f, 0.2f, 0.25f),
-		glm::vec3(10.f, 10.0f, 10.0f),
+		glm::vec3(0.8, 0.7f, 0.7f),
         glm::vec3(0.8f, 0.9f, 1.0f)
 };
 
