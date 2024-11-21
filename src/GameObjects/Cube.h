@@ -8,11 +8,11 @@ public:
     Cube(glm::vec3 pos, glm::vec3 scale, Shader* shdr, bool applySkinning, GameManager* gameMgr, std::string texFilename, float yaw = 0.0f)
         : GameObject(pos, scale, yaw, shdr, applySkinning, gameMgr)
     {
-        LoadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/Wall/TCom_Scifi_Pattern_512_albedo.png", &mTex);
-        LoadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/Wall/TCom_Scifi_Pattern_512_normal.png", &mNormal);
-        LoadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/Wall/TCom_Scifi_Pattern_512_metallic.png", &mMetallic);
-        LoadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/Wall/TCom_Scifi_Pattern_512_roughness.png", &mRoughness);
-        LoadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/Wall/TCom_Scifi_Pattern_512_ao.png", &mAO);
+        LoadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/Wall/TCom_Scifi_Pattern_4K_albedo.png", &mTex);
+		LoadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/Wall/TCom_Scifi_Pattern_4K_normal.png", &mNormal);
+		LoadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/Wall/TCom_Scifi_Pattern_4K_metallic.png", &mMetallic);
+		LoadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/Wall/TCom_Scifi_Pattern_4K_roughness.png", &mRoughness);
+		LoadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/Wall/TCom_Scifi_Pattern_4K_ao.png", &mAO);
 
 		ComputeAudioWorldTransform();
     }
