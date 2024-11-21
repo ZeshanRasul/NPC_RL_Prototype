@@ -101,6 +101,7 @@ public:
 	Texture mMetallic{};
 	Texture mRoughness{};
 	Texture mAO{};
+    Texture mEmissive{};
 
 private:
     GLuint cellVAO = 0;

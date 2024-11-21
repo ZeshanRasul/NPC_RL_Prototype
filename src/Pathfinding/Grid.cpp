@@ -70,12 +70,14 @@ void Grid::drawGrid(Shader& gridShader, glm::mat4 viewMat, glm::mat4 projMat, gl
     gridShader.use();
     if (firstLoad) 
     {
-        grid[0][0].LoadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/Floor/TCom_Scifi_Floor2_512_albedo.png", &grid[0][0].mTex);
-        grid[0][0].LoadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/Floor/TCom_Scifi_Floor2_512_normal.png", &grid[0][0].mNormal);
-        grid[0][0].LoadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/Floor/TCom_Scifi_Floor2_512_metallic.png", &grid[0][0].mMetallic);
-        grid[0][0].LoadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/Floor/TCom_Scifi_Floor2_512_roughness.png", &grid[0][0].mRoughness);
-        grid[0][0].LoadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/Floor/TCom_Scifi_Floor2_512_ao.png", &grid[0][0].mAO);
-		firstLoad = false;
+        grid[0][0].LoadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/Floor/TCom_Scifi_Floor2_4K_albedo.png", &grid[0][0].mTex);
+        grid[0][0].LoadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/Floor/TCom_Scifi_Floor2_4K_normal.png", &grid[0][0].mNormal);
+        grid[0][0].LoadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/Floor/TCom_Scifi_Floor2_4K_metallic.png", &grid[0][0].mMetallic);
+        grid[0][0].LoadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/Floor/TCom_Scifi_Floor2_4K_roughness.png", &grid[0][0].mRoughness);
+        grid[0][0].LoadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/Floor/TCom_Scifi_Floor2_4K_ao.png", &grid[0][0].mAO);
+        grid[0][0].LoadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/Floor/TCom_Scifi_Floor2_4K_emissive.png", &grid[0][0].mEmissive);
+		
+        firstLoad = false;
     }
 
 	grid[0][0].mTex.bind();
@@ -88,6 +90,8 @@ void Grid::drawGrid(Shader& gridShader, glm::mat4 viewMat, glm::mat4 projMat, gl
     gridShader.setInt("roughnessMap", 3);
 	grid[0][0].mAO.bind(4);
     gridShader.setInt("aoMap", 4);
+	grid[0][0].mEmissive.bind(5);
+	gridShader.setInt("emissiveMap", 5);
     for (int i = 0; i < GRID_SIZE; ++i) {
         for (int j = 0; j < GRID_SIZE; ++j) {
             glm::vec3 position = glm::vec3(i * CELL_SIZE, 0.0f, j * CELL_SIZE);
