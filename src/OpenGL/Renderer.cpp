@@ -72,7 +72,7 @@ void Renderer::setScene(glm::mat4 viewMat, glm::mat4 proj, glm::mat4 cmapView, D
 	sun = light;
 }
 
-void Renderer::draw(GameObject* gameObj, glm::mat4 viewMat, glm::mat4 proj)
+void Renderer::draw(GameObject* gameObj, glm::mat4 viewMat, glm::mat4 proj, glm::vec3 camPos)
 {
 	Shader* shader = gameObj->GetShader();
 	shader->use();
@@ -81,7 +81,7 @@ void Renderer::draw(GameObject* gameObj, glm::mat4 viewMat, glm::mat4 proj)
 	shader->setVec3("dirLight.diffuse", sun.diffuse);
 	shader->setVec3("dirLight.specular", sun.specular);
 	shader->setVec3("lightPos", sun.direction);
-
+	shader->setVec3("cameraPos", camPos);
 	gameObj->Draw(viewMat, proj);
 }
 

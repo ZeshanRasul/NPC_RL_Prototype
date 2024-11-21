@@ -22,7 +22,7 @@ bool Cube::LoadTexture(std::string textureFilename, Texture* tex)
 	return true;
 }
 
-void Cube::drawObject(glm::mat4 viewMat, glm::mat4 proj)
+void Cube::drawObject(glm::mat4 viewMat, glm::mat4 proj, glm::vec3 camPos)
 {
 	glm::mat4 modelMat = glm::mat4(1.0f);
 	modelMat = glm::translate(modelMat, position);
@@ -33,6 +33,8 @@ void Cube::drawObject(glm::mat4 viewMat, glm::mat4 proj)
 	matrixData.push_back(proj);
 	matrixData.push_back(modelMat);
 	mUniformBuffer.uploadUboData(matrixData, 0);
+
+	shader->setVec3("cameraPos", mGameManager->GetCamera()->Position);
 
 	mTex.bind();
 	shader->setInt("albedoMap", 0);

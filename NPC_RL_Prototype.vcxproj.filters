@@ -352,6 +352,9 @@
     <None Include="src\Shaders\minimap_fragment.glsl" />
     <None Include="src\Shaders\pbr_vertex.glsl" />
     <None Include="src\Shaders\pbr_fragment.glsl" />
+    <None Include="src\Shaders\vertex_gpu_dquat_player.glsl" />
+    <None Include="src\Shaders\vertex_gpu_dquat_enemy.glsl" />
+    <None Include="src\Shaders\pbr_fragment_enemy.glsl" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="src\Assets\Models\backpack\specular.jpg">

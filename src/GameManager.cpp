@@ -9,11 +9,11 @@ DirLight dirLight = {
 		glm::vec3(-5.0f, -3.0f, 5.0f),
 
         glm::vec3(0.15f, 0.2f, 0.25f),
-        glm::vec3(0.8f, 0.6f, 0.5f),
+		glm::vec3(10.f, 10.0f, 10.0f),
         glm::vec3(0.8f, 0.9f, 1.0f)
 };
 
-glm::vec3 dirLightPBRColour = glm::vec3(20.f, 20.0f, 20.0f);
+glm::vec3 dirLightPBRColour = glm::vec3(10.f, 10.0f, 10.0f);
 
 GameManager::GameManager(Window* window, unsigned int width, unsigned int height)
 	: window(window), screenWidth(width), screenHeight(height)
@@ -34,8 +34,8 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
     renderer = window->getRenderer();
 	renderer->SetUpMinimapFBO(width, height);
 
-    playerShader.loadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/vertex_gpu_dquat2.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/fragment_gpu_dquat.glsl");
-    enemyShader.loadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/vertex_gpu_dquat.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/fragment_gpu_dquat.glsl");
+    playerShader.loadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/vertex_gpu_dquat_player.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/pbr_fragment.glsl");
+    enemyShader.loadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/vertex_gpu_dquat_enemy.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/pbr_fragment_enemy.glsl");
     gridShader.loadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/pbr_vertex.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/pbr_fragment.glsl");
 	crosshairShader.loadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/crosshair_vert.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/crosshair_frag.glsl");
 	lineShader.loadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/line_vert.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/line_frag.glsl");
@@ -113,10 +113,10 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
     player = new Player(gameGrid->snapToGrid(glm::vec3(90.0f, 0.0f, 25.0f)), glm::vec3(3.0f), &playerShader, true, this);
     player->aabbShader = &aabbShader;
 
-	std::string texture = "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Models/GLTF/Enemies/Ely/ely-vanguardsoldier-kerwinatienza_diffuse.png";
-	std::string texture2 = "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Models/GLTF/Enemies/Ely/ely-vanguardsoldier-kerwinatienza_diffuse 2.png";
-	std::string texture3 = "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Models/GLTF/Enemies/Ely/ely-vanguardsoldier-kerwinatienza_diffuse 3.png";
-	std::string texture4 = "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Models/GLTF/Enemies/Ely/ely-vanguardsoldier-kerwinatienza_diffuse 4.png";
+	std::string texture = "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Models/GLTF/Enemies/Ely/EnemyEly_ely_vanguardsoldier_kerwinatienza_M2_BaseColor.png";
+	std::string texture2 = "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Models/GLTF/Enemies/Ely/ely-vanguardsoldier-kerwinatienza_diffuse_2.png";
+	std::string texture3 = "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Models/GLTF/Enemies/Ely/ely-vanguardsoldier-kerwinatienza_diffuse_3.png";
+	std::string texture4 = "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Models/GLTF/Enemies/Ely/ely-vanguardsoldier-kerwinatienza_diffuse_4.png";
 
     enemy = new Enemy(gameGrid->snapToGrid(glm::vec3(33.0f, 0.0f, 23.0f)), glm::vec3(3.0f), &enemyShader, true, this, gameGrid, texture, 0, GetEventManager(), *player);
     enemy->SetAABBShader(&aabbShader);
@@ -630,18 +630,18 @@ void GameManager::render(bool minimap)
             continue;
 		if (minimap)
 		{
-			renderer->draw(obj, minimapView, minimapProjection);
+			renderer->draw(obj, minimapView, minimapProjection, camera->Position);
 		}
 		else
 		{
-			renderer->draw(obj, view, projection);
+			renderer->draw(obj, view, projection, camera->Position);
 		}
 	}
 
     gridShader.use();
 	gridShader.setVec3("dirLight.direction", dirLight.direction);
 	gridShader.setVec3("dirLight.ambient", dirLight.ambient);
-	gridShader.setVec3("dirLight.diffuse", dirLightPBRColour);
+	gridShader.setVec3("dirLight.diffuse", dirLight.diffuse);
 	gridShader.setVec3("dirLight.specular", dirLight.specular);
 
 	if (minimap)

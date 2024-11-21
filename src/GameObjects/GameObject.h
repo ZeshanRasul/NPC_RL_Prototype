@@ -92,7 +92,7 @@ public:
     virtual void HasKilledPlayer() = 0;
 
 protected:
-    virtual void drawObject(glm::mat4 viewMat, glm::mat4 proj) = 0;
+    virtual void drawObject(glm::mat4 viewMat, glm::mat4 proj, glm::vec3 camPos = glm::vec3(0.0f, 0.0f, 0.0f)) = 0;
 
     glm::vec3 scale;
     bool mRecomputeWorldTransform = true;

@@ -243,6 +243,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="src\Assets\Models\backpack\backpack.mtl" />
+    <None Include="src\Shaders\pbr_fragment_enemy.glsl" />
+    <None Include="src\Shaders\vertex_gpu_dquat_enemy.glsl" />
+    <None Include="src\Shaders\vertex_gpu_dquat_player.glsl" />
     <None Include="src\Shaders\aabb_frag.glsl" />
     <None Include="src\Shaders\aabb_vert.glsl" />
     <None Include="src\Shaders\crosshair_frag.glsl" />

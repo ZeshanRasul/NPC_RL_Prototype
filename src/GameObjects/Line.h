@@ -13,7 +13,7 @@ public:
 
     void LoadMesh();
 
-    void drawObject(glm::mat4 viewMat, glm::mat4 proj) override {};
+    void drawObject(glm::mat4 viewMat, glm::mat4 proj, glm::vec3 camPos) override {};
 
     void DrawLine(glm::mat4 viewMat, glm::mat4 proj, glm::vec3 lineColor);
 

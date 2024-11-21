@@ -33,7 +33,7 @@ void main() {
     // get diffuse color
     vec3 color = texture(tex, texCoord).rgb;
     // ambient
-    vec3 ambient = 0.3 * color;
+    vec3 ambient = dirLight.ambient * color;
     // diffuse
     vec3 lightDir = normalize(TangentLightPos - TangentFragPos);
     float diff = max(dot(lightDir, normal), 0.0);

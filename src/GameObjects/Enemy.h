@@ -97,7 +97,12 @@ public:
         }
         Logger::log(1, "%s: glTF model texture '%s' successfully loaded\n", __FUNCTION__, texFilename.c_str());
 
-		mNormalMap.loadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Models/GLTF/Enemies/Ely/ely-vanguardsoldier-kerwinatienza_normal.png");
+		mNormal.loadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Models/GLTF/Enemies/Ely/EnemyEly_ely_vanguardsoldier_kerwinatienza_M2_Normal.png");
+		mMetallic.loadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Models/GLTF/Enemies/Ely/EnemyEly_ely_vanguardsoldier_kerwinatienza_M2_Metallic.png");
+		mRoughness.loadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Models/GLTF/Enemies/Ely/EnemyEly_ely_vanguardsoldier_kerwinatienza_M2_Roughness.png");
+		mAO.loadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Models/GLTF/Enemies/Ely/EnemyEly_ely_vanguardsoldier_kerwinatienza_M2_AO.png");
+		mEmissive.loadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Models/GLTF/Enemies/Ely/EnemyEly_ely_vanguardsoldier_kerwinatienza_M2_Emissive.png");
+
 
         SetUpModel();
 
@@ -125,7 +130,7 @@ public:
 
     void SetUpModel();
 
-    void drawObject(glm::mat4 viewMat, glm::mat4 proj) override;
+    void drawObject(glm::mat4 viewMat, glm::mat4 proj, glm::vec3 camPos) override;
 
     void Update(bool shouldUseEDBT);
 
@@ -798,8 +803,11 @@ public:
 	}
 
 private:
-
-	Texture mNormalMap{};
+	Texture mNormal{};
+	Texture mMetallic{};
+	Texture mRoughness{};
+	Texture mAO{};
+	Texture mEmissive{};
 
 	std::vector<glm::vec3> waypointPositions = {
 		grid_->snapToGrid(glm::vec3(0.0f, 0.0f, 0.0f)),

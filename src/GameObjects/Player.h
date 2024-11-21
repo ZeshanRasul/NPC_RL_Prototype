@@ -28,7 +28,7 @@ public:
         model = std::make_shared<GltfModel>();
 
         std::string modelFilename = "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Models/GLTF/SwatPlayer/Swat.gltf";
-        std::string modelTextureFilename = "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Models/GLTF/SwatPlayer/Ch15_1001_Diffuse.png";
+        std::string modelTextureFilename = "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Models/GLTF/SwatPlayer/Swat_Ch15_body_BaseColor.png";
 
         if (!model->loadModel(modelFilename)) {
             Logger::log(1, "%s: loading glTF model '%s' failed\n", __FUNCTION__, modelFilename.c_str());
@@ -36,7 +36,10 @@ public:
 
         mTex = model->loadTexture(modelTextureFilename, false);
 
-        mNormalMap.loadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Models/GLTF/SwatPlayer/Ch15_1001_Normal.png");
+        mNormal.loadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Models/GLTF/SwatPlayer/Swat_Ch15_body_Normal.png");
+        mMetallic.loadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Models/GLTF/SwatPlayer/Swat_Ch15_body_Metallic.png");
+        mRoughness.loadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Models/GLTF/SwatPlayer/Swat_Ch15_body_Roughness.png");
+        mAO.loadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Models/GLTF/SwatPlayer/Swat_Ch15_body_AO.png");
 
         model->uploadIndexBuffer();
         Logger::log(1, "%s: glTF model '%s' succesfully loaded\n", __FUNCTION__, modelFilename.c_str());
@@ -63,7 +66,7 @@ public:
         model->cleanup();
     }
 
-    void drawObject(glm::mat4 viewMat, glm::mat4 proj) override;
+    void drawObject(glm::mat4 viewMat, glm::mat4 proj, glm::vec3 camPos) override;
 
     void Update(float dt);
 
@@ -172,7 +175,10 @@ public:
     glm::mat4 view = glm::mat4(1.0f);
     glm::mat4 projection = glm::mat4(1.0f);
 
-    Texture mNormalMap{};
+	Texture mNormal{};
+	Texture mMetallic{};
+	Texture mRoughness{};
+	Texture mAO{};
 
     AudioComponent* takeDamageAC;
     AudioComponent* shootAC;

@@ -11,7 +11,7 @@ public:
         ComputeAudioWorldTransform();
     }
 
-    void drawObject(glm::mat4 viewMat, glm::mat4 proj) override;
+    void drawObject(glm::mat4 viewMat, glm::mat4 proj, glm::vec3 camPos) override;
 
     void ComputeAudioWorldTransform() override;
    

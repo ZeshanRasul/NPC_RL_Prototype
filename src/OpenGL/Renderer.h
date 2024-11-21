@@ -16,7 +16,7 @@ public:
 	void SetUpMinimapFBO(unsigned int width, unsigned int height);
 
 	void setScene(glm::mat4 viewMat, glm::mat4 proj, glm::mat4 cmapView, DirLight light);
-	void draw(GameObject* gameObj, glm::mat4 viewMat, glm::mat4 proj);
+	void draw(GameObject* gameObj, glm::mat4 viewMat, glm::mat4 proj, glm::vec3 camPos);
 	void drawCubemap(Cubemap* cubemap);
 	void drawMinimap(MinimapQuad* minimapQuad, Shader* minimapShader);
 
