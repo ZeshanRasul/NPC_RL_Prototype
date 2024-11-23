@@ -197,6 +197,13 @@ private:
 	const int SHADOW_WIDTH = 1024;
 	const int SHADOW_HEIGHT = 1024;
 
+	float orthoLeft;
+	float orthoRight;
+	float orthoBottom;
+	float orthoTop;
+    float near_plane = 1.0f;
+    float far_plane = 150.0f;
+
     Renderer* renderer;
     Window* window;
     Camera* camera;

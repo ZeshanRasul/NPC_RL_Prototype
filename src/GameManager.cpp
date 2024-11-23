@@ -6,7 +6,7 @@
 #include "imgui/backend/imgui_impl_opengl3.h"
 
 DirLight dirLight = {
-		glm::vec3(-5.0f, -3.0f, 5.0f),
+		glm::vec3(1.0f, -1.0f, 1.0f),
 
         glm::vec3(0.15f, 0.2f, 0.25f),
 		glm::vec3(0.8, 0.7f, 0.7f),
@@ -319,6 +319,13 @@ void GameManager::ShowLightControlWindow(DirLight& light)
 
     ImGui::ColorEdit4("Specular", (float*)&light.specular);
 
+	ImGui::DragFloat("Ortho Left", (float*)&orthoLeft);
+	ImGui::DragFloat("Ortho Right", (float*)&orthoRight);
+	ImGui::DragFloat("Ortho Bottom", (float*)&orthoBottom);
+	ImGui::DragFloat("Ortho Top", (float*)&orthoTop);
+	ImGui::DragFloat("Near Plane", (float*)&near_plane);
+	ImGui::DragFloat("Far Plane", (float*)&far_plane);
+
     ImGui::End();
 }
 
@@ -442,11 +449,25 @@ void GameManager::calculatePerformance(float deltaTime)
 
 void GameManager::CreateLightSpaceMatrices()
 {
-	float near_plane = 1.0f;
-	float far_plane = 7.5f;
-	glm::vec3 sceneCenter = glm::vec3((gameGrid->GetCellSize() * gameGrid->GetGridSize()) / 2.0f, 0.0f, (gameGrid->GetCellSize() * gameGrid->GetGridSize()) / 2.0f);
-	lightSpaceProjection = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, near_plane, far_plane);
-	lightSpaceView = glm::lookAt(dirLight.direction, sceneCenter, glm::vec3(0.0f, 1.0f, 0.0f));
+	float gridWidth = gameGrid->GetCellSize() * gameGrid->GetGridSize();
+	glm::vec3 sceneCenter = glm::vec3(gridWidth / 2.0f, 0.0f, gridWidth / 2.0f);
+
+	glm::vec3 lightDir = glm::normalize(dirLight.direction);
+
+	float sceneDiagonal = glm::sqrt(gridWidth * gridWidth + gridWidth * gridWidth);
+
+	orthoLeft = -gridWidth * 2.0f;
+	orthoRight = gridWidth * 2.0f;
+	orthoBottom = -gridWidth * 2.0f;
+	orthoTop = gridWidth * 2.0f;
+//	near_plane = 1.0f;
+//	far_plane = 150.0f;
+	lightSpaceProjection = glm::ortho(orthoLeft, orthoRight, orthoBottom, orthoTop, near_plane, far_plane);
+
+	glm::vec3 lightPos = sceneCenter - lightDir * sceneDiagonal;
+	//lightPos.y += 50.0f;
+
+	lightSpaceView = glm::lookAt(lightPos, sceneCenter, glm::vec3(0.0f, -1.0f, 0.0f));
 	lightSpaceMatrix = lightSpaceProjection * lightSpaceView;
 }
 

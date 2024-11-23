@@ -10,6 +10,9 @@ void InputManager::handleMouseMovement(double xPosIn, double yPosIn)
         return;
     }
 
+	if (!controlCamera)
+		return;
+
     float xPos = static_cast<float>(xPosIn);
     float yPos = static_cast<float>(yPosIn);
 
