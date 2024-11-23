@@ -29,7 +29,7 @@ uniform vec3 cameraPos;
 
 const float PI = 3.14159265359;
 
-float ShadowCalculation(vec4 fragPosLightSpace)
+float ShadowCalculation(vec4 fragPosLightSpace, vec3 normal, vec3 lightDir)
 {
     vec3 projCoords = fragPosLightSpace.xyz / fragPosLightSpace.w;
     projCoords = projCoords * 0.5 + 0.5;
@@ -37,8 +37,10 @@ float ShadowCalculation(vec4 fragPosLightSpace)
     float closestDepth = texture(shadowMap, projCoords.xy).r;
 
     float currentDepth = projCoords.z;
+          
+    float bias = max(0.05 * (1.0 - dot(normal, lightDir)), 0.005);
 
-    float shadow = currentDepth > closestDepth  ? 1.0 : 0.0;
+    float shadow = currentDepth - bias > closestDepth  ? 1.0 : 0.0;
 
     return shadow;
 }
@@ -145,7 +147,7 @@ void main()
         // scale light by NdotL
         float NdotL = max(dot(N, L), 0.0);        
 
-        float shadow = ShadowCalculation(FragPosLightSpace);
+        float shadow = ShadowCalculation(FragPosLightSpace, N, L);
 
         // add to outgoing radiance Lo
         Lo += (1.0 - shadow) * ((kD * albedo / PI + specular) * radiance * NdotL);
