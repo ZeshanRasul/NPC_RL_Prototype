@@ -98,11 +98,11 @@ void Renderer::draw(GameObject* gameObj, glm::mat4 viewMat, glm::mat4 proj, glm:
 	Shader* shader;
 	if (shadowMap)
 	{
-		gameObj->GetShadowShader();
+		shader = gameObj->GetShadowShader();
 	}
 	else
 	{
-		gameObj->GetShader();
+		shader = gameObj->GetShader();
 	}
 
 	shader->use();
