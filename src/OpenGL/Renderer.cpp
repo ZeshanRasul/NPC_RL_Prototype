@@ -99,9 +99,11 @@ void Renderer::draw(GameObject* gameObj, glm::mat4 viewMat, glm::mat4 proj, glm:
 	if (shadowMap)
 	{
 		shader = gameObj->GetShadowShader();
+		glCullFace(GL_FRONT);
 	}
 	else
 	{
+		glCullFace(GL_NONE);
 		shader = gameObj->GetShader();
 	}
 
