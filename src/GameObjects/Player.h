@@ -19,8 +19,8 @@ enum PlayerState {
 
 class Player : public GameObject {
 public:
-    Player(glm::vec3 pos, glm::vec3 scale, Shader* shdr, bool applySkinning, GameManager* gameMgr, float yaw = -90.0f)
-        : GameObject(pos, scale, yaw, shdr, applySkinning, gameMgr)
+    Player(glm::vec3 pos, glm::vec3 scale, Shader* shdr, Shader* shadowMapShader, bool applySkinning, GameManager* gameMgr, float yaw = -90.0f)
+        : GameObject(pos, scale, yaw, shdr, shadowMapShader, applySkinning, gameMgr)
     {
         initialPos = pos;
         initialYaw = yaw;
@@ -66,7 +66,7 @@ public:
         model->cleanup();
     }
 
-    void drawObject(glm::mat4 viewMat, glm::mat4 proj, glm::vec3 camPos) override;
+    void drawObject(glm::mat4 viewMat, glm::mat4 proj, bool shadowMap, glm::vec3 camPos) override;
 
     void Update(float dt);
 

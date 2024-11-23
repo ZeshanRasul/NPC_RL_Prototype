@@ -1,7 +1,7 @@
 #pragma once
 #include "src/OpenGL/Renderer.h"
 
-class MinimapQuad {
+class Quad {
 public:
 	void SetUpVAO() {
 		glGenVertexArrays(1, &quadVAO);

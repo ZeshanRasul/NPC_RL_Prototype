@@ -33,6 +33,7 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
     
     renderer = window->getRenderer();
 	renderer->SetUpMinimapFBO(width, height);
+	renderer->SetUpShadowMapFBO(SHADOW_WIDTH, SHADOW_HEIGHT);
 
     playerShader.loadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/vertex_gpu_dquat_player.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/pbr_fragment.glsl");
     enemyShader.loadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/vertex_gpu_dquat_enemy.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/pbr_fragment_enemy.glsl");
@@ -42,7 +43,9 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 	aabbShader.loadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/aabb_vert.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/aabb_frag.glsl");   
     cubeShader.loadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/pbr_vertex.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/pbr_fragment.glsl");
     cubemapShader.loadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/cubemap_vertex.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/cubemap_fragment.glsl");
-    minimapShader.loadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/minimap_vertex.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/minimap_fragment.glsl");
+    minimapShader.loadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/quad_vertex.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/quad_fragment.glsl");
+	shadowMapShader.loadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/shadow_map_vertex.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/shadow_map_fragment.glsl");
+	shadowMapQuadShader.loadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/shadow_map_quad_vertex.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/shadow_map_quad_fragment.glsl");
 
 	physicsWorld = new PhysicsWorld();
 
@@ -64,28 +67,28 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 //    cell->LoadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/Ground.png", cell->mTex);
 	std::string cubeTexFilename = "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/Cover.png";
     gameGrid = new Grid();
-	cover1 = new Cube(gameGrid->snapToGrid(gameGrid->coverPositions[0]), glm::vec3((float)gameGrid->GetCellSize()), &cubeShader, false, this, cubeTexFilename);
+	cover1 = new Cube(gameGrid->snapToGrid(gameGrid->coverPositions[0]), glm::vec3((float)gameGrid->GetCellSize()), &cubeShader, &shadowMapShader, false, this, cubeTexFilename);
     cover1->SetAABBShader(&aabbShader);
     cover1->LoadMesh();
-	cover2 = new Cube(gameGrid->snapToGrid(gameGrid->coverPositions[1]), glm::vec3((float)gameGrid->GetCellSize()), &cubeShader, false, this, cubeTexFilename);
+	cover2 = new Cube(gameGrid->snapToGrid(gameGrid->coverPositions[1]), glm::vec3((float)gameGrid->GetCellSize()), &cubeShader, &shadowMapShader, false, this, cubeTexFilename);
     cover2->SetAABBShader(&aabbShader);
     cover2->LoadMesh();
-	cover3 = new Cube(gameGrid->snapToGrid(gameGrid->coverPositions[2]), glm::vec3((float)gameGrid->GetCellSize()), &cubeShader, false, this, cubeTexFilename);
+	cover3 = new Cube(gameGrid->snapToGrid(gameGrid->coverPositions[2]), glm::vec3((float)gameGrid->GetCellSize()), &cubeShader, &shadowMapShader, false, this, cubeTexFilename);
     cover3->SetAABBShader(&aabbShader);
     cover3->LoadMesh();
-	cover4 = new Cube(gameGrid->snapToGrid(gameGrid->coverPositions[3]), glm::vec3((float)gameGrid->GetCellSize()), &cubeShader, false, this, cubeTexFilename);
+	cover4 = new Cube(gameGrid->snapToGrid(gameGrid->coverPositions[3]), glm::vec3((float)gameGrid->GetCellSize()), &cubeShader, &shadowMapShader, false, this, cubeTexFilename);
     cover4->SetAABBShader(&aabbShader);
     cover4->LoadMesh();	
-    cover5 = new Cube(gameGrid->snapToGrid(gameGrid->coverPositions[4]), glm::vec3((float)gameGrid->GetCellSize()), &cubeShader, false, this, cubeTexFilename);
+    cover5 = new Cube(gameGrid->snapToGrid(gameGrid->coverPositions[4]), glm::vec3((float)gameGrid->GetCellSize()), &cubeShader, &shadowMapShader, false, this, cubeTexFilename);
     cover5->SetAABBShader(&aabbShader);
     cover5->LoadMesh();
-	cover6 = new Cube(gameGrid->snapToGrid(gameGrid->coverPositions[5]), glm::vec3((float)gameGrid->GetCellSize()), &cubeShader, false, this, cubeTexFilename);
+	cover6 = new Cube(gameGrid->snapToGrid(gameGrid->coverPositions[5]), glm::vec3((float)gameGrid->GetCellSize()), &cubeShader, &shadowMapShader, false, this, cubeTexFilename);
 	cover6->SetAABBShader(&aabbShader);
 	cover6->LoadMesh();
-	cover7 = new Cube(gameGrid->snapToGrid(gameGrid->coverPositions[6]), glm::vec3((float)gameGrid->GetCellSize()), &cubeShader, false, this, cubeTexFilename);
+	cover7 = new Cube(gameGrid->snapToGrid(gameGrid->coverPositions[6]), glm::vec3((float)gameGrid->GetCellSize()), &cubeShader, &shadowMapShader, false, this, cubeTexFilename);
 	cover7->SetAABBShader(&aabbShader);
 	cover7->LoadMesh();
-	cover8 = new Cube(gameGrid->snapToGrid(gameGrid->coverPositions[7]), glm::vec3((float)gameGrid->GetCellSize()), &cubeShader, false, this, cubeTexFilename);
+	cover8 = new Cube(gameGrid->snapToGrid(gameGrid->coverPositions[7]), glm::vec3((float)gameGrid->GetCellSize()), &cubeShader, &shadowMapShader, false, this, cubeTexFilename);
     cover8->SetAABBShader(&aabbShader);
     cover8->LoadMesh();
 	//cover9 = new Cube(gameGrid->snapToGrid(gameGrid->coverPositions[8]), glm::vec3((float)gameGrid->GetCellSize()), &cubeShader, false, this);
@@ -107,10 +110,13 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
     camera = new Camera(glm::vec3(50.0f, 3.0f, 80.0f));
 	minimapCamera = new Camera(glm::vec3((gameGrid->GetCellSize() * gameGrid->GetGridSize()) / 2.0f, 140.0f, (gameGrid->GetCellSize() * gameGrid->GetGridSize()) / 2.0f), glm::vec3(0.0f, -1.0f, 0.0f), 0.0f, -90.0f, glm::vec3(0.0f, 0.0f, -1.0f));
 	
-	minimapQuad = new MinimapQuad();
+	minimapQuad = new Quad();
 	minimapQuad->SetUpVAO();
 
-    player = new Player(gameGrid->snapToGrid(glm::vec3(90.0f, 0.0f, 25.0f)), glm::vec3(3.0f), &playerShader, true, this);
+	shadowMapQuad = new Quad();
+	shadowMapQuad->SetUpVAO();
+
+    player = new Player(gameGrid->snapToGrid(glm::vec3(90.0f, 0.0f, 25.0f)), glm::vec3(3.0f), &playerShader, &shadowMapShader, true, this);
     player->aabbShader = &aabbShader;
 
 	std::string texture = "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Models/GLTF/Enemies/Ely/EnemyEly_ely_vanguardsoldier_kerwinatienza_M2_BaseColor.png";
@@ -118,32 +124,32 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 	std::string texture3 = "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Models/GLTF/Enemies/Ely/ely-vanguardsoldier-kerwinatienza_diffuse_3.png";
 	std::string texture4 = "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Models/GLTF/Enemies/Ely/ely-vanguardsoldier-kerwinatienza_diffuse_4.png";
 
-    enemy = new Enemy(gameGrid->snapToGrid(glm::vec3(33.0f, 0.0f, 23.0f)), glm::vec3(3.0f), &enemyShader, true, this, gameGrid, texture, 0, GetEventManager(), *player);
+    enemy = new Enemy(gameGrid->snapToGrid(glm::vec3(33.0f, 0.0f, 23.0f)), glm::vec3(3.0f), &enemyShader, &shadowMapShader, true, this, gameGrid, texture, 0, GetEventManager(), *player);
     enemy->SetAABBShader(&aabbShader);
     enemy->SetUpAABB();
 
-    enemy2 = new Enemy(gameGrid->snapToGrid(glm::vec3(3.0f, 0.0f, 53.0f)), glm::vec3(3.0f), &enemyShader, true, this, gameGrid, texture2, 1, GetEventManager(), *player);
+    enemy2 = new Enemy(gameGrid->snapToGrid(glm::vec3(3.0f, 0.0f, 53.0f)), glm::vec3(3.0f), &enemyShader, &shadowMapShader, true, this, gameGrid, texture2, 1, GetEventManager(), *player);
 	enemy2->SetAABBShader(&aabbShader);
     enemy2->SetUpAABB();
 
-	enemy3 = new Enemy(gameGrid->snapToGrid(glm::vec3(43.0f, 0.0f, 53.0f)), glm::vec3(3.0f), &enemyShader, true, this, gameGrid, texture3, 2, GetEventManager(), *player);
+	enemy3 = new Enemy(gameGrid->snapToGrid(glm::vec3(43.0f, 0.0f, 53.0f)), glm::vec3(3.0f), &enemyShader, &shadowMapShader, true, this, gameGrid, texture3, 2, GetEventManager(), *player);
 	enemy3->SetAABBShader(&aabbShader);
     enemy3->SetUpAABB();
 
-    enemy4 = new Enemy(gameGrid->snapToGrid(glm::vec3(11.0f, 0.0f, 23.0f)), glm::vec3(3.0f), &enemyShader, true, this, gameGrid, texture4, 3, GetEventManager(), *player);
+    enemy4 = new Enemy(gameGrid->snapToGrid(glm::vec3(11.0f, 0.0f, 23.0f)), glm::vec3(3.0f), &enemyShader, &shadowMapShader, true, this, gameGrid, texture4, 3, GetEventManager(), *player);
     enemy4->SetAABBShader(&aabbShader);
     enemy4->SetUpAABB();
 
-	crosshair = new Crosshair(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f), &crosshairShader, false, this);
+	crosshair = new Crosshair(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f), &crosshairShader, &shadowMapShader, false, this);
 	crosshair->LoadMesh();
 	crosshair->LoadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/Crosshair.png");
-	line = new Line(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f), &lineShader, false, this);
+	line = new Line(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f), &lineShader, &shadowMapShader, false, this);
     line->LoadMesh();
 
-    enemyLine = new Line(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f), &lineShader, false, this);
-    enemy2Line = new Line(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f), &lineShader, false, this);
-    enemy3Line = new Line(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f), &lineShader, false, this);
-    enemy4Line = new Line(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f), &lineShader, false, this);
+    enemyLine = new Line(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f), &lineShader, &shadowMapShader, false, this);
+    enemy2Line = new Line(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f), &lineShader, &shadowMapShader, false, this);
+    enemy3Line = new Line(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f), &lineShader, &shadowMapShader, false, this);
+    enemy4Line = new Line(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f), &lineShader, &shadowMapShader, false, this);
     enemyLine->LoadMesh();
     enemy2Line->LoadMesh();
     enemy3Line->LoadMesh();
@@ -434,6 +440,16 @@ void GameManager::calculatePerformance(float deltaTime)
     elapsedTime += deltaTime;
 }
 
+void GameManager::CreateLightSpaceMatrices()
+{
+	float near_plane = 1.0f;
+	float far_plane = 7.5f;
+	glm::vec3 sceneCenter = glm::vec3((gameGrid->GetCellSize() * gameGrid->GetGridSize()) / 2.0f, 0.0f, (gameGrid->GetCellSize() * gameGrid->GetGridSize()) / 2.0f);
+	lightSpaceProjection = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, near_plane, far_plane);
+	lightSpaceView = glm::lookAt(dirLight.direction, sceneCenter, glm::vec3(0.0f, 1.0f, 0.0f));
+	lightSpaceMatrix = lightSpaceProjection * lightSpaceView;
+}
+
 void GameManager::RemoveDestroyedGameObjects()
 {
     //for (auto it = gameObjects.begin(); it != gameObjects.end(); ) {
@@ -580,77 +596,70 @@ void GameManager::update(float deltaTime)
 	calculatePerformance(deltaTime);
 }
 
-void GameManager::render(bool minimap)
+void GameManager::render(bool minimap, bool shadowMap, bool showShadowMap)
 {
-	static bool blendingChanged = playerCrossBlend;
-	if (blendingChanged != playerCrossBlend)
-	{
-		blendingChanged = playerCrossBlend;
-		if (!playerCrossBlend)
-		{
-			playerAdditiveBlend = false;
-		}
-		player->model->resetNodeData();
-	}
-
-	static bool additiveBlendingChanged = playerAdditiveBlend;
-	if (additiveBlendingChanged != playerAdditiveBlend) {
-		additiveBlendingChanged = playerAdditiveBlend;
-		/* reset split when additive blending is disabled */
-		if (!playerAdditiveBlend) {
-			playerSkeletonSplitNode = player->model->getNodeCount() - 1;
-		}
-		player->model->resetNodeData();
-	}
-
-	static int skelSplitNode = playerSkeletonSplitNode;
-	if (skelSplitNode != playerSkeletonSplitNode) {
-		player->model->setSkeletonSplitNode(playerSkeletonSplitNode);
-		playerSkeletonSplitNodeName = player->model->getNodeName(playerSkeletonSplitNode);
-		skelSplitNode = playerSkeletonSplitNode;
-		player->model->resetNodeData();
-	}
-
-	if (playerCrossBlend)
-	{
-		player->model->playAnimation(playerCrossBlendSourceClip, playerCrossBlendDestClip, 1.0f, playerAnimCrossBlendFactor, false);
-	}
-	else
-	{
-	}
-
 	glEnable(GL_DEPTH_TEST);
 	glDisable(GL_BLEND);
 
+	if (!shadowMap)
+	{
+		renderer->ResetViewport(screenWidth, screenHeight);
+		renderer->clear();
+	}
+
 	if (minimap)
 		renderer->bindMinimapFBO(screenWidth, screenHeight);
+
+	if (shadowMap)
+		renderer->bindShadowMapFBO(SHADOW_WIDTH, SHADOW_HEIGHT);
+
+
 
 	for (auto obj : gameObjects) {
         if (obj->isDestroyed)
             continue;
 		if (minimap)
 		{
-			renderer->draw(obj, minimapView, minimapProjection, camera->Position);
+			renderer->draw(obj, minimapView, minimapProjection, camera->Position, false);
+		}
+		else if (shadowMap)
+		{
+			renderer->draw(obj, lightSpaceView, lightSpaceProjection, camera->Position, true);
 		}
 		else
 		{
-			renderer->draw(obj, view, projection, camera->Position);
+			renderer->draw(obj, view, projection, camera->Position, false);
 		}
 	}
 
-    gridShader.use();
-	gridShader.setVec3("dirLight.direction", dirLight.direction);
-	gridShader.setVec3("dirLight.ambient", dirLight.ambient);
-	gridShader.setVec3("dirLight.diffuse", dirLight.diffuse);
-	gridShader.setVec3("dirLight.specular", dirLight.specular);
-
-	if (minimap)
+	if (shadowMap)
 	{
-		gameGrid->drawGrid(gridShader, minimapView, minimapProjection, camera->Position);
+		shadowMapShader.use();
+		shadowMapShader.setVec3("dirLight.direction", dirLight.direction);
+		shadowMapShader.setVec3("dirLight.ambient", dirLight.ambient);
+		shadowMapShader.setVec3("dirLight.diffuse", dirLight.diffuse);
+		shadowMapShader.setVec3("dirLight.specular", dirLight.specular);
 	}
 	else
 	{
-		gameGrid->drawGrid(gridShader, view, projection, camera->Position);
+		gridShader.use();
+		gridShader.setVec3("dirLight.direction", dirLight.direction);
+		gridShader.setVec3("dirLight.ambient", dirLight.ambient);
+		gridShader.setVec3("dirLight.diffuse", dirLight.diffuse);
+		gridShader.setVec3("dirLight.specular", dirLight.specular);
+	}
+
+	if (minimap)
+	{
+		gameGrid->drawGrid(gridShader, minimapView, minimapProjection, camera->Position, false);
+	}
+	else if (shadowMap)
+	{
+		gameGrid->drawGrid(shadowMapShader, lightSpaceView, lightSpaceProjection, camera->Position, true);
+	}
+	else
+	{
+		gameGrid->drawGrid(gridShader, view, projection, camera->Position, false);
 	}
 
 	if (camSwitchedToAim)
@@ -677,11 +686,15 @@ void GameManager::render(bool minimap)
 			enemyLine->UpdateVertexBuffer(enemy->GetEnemyShootPos(), enemyRayEnd);
 			if (minimap)
 			{
-				enemyLine->DrawLine(minimapView, minimapProjection, enemyLineColor);
+				enemyLine->DrawLine(minimapView, minimapProjection, enemyLineColor, false);
+			}
+			else if (shadowMap)
+			{
+				enemyLine->DrawLine(lightSpaceView, lightSpaceProjection, enemyLineColor, true);
 			}
 			else
 			{
-				enemyLine->DrawLine(view, projection, enemyLineColor);
+				enemyLine->DrawLine(view, projection, enemyLineColor, false);
 			}
 		}
 	}
@@ -704,11 +717,15 @@ void GameManager::render(bool minimap)
 			enemy2Line->UpdateVertexBuffer(enemy2->GetEnemyShootPos(), enemy2RayEnd);
 			if (minimap)
 			{
-				enemy2Line->DrawLine(minimapView, minimapProjection, enemy2LineColor);
+				enemy2Line->DrawLine(minimapView, minimapProjection, enemy2LineColor, false);
+			}
+			else if (shadowMap)
+			{
+				enemy2Line->DrawLine(lightSpaceView, lightSpaceProjection, enemy2LineColor, true);
 			}
 			else
 			{
-				enemy2Line->DrawLine(view, projection, enemy2LineColor);
+				enemy2Line->DrawLine(view, projection, enemy2LineColor, false);
 			}
 		}
 	}
@@ -733,11 +750,15 @@ void GameManager::render(bool minimap)
 			enemy3Line->UpdateVertexBuffer(enemy3->GetEnemyShootPos(), enemy3RayEnd);
 			if (minimap)
 			{
-				enemy3Line->DrawLine(minimapView, minimapProjection, enemy3LineColor);
+				enemy3Line->DrawLine(minimapView, minimapProjection, enemy3LineColor, false);
+			}
+			else if (shadowMap)
+			{
+				enemy3Line->DrawLine(lightSpaceView, lightSpaceProjection, enemy3LineColor, true);
 			}
 			else
 			{
-				enemy3Line->DrawLine(view, projection, enemy3LineColor);
+				enemy3Line->DrawLine(view, projection, enemy3LineColor, false);
 			}
 		}
 	}
@@ -761,11 +782,15 @@ void GameManager::render(bool minimap)
 			enemy4Line->UpdateVertexBuffer(enemy4->GetEnemyShootPos(), enemy4RayEnd);
 			if (minimap)
 			{
-				enemy4Line->DrawLine(minimapView, minimapProjection, enemy4LineColor);
+				enemy4Line->DrawLine(minimapView, minimapProjection, enemy4LineColor, false);
+			}
+			else if (shadowMap)
+			{
+				enemy4Line->DrawLine(lightSpaceView, lightSpaceProjection, enemy4LineColor, true);
 			}
 			else
 			{
-				enemy4Line->DrawLine(view, projection, enemy4LineColor);
+				enemy4Line->DrawLine(view, projection, enemy4LineColor, false);
 			}
 		}
 	}
@@ -797,7 +822,7 @@ void GameManager::render(bool minimap)
 		float ndcX = (ndcPos.x / window->GetWidth()) * 2.0f - 1.0f;
 		float ndcY = (ndcPos.y / window->GetHeight()) * 2.0f - 1.0f;
 
-		if (!minimap)
+		if (!minimap && !shadowMap && !showShadowMap)
 			crosshair->DrawCrosshair(glm::vec2(0.0f, 0.5f));
 
 		glm::vec4 rayEndWorldSpace = glm::vec4(rayEnd, 1.0f);
@@ -814,11 +839,15 @@ void GameManager::render(bool minimap)
 
 		if (minimap)
 		{
-			line->DrawLine(minimapView, minimapProjection, lineColor);
+			line->DrawLine(minimapView, minimapProjection, lineColor, false);
+		}
+		else if (shadowMap)
+		{
+			line->DrawLine(lightSpaceView, lightSpaceProjection, lineColor, true);
 		}
 		else
 		{
-			line->DrawLine(view, projection, lineColor);
+			line->DrawLine(view, projection, lineColor, false);
 		}
 
 		glEnable(GL_DEPTH_TEST);
@@ -826,13 +855,23 @@ void GameManager::render(bool minimap)
 
 	}
 	
-	if (!minimap)
+	if (!minimap && !shadowMap && !showShadowMap)
 	{
 		renderer->drawMinimap(minimapQuad, &minimapShader);
+	}
+
+	if (showShadowMap)
+	{
+		renderer->drawShadowMap(shadowMapQuad, &shadowMapQuadShader);
 	}
 
 	if (minimap)
 	{
 		renderer->unbindMinimapFBO();
 	}
+	else if (shadowMap)
+	{
+		renderer->unbindShadowMapFBO();
+	}
+
 }

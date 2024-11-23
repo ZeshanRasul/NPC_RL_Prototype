@@ -22,7 +22,7 @@ bool Cube::LoadTexture(std::string textureFilename, Texture* tex)
 	return true;
 }
 
-void Cube::drawObject(glm::mat4 viewMat, glm::mat4 proj, glm::vec3 camPos)
+void Cube::drawObject(glm::mat4 viewMat, glm::mat4 proj, bool shadowMap, glm::vec3 camPos)
 {
 	glm::mat4 modelMat = glm::mat4(1.0f);
 	modelMat = glm::translate(modelMat, position);
@@ -34,23 +34,33 @@ void Cube::drawObject(glm::mat4 viewMat, glm::mat4 proj, glm::vec3 camPos)
 	matrixData.push_back(modelMat);
 	mUniformBuffer.uploadUboData(matrixData, 0);
 
-	shader->setVec3("cameraPos", mGameManager->GetCamera()->Position);
+	if (shadowMap)
+	{
+		shadowShader->use();
+		glBindVertexArray(mVAO);
+		glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
+		glBindVertexArray(0);
+	}
+	else
+	{
+		shader->setVec3("cameraPos", mGameManager->GetCamera()->Position);
 
-	mTex.bind();
-	shader->setInt("albedoMap", 0);
-	mNormal.bind(1);
-	shader->setInt("normalMap", 1);
-	mMetallic.bind(2);
-	shader->setInt("metallicMap", 2);
-	mRoughness.bind(3);
-	shader->setInt("roughnessMap", 3);
-	mAO.bind(4);
-	shader->setInt("aoMap", 4);
-	glBindVertexArray(mVAO);
-	glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
-	glBindVertexArray(0);
-	mTex.unbind();
-	aabb->render(viewMat, proj, modelMat, aabbColor);
+		mTex.bind();
+		shader->setInt("albedoMap", 0);
+		mNormal.bind(1);
+		shader->setInt("normalMap", 1);
+		mMetallic.bind(2);
+		shader->setInt("metallicMap", 2);
+		mRoughness.bind(3);
+		shader->setInt("roughnessMap", 3);
+		mAO.bind(4);
+		shader->setInt("aoMap", 4);
+		glBindVertexArray(mVAO);
+		glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
+		glBindVertexArray(0);
+		mTex.unbind();
+		aabb->render(viewMat, proj, modelMat, aabbColor);
+	}
 }
 
 void Cube::CreateAndUploadVertexBuffer()

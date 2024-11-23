@@ -19,7 +19,7 @@
 #include "GameObjects/Crosshair.h"
 #include "GameObjects/Line.h"
 #include "GameObjects/Cube.h"
-#include "GameObjects/MinimapQuad.h"
+#include "GameObjects/Quad.h"
 #include "Model/GltfModel.h"
 #include "src/Pathfinding/Grid.h"
 
@@ -131,7 +131,7 @@ public:
 
     void update(float deltaTime);
 
-    void render(bool minimap);
+    void render(bool minimap, bool shadowMap, bool showShadowMap);
 
     void setUpDebugUI();
     void showDebugUI();
@@ -147,6 +147,7 @@ public:
     void ResetGame();
 
 	bool ShouldUseEDBT() const { return useEDBT; }
+	void CreateLightSpaceMatrices();
 
 private:
     void ShowCameraControlWindow(Camera& cam);
@@ -193,6 +194,8 @@ private:
 
     int screenWidth;
 	int screenHeight;
+	const int SHADOW_WIDTH = 1024;
+	const int SHADOW_HEIGHT = 1024;
 
     Renderer* renderer;
     Window* window;
@@ -224,7 +227,8 @@ private:
 	Cube* cover10;
 	Cube* cover11;
 	Cube* cover12;
-	MinimapQuad* minimapQuad;
+	Quad* minimapQuad;
+    Quad* shadowMapQuad;
 
     InputManager* inputManager;
 	AudioSystem* audioSystem;
@@ -242,6 +246,8 @@ private:
 	Shader cubeShader{};
     Shader cubemapShader{};
     Shader minimapShader{};
+    Shader shadowMapShader{};
+    Shader shadowMapQuadShader{};
 
     ShaderStorageBuffer mPlayerSSBuffer{};
     ShaderStorageBuffer mEnemySSBuffer{};
@@ -276,6 +282,10 @@ private:
     glm::mat4 cubemapView = glm::mat4(1.0f);
 	glm::mat4 minimapView = glm::mat4(1.0f);
 	glm::mat4 minimapProjection = glm::mat4(1.0f);
+    glm::mat4 lightSpaceView = glm::mat4(1.0f);
+    glm::mat4 lightSpaceProjection = glm::mat4(1.0f);
+    glm::mat4 lightSpaceMatrix = glm::mat4(1.0f);
+
 
     Cell* cell;
     Grid* gameGrid;

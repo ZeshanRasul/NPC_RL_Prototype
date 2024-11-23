@@ -76,8 +76,8 @@ private:
 	// NASH LEARNING
 
 public:
-	Enemy(glm::vec3 pos, glm::vec3 scale, Shader* sdr, bool applySkinning, GameManager* gameMgr, Grid* grd, std::string texFilename, int id, EventManager& eventManager, Player& player, float yaw = 0.0f)
-		: GameObject(pos, scale, yaw, sdr, applySkinning, gameMgr), grid_(grd), id_(id), eventManager_(eventManager), health_(100.0f), isPlayerDetected_(false),
+	Enemy(glm::vec3 pos, glm::vec3 scale, Shader* sdr, Shader* shadowMapShader, bool applySkinning, GameManager* gameMgr, Grid* grd, std::string texFilename, int id, EventManager& eventManager, Player& player, float yaw = 0.0f)
+		: GameObject(pos, scale, yaw, sdr, shadowMapShader, applySkinning, gameMgr), grid_(grd), id_(id), eventManager_(eventManager), health_(100.0f), isPlayerDetected_(false),
 		isPlayerVisible_(false), isPlayerInRange_(false), isTakingDamage_(false), isDead_(false), isInCover_(false), isSeekingCover_(false), isTakingCover_(false), player(player), initialPosition(pos)
     {
 		isEnemy = true;
@@ -130,7 +130,7 @@ public:
 
     void SetUpModel();
 
-    void drawObject(glm::mat4 viewMat, glm::mat4 proj, glm::vec3 camPos) override;
+    void drawObject(glm::mat4 viewMat, glm::mat4 proj, bool shadowMap, glm::vec3 camPos) override;
 
     void Update(bool shouldUseEDBT);
 

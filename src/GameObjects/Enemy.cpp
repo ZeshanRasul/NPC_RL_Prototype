@@ -22,7 +22,7 @@ void Enemy::SetUpModel()
     Logger::log(1, "%s: glTF joint dual quaternions shader storage buffer (size %i bytes) successfully created\n", __FUNCTION__, enemyModelJointDualQuatBufferSize);
 }
 
-void Enemy::drawObject(glm::mat4 viewMat, glm::mat4 proj, glm::vec3 camPos)
+void Enemy::drawObject(glm::mat4 viewMat, glm::mat4 proj, bool shadowMap, glm::vec3 camPos)
 {
 	glm::mat4 modelMat = glm::mat4(1.0f);
 	modelMat = glm::translate(modelMat, position);
@@ -34,24 +34,32 @@ void Enemy::drawObject(glm::mat4 viewMat, glm::mat4 proj, glm::vec3 camPos)
     matrixData.push_back(modelMat);
     mUniformBuffer.uploadUboData(matrixData, 0);
 
-    GetShader()->use();
-	shader->setVec3("cameraPos", mGameManager->GetCamera()->Position);
-    mEnemyDualQuatSSBuffer.uploadSsboData(model->getJointDualQuats(), 2);
+    if (shadowMap)
+    {
+		shadowShader->use();
+		model->draw(mTex);
+    }
+    else
+    {
+		GetShader()->use();
+		shader->setVec3("cameraPos", mGameManager->GetCamera()->Position);
+		mEnemyDualQuatSSBuffer.uploadSsboData(model->getJointDualQuats(), 2);
 
-	mTex.bind();
-	shader->setInt("albedoMap", 0);
-	mNormal.bind(1);
-	shader->setInt("normalMap", 1);
-	mMetallic.bind(2);
-	shader->setInt("metallicMap", 2);
-	mRoughness.bind(3);
-	shader->setInt("roughnessMap", 3);
-	mAO.bind(4);
-	shader->setInt("aoMap", 4);    
-    mEmissive.bind(5);
-    shader->setInt("emissiveMap", 5);
-    model->draw(mTex);
-	aabb->render(viewMat, proj, modelMat, aabbColor);
+		mTex.bind();
+		shader->setInt("albedoMap", 0);
+		mNormal.bind(1);
+		shader->setInt("normalMap", 1);
+		mMetallic.bind(2);
+		shader->setInt("metallicMap", 2);
+		mRoughness.bind(3);
+		shader->setInt("roughnessMap", 3);
+		mAO.bind(4);
+		shader->setInt("aoMap", 4);
+		mEmissive.bind(5);
+		shader->setInt("emissiveMap", 5);
+		model->draw(mTex);
+		aabb->render(viewMat, proj, modelMat, aabbColor);
+    }
 }
 
 void Enemy::Update(bool shouldUseEDBT)

@@ -24,11 +24,7 @@ uniform DirLight dirLight;
 uniform vec3 cameraPos;
 
 const float PI = 3.14159265359;
-// ----------------------------------------------------------------------------
-// Easy trick to get tangent-normals to world-space to keep PBR code simplified.
-// Don't worry if you don't get what's going on; you generally want to do normal 
-// mapping the usual way for performance anyways; I do plan make a note of this 
-// technique somewhere later in the normal mapping tutorial.
+
 vec3 getNormalFromMap()
 {
     vec3 tangentNormal = texture(normalMap, TexCoords).xyz * 2.0 - 1.0;
@@ -96,8 +92,6 @@ void main()
     vec3 N = getNormalFromMap();
     vec3 V = normalize(cameraPos - WorldPos);
 
-    // calculate reflectance at normal incidence; if dia-electric (like plastic) use F0 
-    // of 0.04 and if it's a metal, use the albedo color as F0 (metallic workflow)    
     vec3 F0 = vec3(0.04); 
     F0 = mix(F0, albedo, metallic);
 
@@ -137,8 +131,7 @@ void main()
         Lo += (kD * albedo / PI + specular) * radiance * NdotL;  // note that we already multiplied the BRDF by the Fresnel (kS) so we won't multiply by kS again
     }   
     
-    // ambient lighting (note that the next IBL tutorial will replace 
-    // this ambient lighting with environment lighting).
+    // ambient lighting
     vec3 ambient = vec3(0.03) * albedo * ao;
     
     vec3 color = ambient + Lo;

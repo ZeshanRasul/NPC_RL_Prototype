@@ -63,35 +63,38 @@ void Grid::initializeGrid() {
 
 }
 
-void Grid::drawGrid(Shader& gridShader, glm::mat4 viewMat, glm::mat4 projMat, glm::vec3 camPos) 
+void Grid::drawGrid(Shader& gridShader, glm::mat4 viewMat, glm::mat4 projMat, glm::vec3 camPos, bool shadowMap) 
 {
 //    glEnable(GL_BLEND);
 //    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    gridShader.use();
-    if (firstLoad) 
+    if (!shadowMap)
     {
-        grid[0][0].LoadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/Floor/TCom_Scifi_Floor2_4K_albedo.png", &grid[0][0].mTex);
-        grid[0][0].LoadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/Floor/TCom_Scifi_Floor2_4K_normal.png", &grid[0][0].mNormal);
-        grid[0][0].LoadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/Floor/TCom_Scifi_Floor2_4K_metallic.png", &grid[0][0].mMetallic);
-        grid[0][0].LoadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/Floor/TCom_Scifi_Floor2_4K_roughness.png", &grid[0][0].mRoughness);
-        grid[0][0].LoadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/Floor/TCom_Scifi_Floor2_4K_ao.png", &grid[0][0].mAO);
-        grid[0][0].LoadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/Floor/TCom_Scifi_Floor2_4K_emissive.png", &grid[0][0].mEmissive);
-		
-        firstLoad = false;
-    }
+		gridShader.use();
+		if (firstLoad)
+		{
+			grid[0][0].LoadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/Floor/TCom_Scifi_Floor2_4K_albedo.png", &grid[0][0].mTex);
+			grid[0][0].LoadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/Floor/TCom_Scifi_Floor2_4K_normal.png", &grid[0][0].mNormal);
+			grid[0][0].LoadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/Floor/TCom_Scifi_Floor2_4K_metallic.png", &grid[0][0].mMetallic);
+			grid[0][0].LoadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/Floor/TCom_Scifi_Floor2_4K_roughness.png", &grid[0][0].mRoughness);
+			grid[0][0].LoadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/Floor/TCom_Scifi_Floor2_4K_ao.png", &grid[0][0].mAO);
+			grid[0][0].LoadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/Floor/TCom_Scifi_Floor2_4K_emissive.png", &grid[0][0].mEmissive);
 
-	grid[0][0].mTex.bind();
-    gridShader.setInt("albedoMap", 0);
-	grid[0][0].mNormal.bind(1);
-    gridShader.setInt("normalMap", 1);
-	grid[0][0].mMetallic.bind(2);
-    gridShader.setInt("metallicMap", 2);
-	grid[0][0].mRoughness.bind(3);
-    gridShader.setInt("roughnessMap", 3);
-	grid[0][0].mAO.bind(4);
-    gridShader.setInt("aoMap", 4);
-	grid[0][0].mEmissive.bind(5);
-	gridShader.setInt("emissiveMap", 5);
+			firstLoad = false;
+		}
+
+		grid[0][0].mTex.bind();
+		gridShader.setInt("albedoMap", 0);
+		grid[0][0].mNormal.bind(1);
+		gridShader.setInt("normalMap", 1);
+		grid[0][0].mMetallic.bind(2);
+		gridShader.setInt("metallicMap", 2);
+		grid[0][0].mRoughness.bind(3);
+		gridShader.setInt("roughnessMap", 3);
+		grid[0][0].mAO.bind(4);
+		gridShader.setInt("aoMap", 4);
+		grid[0][0].mEmissive.bind(5);
+		gridShader.setInt("emissiveMap", 5);
+    }
     for (int i = 0; i < GRID_SIZE; ++i) {
         for (int j = 0; j < GRID_SIZE; ++j) {
             glm::vec3 position = glm::vec3(i * CELL_SIZE, 0.0f, j * CELL_SIZE);
@@ -110,11 +113,15 @@ void Grid::drawGrid(Shader& gridShader, glm::mat4 viewMat, glm::mat4 projMat, gl
             glDrawArrays(GL_TRIANGLES, 0, 6);
         }
     }
-    grid[0][0].mTex.unbind();
-	grid[0][0].mNormal.unbind();
-	grid[0][0].mMetallic.unbind();
-	grid[0][0].mRoughness.unbind();
-	grid[0][0].mAO.unbind();
+
+    if (!shadowMap)
+    {
+		grid[0][0].mTex.unbind();
+		grid[0][0].mNormal.unbind();
+		grid[0][0].mMetallic.unbind();
+		grid[0][0].mRoughness.unbind();
+		grid[0][0].mAO.unbind();
+    }
 
 }
 

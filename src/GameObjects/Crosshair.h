@@ -4,8 +4,8 @@
 
 class Crosshair : public GameObject {
 public:
-    Crosshair(glm::vec3 pos, glm::vec3 scale, Shader* shdr, bool applySkinning, GameManager* gameMgr, float yaw = 0.0f)
-        : GameObject(pos, scale, yaw, shdr, applySkinning, gameMgr)
+    Crosshair(glm::vec3 pos, glm::vec3 scale, Shader* shdr, Shader* shadowMapShader, bool applySkinning, GameManager* gameMgr, float yaw = 0.0f)
+        : GameObject(pos, scale, yaw, shdr, shadowMapShader, applySkinning, gameMgr)
     {      
         ComputeAudioWorldTransform();
     }
@@ -14,7 +14,7 @@ public:
 
 	bool LoadTexture(std::string textureFilename);
 
-    void drawObject(glm::mat4 viewMat, glm::mat4 proj, glm::vec3 camPos) override;
+    void drawObject(glm::mat4 viewMat, glm::mat4 proj, bool shadowMap, glm::vec3 camPos) override;
 
 	glm::vec2 CalculateCrosshairPosition(glm::vec3 rayEnd, int screenWidth, int screenHeight,
         glm::mat4 proj, glm::mat4 view);

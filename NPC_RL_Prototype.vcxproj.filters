@@ -323,7 +323,7 @@
     <ClInclude Include="src\OpenGL\Cubemap.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\GameObjects\MinimapQuad.h">
+    <ClInclude Include="src\GameObjects\Quad.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -348,13 +348,17 @@
     <None Include="src\Shaders\cubemap_vertex.glsl" />
     <None Include="src\Shaders\cubemap_fragment.glsl" />
     <None Include="src\Shaders\vertex_gpu_dquat2.glsl" />
-    <None Include="src\Shaders\minimap_vertex.glsl" />
-    <None Include="src\Shaders\minimap_fragment.glsl" />
+    <None Include="src\Shaders\quad_vertex.glsl" />
+    <None Include="src\Shaders\quad_fragment.glsl" />
     <None Include="src\Shaders\pbr_vertex.glsl" />
     <None Include="src\Shaders\pbr_fragment.glsl" />
     <None Include="src\Shaders\vertex_gpu_dquat_player.glsl" />
     <None Include="src\Shaders\vertex_gpu_dquat_enemy.glsl" />
     <None Include="src\Shaders\pbr_fragment_enemy.glsl" />
+    <None Include="src\Shaders\shadow_map_vertex.glsl" />
+    <None Include="src\Shaders\shadow_map_fragment.glsl" />
+    <None Include="src\Shaders\shadow_map_quad_vertex.glsl" />
+    <None Include="src\Shaders\shadow_map_quad_fragment.glsl" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="src\Assets\Models\backpack\specular.jpg">

@@ -16,8 +16,8 @@
 
 class GameObject {
 public:
-    GameObject(glm::vec3 pos, glm::vec3 scale, float yaw, Shader* shdr, bool applySkinning, class GameManager* gameMgr)
-        : position(pos), scale(scale), yaw(yaw), shader(shdr), toSkin(applySkinning), mGameManager(gameMgr)
+    GameObject(glm::vec3 pos, glm::vec3 scale, float yaw, Shader* shdr, Shader* shadowMapShader, bool applySkinning, class GameManager* gameMgr)
+        : position(pos), scale(scale), yaw(yaw), shader(shdr), shadowShader(shadowMapShader), toSkin(applySkinning), mGameManager(gameMgr)
     {
         size_t uniformMatrixBufferSize = 3 * sizeof(glm::mat4);
         mUniformBuffer.init(uniformMatrixBufferSize);
@@ -26,12 +26,22 @@ public:
 
     bool isSkinned() const { return toSkin; }
 
-    virtual void Draw(glm::mat4 viewMat, glm::mat4 proj) {
-        shader->use();
-        drawObject(viewMat, proj);
+    virtual void Draw(glm::mat4 viewMat, glm::mat4 proj, bool shadowMap) {
+        if (shadowMap)
+        {
+            shadowShader->use();
+        }
+        else
+        {
+            shader->use();
+        }
+
+        drawObject(viewMat, proj, shadowMap);
     }
 
     virtual Shader* GetShader() const { return shader; }
+
+	virtual Shader* GetShadowShader() const { return shadowShader; }
 
     virtual void AddComponent(Component* component) {
         // Find the insertion point in the sorted vector
@@ -92,7 +102,7 @@ public:
     virtual void HasKilledPlayer() = 0;
 
 protected:
-    virtual void drawObject(glm::mat4 viewMat, glm::mat4 proj, glm::vec3 camPos = glm::vec3(0.0f, 0.0f, 0.0f)) = 0;
+    virtual void drawObject(glm::mat4 viewMat, glm::mat4 proj, bool shadowMap, glm::vec3 camPos = glm::vec3(0.0f, 0.0f, 0.0f)) = 0;
 
     glm::vec3 scale;
     bool mRecomputeWorldTransform = true;
@@ -100,6 +110,7 @@ protected:
 
     bool toSkin;
     Shader* shader = nullptr;
+    Shader* shadowShader = nullptr;
     RenderData renderData;
 
     class GameManager* mGameManager = nullptr;

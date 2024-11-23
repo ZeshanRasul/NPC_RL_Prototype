@@ -5,8 +5,8 @@
 
 class Cube : public GameObject {
 public:
-    Cube(glm::vec3 pos, glm::vec3 scale, Shader* shdr, bool applySkinning, GameManager* gameMgr, std::string texFilename, float yaw = 0.0f)
-        : GameObject(pos, scale, yaw, shdr, applySkinning, gameMgr)
+    Cube(glm::vec3 pos, glm::vec3 scale, Shader* shdr, Shader* shadowMapShader, bool applySkinning, GameManager* gameMgr, std::string texFilename, float yaw = 0.0f)
+        : GameObject(pos, scale, yaw, shdr, shadowMapShader, applySkinning, gameMgr)
     {
         LoadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/Wall/TCom_Scifi_Pattern_4K_albedo.png", &mTex);
 		LoadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/Wall/TCom_Scifi_Pattern_4K_normal.png", &mNormal);
@@ -20,7 +20,7 @@ public:
     void LoadMesh();
     bool LoadTexture(std::string textureFilename, Texture* tex);
 
-    void drawObject(glm::mat4 viewMat, glm::mat4 proj, glm::vec3 camPos) override;
+    void drawObject(glm::mat4 viewMat, glm::mat4 proj, bool shadowMap, glm::vec3 camPos) override;
 
     void ComputeAudioWorldTransform() override {};
 

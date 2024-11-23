@@ -2,7 +2,7 @@
 #include "RenderData.h"
 #include "src/Camera.h"
 #include "src/GameObjects/GameObject.h"
-#include "src/GameObjects/MinimapQuad.h"
+#include "src/GameObjects/Quad.h"
 #include "Shader.h"
 #include "Cubemap.h"
 
@@ -14,14 +14,20 @@ public:
 
 	bool init(unsigned int width, unsigned int height);
 	void SetUpMinimapFBO(unsigned int width, unsigned int height);
+	void SetUpShadowMapFBO(unsigned int width, unsigned int height);
 
 	void setScene(glm::mat4 viewMat, glm::mat4 proj, glm::mat4 cmapView, DirLight light);
-	void draw(GameObject* gameObj, glm::mat4 viewMat, glm::mat4 proj, glm::vec3 camPos);
+	void draw(GameObject* gameObj, glm::mat4 viewMat, glm::mat4 proj, glm::vec3 camPos, bool shadowMap);
 	void drawCubemap(Cubemap* cubemap);
-	void drawMinimap(MinimapQuad* minimapQuad, Shader* minimapShader);
+	void drawMinimap(Quad* minimapQuad, Shader* minimapShader);
+	void drawShadowMap(Quad* shadowMapQuad, Shader* shadowMapShader);
 
 	void bindMinimapFBO(unsigned int width, unsigned int height);
 	void unbindMinimapFBO();
+	void bindShadowMapFBO(unsigned int width, unsigned int height);
+	void unbindShadowMapFBO();
+
+	void ResetViewport(unsigned int width, unsigned int height);
 	void clear();
 
 	void cleanup();
@@ -37,4 +43,6 @@ private:
 	GLuint minimapFBO;
 	GLuint minimapColorTex;
 	GLuint minimapRBO;
+	GLuint shadowMapFBO;
+	GLuint shadowMapTex;
 };

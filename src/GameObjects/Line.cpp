@@ -8,12 +8,23 @@ void Line::LoadMesh()
 	glBindVertexArray(0);
 }
 
-void Line::DrawLine(glm::mat4 viewMat, glm::mat4 proj, glm::vec3 lineColor)
+void Line::DrawLine(glm::mat4 viewMat, glm::mat4 proj, glm::vec3 lineColor, bool shadowMap)
 {
-	shader->use();
-	shader->setMat4("view", viewMat);
-	shader->setMat4("projection", proj);
-	shader->setVec3("lineColor", lineColor);
+	if (shadowMap)
+	{
+		shadowShader->use();
+		shadowShader->setMat4("view", viewMat);
+		shadowShader->setMat4("projection", proj);
+		shadowShader->setVec3("lineColor", lineColor);
+
+	}
+	else
+	{
+		shader->use();
+		shader->setMat4("view", viewMat);
+		shader->setMat4("projection", proj);
+		shader->setVec3("lineColor", lineColor);
+	}
 
 	glBindVertexArray(mVAO);
 	glDrawArrays(GL_LINES, 0, 2);

@@ -4,8 +4,8 @@
 
 class Line : public GameObject {
 public:
-    Line(glm::vec3 pos, glm::vec3 scale, Shader* shdr, bool applySkinning, GameManager* gameMgr, float yaw = 0.0f)
-        : GameObject(pos, scale, yaw, shdr, applySkinning, gameMgr)
+    Line(glm::vec3 pos, glm::vec3 scale, Shader* shdr, Shader* shadowMapShader, bool applySkinning, GameManager* gameMgr, float yaw = 0.0f)
+        : GameObject(pos, scale, yaw, shdr, shadowMapShader, applySkinning, gameMgr)
     {
 
         ComputeAudioWorldTransform();
@@ -13,9 +13,9 @@ public:
 
     void LoadMesh();
 
-    void drawObject(glm::mat4 viewMat, glm::mat4 proj, glm::vec3 camPos) override {};
+    void drawObject(glm::mat4 viewMat, glm::mat4 proj, bool shadowMap, glm::vec3 camPos) override {};
 
-    void DrawLine(glm::mat4 viewMat, glm::mat4 proj, glm::vec3 lineColor);
+    void DrawLine(glm::mat4 viewMat, glm::mat4 proj, glm::vec3 lineColor, bool shadowMap);
 
     void ComputeAudioWorldTransform() override;
 

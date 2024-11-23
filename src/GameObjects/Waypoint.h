@@ -4,8 +4,8 @@
 
 class Waypoint : public GameObject {
 public:
-    Waypoint(glm::vec3 pos, glm::vec3 scale, Shader* shdr, bool applySkinning, GameManager* gameMgr, float yaw = 0.0f)
-        : GameObject(pos, scale, yaw, shdr, applySkinning, gameMgr)
+    Waypoint(glm::vec3 pos, glm::vec3 scale, Shader* shdr, Shader* shadowMapShader, bool applySkinning, GameManager* gameMgr, float yaw = 0.0f)
+        : GameObject(pos, scale, yaw, shdr, shadowMapShader, applySkinning, gameMgr)
     {
         model = std::make_shared<GltfModel>();
 
@@ -26,7 +26,7 @@ public:
         ComputeAudioWorldTransform();
     }
 
-    void drawObject(glm::mat4 viewMat, glm::mat4 proj, glm::vec3 camPos) override;
+    void drawObject(glm::mat4 viewMat, glm::mat4 proj, bool shadowMap, glm::vec3 camPos) override;
 
     void ComputeAudioWorldTransform() override;
 

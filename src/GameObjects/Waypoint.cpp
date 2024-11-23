@@ -1,6 +1,6 @@
 #include "Waypoint.h"
 
-void Waypoint::drawObject(glm::mat4 viewMat, glm::mat4 proj, glm::vec3 camPos)
+void Waypoint::drawObject(glm::mat4 viewMat, glm::mat4 proj, bool shadowMap, glm::vec3 camPos)
 {
 	glm::mat4 modelMat = glm::mat4(1.0f);
 	modelMat = glm::translate(modelMat, position);
