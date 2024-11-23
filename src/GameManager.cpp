@@ -843,7 +843,7 @@ void GameManager::render(bool minimap, bool shadowMap, bool showShadowMap)
 		float ndcX = (ndcPos.x / window->GetWidth()) * 2.0f - 1.0f;
 		float ndcY = (ndcPos.y / window->GetHeight()) * 2.0f - 1.0f;
 
-		if (!minimap && !shadowMap && !showShadowMap)
+		if (!minimap && !shadowMap)
 			crosshair->DrawCrosshair(glm::vec2(0.0f, 0.5f));
 
 		glm::vec4 rayEndWorldSpace = glm::vec4(rayEnd, 1.0f);
