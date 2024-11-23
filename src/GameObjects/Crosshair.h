@@ -14,7 +14,7 @@ public:
 
 	bool LoadTexture(std::string textureFilename);
 
-    void drawObject(glm::mat4 viewMat, glm::mat4 proj, bool shadowMap, glm::vec3 camPos) override;
+    void drawObject(glm::mat4 viewMat, glm::mat4 proj, bool shadowMap, glm::mat4 lightSpaceMat, GLuint shadowMapTexture, glm::vec3 camPos) override;
 
 	glm::vec2 CalculateCrosshairPosition(glm::vec3 rayEnd, int screenWidth, int screenHeight,
         glm::mat4 proj, glm::mat4 view);

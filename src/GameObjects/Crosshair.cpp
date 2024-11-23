@@ -19,7 +19,7 @@ bool Crosshair::LoadTexture(std::string textureFilename)
 	return true;
 }
 
-void Crosshair::drawObject(glm::mat4 viewMat, glm::mat4 proj, bool shadowMap, glm::vec3 camPos)
+void Crosshair::drawObject(glm::mat4 viewMat, glm::mat4 proj, bool shadowMap,glm::mat4 lightSpaceMat, GLuint shadowMapTexture, glm::vec3 camPos)
 {
 	shader->use();
 	shader->setMat4("view", viewMat);

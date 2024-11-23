@@ -19,14 +19,14 @@ public:
     GameObject(glm::vec3 pos, glm::vec3 scale, float yaw, Shader* shdr, Shader* shadowMapShader, bool applySkinning, class GameManager* gameMgr)
         : position(pos), scale(scale), yaw(yaw), shader(shdr), shadowShader(shadowMapShader), toSkin(applySkinning), mGameManager(gameMgr)
     {
-        size_t uniformMatrixBufferSize = 3 * sizeof(glm::mat4);
+        size_t uniformMatrixBufferSize = 4 * sizeof(glm::mat4);
         mUniformBuffer.init(uniformMatrixBufferSize);
         Logger::log(1, "%s: matrix uniform buffer (size %i bytes) successfully created\n", __FUNCTION__, uniformMatrixBufferSize);
     }
 
     bool isSkinned() const { return toSkin; }
 
-    virtual void Draw(glm::mat4 viewMat, glm::mat4 proj, bool shadowMap) {
+    virtual void Draw(glm::mat4 viewMat, glm::mat4 proj, bool shadowMap, glm::mat4 lightSpaceMat, GLuint shadowMapTexture) {
         if (shadowMap)
         {
             shadowShader->use();
@@ -36,7 +36,7 @@ public:
             shader->use();
         }
 
-        drawObject(viewMat, proj, shadowMap);
+        drawObject(viewMat, proj, shadowMap, lightSpaceMat, shadowMapTexture);
     }
 
     virtual Shader* GetShader() const { return shader; }
@@ -102,7 +102,7 @@ public:
     virtual void HasKilledPlayer() = 0;
 
 protected:
-    virtual void drawObject(glm::mat4 viewMat, glm::mat4 proj, bool shadowMap, glm::vec3 camPos = glm::vec3(0.0f, 0.0f, 0.0f)) = 0;
+    virtual void drawObject(glm::mat4 viewMat, glm::mat4 proj, bool shadowMap, glm::mat4 lightSpaceMatrix, GLuint shadowMapTexture, glm::vec3 camPos = glm::vec3(0.0f, 0.0f, 0.0f)) = 0;
 
     glm::vec3 scale;
     bool mRecomputeWorldTransform = true;

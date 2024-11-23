@@ -9,7 +9,7 @@ DirLight dirLight = {
 		glm::vec3(-3.0f, -2.0f, 3.0f),
 
         glm::vec3(0.15f, 0.2f, 0.25f),
-		glm::vec3(0.8, 0.7f, 0.7f),
+		glm::vec3(2.0f),
         glm::vec3(0.8f, 0.9f, 1.0f)
 };
 
@@ -641,15 +641,15 @@ void GameManager::render(bool minimap, bool shadowMap, bool showShadowMap)
             continue;
 		if (minimap)
 		{
-			renderer->draw(obj, minimapView, minimapProjection, camera->Position, false);
+			renderer->draw(obj, minimapView, minimapProjection, camera->Position, false, lightSpaceMatrix);
 		}
 		else if (shadowMap)
 		{
-			renderer->draw(obj, lightSpaceView, lightSpaceProjection, camera->Position, true);
+			renderer->draw(obj, lightSpaceView, lightSpaceProjection, camera->Position, true, lightSpaceMatrix);
 		}
 		else
 		{
-			renderer->draw(obj, view, projection, camera->Position, false);
+			renderer->draw(obj, view, projection, camera->Position, false, lightSpaceMatrix);
 		}
 	}
 
@@ -672,15 +672,15 @@ void GameManager::render(bool minimap, bool shadowMap, bool showShadowMap)
 
 	if (minimap)
 	{
-		gameGrid->drawGrid(gridShader, minimapView, minimapProjection, camera->Position, false);
+		gameGrid->drawGrid(gridShader, minimapView, minimapProjection, camera->Position, false, lightSpaceMatrix, renderer->GetShadowMapTexture());
 	}
 	else if (shadowMap)
 	{
-		gameGrid->drawGrid(shadowMapShader, lightSpaceView, lightSpaceProjection, camera->Position, true);
+		gameGrid->drawGrid(shadowMapShader, lightSpaceView, lightSpaceProjection, camera->Position, true, lightSpaceMatrix, renderer->GetShadowMapTexture());
 	}
 	else
 	{
-		gameGrid->drawGrid(gridShader, view, projection, camera->Position, false);
+		gameGrid->drawGrid(gridShader, view, projection, camera->Position, false, lightSpaceMatrix, renderer->GetShadowMapTexture());
 	}
 
 	if (camSwitchedToAim)
@@ -707,15 +707,15 @@ void GameManager::render(bool minimap, bool shadowMap, bool showShadowMap)
 			enemyLine->UpdateVertexBuffer(enemy->GetEnemyShootPos(), enemyRayEnd);
 			if (minimap)
 			{
-				enemyLine->DrawLine(minimapView, minimapProjection, enemyLineColor, false);
+				enemyLine->DrawLine(minimapView, minimapProjection, enemyLineColor, lightSpaceMatrix, renderer->GetShadowMapTexture(), false);
 			}
 			else if (shadowMap)
 			{
-				enemyLine->DrawLine(lightSpaceView, lightSpaceProjection, enemyLineColor, true);
+				enemyLine->DrawLine(lightSpaceView, lightSpaceProjection, enemyLineColor, lightSpaceMatrix, renderer->GetShadowMapTexture(), true);
 			}
 			else
 			{
-				enemyLine->DrawLine(view, projection, enemyLineColor, false);
+				enemyLine->DrawLine(view, projection, enemyLineColor, lightSpaceMatrix, renderer->GetShadowMapTexture(), false);
 			}
 		}
 	}
@@ -738,15 +738,15 @@ void GameManager::render(bool minimap, bool shadowMap, bool showShadowMap)
 			enemy2Line->UpdateVertexBuffer(enemy2->GetEnemyShootPos(), enemy2RayEnd);
 			if (minimap)
 			{
-				enemy2Line->DrawLine(minimapView, minimapProjection, enemy2LineColor, false);
+				enemy2Line->DrawLine(minimapView, minimapProjection, enemy2LineColor, lightSpaceMatrix, renderer->GetShadowMapTexture(), false);
 			}
 			else if (shadowMap)
 			{
-				enemy2Line->DrawLine(lightSpaceView, lightSpaceProjection, enemy2LineColor, true);
+				enemy2Line->DrawLine(lightSpaceView, lightSpaceProjection, enemy2LineColor, lightSpaceMatrix, renderer->GetShadowMapTexture(), true);
 			}
 			else
 			{
-				enemy2Line->DrawLine(view, projection, enemy2LineColor, false);
+				enemy2Line->DrawLine(view, projection, enemy2LineColor, lightSpaceMatrix, renderer->GetShadowMapTexture(), false);
 			}
 		}
 	}
@@ -771,15 +771,15 @@ void GameManager::render(bool minimap, bool shadowMap, bool showShadowMap)
 			enemy3Line->UpdateVertexBuffer(enemy3->GetEnemyShootPos(), enemy3RayEnd);
 			if (minimap)
 			{
-				enemy3Line->DrawLine(minimapView, minimapProjection, enemy3LineColor, false);
+				enemy3Line->DrawLine(minimapView, minimapProjection, enemy3LineColor, lightSpaceMatrix, renderer->GetShadowMapTexture(), false);
 			}
 			else if (shadowMap)
 			{
-				enemy3Line->DrawLine(lightSpaceView, lightSpaceProjection, enemy3LineColor, true);
+				enemy3Line->DrawLine(lightSpaceView, lightSpaceProjection, enemy3LineColor, lightSpaceMatrix, renderer->GetShadowMapTexture(), true);
 			}
 			else
 			{
-				enemy3Line->DrawLine(view, projection, enemy3LineColor, false);
+				enemy3Line->DrawLine(view, projection, enemy3LineColor, lightSpaceMatrix, renderer->GetShadowMapTexture(), false);
 			}
 		}
 	}
@@ -803,15 +803,15 @@ void GameManager::render(bool minimap, bool shadowMap, bool showShadowMap)
 			enemy4Line->UpdateVertexBuffer(enemy4->GetEnemyShootPos(), enemy4RayEnd);
 			if (minimap)
 			{
-				enemy4Line->DrawLine(minimapView, minimapProjection, enemy4LineColor, false);
+				enemy4Line->DrawLine(minimapView, minimapProjection, enemy4LineColor, lightSpaceMatrix, renderer->GetShadowMapTexture(), false);
 			}
 			else if (shadowMap)
 			{
-				enemy4Line->DrawLine(lightSpaceView, lightSpaceProjection, enemy4LineColor, true);
+				enemy4Line->DrawLine(lightSpaceView, lightSpaceProjection, enemy4LineColor, lightSpaceMatrix, renderer->GetShadowMapTexture(), true);
 			}
 			else
 			{
-				enemy4Line->DrawLine(view, projection, enemy4LineColor, false);
+				enemy4Line->DrawLine(view, projection, enemy4LineColor, lightSpaceMatrix, renderer->GetShadowMapTexture(), false);
 			}
 		}
 	}
@@ -860,15 +860,15 @@ void GameManager::render(bool minimap, bool shadowMap, bool showShadowMap)
 
 		if (minimap)
 		{
-			line->DrawLine(minimapView, minimapProjection, lineColor, false);
+			line->DrawLine(minimapView, minimapProjection, lineColor, lightSpaceMatrix, renderer->GetShadowMapTexture(), false);
 		}
 		else if (shadowMap)
 		{
-			line->DrawLine(lightSpaceView, lightSpaceProjection, lineColor, true);
+			line->DrawLine(lightSpaceView, lightSpaceProjection, lineColor, lightSpaceMatrix, renderer->GetShadowMapTexture(), true);
 		}
 		else
 		{
-			line->DrawLine(view, projection, lineColor, false);
+			line->DrawLine(view, projection, lineColor, lightSpaceMatrix, renderer->GetShadowMapTexture(), false);
 		}
 
 		glEnable(GL_DEPTH_TEST);
@@ -876,7 +876,7 @@ void GameManager::render(bool minimap, bool shadowMap, bool showShadowMap)
 
 	}
 	
-	if (!minimap && !shadowMap && !showShadowMap)
+	if (!minimap && !shadowMap)
 	{
 		renderer->drawMinimap(minimapQuad, &minimapShader);
 	}

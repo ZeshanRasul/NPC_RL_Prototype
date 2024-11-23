@@ -93,7 +93,7 @@ void Renderer::setScene(glm::mat4 viewMat, glm::mat4 proj, glm::mat4 cmapView, D
 	sun = light;
 }
 
-void Renderer::draw(GameObject* gameObj, glm::mat4 viewMat, glm::mat4 proj, glm::vec3 camPos, bool shadowMap)
+void Renderer::draw(GameObject* gameObj, glm::mat4 viewMat, glm::mat4 proj, glm::vec3 camPos, bool shadowMap, glm::mat4 lightSpaceMat)
 {
 	Shader* shader;
 	if (shadowMap)
@@ -112,7 +112,7 @@ void Renderer::draw(GameObject* gameObj, glm::mat4 viewMat, glm::mat4 proj, glm:
 	shader->setVec3("dirLight.specular", sun.specular);
 	shader->setVec3("lightPos", sun.direction);
 	shader->setVec3("cameraPos", camPos);
-	gameObj->Draw(viewMat, proj, shadowMap);
+	gameObj->Draw(viewMat, proj, shadowMap, lightSpaceMat, shadowMapTex);
 }
 
 void Renderer::drawCubemap(Cubemap* cubemap)

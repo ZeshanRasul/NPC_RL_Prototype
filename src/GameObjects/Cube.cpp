@@ -22,7 +22,7 @@ bool Cube::LoadTexture(std::string textureFilename, Texture* tex)
 	return true;
 }
 
-void Cube::drawObject(glm::mat4 viewMat, glm::mat4 proj, bool shadowMap, glm::vec3 camPos)
+void Cube::drawObject(glm::mat4 viewMat, glm::mat4 proj, bool shadowMap, glm::mat4 lightSpaceMat, GLuint shadowMapTexture, glm::vec3 camPos)
 {
 	glm::mat4 modelMat = glm::mat4(1.0f);
 	modelMat = glm::translate(modelMat, position);
@@ -32,6 +32,7 @@ void Cube::drawObject(glm::mat4 viewMat, glm::mat4 proj, bool shadowMap, glm::ve
 	matrixData.push_back(viewMat);
 	matrixData.push_back(proj);
 	matrixData.push_back(modelMat);
+	matrixData.push_back(lightSpaceMat);
 	mUniformBuffer.uploadUboData(matrixData, 0);
 
 	if (shadowMap)
@@ -55,6 +56,9 @@ void Cube::drawObject(glm::mat4 viewMat, glm::mat4 proj, bool shadowMap, glm::ve
 		shader->setInt("roughnessMap", 3);
 		mAO.bind(4);
 		shader->setInt("aoMap", 4);
+		glActiveTexture(GL_TEXTURE5);
+		glBindTexture(GL_TEXTURE_2D, shadowMapTexture);
+		shader->setInt("shadowMap", 5);
 		glBindVertexArray(mVAO);
 		glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
 		glBindVertexArray(0);

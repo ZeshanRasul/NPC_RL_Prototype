@@ -1,8 +1,10 @@
 #version 330 core
 out vec4 FragColor;
+
 in vec2 TexCoords;
 in vec3 WorldPos;
 in vec3 Normal;
+in vec4 FragPosLightSpace;
 
 // material parameters
 uniform sampler2D albedoMap;
@@ -11,6 +13,8 @@ uniform sampler2D metallicMap;
 uniform sampler2D roughnessMap;
 uniform sampler2D aoMap;
 uniform sampler2D emissiveMap;
+
+uniform sampler2D shadowMap;
 
 struct DirLight {
 	vec3 direction;
@@ -25,6 +29,20 @@ uniform DirLight dirLight;
 uniform vec3 cameraPos;
 
 const float PI = 3.14159265359;
+
+float ShadowCalculation(vec4 fragPosLightSpace)
+{
+    vec3 projCoords = fragPosLightSpace.xyz / fragPosLightSpace.w;
+    projCoords = projCoords * 0.5 + 0.5;
+    
+    float closestDepth = texture(shadowMap, projCoords.xy).r;
+
+    float currentDepth = projCoords.z;
+
+    float shadow = currentDepth > closestDepth  ? 1.0 : 0.0;
+
+    return shadow;
+}
 
 vec3 getNormalFromMap()
 {
@@ -100,7 +118,7 @@ void main()
 
     // reflectance equation
     vec3 Lo = vec3(0.0);
-    for(int i = 0; i < 4; ++i) 
+    for(int i = 0; i < 1; ++i) 
     {
         // calculate per-light radiance
         vec3 L = normalize(-dirLight.direction);
@@ -130,8 +148,10 @@ void main()
         // scale light by NdotL
         float NdotL = max(dot(N, L), 0.0);        
 
+        float shadow = ShadowCalculation(FragPosLightSpace);
+
         // add to outgoing radiance Lo
-        Lo += (kD * albedo / PI + specular) * radiance * NdotL;
+        Lo += (1.0 - shadow) * ((kD * albedo / PI + specular) * radiance * NdotL);
     }   
     
     vec3 ambient = vec3(0.03) * albedo * ao;

@@ -54,7 +54,7 @@ void Grid::initializeGrid() {
         }
     }
 
-    size_t uniformMatrixBufferSize = 3 * sizeof(glm::mat4);
+    size_t uniformMatrixBufferSize = 4 * sizeof(glm::mat4);
     mGridUniformBuffer.init(uniformMatrixBufferSize);
     Logger::log(1, "%s: matrix uniform buffer (size %i bytes) successfully created\n", __FUNCTION__, uniformMatrixBufferSize);
     uniformMatrixBufferSize = 1 * sizeof(glm::vec3);
@@ -63,7 +63,7 @@ void Grid::initializeGrid() {
 
 }
 
-void Grid::drawGrid(Shader& gridShader, glm::mat4 viewMat, glm::mat4 projMat, glm::vec3 camPos, bool shadowMap) 
+void Grid::drawGrid(Shader& gridShader, glm::mat4 viewMat, glm::mat4 projMat, glm::vec3 camPos, bool shadowMap, glm::mat4 lightSpaceMat, GLuint shadowMapTexture)
 {
 //    glEnable(GL_BLEND);
 //    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -94,6 +94,9 @@ void Grid::drawGrid(Shader& gridShader, glm::mat4 viewMat, glm::mat4 projMat, gl
 		gridShader.setInt("aoMap", 4);
 		grid[0][0].mEmissive.bind(5);
 		gridShader.setInt("emissiveMap", 5);
+		glActiveTexture(GL_TEXTURE6);
+		glBindTexture(GL_TEXTURE_2D, shadowMapTexture);
+        gridShader.setInt("shadowMap", 6);
     }
     for (int i = 0; i < GRID_SIZE; ++i) {
         for (int j = 0; j < GRID_SIZE; ++j) {
@@ -104,6 +107,7 @@ void Grid::drawGrid(Shader& gridShader, glm::mat4 viewMat, glm::mat4 projMat, gl
             matrixData.push_back(viewMat);
             matrixData.push_back(projMat);
             matrixData.push_back(model);
+            matrixData.push_back(lightSpaceMat);
             mGridUniformBuffer.uploadUboData(matrixData, 0);
 			glm::vec3 cellColor = grid[i][j].GetColor();
             gridShader.setVec3("color", cellColor);

@@ -22,7 +22,7 @@ void Enemy::SetUpModel()
     Logger::log(1, "%s: glTF joint dual quaternions shader storage buffer (size %i bytes) successfully created\n", __FUNCTION__, enemyModelJointDualQuatBufferSize);
 }
 
-void Enemy::drawObject(glm::mat4 viewMat, glm::mat4 proj, bool shadowMap, glm::vec3 camPos)
+void Enemy::drawObject(glm::mat4 viewMat, glm::mat4 proj, bool shadowMap, glm::mat4 lightSpaceMat, GLuint shadowMapTexture, glm::vec3 camPos)
 {
 	glm::mat4 modelMat = glm::mat4(1.0f);
 	modelMat = glm::translate(modelMat, position);
@@ -32,6 +32,7 @@ void Enemy::drawObject(glm::mat4 viewMat, glm::mat4 proj, bool shadowMap, glm::v
     matrixData.push_back(viewMat);
     matrixData.push_back(proj);
     matrixData.push_back(modelMat);
+	matrixData.push_back(lightSpaceMat);
     mUniformBuffer.uploadUboData(matrixData, 0);
 
     if (shadowMap)
@@ -57,6 +58,9 @@ void Enemy::drawObject(glm::mat4 viewMat, glm::mat4 proj, bool shadowMap, glm::v
 		shader->setInt("aoMap", 4);
 		mEmissive.bind(5);
 		shader->setInt("emissiveMap", 5);
+		glActiveTexture(GL_TEXTURE6);
+		glBindTexture(GL_TEXTURE_2D, shadowMapTexture);
+		shader->setInt("shadowMap", 6);
 		model->draw(mTex);
 		aabb->render(viewMat, proj, modelMat, aabbColor);
     }

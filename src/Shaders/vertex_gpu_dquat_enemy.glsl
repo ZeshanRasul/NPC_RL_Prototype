@@ -9,11 +9,13 @@ layout (location = 6) in vec3 aTangent;
 out vec2 TexCoords;
 out vec3 WorldPos;
 out vec3 Normal;
+out vec4 FragPosLightSpace;
 
 layout (std140, binding = 0) uniform Matrices {
     mat4 view;
     mat4 projection;
 	mat4 model;
+    mat4 lightSpaceMatrix;
 };
 
 layout (std430, binding = 2) readonly buffer JointDualQuats {
@@ -80,7 +82,8 @@ void main() {
     WorldPos = vec3(model * skinMatrix * vec4(aPos, 1.0));
     mat3 combinedNormalMatrix = transpose(inverse(mat3(model * skinMatrix)));
     Normal = normalize(combinedNormalMatrix * aNormal);
-	
+	FragPosLightSpace = lightSpaceMatrix * vec4(WorldPos, 1.0);
+
     gl_Position = projection * view * vec4(WorldPos, 1.0);
     TexCoords = aTexCoord;
 

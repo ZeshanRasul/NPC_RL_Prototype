@@ -1,7 +1,7 @@
 #include "Player.h"
 #include "GameManager.h"
 
-void Player::drawObject(glm::mat4 viewMat, glm::mat4 proj, bool shadowMap, glm::vec3 camPos)
+void Player::drawObject(glm::mat4 viewMat, glm::mat4 proj, bool shadowMap, glm::mat4 lightSpaceMat, GLuint shadowMapTexture, glm::vec3 camPos)
 {
     glm::mat4 modelMat = glm::mat4(1.0f);
     modelMat = glm::translate(modelMat, position);
@@ -11,6 +11,7 @@ void Player::drawObject(glm::mat4 viewMat, glm::mat4 proj, bool shadowMap, glm::
     matrixData.push_back(viewMat);
     matrixData.push_back(proj);
     matrixData.push_back(modelMat);
+	matrixData.push_back(lightSpaceMat);
     mUniformBuffer.uploadUboData(matrixData, 0);
 
     mPlayerDualQuatSSBuffer.uploadSsboData(model->getJointDualQuats(), 2);
@@ -52,6 +53,9 @@ void Player::drawObject(glm::mat4 viewMat, glm::mat4 proj, bool shadowMap, glm::
 		shader->setInt("roughnessMap", 3);
 		mAO.bind(4);
 		shader->setInt("aoMap", 4);
+		glActiveTexture(GL_TEXTURE5);
+		glBindTexture(GL_TEXTURE_2D, shadowMapTexture);
+		shader->setInt("shadowMap", 5);
 		model->draw(mTex);
 		aabb->render(viewMat, proj, modelMat, aabbColor);
     }

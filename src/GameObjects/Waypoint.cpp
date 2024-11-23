@@ -1,6 +1,6 @@
 #include "Waypoint.h"
 
-void Waypoint::drawObject(glm::mat4 viewMat, glm::mat4 proj, bool shadowMap, glm::vec3 camPos)
+void Waypoint::drawObject(glm::mat4 viewMat, glm::mat4 proj, bool shadowMap, glm::mat4 lightSpaceMat, GLuint shadowMapTexture, glm::vec3 camPos)
 {
 	glm::mat4 modelMat = glm::mat4(1.0f);
 	modelMat = glm::translate(modelMat, position);
@@ -10,6 +10,7 @@ void Waypoint::drawObject(glm::mat4 viewMat, glm::mat4 proj, bool shadowMap, glm
 	matrixData.push_back(viewMat);
 	matrixData.push_back(proj);
 	matrixData.push_back(modelMat);
+    matrixData.push_back(lightSpaceMat);
 	mUniformBuffer.uploadUboData(matrixData, 0);
 
 // Draw TODO: Update for GLTF

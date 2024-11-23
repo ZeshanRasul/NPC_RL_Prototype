@@ -26,7 +26,7 @@ public:
         ComputeAudioWorldTransform();
     }
 
-    void drawObject(glm::mat4 viewMat, glm::mat4 proj, bool shadowMap, glm::vec3 camPos) override;
+    void drawObject(glm::mat4 viewMat, glm::mat4 proj, bool shadowMap, glm::mat4 lightSpaceMat, GLuint shadowMapTexture, glm::vec3 camPos) override;
 
     void ComputeAudioWorldTransform() override;
 

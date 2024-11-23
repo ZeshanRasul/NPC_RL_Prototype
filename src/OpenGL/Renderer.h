@@ -17,7 +17,7 @@ public:
 	void SetUpShadowMapFBO(unsigned int width, unsigned int height);
 
 	void setScene(glm::mat4 viewMat, glm::mat4 proj, glm::mat4 cmapView, DirLight light);
-	void draw(GameObject* gameObj, glm::mat4 viewMat, glm::mat4 proj, glm::vec3 camPos, bool shadowMap);
+	void draw(GameObject* gameObj, glm::mat4 viewMat, glm::mat4 proj, glm::vec3 camPos, bool shadowMap, glm::mat4 lightSpaceMat);
 	void drawCubemap(Cubemap* cubemap);
 	void drawMinimap(Quad* minimapQuad, Shader* minimapShader);
 	void drawShadowMap(Quad* shadowMapQuad, Shader* shadowMapShader);
@@ -26,6 +26,8 @@ public:
 	void unbindMinimapFBO();
 	void bindShadowMapFBO(unsigned int width, unsigned int height);
 	void unbindShadowMapFBO();
+
+	GLuint GetShadowMapTexture() { return shadowMapTex; }
 
 	void ResetViewport(unsigned int width, unsigned int height);
 	void clear();
