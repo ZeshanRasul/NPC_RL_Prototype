@@ -194,8 +194,8 @@ private:
 
     int screenWidth;
 	int screenHeight;
-	const int SHADOW_WIDTH = 1024;
-	const int SHADOW_HEIGHT = 1024;
+	const int SHADOW_WIDTH = 4096;
+	const int SHADOW_HEIGHT = 4096;
 
 	float orthoLeft = -90.0f;
 	float orthoRight = 90.0f;
