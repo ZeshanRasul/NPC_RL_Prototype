@@ -9,5 +9,12 @@ uniform float alpha;
 
 void main() {
     vec4 texColor = texture(muzzleTexture, TexCoords);
-    FragColor = vec4(texColor.rgb * tint.rgb, texColor.a * alpha);
+    //FragColor = vec4(texColor.rgb * tint, texColor.a * alpha);
+
+    if (texColor.a < 0.1) {
+		discard;
+	}
+
+    FragColor = texColor;
+    //FragColor = vec4(texColor.rgb, texColor.a * alpha);
 }

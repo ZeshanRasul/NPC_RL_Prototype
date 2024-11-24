@@ -57,7 +57,10 @@ void Player::drawObject(glm::mat4 viewMat, glm::mat4 proj, bool shadowMap, glm::
 		glBindTexture(GL_TEXTURE_2D, shadowMapTexture);
 		shader->setInt("shadowMap", 5);
 		model->draw(mTex);
+
+#ifdef _DEBUG
 		aabb->render(viewMat, proj, modelMat, aabbColor);
+#endif
     }
 
 }

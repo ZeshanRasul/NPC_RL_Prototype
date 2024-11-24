@@ -208,7 +208,7 @@ public:
 		destAnimSet = true;
 	}
 
-    glm::vec3 GetEnemyShootPos() const { return enemyShootPos; }
+    glm::vec3 GetEnemyShootPos() { return getPosition() + glm::vec3(0.0f, 4.5f, 0.0f) + (4.0f * Front); }
     glm::vec3 GetEnemyShootDir() const { return enemyShootDir; }
 	glm::vec3 GetEnemyHitPoint() const { return enemyHitPoint; }
 	bool GetEnemyHasShot() const { return enemyHasShot; }

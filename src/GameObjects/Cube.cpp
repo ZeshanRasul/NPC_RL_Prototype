@@ -63,7 +63,10 @@ void Cube::drawObject(glm::mat4 viewMat, glm::mat4 proj, bool shadowMap, glm::ma
 		glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
 		glBindVertexArray(0);
 		mTex.unbind();
+
+#ifdef _DEBUG
 		aabb->render(viewMat, proj, modelMat, aabbColor);
+#endif
 	}
 }
 

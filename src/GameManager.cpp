@@ -124,6 +124,27 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 	playerMuzzleFlashQuad->SetShader(&playerMuzzleFlashShader);
 	playerMuzzleFlashQuad->LoadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/muzzleflash.png");
 
+	enemyMuzzleFlashQuad = new Quad();
+	enemyMuzzleFlashQuad->SetUpVAO(true);
+	enemyMuzzleFlashQuad->SetShader(&playerMuzzleFlashShader);
+	enemyMuzzleFlashQuad->LoadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/muzzleflash.png");
+
+	enemy2MuzzleFlashQuad = new Quad();
+	enemy2MuzzleFlashQuad->SetUpVAO(true);
+	enemy2MuzzleFlashQuad->SetShader(&playerMuzzleFlashShader);
+	enemy2MuzzleFlashQuad->LoadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/muzzleflash.png");
+
+	enemy3MuzzleFlashQuad = new Quad();
+	enemy3MuzzleFlashQuad->SetUpVAO(true);
+	enemy3MuzzleFlashQuad->SetShader(&playerMuzzleFlashShader);
+	enemy3MuzzleFlashQuad->LoadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/muzzleflash.png");
+
+	enemy4MuzzleFlashQuad = new Quad();
+	enemy4MuzzleFlashQuad->SetUpVAO(true);
+	enemy4MuzzleFlashQuad->SetShader(&playerMuzzleFlashShader);
+	enemy4MuzzleFlashQuad->LoadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/muzzleflash.png");
+
+
     player = new Player(gameGrid->snapToGrid(glm::vec3(90.0f, 0.0f, 25.0f)), glm::vec3(3.0f), &playerShader, &playerShadowMapShader, true, this);
     player->aabbShader = &aabbShader;
 
@@ -698,6 +719,35 @@ void GameManager::render(bool minimap, bool shadowMap, bool showShadowMap)
 	{
 		glm::vec3 enemyRayEnd = glm::vec3(0.0f);
 
+		if (enemy->GetEnemyHasShot())
+		{
+			float enemyMuzzleCurrentTime = glfwGetTime();
+
+			if (renderEnemyMuzzleFlash && enemyMuzzleFlashStartTime + enemyMuzzleFlashDuration > enemyMuzzleCurrentTime)
+			{
+				renderEnemyMuzzleFlash = false;
+			}
+			else
+			{
+				renderEnemyMuzzleFlash = true;
+				enemyMuzzleFlashStartTime = enemyMuzzleCurrentTime;
+			}
+
+			if (renderEnemyMuzzleFlash)
+			{
+				enemyMuzzleTimeSinceStart = enemyMuzzleCurrentTime - enemyMuzzleFlashStartTime;
+				enemyMuzzleAlpha = glm::max(0.0f, 1.0f - (enemyMuzzleTimeSinceStart / enemyMuzzleFlashDuration));
+				enemyMuzzleFlashScale = 1.0f + (0.5f * enemyMuzzleAlpha);
+
+				enemyMuzzleModel = glm::mat4(1.0f);
+
+				enemyMuzzleModel = glm::translate(enemyMuzzleModel, enemy->GetEnemyShootPos());
+				enemyMuzzleModel = glm::rotate(enemyMuzzleModel, enemy->yaw, glm::vec3(0.0f, 1.0f, 0.0f));
+				enemyMuzzleModel = glm::scale(enemyMuzzleModel, glm::vec3(enemyMuzzleFlashScale, enemyMuzzleFlashScale, 1.0f));
+				enemyMuzzleFlashQuad->Draw3D(enemyMuzzleTint, enemyMuzzleAlpha, projection, view, enemyMuzzleModel);
+			}
+		}
+
 		if (enemy->GetEnemyHasShot() && enemy->GetEnemyDebugRayRenderTimer() > 0.0f)
 		{
 			glm::vec3 enemyLineColor = glm::vec3(1.0f, 1.0f, 0.0f);
@@ -731,6 +781,36 @@ void GameManager::render(bool minimap, bool shadowMap, bool showShadowMap)
 	if (!enemy2->isDestroyed)
 	{
 		glm::vec3 enemy2RayEnd = glm::vec3(0.0f);
+
+		if (enemy2->GetEnemyHasShot())
+		{
+			float enemy2MuzzleCurrentTime = glfwGetTime();
+
+			if (renderEnemy2MuzzleFlash && enemy2MuzzleFlashStartTime + enemy2MuzzleFlashDuration > enemy2MuzzleCurrentTime)
+			{
+				renderEnemy2MuzzleFlash = false;
+			}
+			else
+			{
+				renderEnemy2MuzzleFlash = true;
+				enemy2MuzzleFlashStartTime = enemy2MuzzleCurrentTime;
+			}
+
+			if (renderEnemy2MuzzleFlash)
+			{
+				enemy2MuzzleTimeSinceStart = enemy2MuzzleCurrentTime - enemy2MuzzleFlashStartTime;
+				enemy2MuzzleAlpha = glm::max(0.0f, 1.0f - (enemy2MuzzleTimeSinceStart / enemy2MuzzleFlashDuration));
+				enemy2MuzzleFlashScale = 1.0f + (0.5f * enemy2MuzzleAlpha);
+
+				enemy2MuzzleModel = glm::mat4(1.0f);
+
+				enemy2MuzzleModel = glm::translate(enemy2MuzzleModel, enemy2->GetEnemyShootPos());
+				enemy2MuzzleModel = glm::rotate(enemy2MuzzleModel, enemy2->yaw, glm::vec3(0.0f, 1.0f, 0.0f));
+				enemy2MuzzleModel = glm::scale(enemy2MuzzleModel, glm::vec3(enemy2MuzzleFlashScale, enemy2MuzzleFlashScale, 1.0f));
+				enemy2MuzzleFlashQuad->Draw3D(enemy2MuzzleTint, enemy2MuzzleAlpha, projection, view, enemy2MuzzleModel);
+			}
+		}
+
 		if (enemy2->GetEnemyHasShot() && enemy2->GetEnemyDebugRayRenderTimer() > 0.0f)
 		{
 			glm::vec3 enemy2LineColor = glm::vec3(1.0f, 1.0f, 0.0f);
@@ -762,6 +842,35 @@ void GameManager::render(bool minimap, bool shadowMap, bool showShadowMap)
 	if (!enemy3->isDestroyed)
 	{
 		glm::vec3 enemy3RayEnd = glm::vec3(0.0f);
+
+		if (enemy3->GetEnemyHasShot())
+		{
+			float enemy3MuzzleCurrentTime = glfwGetTime();
+
+			if (renderEnemy3MuzzleFlash && enemy3MuzzleFlashStartTime + enemy3MuzzleFlashDuration > enemy3MuzzleCurrentTime)
+			{
+				renderEnemy3MuzzleFlash = false;
+			}
+			else
+			{
+				renderEnemy3MuzzleFlash = true;
+				enemy3MuzzleFlashStartTime = enemy3MuzzleCurrentTime;
+			}
+
+			if (renderEnemy3MuzzleFlash)
+			{
+				enemy3MuzzleTimeSinceStart = enemy3MuzzleCurrentTime - enemy3MuzzleFlashStartTime;
+				enemy3MuzzleAlpha = glm::max(0.0f, 1.0f - (enemy3MuzzleTimeSinceStart / enemy3MuzzleFlashDuration));
+				enemy3MuzzleFlashScale = 1.0f + (0.5f * enemy3MuzzleAlpha);
+
+				enemy3MuzzleModel = glm::mat4(1.0f);
+
+				enemy3MuzzleModel = glm::translate(enemy3MuzzleModel, enemy3->GetEnemyShootPos());
+				enemy3MuzzleModel = glm::rotate(enemy3MuzzleModel, enemy3->yaw, glm::vec3(0.0f, 1.0f, 0.0f));
+				enemy3MuzzleModel = glm::scale(enemy3MuzzleModel, glm::vec3(enemy3MuzzleFlashScale, enemy3MuzzleFlashScale, 1.0f));
+				enemy3MuzzleFlashQuad->Draw3D(enemy3MuzzleTint, enemy3MuzzleAlpha, projection, view, enemy3MuzzleModel);
+			}
+		}
 
 		if (enemy3->GetEnemyHasShot() && enemy3->GetEnemyDebugRayRenderTimer() > 0.0f)
 		{
@@ -795,6 +904,35 @@ void GameManager::render(bool minimap, bool shadowMap, bool showShadowMap)
 	if (!enemy4->isDestroyed)
 	{
 		glm::vec3 enemy4RayEnd = glm::vec3(0.0f);
+
+		if (enemy4->GetEnemyHasShot())
+		{
+			float enemy4MuzzleCurrentTime = glfwGetTime();
+
+			if (renderEnemy4MuzzleFlash && enemy4MuzzleFlashStartTime + enemy4MuzzleFlashDuration > enemy4MuzzleCurrentTime)
+			{
+				renderEnemy4MuzzleFlash = false;
+			}
+			else
+			{
+				renderEnemy4MuzzleFlash = true;
+				enemy4MuzzleFlashStartTime = enemy4MuzzleCurrentTime;
+			}
+
+			if (renderEnemy4MuzzleFlash)
+			{
+				enemy4MuzzleTimeSinceStart = enemy4MuzzleCurrentTime - enemy4MuzzleFlashStartTime;
+				enemy4MuzzleAlpha = glm::max(0.0f, 1.0f - (enemy4MuzzleTimeSinceStart / enemy4MuzzleFlashDuration));
+				enemy4MuzzleFlashScale = 1.0f + (0.5f * enemy4MuzzleAlpha);
+
+				enemy4MuzzleModel = glm::mat4(1.0f);
+
+				enemy4MuzzleModel = glm::translate(enemy4MuzzleModel, enemy4->GetEnemyShootPos());
+				enemy4MuzzleModel = glm::rotate(enemy4MuzzleModel, enemy4->yaw, glm::vec3(0.0f, 1.0f, 0.0f));
+				enemy4MuzzleModel = glm::scale(enemy4MuzzleModel, glm::vec3(enemy4MuzzleFlashScale, enemy4MuzzleFlashScale, 1.0f));
+				enemy4MuzzleFlashQuad->Draw3D(enemy4MuzzleTint, enemy4MuzzleAlpha, projection, view, enemy4MuzzleModel);
+			}
+		}
 
 		if (enemy4->GetEnemyHasShot() && enemy4->GetEnemyDebugRayRenderTimer() > 0.0f)
 		{
