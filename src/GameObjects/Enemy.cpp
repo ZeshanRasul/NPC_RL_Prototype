@@ -38,6 +38,7 @@ void Enemy::drawObject(glm::mat4 viewMat, glm::mat4 proj, bool shadowMap, glm::m
     if (shadowMap)
     {
 		shadowShader->use();
+		mEnemyDualQuatSSBuffer.uploadSsboData(model->getJointDualQuats(), 2);
 		model->draw(mTex);
     }
     else

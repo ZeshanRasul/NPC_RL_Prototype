@@ -254,6 +254,8 @@ private:
     Shader cubemapShader{};
     Shader minimapShader{};
     Shader shadowMapShader{};
+	Shader playerShadowMapShader{};
+	Shader enemyShadowMapShader{};
     Shader shadowMapQuadShader{};
 
     ShaderStorageBuffer mPlayerSSBuffer{};

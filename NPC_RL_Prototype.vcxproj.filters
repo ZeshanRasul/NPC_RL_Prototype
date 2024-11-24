@@ -359,6 +359,8 @@
     <None Include="src\Shaders\shadow_map_fragment.glsl" />
     <None Include="src\Shaders\shadow_map_quad_vertex.glsl" />
     <None Include="src\Shaders\shadow_map_quad_fragment.glsl" />
+    <None Include="src\Shaders\shadow_map_player_vertex.glsl" />
+    <None Include="src\Shaders\shadow_map_enemy_vertex.glsl" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="src\Assets\Models\backpack\specular.jpg">
