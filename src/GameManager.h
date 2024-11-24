@@ -236,6 +236,7 @@ private:
 	Cube* cover12;
 	Quad* minimapQuad;
     Quad* shadowMapQuad;
+    Quad* playerMuzzleFlashQuad;
 
     InputManager* inputManager;
 	AudioSystem* audioSystem;
@@ -257,6 +258,7 @@ private:
 	Shader playerShadowMapShader{};
 	Shader enemyShadowMapShader{};
     Shader shadowMapQuadShader{};
+	Shader playerMuzzleFlashShader{};
 
     ShaderStorageBuffer mPlayerSSBuffer{};
     ShaderStorageBuffer mEnemySSBuffer{};
@@ -285,6 +287,15 @@ private:
     int enemySkeletonSplitNode = 0;
     std::string enemySkeletonSplitNodeName = "None";
 
+
+    bool renderPlayerMuzzleFlash = false;
+	float playerMuzzleFlashStartTime = 0.0f;
+    float playerMuzzleTimeSinceStart = 0.0f;
+    float playerMuzzleFlashDuration = 0.1f;
+	float playerMuzzleAlpha = 0.0f;
+	glm::vec3 playerMuzzleTint = { 1.0f, 1.0f, 1.0f };
+	float playerMuzzleFlashScale = 1.0f;
+    glm::mat4 playerMuzzleModel = glm::mat4(1.0f);
 
     glm::mat4 view = glm::mat4(1.0f);
     glm::mat4 projection = glm::mat4(1.0f);

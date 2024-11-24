@@ -243,6 +243,8 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="src\Assets\Models\backpack\backpack.mtl" />
+    <None Include="src\Shaders\muzzle_flash_fragment.glsl" />
+    <None Include="src\Shaders\muzzle_flash_vertex.glsl" />
     <None Include="src\Shaders\pbr_fragment_enemy.glsl" />
     <None Include="src\Shaders\shadow_map_enemy_vertex.glsl" />
     <None Include="src\Shaders\shadow_map_fragment.glsl" />

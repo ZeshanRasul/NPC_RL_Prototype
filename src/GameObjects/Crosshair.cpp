@@ -47,6 +47,8 @@ glm::vec2 Crosshair::CalculateCrosshairPosition(glm::vec3 rayEnd, int screenWidt
 
 void Crosshair::DrawCrosshair(glm::vec2 ndcPos, glm::vec3 color)
 {
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	shader->use();
 	shader->setVec2("ndcPos", ndcPos.x, ndcPos.y);
 	shader->setVec3("color", color);
@@ -55,6 +57,7 @@ void Crosshair::DrawCrosshair(glm::vec2 ndcPos, glm::vec3 color)
 	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 	glBindVertexArray(0);
 	mTexture.unbind();
+	glDisable(GL_BLEND);
 }
 
 void Crosshair::ComputeAudioWorldTransform() {}

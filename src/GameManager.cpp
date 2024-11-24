@@ -48,6 +48,7 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 	playerShadowMapShader.loadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/shadow_map_player_vertex.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/shadow_map_fragment.glsl");
 	enemyShadowMapShader.loadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/shadow_map_enemy_vertex.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/shadow_map_fragment.glsl");
 	shadowMapQuadShader.loadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/shadow_map_quad_vertex.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/shadow_map_quad_fragment.glsl");
+	playerMuzzleFlashShader.loadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/muzzle_flash_vertex.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/muzzle_flash_fragment.glsl");
 
 	physicsWorld = new PhysicsWorld();
 
@@ -113,10 +114,15 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 	minimapCamera = new Camera(glm::vec3((gameGrid->GetCellSize() * gameGrid->GetGridSize()) / 2.0f, 140.0f, (gameGrid->GetCellSize() * gameGrid->GetGridSize()) / 2.0f), glm::vec3(0.0f, -1.0f, 0.0f), 0.0f, -90.0f, glm::vec3(0.0f, 0.0f, -1.0f));
 	
 	minimapQuad = new Quad();
-	minimapQuad->SetUpVAO();
+	minimapQuad->SetUpVAO(false);
 
 	shadowMapQuad = new Quad();
-	shadowMapQuad->SetUpVAO();
+	shadowMapQuad->SetUpVAO(false);
+
+	playerMuzzleFlashQuad = new Quad();
+	playerMuzzleFlashQuad->SetUpVAO(true);
+	playerMuzzleFlashQuad->SetShader(&playerMuzzleFlashShader);
+	playerMuzzleFlashQuad->LoadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/muzzleflash.png");
 
     player = new Player(gameGrid->snapToGrid(glm::vec3(90.0f, 0.0f, 25.0f)), glm::vec3(3.0f), &playerShader, &playerShadowMapShader, true, this);
     player->aabbShader = &aabbShader;
@@ -838,6 +844,34 @@ void GameManager::render(bool minimap, bool shadowMap, bool showShadowMap)
 		if (player->GetPlayerState() == SHOOTING)
 		{
 			lineColor = glm::vec3(0.0f, 1.0f, 0.0f);
+
+			float currentTime = glfwGetTime();
+
+			if (renderPlayerMuzzleFlash && playerMuzzleFlashStartTime + playerMuzzleFlashDuration > currentTime)
+			{
+				renderPlayerMuzzleFlash = false;
+			}
+			else
+			{
+				renderPlayerMuzzleFlash = true;
+				playerMuzzleFlashStartTime = currentTime;
+			}
+
+
+			if (renderPlayerMuzzleFlash)
+
+			{
+				playerMuzzleTimeSinceStart = currentTime - playerMuzzleFlashStartTime;
+				playerMuzzleAlpha = glm::max(0.0f, 1.0f - (playerMuzzleTimeSinceStart / playerMuzzleFlashDuration));
+				playerMuzzleFlashScale = 1.0f + (0.5f * playerMuzzleAlpha);
+
+				playerMuzzleModel = glm::mat4(1.0f);
+
+				playerMuzzleModel = glm::translate(playerMuzzleModel, player->GetShootPos());
+				playerMuzzleModel = glm::rotate(playerMuzzleModel, player->PlayerYaw, glm::vec3(0.0f, 1.0f, 0.0f));
+				playerMuzzleModel = glm::scale(playerMuzzleModel, glm::vec3(playerMuzzleFlashScale, playerMuzzleFlashScale, 1.0f));
+				playerMuzzleFlashQuad->Draw3D(playerMuzzleTint, playerMuzzleAlpha, projection, view, playerMuzzleModel);
+			}
 		}
 
 
@@ -872,20 +906,20 @@ void GameManager::render(bool minimap, bool shadowMap, bool showShadowMap)
 			crosshair->DrawCrosshair(glm::vec2(0.0f, 0.5f), crosshairCol);
 
 
-		line->UpdateVertexBuffer(rayO, rayEnd);
+		//line->UpdateVertexBuffer(rayO, rayEnd);
 
-		if (minimap)
-		{
-			line->DrawLine(minimapView, minimapProjection, lineColor, lightSpaceMatrix, renderer->GetShadowMapTexture(), false);
-		}
-		else if (shadowMap)
-		{
-			line->DrawLine(lightSpaceView, lightSpaceProjection, lineColor, lightSpaceMatrix, renderer->GetShadowMapTexture(), true);
-		}
-		else
-		{
-			line->DrawLine(view, projection, lineColor, lightSpaceMatrix, renderer->GetShadowMapTexture(), false);
-		}
+		//if (minimap)
+		//{
+		//	line->DrawLine(minimapView, minimapProjection, lineColor, lightSpaceMatrix, renderer->GetShadowMapTexture(), false);
+		//}
+		//else if (shadowMap)
+		//{
+		//	line->DrawLine(lightSpaceView, lightSpaceProjection, lineColor, lightSpaceMatrix, renderer->GetShadowMapTexture(), true);
+		//}
+		//else
+		//{
+		//	line->DrawLine(view, projection, lineColor, lightSpaceMatrix, renderer->GetShadowMapTexture(), false);
+		//}
 
 		glEnable(GL_DEPTH_TEST);
 		glDisable(GL_BLEND);
