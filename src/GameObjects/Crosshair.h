@@ -18,7 +18,7 @@ public:
 
 	glm::vec2 CalculateCrosshairPosition(glm::vec3 rayEnd, int screenWidth, int screenHeight,
         glm::mat4 proj, glm::mat4 view);
-    void DrawCrosshair(glm::vec2 ndcPos);
+    void DrawCrosshair(glm::vec2 ndcPos, glm::vec3 color);
 
     void ComputeAudioWorldTransform() override;
 

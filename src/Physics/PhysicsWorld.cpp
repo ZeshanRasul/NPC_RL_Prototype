@@ -104,6 +104,36 @@ bool PhysicsWorld::rayEnemyIntersect(const glm::vec3& rayOrigin, const glm::vec3
     return hit;
 }
 
+bool PhysicsWorld::rayEnemyCrosshairIntersect(const glm::vec3& rayOrigin, const glm::vec3& rayDirection, glm::vec3& hitPoint)
+{
+	bool hit = false;
+	float closestDistance = std::numeric_limits<float>::max();
+
+
+	for (AABB* collider : colliders) {
+		glm::vec3 tempHitPoint;
+		if (rayAABBIntersect(rayOrigin, rayDirection, collider, tempHitPoint) && !collider->isPlayer) {
+			float distance = glm::length(tempHitPoint - rayOrigin);
+			if (distance < closestDistance) {
+				closestDistance = distance;
+				hitPoint = tempHitPoint;
+                if (collider->isEnemy && !collider->owner->isDestroyed)
+                {
+                    hit = true;
+                }
+                else
+                {
+					hit = false;
+                    break;
+                }
+			}
+		}
+	}
+
+	return hit;
+}
+
+
 bool PhysicsWorld::rayPlayerIntersect(const glm::vec3& rayOrigin, const glm::vec3& rayDirection, glm::vec3& hitPoint, AABB* selfAABB)
 {
     bool hit = false;

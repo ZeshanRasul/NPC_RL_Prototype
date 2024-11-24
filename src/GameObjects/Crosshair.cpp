@@ -45,10 +45,11 @@ glm::vec2 Crosshair::CalculateCrosshairPosition(glm::vec3 rayEnd, int screenWidt
 	return screenSpacePos;
 }
 
-void Crosshair::DrawCrosshair(glm::vec2 ndcPos)
+void Crosshair::DrawCrosshair(glm::vec2 ndcPos, glm::vec3 color)
 {
 	shader->use();
 	shader->setVec2("ndcPos", ndcPos.x, ndcPos.y);
+	shader->setVec3("color", color);
 	mTexture.bind();
 	glBindVertexArray(mVAO);
 	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);

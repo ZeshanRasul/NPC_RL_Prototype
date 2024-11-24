@@ -47,7 +47,6 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 	shadowMapShader.loadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/shadow_map_vertex.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/shadow_map_fragment.glsl");
 	playerShadowMapShader.loadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/shadow_map_player_vertex.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/shadow_map_fragment.glsl");
 	enemyShadowMapShader.loadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/shadow_map_enemy_vertex.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/shadow_map_fragment.glsl");
-	
 	shadowMapQuadShader.loadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/shadow_map_quad_vertex.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/shadow_map_quad_fragment.glsl");
 
 	physicsWorld = new PhysicsWorld();
@@ -820,7 +819,7 @@ void GameManager::render(bool minimap, bool shadowMap, bool showShadowMap)
 	}
 //	renderer->setScene(view, projection, dirLight);
 	renderer->drawCubemap(cubemap);
-	if ((player->GetPlayerState() == AIMING || player->GetPlayerState() == SHOOTING) && camSwitchedToAim == false)
+	if ((player->GetPlayerState() == AIMING || player->GetPlayerState() == SHOOTING) && camSwitchedToAim == false && showShadowMap)
 	{
 		glDisable(GL_DEPTH_TEST);
 		glEnable(GL_BLEND);
@@ -841,13 +840,6 @@ void GameManager::render(bool minimap, bool shadowMap, bool showShadowMap)
 			lineColor = glm::vec3(0.0f, 1.0f, 0.0f);
 		}
 
-		glm::vec2 ndcPos = crosshair->CalculateCrosshairPosition(rayEnd, window->GetWidth(), window->GetHeight(), projection, view);
-
-		float ndcX = (ndcPos.x / window->GetWidth()) * 2.0f - 1.0f;
-		float ndcY = (ndcPos.y / window->GetHeight()) * 2.0f - 1.0f;
-
-		if (!minimap && !shadowMap)
-			crosshair->DrawCrosshair(glm::vec2(0.0f, 0.5f));
 
 		glm::vec4 rayEndWorldSpace = glm::vec4(rayEnd, 1.0f);
 		glm::vec4 rayEndCameraSpace = view * rayEndWorldSpace;
@@ -858,6 +850,27 @@ void GameManager::render(bool minimap, bool shadowMap, bool showShadowMap)
 		glm::vec4 targetWorldSpace = glm::inverse(view) * targetCameraSpace;
 		
 		rayEnd = glm::vec3(targetWorldSpace) / targetWorldSpace.w;
+
+		glm::vec3 crosshairHitpoint;
+		glm::vec3 crosshairCol;
+
+		if (physicsWorld->rayEnemyCrosshairIntersect(rayO, glm::normalize(rayEnd - rayO), crosshairHitpoint))
+		{
+			crosshairCol = glm::vec3(1.0f, 0.0f, 0.0f);
+		} 
+		else
+		{
+			crosshairCol = glm::vec3(1.0f, 1.0f, 1.0f);
+		}
+
+		glm::vec2 ndcPos = crosshair->CalculateCrosshairPosition(rayEnd, window->GetWidth(), window->GetHeight(), projection, view);
+
+		float ndcX = (ndcPos.x / window->GetWidth()) * 2.0f - 1.0f;
+		float ndcY = (ndcPos.y / window->GetHeight()) * 2.0f - 1.0f;
+
+		if (!minimap && !shadowMap)
+			crosshair->DrawCrosshair(glm::vec2(0.0f, 0.5f), crosshairCol);
+
 
 		line->UpdateVertexBuffer(rayO, rayEnd);
 

@@ -101,6 +101,8 @@ void Cube::SetUpAABB()
 	aabb->setShader(aabbShader);
 	aabb->setUpMesh();
 	aabb->owner = this;
+	aabb->isEnemy = false;
+	aabb->isPlayer = false;
 	updateAABB();
 	mGameManager->GetPhysicsWorld()->addCollider(GetAABB());
 
