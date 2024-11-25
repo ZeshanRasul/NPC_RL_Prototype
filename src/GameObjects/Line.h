@@ -15,7 +15,7 @@ public:
 
     void drawObject(glm::mat4 viewMat, glm::mat4 proj, bool shadowMap, glm::mat4 lightSpaceMat, GLuint shadowMapTexture, glm::vec3 camPos) override {};
 
-    void DrawLine(glm::mat4 viewMat, glm::mat4 proj, glm::vec3 lineColor, glm::mat4 lightSpaceMat, GLuint shadowMapTexture, bool shadowMap);
+    void DrawLine(glm::mat4 viewMat, glm::mat4 proj, glm::vec3 lineColor, glm::mat4 lightSpaceMat, GLuint shadowMapTexture, bool shadowMap, float lifetime);
 
     void ComputeAudioWorldTransform() override;
 

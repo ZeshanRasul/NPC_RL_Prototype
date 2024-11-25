@@ -8,7 +8,7 @@ void Line::LoadMesh()
 	glBindVertexArray(0);
 }
 
-void Line::DrawLine(glm::mat4 viewMat, glm::mat4 proj, glm::vec3 lineColor, glm::mat4 lightSpaceMat, GLuint shadowMapTexture, bool shadowMap)
+void Line::DrawLine(glm::mat4 viewMat, glm::mat4 proj, glm::vec3 lineColor, glm::mat4 lightSpaceMat, GLuint shadowMapTexture, bool shadowMap, float lifetime)
 {
 	if (shadowMap)
 	{
@@ -16,6 +16,7 @@ void Line::DrawLine(glm::mat4 viewMat, glm::mat4 proj, glm::vec3 lineColor, glm:
 		shadowShader->setMat4("view", viewMat);
 		shadowShader->setMat4("projection", proj);
 		shadowShader->setVec3("lineColor", lineColor);
+		shadowShader->setFloat("lifetime", lifetime);
 
 	}
 	else
@@ -25,6 +26,7 @@ void Line::DrawLine(glm::mat4 viewMat, glm::mat4 proj, glm::vec3 lineColor, glm:
 		shader->setMat4("projection", proj);
 		shader->setVec3("lineColor", lineColor);
 		shader->setMat4("lightSpaceMatrix", lightSpaceMat);
+		shader->setFloat("lifetime", lifetime);
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, shadowMapTexture);
 		shader->setInt("shadowMap", 0);

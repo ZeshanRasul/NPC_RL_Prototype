@@ -3,6 +3,8 @@
 in vec4 FragPosLightSpace;
 
 uniform vec3 lineColor;
+uniform float lifetime;
+
 uniform sampler2D shadowMap;
 
 out vec4 FragColor;
@@ -24,6 +26,7 @@ float ShadowCalculation(vec4 fragPosLightSpace)
 void main()
 {
     float shadow = ShadowCalculation(FragPosLightSpace);
-
-    FragColor = (1.0f - shadow) * vec4(lineColor, 1.0);
+    float timeLeft = 0.3 - lifetime;
+    float alpha = 1.0 - (timeLeft / 0.3);
+    FragColor = (1.0f - shadow) * vec4(lineColor, alpha);
 }

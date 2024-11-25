@@ -786,6 +786,8 @@ public:
 
 		aabbColor = glm::vec3(0.0f, 0.0f, 1.0f);
 
+		updateAABB();
+
 		animNum = 1;
 		sourceAnim = 1;
 		destAnim = 1;
