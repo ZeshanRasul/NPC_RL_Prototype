@@ -652,21 +652,21 @@ void GameManager::update(float deltaTime)
 	calculatePerformance(deltaTime);
 }
 
-void GameManager::render(bool minimap, bool shadowMap, bool showShadowMap)
+void GameManager::render(bool isMinimapRenderPass, bool isShadowMapRenderPass, bool isMainRenderPass)
 {
 	glEnable(GL_DEPTH_TEST);
 	glDisable(GL_BLEND);
 
-	if (!shadowMap)
+	if (!isShadowMapRenderPass)
 	{
 		renderer->ResetViewport(screenWidth, screenHeight);
 		renderer->clear();
 	}
 
-	if (minimap)
+	if (isMinimapRenderPass)
 		renderer->bindMinimapFBO(screenWidth, screenHeight);
 
-	if (shadowMap)
+	if (isShadowMapRenderPass)
 		renderer->bindShadowMapFBO(SHADOW_WIDTH, SHADOW_HEIGHT);
 
 
@@ -674,11 +674,11 @@ void GameManager::render(bool minimap, bool shadowMap, bool showShadowMap)
 	for (auto obj : gameObjects) {
         if (obj->isDestroyed)
             continue;
-		if (minimap)
+		if (isMinimapRenderPass)
 		{
 			renderer->draw(obj, minimapView, minimapProjection, camera->Position, false, lightSpaceMatrix);
 		}
-		else if (shadowMap)
+		else if (isShadowMapRenderPass)
 		{
 			renderer->draw(obj, lightSpaceView, lightSpaceProjection, camera->Position, true, lightSpaceMatrix);
 		}
@@ -688,7 +688,7 @@ void GameManager::render(bool minimap, bool shadowMap, bool showShadowMap)
 		}
 	}
 
-	if (shadowMap)
+	if (isShadowMapRenderPass)
 	{
 		shadowMapShader.use();
 		shadowMapShader.setVec3("dirLight.direction", dirLight.direction);
@@ -705,11 +705,11 @@ void GameManager::render(bool minimap, bool shadowMap, bool showShadowMap)
 		gridShader.setVec3("dirLight.specular", dirLight.specular);
 	}
 
-	if (minimap)
+	if (isMinimapRenderPass)
 	{
 		gameGrid->drawGrid(gridShader, minimapView, minimapProjection, camera->Position, false, lightSpaceMatrix, renderer->GetShadowMapTexture());
 	}
-	else if (shadowMap)
+	else if (isShadowMapRenderPass)
 	{
 		gameGrid->drawGrid(shadowMapShader, lightSpaceView, lightSpaceProjection, camera->Position, true, lightSpaceMatrix, renderer->GetShadowMapTexture());
 	}
@@ -739,7 +739,7 @@ void GameManager::render(bool minimap, bool shadowMap, bool showShadowMap)
 				enemyMuzzleFlashStartTime = enemyMuzzleCurrentTime;
 			}
 
-			if (renderEnemyMuzzleFlash)
+			if (renderEnemyMuzzleFlash && isMainRenderPass)
 			{
 				enemyMuzzleTimeSinceStart = enemyMuzzleCurrentTime - enemyMuzzleFlashStartTime;
 				enemyMuzzleAlpha = glm::max(0.0f, 1.0f - (enemyMuzzleTimeSinceStart / enemyMuzzleFlashDuration));
@@ -769,11 +769,11 @@ void GameManager::render(bool minimap, bool shadowMap, bool showShadowMap)
 
 			glm::vec3 enemyRayEnd = enemy->GetEnemyShootPos() + enemy->GetEnemyShootDir() * enemy->GetEnemyShootDistance();
 			enemyLine->UpdateVertexBuffer(enemy->GetEnemyShootPos(), enemyRayEnd);
-			if (minimap)
+			if (isMinimapRenderPass)
 			{
 				enemyLine->DrawLine(minimapView, minimapProjection, enemyLineColor, lightSpaceMatrix, renderer->GetShadowMapTexture(), false, enemy->GetEnemyDebugRayRenderTimer());
 			}
-			else if (shadowMap)
+			else if (isShadowMapRenderPass)
 			{
 				enemyLine->DrawLine(lightSpaceView, lightSpaceProjection, enemyLineColor, lightSpaceMatrix, renderer->GetShadowMapTexture(), true, enemy->GetEnemyDebugRayRenderTimer());
 			}
@@ -802,7 +802,7 @@ void GameManager::render(bool minimap, bool shadowMap, bool showShadowMap)
 				enemy2MuzzleFlashStartTime = enemy2MuzzleCurrentTime;
 			}
 
-			if (renderEnemy2MuzzleFlash)
+			if (renderEnemy2MuzzleFlash && isMainRenderPass)
 			{
 				enemy2MuzzleTimeSinceStart = enemy2MuzzleCurrentTime - enemy2MuzzleFlashStartTime;
 				enemy2MuzzleAlpha = glm::max(0.0f, 1.0f - (enemy2MuzzleTimeSinceStart / enemy2MuzzleFlashDuration));
@@ -830,11 +830,11 @@ void GameManager::render(bool minimap, bool shadowMap, bool showShadowMap)
             }
 
 			enemy2Line->UpdateVertexBuffer(enemy2->GetEnemyShootPos(), enemy2RayEnd);
-			if (minimap)
+			if (isMinimapRenderPass)
 			{
 				enemy2Line->DrawLine(minimapView, minimapProjection, enemy2LineColor, lightSpaceMatrix, renderer->GetShadowMapTexture(), false, enemy2->GetEnemyDebugRayRenderTimer());
 			}
-			else if (shadowMap)
+			else if (isShadowMapRenderPass)
 			{
 				enemy2Line->DrawLine(lightSpaceView, lightSpaceProjection, enemy2LineColor, lightSpaceMatrix, renderer->GetShadowMapTexture(), true, enemy2->GetEnemyDebugRayRenderTimer());
 			}
@@ -863,7 +863,7 @@ void GameManager::render(bool minimap, bool shadowMap, bool showShadowMap)
 				enemy3MuzzleFlashStartTime = enemy3MuzzleCurrentTime;
 			}
 
-			if (renderEnemy3MuzzleFlash)
+			if (renderEnemy3MuzzleFlash && isMainRenderPass)
 			{
 				enemy3MuzzleTimeSinceStart = enemy3MuzzleCurrentTime - enemy3MuzzleFlashStartTime;
 				enemy3MuzzleAlpha = glm::max(0.0f, 1.0f - (enemy3MuzzleTimeSinceStart / enemy3MuzzleFlashDuration));
@@ -892,11 +892,11 @@ void GameManager::render(bool minimap, bool shadowMap, bool showShadowMap)
 			}
 
 			enemy3Line->UpdateVertexBuffer(enemy3->GetEnemyShootPos(), enemy3RayEnd);
-			if (minimap)
+			if (isMinimapRenderPass)
 			{
 				enemy3Line->DrawLine(minimapView, minimapProjection, enemy3LineColor, lightSpaceMatrix, renderer->GetShadowMapTexture(), false, enemy3->GetEnemyDebugRayRenderTimer());
 			}
-			else if (shadowMap)
+			else if (isShadowMapRenderPass)
 			{
 				enemy3Line->DrawLine(lightSpaceView, lightSpaceProjection, enemy3LineColor, lightSpaceMatrix, renderer->GetShadowMapTexture(), true, enemy3->GetEnemyDebugRayRenderTimer());
 			}
@@ -925,7 +925,7 @@ void GameManager::render(bool minimap, bool shadowMap, bool showShadowMap)
 				enemy4MuzzleFlashStartTime = enemy4MuzzleCurrentTime;
 			}
 
-			if (renderEnemy4MuzzleFlash)
+			if (renderEnemy4MuzzleFlash && isMainRenderPass)
 			{
 				enemy4MuzzleTimeSinceStart = enemy4MuzzleCurrentTime - enemy4MuzzleFlashStartTime;
 				enemy4MuzzleAlpha = glm::max(0.0f, 1.0f - (enemy4MuzzleTimeSinceStart / enemy4MuzzleFlashDuration));
@@ -953,11 +953,11 @@ void GameManager::render(bool minimap, bool shadowMap, bool showShadowMap)
 			}
 
 			enemy4Line->UpdateVertexBuffer(enemy4->GetEnemyShootPos(), enemy4RayEnd);
-			if (minimap)
+			if (isMinimapRenderPass)
 			{
 				enemy4Line->DrawLine(minimapView, minimapProjection, enemy4LineColor, lightSpaceMatrix, renderer->GetShadowMapTexture(), false, enemy4->GetEnemyDebugRayRenderTimer());
 			}
-			else if (shadowMap)
+			else if (isShadowMapRenderPass)
 			{
 				enemy4Line->DrawLine(lightSpaceView, lightSpaceProjection, enemy4LineColor, lightSpaceMatrix, renderer->GetShadowMapTexture(), true, enemy4->GetEnemyDebugRayRenderTimer());
 			}
@@ -969,7 +969,7 @@ void GameManager::render(bool minimap, bool shadowMap, bool showShadowMap)
 	}
 //	renderer->setScene(view, projection, dirLight);
 	renderer->drawCubemap(cubemap);
-	if ((player->GetPlayerState() == AIMING || player->GetPlayerState() == SHOOTING) && camSwitchedToAim == false && showShadowMap)
+	if ((player->GetPlayerState() == AIMING || player->GetPlayerState() == SHOOTING) && camSwitchedToAim == false && isMainRenderPass)
 	{
 		glDisable(GL_DEPTH_TEST);
 		glEnable(GL_BLEND);
@@ -1046,7 +1046,7 @@ void GameManager::render(bool minimap, bool shadowMap, bool showShadowMap)
 		float ndcX = (ndcPos.x / window->GetWidth()) * 2.0f - 1.0f;
 		float ndcY = (ndcPos.y / window->GetHeight()) * 2.0f - 1.0f;
 
-		if (!minimap && !shadowMap)
+		if (isMainRenderPass)
 			crosshair->DrawCrosshair(glm::vec2(0.0f, 0.5f), crosshairCol);
 
 
@@ -1070,21 +1070,23 @@ void GameManager::render(bool minimap, bool shadowMap, bool showShadowMap)
 
 	}
 	
-	if (!minimap && !shadowMap)
+	if (isMainRenderPass)
 	{
 		renderer->drawMinimap(minimapQuad, &minimapShader);
 	}
 
-	if (showShadowMap)
+#ifdef _DEBUG
+	if (isMainRenderPass)
 	{
 		renderer->drawShadowMap(shadowMapQuad, &shadowMapQuadShader);
 	}
+#endif
 
-	if (minimap)
+	if (isMinimapRenderPass)
 	{
 		renderer->unbindMinimapFBO();
 	}
-	else if (shadowMap)
+	else if (isShadowMapRenderPass)
 	{
 		renderer->unbindShadowMapFBO();
 	}

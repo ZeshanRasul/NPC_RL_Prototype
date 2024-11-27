@@ -131,7 +131,7 @@ public:
 
     void update(float deltaTime);
 
-    void render(bool minimap, bool shadowMap, bool showShadowMap);
+    void render(bool isMinimapRenderPass, bool isShadowMapRenderPass, bool isMainRenderPass);
 
     void setUpDebugUI();
     void showDebugUI();

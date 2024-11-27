@@ -63,9 +63,9 @@ void Enemy::drawObject(glm::mat4 viewMat, glm::mat4 proj, bool shadowMap, glm::m
 		glBindTexture(GL_TEXTURE_2D, shadowMapTexture);
 		shader->setInt("shadowMap", 6);
 		model->draw(mTex);
-//#ifdef _DEBUG
-//#endif
+#ifdef _DEBUG
 		aabb->render(viewMat, proj, modelMat, aabbColor);
+#endif
     }
 }
 
@@ -227,7 +227,7 @@ void Enemy::moveEnemy(const std::vector<glm::ivec2>& path, float deltaTime, floa
     }
 
     const float tolerance = 0.1f; // Smaller tolerance for better alignment
-    const float agentRadius = 0.1f; // Adjust this value to match the agent's radius
+    const float agentRadius = 0.5f; // Adjust this value to match the agent's radius
     
     if (!reachedPlayer && !inCover)
     {
@@ -365,7 +365,7 @@ void Enemy::SetAnimation(int srcAnimNum, int destAnimNum, float speedDivider, fl
 void Enemy::Shoot()
 {
     glm::vec3 accuracyOffset = glm::vec3(0.0f);
-    glm::vec3 accuracyOffsetFactor = glm::vec3(1.0f);
+    glm::vec3 accuracyOffsetFactor = glm::vec3(0.1f);
 
     std::random_device dev;
     std::mt19937 rng(dev());
@@ -375,8 +375,15 @@ void Enemy::Shoot()
 
     if (dist100(rng) < 60)
     {
-        accuracyOffset = accuracyOffset + (accuracyOffsetFactor * (float)dist100(rng));
         enemyMissed = true;
+        if (dist100(rng) % 2 == 0)
+        {
+		    accuracyOffset = accuracyOffset + (accuracyOffsetFactor * -(float)dist100(rng));
+        }
+        else
+        {
+			accuracyOffset = accuracyOffset + (accuracyOffsetFactor * (float)dist100(rng));
+        }
     }
 
     enemyShootPos = getPosition() + glm::vec3(0.0f, 2.5f, 0.0f);
