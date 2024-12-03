@@ -218,6 +218,6 @@ public:
 	glm::vec3 initialPos = glm::vec3(0.0f, 0.0f, 0.0f);
 
     bool playGameStartAudio = true;
-    float playGameStartAudioTimer = 1.0f;
+    float playGameStartAudioTimer = 3.0f;
     float playerShootAudioCooldown = 2.0f;
 };

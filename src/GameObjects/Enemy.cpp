@@ -160,8 +160,14 @@ void Enemy::OnEvent(const Event& event)
 	{
         allyHasDied = true;
         numDeadAllies++;
-		std::string clipName = "event:/enemy" + std::to_string(id_) + "_Enemy Squad Member Death1";
-		Speak(clipName, 6.0f, 1.5f);
+		std::random_device rd;
+		std::mt19937 gen{ rd() };
+		std::uniform_int_distribution<> distrib(1, 3);
+		int randomIndex = distrib(gen);
+		std::uniform_real_distribution<> distribReal(2.0, 3.0);
+		int randomFloat = distribReal(gen);
+		std::string clipName = "event:/enemy" + std::to_string(id_) + "_Enemy Squad Member Death" + std::to_string(randomIndex);
+		Speak(clipName, 6.0f, randomFloat);
 	}
 
 }
@@ -255,8 +261,14 @@ void Enemy::moveEnemy(const std::vector<glm::ivec2>& path, float deltaTime, floa
         if (IsPatrolling() || EDBTState == "Patrol" || EDBTState == "PATROL")
         {
             reachedDestination = true;
-			std::string clipName = "event:/enemy" + std::to_string(id_) + "_Patrolling1";
-            Speak(clipName, 2.0f, 1.5f);
+			std::random_device rd;
+			std::mt19937 gen{ rd() };
+			std::uniform_int_distribution<> distrib(1, 2);
+			int randomIndex = distrib(gen);
+			std::uniform_real_distribution<> distribReal(2.0, 3.0);
+			int randomFloat = distribReal(gen);
+			std::string clipName = "event:/enemy" + std::to_string(id_) + "_Patrolling" + std::to_string(randomIndex);
+            Speak(clipName, 2.0f, randomFloat);
         }
 
 		if (isTakingCover_)
@@ -426,8 +438,14 @@ void Enemy::Shoot()
     //shootAC->PlayEvent("event:/EnemyShoot");
     if (shootAudioCooldown <= 0.0f)
     {
-	    std::string clipName = "event:/enemy" + std::to_string(id_) + "_Deals Damage1";
-	    Speak(clipName, 1.0f, 1.0f);
+		std::random_device rd;
+		std::mt19937 gen{ rd() };
+		std::uniform_int_distribution<> distrib(1, 2);
+		int randomIndex = distrib(gen);
+		std::uniform_real_distribution<> distribReal(2.0, 3.0);
+		int randomFloat = distribReal(gen);
+	    std::string clipName = "event:/enemy" + std::to_string(id_) + "_Deals Damage" + std::to_string(randomIndex);
+	    Speak(clipName, 1.0f, randomFloat);
         shootAudioCooldown = 2.0f;
     }
 
@@ -462,8 +480,14 @@ void Enemy::OnHit()
     TakeDamage(20.0f);
     isTakingDamage_ = true;
     //takeDamageAC->PlayEvent("event:/EnemyTakeDamage");
-	std::string clipName = "event:/enemy" + std::to_string(id_) + "_Taking Damage1";
-	Speak(clipName, 2.0f, 1.0f);
+	std::random_device rd;
+	std::mt19937 gen{ rd() };
+	std::uniform_int_distribution<> distrib(1, 3);
+	int randomIndex = distrib(gen);
+	std::uniform_real_distribution<> distribReal(2.0, 3.0);
+	int randomFloat = distribReal(gen);
+	std::string clipName = "event:/enemy" + std::to_string(id_) + "_Taking Damage" + std::to_string(randomIndex);
+	Speak(clipName, 2.0f, randomFloat);
 
     damageTimer = 0.2f;
     eventManager_.Publish(NPCDamagedEvent{ id_ });
@@ -482,8 +506,14 @@ void Enemy::OnDeath()
 		resetBlend = true;
     }
 	//deathAC->PlayEvent("event:/EnemyDeath");
-	std::string clipName = "event:/enemy" + std::to_string(id_) + "_Taking Damage1";
-	Speak(clipName, 3.0f, 1.5f);
+	std::random_device rd;
+	std::mt19937 gen{ rd() };
+	std::uniform_int_distribution<> distrib(1, 3);
+	int randomIndex = distrib(gen);
+	std::uniform_real_distribution<> distribReal(2.0, 3.0);
+	int randomFloat = distribReal(gen);
+	std::string clipName = "event:/enemy" + std::to_string(id_) + "_Taking Damage" + std::to_string(randomIndex);
+	Speak(clipName, 3.0f, randomFloat);
     hasDied_ = true;
 	eventManager_.Publish(NPCDiedEvent{ id_ });
 }
@@ -667,8 +697,14 @@ void Enemy::BuildBehaviorTree()
 void Enemy::DetectPlayer()
 {
     isPlayerDetected_ = true;
-	std::string clipName = "event:/enemy" + std::to_string(id_) + "_Player Detected1";
-	Speak(clipName, 5.0f, 1.5f);
+	std::random_device rd;
+	std::mt19937 gen{ rd() };
+	std::uniform_int_distribution<> distrib(1, 3);
+	int randomIndex = distrib(gen);
+	std::uniform_real_distribution<> distribReal(2.0, 3.0);
+	int randomFloat = distribReal(gen);
+	std::string clipName = "event:/enemy" + std::to_string(id_) + "_Player Detected" + std::to_string(randomIndex);
+	Speak(clipName, 5.0f, randomFloat);
 
     eventManager_.Publish(PlayerDetectedEvent{ id_ });
 }
@@ -809,8 +845,14 @@ NodeStatus Enemy::AttackShoot()
 
         if (StartingSuppressionFire)
         {
-		   	std::string clipName = "event:/enemy" + std::to_string(id_) + "_Providing Suppression Fire1";
-            Speak(clipName, 1.0f, 2.0f);
+			std::random_device rd;
+			std::mt19937 gen{ rd() };
+			std::uniform_int_distribution<> distrib(1, 3);
+			int randomIndex = distrib(gen);
+			std::uniform_real_distribution<> distribReal(2.0, 3.0);
+			int randomFloat = distribReal(gen);
+		   	std::string clipName = "event:/enemy" + std::to_string(id_) + "_Providing Suppression Fire" + std::to_string(randomIndex);
+            Speak(clipName, 1.0f, randomFloat);
 			StartingSuppressionFire = false;
         }
 
@@ -865,8 +907,14 @@ NodeStatus Enemy::AttackChasePlayer()
 
     if (!IsPlayerVisible())
     {
-	    std::string clipName = "event:/enemy" + std::to_string(id_) + "_Chasing(Out of Sight)1";
-        Speak(clipName, 3.0f, 1.5f);
+		std::random_device rd;
+		std::mt19937 gen{ rd() };
+		std::uniform_int_distribution<> distrib(1, 3);
+		int randomIndex = distrib(gen);
+		std::uniform_real_distribution<> distribReal(2.0, 3.0);
+		int randomFloat = distribReal(gen);
+	    std::string clipName = "event:/enemy" + std::to_string(id_) + "_Chasing(Out of Sight)" + std::to_string(randomIndex);
+        Speak(clipName, 3.0f, randomFloat);
         return NodeStatus::Running;
     }
 
@@ -887,8 +935,14 @@ NodeStatus Enemy::TakeCover()
 
     if (!isTakingCover_)
     {
-		std::string clipName = "event:/enemy" + std::to_string(id_) + "_Taking Cover1";
-		Speak(clipName, 5.0f, 1.5f);
+		std::random_device rd;
+		std::mt19937 gen{ rd() };
+		std::uniform_int_distribution<> distrib(1, 4);
+		int randomIndex = distrib(gen);
+		std::uniform_real_distribution<> distribReal(2.0, 3.0);
+		int randomFloat = distribReal(gen);
+		std::string clipName = "event:/enemy" + std::to_string(id_) + "_Taking Cover" + std::to_string(randomIndex);
+		Speak(clipName, 5.0f, randomFloat);
     }
 
     isTakingCover_ = true;
@@ -925,8 +979,14 @@ NodeStatus Enemy::EnterInCoverState()
     isSeekingCover_ = false;
     isTakingCover_ = false;
     coverTimer = 0.0f;
-	std::string clipName = "event:/enemy" + std::to_string(id_) + "_In Cover1";
-    Speak(clipName, 5.0f, 1.5f);
+	std::random_device rd;
+	std::mt19937 gen{ rd() };
+	std::uniform_int_distribution<> distrib(1, 2);
+	int randomIndex = distrib(gen);
+	std::uniform_real_distribution<> distribReal(2.0, 3.0);
+	int randomFloat = distribReal(gen);
+    std::string clipName = "event:/enemy" + std::to_string(id_) + "_In Cover" + std::to_string(randomIndex);
+    Speak(clipName, 5.0f, randomFloat);
 
     return NodeStatus::Success;
 }
@@ -981,7 +1041,17 @@ NodeStatus Enemy::InCoverAction()
         if (health_ > 40.0f)
         {
             isInCover_ = false;
-			std::string clipName = "event:/enemy" + std::to_string(id_) + "_Moving Out of Cover1";
+			std::random_device rd;
+			std::mt19937 gen{ rd() };
+			std::uniform_int_distribution<> distrib(1, 2);
+			int randomIndex = distrib(gen);
+			std::uniform_real_distribution<> distribReal(2.0, 3.0);
+			int randomFloat = distribReal(gen);
+            std::string clipName;
+            if (randomIndex == 1)
+			    clipName = "event:/enemy" + std::to_string(id_) + "_Moving Out of Cover1";
+            else
+				clipName = "event:/enemy" + std::to_string(id_) + "_Moving Out of Cover";
 			Speak(clipName, 4.0f, 1.5f);
 
             return NodeStatus::Success;

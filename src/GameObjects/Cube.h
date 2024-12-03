@@ -2,6 +2,7 @@
 #include "GameObject.h"
 #include "OpenGL/Texture.h"
 #include "Physics/AABB.h"
+#include "Components/AudioComponent.h"
 
 class Cube : public GameObject {
 public:
@@ -14,6 +15,8 @@ public:
 		LoadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/Wall/TCom_Scifi_Pattern_4K_roughness.png", &mRoughness);
 		LoadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/Wall/TCom_Scifi_Pattern_4K_ao.png", &mAO);
 
+		bulletHitAC = new AudioComponent(this);
+
 		ComputeAudioWorldTransform();
     }
 
@@ -22,13 +25,33 @@ public:
 
     void drawObject(glm::mat4 viewMat, glm::mat4 proj, bool shadowMap,glm::mat4 lightSpaceMat, GLuint shadowMapTexture, glm::vec3 camPos) override;
 
-    void ComputeAudioWorldTransform() override {};
+    void ComputeAudioWorldTransform() override {
+
+	    if (mRecomputeWorldTransform)
+	    {
+	    	mRecomputeWorldTransform = false;
+	    	glm::mat4 worldTransform = glm::mat4(1.0f);
+	    	// Scale, then rotate, then translate
+	    	audioWorldTransform = glm::translate(worldTransform, position);
+	    //	audioWorldTransform = glm::rotate(worldTransform, glm::radians(-yaw + 180.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+	    	audioWorldTransform = glm::scale(worldTransform, scale);
+
+	    	// Inform components world transform updated
+	    	for (auto comp : mComponents)
+	    	{
+	    		comp->OnUpdateWorldTransform();
+	    	}
+	    }
+
+    };
 
     void CreateAndUploadVertexBuffer();
 
     void OnHit() override {
         Logger::log(1, "Cover was hit!\n", __FUNCTION__);
 		setAABBColor(glm::vec3(1.0f, 0.0f, 1.0f));
+		/*takeDamageAC->PlayEvent("event:/PlayerTakeDamage");*/
+        bulletHitAC->PlayEvent("event:/Metal_hit");
     };
     void OnMiss() override {
         setAABBColor(glm::vec3(1.0f, 1.0f, 1.0f));
@@ -125,4 +148,6 @@ private:
     AABB* aabb;
     Shader* aabbShader;
     glm::vec3 aabbColor = glm::vec3(0.0f, 0.0f, 1.0f);
+
+    AudioComponent* bulletHitAC;
 };

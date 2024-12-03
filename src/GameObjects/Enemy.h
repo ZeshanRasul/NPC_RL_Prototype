@@ -111,7 +111,11 @@ public:
         UpdateEnemyCameraVectors();
         UpdateEnemyVectors(); 
 
-        currentWaypoint = waypointPositions[std::rand() % waypointPositions.size()];
+		std::random_device rd;
+		std::mt19937 gen{ rd() };
+		std::uniform_int_distribution<> distrib(0, waypointPositions.size() - 1);
+		int randomIndex = distrib(gen);
+        currentWaypoint = waypointPositions[randomIndex];
         takeDamageAC = new AudioComponent(this);
 		deathAC = new AudioComponent(this);
 		shootAC = new AudioComponent(this);
@@ -246,7 +250,10 @@ public:
         }
 
         // Select a random way point from the available way points
-        int randomIndex = std::rand() % availableWaypoints.size();
+		std::random_device rd;
+		std::mt19937 gen{ rd() };
+		std::uniform_int_distribution<> distrib(0, availableWaypoints.size() - 1);
+		int randomIndex = distrib(gen);
         return availableWaypoints[randomIndex];
     }
 	Grid* grid_;

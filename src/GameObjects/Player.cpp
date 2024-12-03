@@ -84,7 +84,14 @@ void Player::Update(float dt)
 
     if (playGameStartAudio && playGameStartAudioTimer < 0.0f)
     {
-		takeDamageAC->PlayEvent("event:/Player2_Game Start");
+		std::random_device rd;
+		std::mt19937 gen{ rd() };
+		std::uniform_int_distribution<> distrib(1, 2);
+		int randomIndex = distrib(gen);
+        if (randomIndex == 1)
+		    takeDamageAC->PlayEvent("event:/Player2_Game Start");
+        else
+			takeDamageAC->PlayEvent("event:/Player2_Game Start2");
 		playGameStartAudio = false;
     }
 
@@ -309,7 +316,16 @@ void Player::Shoot()
 
     if (playerShootAudioCooldown < 0.0f)
     {
-        shootAC->PlayEvent("event:/Player2_Firing Weapon");
+		std::random_device rd;
+		std::mt19937 gen{ rd() };
+
+		std::uniform_int_distribution<> distrib(1, 2);
+		int randomIndex = distrib(gen);
+
+		if (randomIndex == 1)
+            shootAC->PlayEvent("event:/Player2_Firing Weapon");
+        else
+			shootAC->PlayEvent("event:/Player2_Firing Weapon2");
         playerShootAudioCooldown = 2.0f;
     }
 	//std::string clipName = "event:/player2_Firing Weapon";
@@ -411,7 +427,13 @@ void Player::OnHit()
 	std::cout << "Player hit!" << std::endl;
 	setAABBColor(glm::vec3(1.0f, 0.0f, 1.0f));
     TakeDamage(0.4f);
-	takeDamageAC->PlayEvent("event:/Player2_Taking Damage1");
+	std::random_device rd;
+	std::mt19937 gen{ rd() };
+
+	std::uniform_int_distribution<> distrib(1, 3);
+	int randomIndex = distrib(gen);
+	std::string clipName = "event:/player2_Taking Damage" + std::to_string(randomIndex);
+	takeDamageAC->PlayEvent(clipName);
 	//std::string clipName = "event:/player2_Taking Damage1";
 	//Speak(clipName, 1.0f, 0.5f);
 }
@@ -420,6 +442,9 @@ void Player::OnDeath()
 {
 	std::cout << "Player died!" << std::endl;
     isDestroyed = true;
+	std::random_device rd;
+	std::mt19937 gen{ rd() };
+
 	deathAC->PlayEvent("event:/Player2_Death");
 	//std::string clipName = "event:/player2_Death";
 	//Speak(clipName, 1.0f, 0.5f);

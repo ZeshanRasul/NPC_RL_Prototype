@@ -77,7 +77,7 @@ bool PhysicsWorld::rayEnemyIntersect(const glm::vec3& rayOrigin, const glm::vec3
 	AABB* closestAABB = nullptr;
     AABB* missedAABB = nullptr;
 
-    for (AABB* collider : enemyColliders) {
+    for (AABB* collider : colliders) {
         glm::vec3 tempHitPoint;
         if (rayAABBIntersect(rayOrigin, rayDirection, collider, tempHitPoint) && !collider->isPlayer) {
             float distance = glm::length(tempHitPoint - rayOrigin);
