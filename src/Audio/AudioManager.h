@@ -39,6 +39,7 @@ private:
 	std::priority_queue<AudioRequest, std::vector<AudioRequest>, ComparePriority> audioQueue;
 	float globalCooldown = 1.5f;
 	float globalCooldownTimer = 0.0f;             
+	float priorityThreshold = 2.5f;
 
 	void ProcessNextAudioRequest();
 
