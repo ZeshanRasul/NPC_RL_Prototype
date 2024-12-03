@@ -29,6 +29,8 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
         audioSystem = nullptr;
 	}
 
+	mAudioManager = new AudioManager(this);	
+
     window->setInputManager(inputManager);
     
     renderer = window->getRenderer();
@@ -240,7 +242,7 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
         }
     }
 
-    mMusicEvent = audioSystem->PlayEvent("event:/Music");
+    mMusicEvent = audioSystem->PlayEvent("event:/bgm");
 }
 
 void GameManager::setupCamera(unsigned int width, unsigned int height)
@@ -647,6 +649,7 @@ void GameManager::update(float deltaTime)
         e->Update(useEDBT);
     }
 
+	mAudioManager->Update(deltaTime);
     audioSystem->Update(deltaTime);
 
 	calculatePerformance(deltaTime);
@@ -1012,7 +1015,7 @@ void GameManager::render(bool isMinimapRenderPass, bool isShadowMapRenderPass, b
 				playerMuzzleModel = glm::mat4(1.0f);
 
 				playerMuzzleModel = glm::translate(playerMuzzleModel, player->GetShootPos());
-				playerMuzzleModel = glm::rotate(playerMuzzleModel, player->PlayerYaw, glm::vec3(0.0f, 1.0f, 0.0f));
+				playerMuzzleModel = glm::rotate(playerMuzzleModel, (-player->yaw + 180.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 				playerMuzzleModel = glm::scale(playerMuzzleModel, glm::vec3(playerMuzzleFlashScale, playerMuzzleFlashScale, 1.0f));
 				playerMuzzleFlashQuad->Draw3D(playerMuzzleTint, playerMuzzleAlpha, projection, view, playerMuzzleModel);
 			}

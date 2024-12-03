@@ -155,6 +155,8 @@ void Enemy::OnEvent(const Event& event)
 	{
         allyHasDied = true;
         numDeadAllies++;
+		std::string clipName = "event:/enemy" + std::to_string(id_) + "_Enemy Squad Member Death1";
+		Speak(clipName, 6.0f, 1.5f);
 	}
 
 }
@@ -246,7 +248,11 @@ void Enemy::moveEnemy(const std::vector<glm::ivec2>& path, float deltaTime, floa
 		grid_->VacateCell(path[pathIndex_ - 1].x, path[pathIndex_ - 1].y, id_);
 
         if (IsPatrolling() || EDBTState == "Patrol" || EDBTState == "PATROL")
+        {
             reachedDestination = true;
+			std::string clipName = "event:/enemy" + std::to_string(id_) + "_Patrolling1";
+            Speak(clipName, 2.0f, 1.5f);
+        }
 
 		if (isTakingCover_)
 		{
@@ -412,7 +418,11 @@ void Enemy::Shoot()
     SetDestAnimNum(2);
     blendAnim = true;
     resetBlend = true;
-    shootAC->PlayEvent("event:/EnemyShoot");
+    //shootAC->PlayEvent("event:/EnemyShoot");
+	std::string clipName = "event:/enemy" + std::to_string(id_) + "_Deals Damage1";
+	Speak(clipName, 1.0f, 3.0f);
+
+
     enemyRayDebugRenderTimer = 0.3f;
     enemyHasShot = true;
     enemyShootCooldown = 0.3f;
@@ -431,14 +441,22 @@ void Enemy::SetUpAABB()
     mGameManager->GetPhysicsWorld()->addEnemyCollider(GetAABB());
 }
 
+void Enemy::Speak(const std::string& clipName, float priority, float cooldown)
+{
+	mGameManager->GetAudioManager()->SubmitAudioRequest(id_, clipName, priority, cooldown);
+}
+
 void Enemy::OnHit()
 {
 	Logger::log(1, "Enemy was hit!\n", __FUNCTION__);
 	setAABBColor(glm::vec3(1.0f, 0.0f, 1.0f));
     TakeDamage(20.0f);
     isTakingDamage_ = true;
-    takeDamageAC->PlayEvent("event:/EnemyTakeDamage");
-	damageTimer = 0.2f;
+    //takeDamageAC->PlayEvent("event:/EnemyTakeDamage");
+	std::string clipName = "event:/enemy" + std::to_string(id_) + "_Taking Damage1";
+	Speak(clipName, 2.0f, 1.0f);
+
+    damageTimer = 0.2f;
     eventManager_.Publish(NPCDamagedEvent{ id_ });
 }
 
@@ -454,7 +472,9 @@ void Enemy::OnDeath()
 		blendAnim = true;
 		resetBlend = true;
     }
-	deathAC->PlayEvent("event:/EnemyDeath");
+	//deathAC->PlayEvent("event:/EnemyDeath");
+	std::string clipName = "event:/enemy" + std::to_string(id_) + "_Taking Damage1";
+	Speak(clipName, 3.0f, 1.5f);
     hasDied_ = true;
 	eventManager_.Publish(NPCDiedEvent{ id_ });
 }
@@ -638,6 +658,9 @@ void Enemy::BuildBehaviorTree()
 void Enemy::DetectPlayer()
 {
     isPlayerDetected_ = true;
+	std::string clipName = "event:/enemy" + std::to_string(id_) + "_Player Detected1";
+	Speak(clipName, 5.0f, 0.5f);
+
     eventManager_.Publish(PlayerDetectedEvent{ id_ });
 }
 
@@ -727,7 +750,10 @@ NodeStatus Enemy::EnterDyingState()
     
     if (!isDying_)
 	{
-		deathAC->PlayEvent("event:/EnemyDeath");
+		//deathAC->PlayEvent("event:/EnemyDeath");
+		//std::string clipName = "event:/enemy" + std::to_string(id_) + "_Taking Damage1";
+		//Speak(clipName, 1.0f, 0.5f);
+
         dyingTimer = 0.5f;
 		isDying_ = true;
 	}
@@ -771,6 +797,14 @@ NodeStatus Enemy::AttackShoot()
 	if (ShouldProvideSuppressionFire())
 	{
 		EDBTState = "Providing Suppression Fire";
+
+        if (StartingSuppressionFire)
+        {
+		   	std::string clipName = "event:/enemy" + std::to_string(id_) + "_Providing Suppression Fire1";
+            Speak(clipName, 1.0f, 2.0f);
+			StartingSuppressionFire = false;
+        }
+
 		coverTimer += dt_;
 		if (coverTimer > 1.0f)
 		{
@@ -781,6 +815,7 @@ NodeStatus Enemy::AttackShoot()
 			{
 				isInCover_ = false;
                 provideSuppressionFire_ = false;
+				StartingSuppressionFire = true;
 				return NodeStatus::Success;
 			}
 		}
@@ -818,8 +853,11 @@ NodeStatus Enemy::AttackChasePlayer()
 
 	moveEnemy(currentPath_, dt_, 1.0f, false);
 
+
     if (!IsPlayerVisible())
     {
+	    std::string clipName = "event:/enemy" + std::to_string(id_) + "_Chasing(Out of Sight)1";
+        Speak(clipName, 3.0f, 1.5f);
         return NodeStatus::Running;
     }
 
@@ -837,6 +875,13 @@ NodeStatus Enemy::TakeCover()
 {
 	EDBTState = "Taking Cover";
     isSeekingCover_ = false;
+
+    if (!isTakingCover_)
+    {
+		std::string clipName = "event:/enemy" + std::to_string(id_) + "_Taking Cover1";
+		Speak(clipName, 5.0f, 1.5f);
+    }
+
     isTakingCover_ = true;
 
 	if (grid_->GetGrid()[selectedCover_->gridX][selectedCover_->gridZ].IsOccupied())
@@ -871,6 +916,9 @@ NodeStatus Enemy::EnterInCoverState()
     isSeekingCover_ = false;
     isTakingCover_ = false;
     coverTimer = 0.0f;
+	std::string clipName = "event:/enemy" + std::to_string(id_) + "_In Cover1";
+    Speak(clipName, 5.0f, 1.5f);
+
     return NodeStatus::Success;
 }
 
@@ -924,6 +972,9 @@ NodeStatus Enemy::InCoverAction()
         if (health_ > 40.0f)
         {
             isInCover_ = false;
+			std::string clipName = "event:/enemy" + std::to_string(id_) + "_Moving Out of Cover1";
+			Speak(clipName, 4.0f, 1.5f);
+
             return NodeStatus::Success;
         }
 	}

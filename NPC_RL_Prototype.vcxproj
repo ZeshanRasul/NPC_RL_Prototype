@@ -143,6 +143,7 @@
     <ClCompile Include="include\imgui\imgui_tables.cpp" />
     <ClCompile Include="include\imgui\imgui_widgets.cpp" />
     <ClCompile Include="src\App.cpp" />
+    <ClCompile Include="src\Audio\AudioManager.cpp" />
     <ClCompile Include="src\Audio\AudioSystem.cpp" />
     <ClCompile Include="src\Audio\SoundEvent.cpp" />
     <ClCompile Include="src\Camera.cpp" />
@@ -200,6 +201,7 @@
     <ClInclude Include="src\AI\Event.h" />
     <ClInclude Include="src\AI\Events.h" />
     <ClInclude Include="src\App.h" />
+    <ClInclude Include="src\Audio\AudioManager.h" />
     <ClInclude Include="src\Audio\AudioSystem.h" />
     <ClInclude Include="src\Audio\SoundEvent.h" />
     <ClInclude Include="src\Camera.h" />

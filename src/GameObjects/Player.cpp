@@ -71,6 +71,23 @@ void Player::Update(float dt)
     ComputeAudioWorldTransform();
     UpdateComponents(dt);
 
+	if (playerShootAudioCooldown > 0.0f)
+	{
+		playerShootAudioCooldown -= dt;
+	}
+
+
+	if (playGameStartAudioTimer > 0.0f)
+	{
+		playGameStartAudioTimer -= dt;
+	}
+
+    if (playGameStartAudio && playGameStartAudioTimer < 0.0f)
+    {
+		takeDamageAC->PlayEvent("event:/Player2_Game Start");
+		playGameStartAudio = false;
+    }
+
 	if (destAnim != 0 && mVelocity == 0.0f)
 	{
 		SetSourceAnimNum(destAnim);
@@ -254,6 +271,11 @@ void Player::PlayerProcessMouseMovement(float xOffset)
 		UpdatePlayerAimVectors();
 }
 
+//void Player::Speak(const std::string& clipName, float priority, float cooldown)
+//{
+//	mGameManager->GetAudioManager()->SubmitAudioRequest(id_, clipName, priority, cooldown);
+//}
+
 void Player::SetAnimation(int animNum, float speedDivider, float blendFactor, bool playAnimBackwards)
 {
     model->playAnimation(animNum, speedDivider, blendFactor, playAnimBackwards);
@@ -285,7 +307,15 @@ void Player::Shoot()
 	if (GetPlayerState() != SHOOTING)
 		return;
 
-    shootAC->PlayEvent("event:/PlayerShoot");
+    if (playerShootAudioCooldown < 0.0f)
+    {
+        shootAC->PlayEvent("event:/Player2_Firing Weapon");
+        playerShootAudioCooldown = 2.0f;
+    }
+	//std::string clipName = "event:/player2_Firing Weapon";
+	//Speak(clipName, 1.0f, 0.5f);
+
+
     SetDestAnimNum(3);
 	blendFactor = 0.0f;
 	blendAnim = true;
@@ -381,13 +411,18 @@ void Player::OnHit()
 	std::cout << "Player hit!" << std::endl;
 	setAABBColor(glm::vec3(1.0f, 0.0f, 1.0f));
     TakeDamage(0.4f);
+	takeDamageAC->PlayEvent("event:/Player2_Taking Damage1");
+	//std::string clipName = "event:/player2_Taking Damage1";
+	//Speak(clipName, 1.0f, 0.5f);
 }
 
 void Player::OnDeath()
 {
 	std::cout << "Player died!" << std::endl;
     isDestroyed = true;
-//	deathAC->PlayEvent("event:/PlayerDeath");
+	deathAC->PlayEvent("event:/Player2_Death");
+	//std::string clipName = "event:/player2_Death";
+	//Speak(clipName, 1.0f, 0.5f);
 }
 
 void Player::ResetGame()

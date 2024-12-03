@@ -138,6 +138,8 @@ public:
 
 	int GetID() const { return id_; }
 
+	AudioComponent* GetAudioComponent() const { return takeDamageAC; }
+
     glm::vec3 getPosition() {
         return position;
     }
@@ -221,6 +223,8 @@ public:
 	std::string GetEDBTState() const { return EDBTState; }
 
     glm::vec3 GetEnemyFront() const { return EnemyFront; }
+
+	void Speak(const std::string& clipName, float priority, float cooldown);
 
     void OnHit() override;
 
@@ -924,6 +928,8 @@ private:
     bool IsAttacking();
     bool IsPatrolling();
 	bool ShouldProvideSuppressionFire();
+	
+	bool StartingSuppressionFire = true;
 
     NodeStatus EnterDyingState();
     NodeStatus EnterTakingDamageState();

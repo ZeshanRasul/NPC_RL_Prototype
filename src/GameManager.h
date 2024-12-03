@@ -10,6 +10,7 @@
 #include "src/InputManager.h"
 #include "Audio/AudioSystem.h"
 #include "Audio/SoundEvent.h"
+#include "Audio/AudioManager.h"
 #include "Physics/PhysicsWorld.h"
 
 #include "src/Camera.h"
@@ -148,6 +149,17 @@ public:
 
 	bool ShouldUseEDBT() const { return useEDBT; }
 	void CreateLightSpaceMatrices();
+
+    Enemy* GetEnemyByID(int id) {
+        for (auto& enemy : enemies) {
+            if (enemy->GetID() == id) {
+                return enemy;
+            }
+        }
+        return nullptr;
+    };
+
+	AudioManager* GetAudioManager() { return mAudioManager; }
 
 private:
     void ShowCameraControlWindow(Camera& cam);
@@ -364,4 +376,6 @@ private:
     SoundEvent mMusicEvent;
 
     bool firstFlyCamSwitch = true;
+
+	AudioManager* mAudioManager;
 };

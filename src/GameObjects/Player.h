@@ -94,6 +94,8 @@ public:
     void PlayerProcessKeyboard(CameraMovement direction, float deltaTime);
     void PlayerProcessMouseMovement(float xOffset);
 
+	//void Speak(const std::string& clipName, float priority, float cooldown);
+
     float GetVelocity() const { return mVelocity; }
 	void SetVelocity(float newVelocity) { mVelocity = newVelocity; }
 
@@ -137,7 +139,7 @@ public:
     void SetHealth(float newHealth) { health = newHealth; }
 
     void TakeDamage(float damage) {
-        takeDamageAC->PlayEvent("event:/PlayerTakeDamage");
+        /*takeDamageAC->PlayEvent("event:/PlayerTakeDamage");*/
         SetHealth(GetHealth() - damage);
         if (GetHealth() <= 0.0f) {
             OnDeath();
@@ -214,4 +216,8 @@ public:
     CameraMovement prevDirection;
 
 	glm::vec3 initialPos = glm::vec3(0.0f, 0.0f, 0.0f);
+
+    bool playGameStartAudio = true;
+    float playGameStartAudioTimer = 1.0f;
+    float playerShootAudioCooldown = 2.0f;
 };
