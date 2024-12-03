@@ -898,6 +898,7 @@ private:
 	bool inCover = false;
 	float coverTimer = 0.0f;
 	bool reachedCover = false;
+	float shootAudioCooldown = 0.0f;
 
 	float accuracy = 60.0f;
 	glm::vec3 enemyShootPos = glm::vec3(0.0f);

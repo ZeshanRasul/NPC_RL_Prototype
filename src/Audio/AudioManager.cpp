@@ -27,7 +27,7 @@ void AudioManager::Update(float deltaTime)
 
 void AudioManager::ProcessNextAudioRequest()
 {
-	AudioRequest request = audioQueue.front();
+	AudioRequest request = audioQueue.top();
 	audioQueue.pop();
 
 	Enemy* enemy = gameManager->GetEnemyByID(request.enemyId);

@@ -93,6 +93,11 @@ void Enemy::Update(bool shouldUseEDBT)
 			{
 				enemyHasShot = false;
 			}
+
+			if (shootAudioCooldown > 0.0f)
+			{
+				shootAudioCooldown -= dt_;
+			}
         }
 
         if (isDestroyed)
@@ -419,8 +424,12 @@ void Enemy::Shoot()
     blendAnim = true;
     resetBlend = true;
     //shootAC->PlayEvent("event:/EnemyShoot");
-	std::string clipName = "event:/enemy" + std::to_string(id_) + "_Deals Damage1";
-	Speak(clipName, 1.0f, 3.0f);
+    if (shootAudioCooldown <= 0.0f)
+    {
+	    std::string clipName = "event:/enemy" + std::to_string(id_) + "_Deals Damage1";
+	    Speak(clipName, 1.0f, 1.0f);
+        shootAudioCooldown = 2.0f;
+    }
 
 
     enemyRayDebugRenderTimer = 0.3f;
@@ -659,7 +668,7 @@ void Enemy::DetectPlayer()
 {
     isPlayerDetected_ = true;
 	std::string clipName = "event:/enemy" + std::to_string(id_) + "_Player Detected1";
-	Speak(clipName, 5.0f, 0.5f);
+	Speak(clipName, 5.0f, 1.5f);
 
     eventManager_.Publish(PlayerDetectedEvent{ id_ });
 }

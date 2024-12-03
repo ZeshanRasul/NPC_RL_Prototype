@@ -15,6 +15,14 @@ struct AudioRequest
 	float cooldown;              
 };
 
+struct ComparePriority
+{
+	bool operator()(const AudioRequest& a, const AudioRequest& b)
+	{
+		return a.priority < b.priority;
+	}
+};
+
 class AudioManager
 {
 public:
@@ -28,8 +36,8 @@ public:
 
 private:
 	std::unordered_map<int, float> enemyCooldowns;
-	std::queue<AudioRequest> audioQueue;          
-	float globalCooldown = 1.5f;                  
+	std::priority_queue<AudioRequest, std::vector<AudioRequest>, ComparePriority> audioQueue;
+	float globalCooldown = 1.5f;
 	float globalCooldownTimer = 0.0f;             
 
 	void ProcessNextAudioRequest();
