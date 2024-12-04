@@ -698,23 +698,28 @@ float Enemy::CalculateReward(const NashState& state, NashAction action, int enem
 		}
 	}
 	else if (action == ADVANCE) {
-		reward += (state.distanceToPlayer > 15.0f && state.playerDetected || (state.playerDetected && !state.playerVisible)) ? 12.0f : -3.0f;
+		reward += (state.distanceToPlayer > 15.0f && state.playerDetected || (state.playerDetected && !state.playerVisible)) ? 12.0f : -2.0f;
 
 		if (state.distanceToPlayer < 10.0f)
 		{
-			reward -= 5.0f;
+			reward -= 3.0f;
 		}
 	}
 	else if (action == RETREAT) {
-		reward += (state.health <= 40) ? 10.0f : -5.0f;
+		reward += (state.health <= 40) ? 12.0f : -5.0f;
 
 		if (state.health <= 20 && state.distanceToPlayer > 20.0f)
 		{
-			reward += 5.0f;
+			reward += 8.0f;
 		}
 	}
 	else if (action == PATROL) {
-		reward += (!state.playerDetected) ? 5.0f : -10.0f;
+		reward += (!state.playerDetected) ? 7.0f : -10.0f;
+
+		if (state.health == 100)
+		{
+			reward += 3.0f;
+		}
 	}
 
 	// Additional reward for coordinated behavior
@@ -723,9 +728,13 @@ float Enemy::CalculateReward(const NashState& state, NashAction action, int enem
 		reward += 10.0f;
 	}
 
+	if (action == RETREAT && numAttacking >= 2 && state.health <= 40) {
+		reward += 5.0f;
+	}
+
 	if (hasTakenDamage_)
 	{
-		reward -= 5.0f;
+		reward -= 3.0f;
 		hasTakenDamage_ = false;
 	}
 
