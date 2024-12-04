@@ -11,8 +11,11 @@
     <object class="MarkerTrack" id="{6340f688-c6dd-4e59-b50a-1cf8600351ec}"/>
     <object class="GroupTrack" id="{fa7a3439-8b69-4ec9-9e8d-9b12b5fe0219}"/>
     <object class="Timeline" id="{5570125a-8e19-44f1-b623-45bf054011f4}">
+        <property name="cursorPosition">
+            <value>0.0047533805031446533</value>
+        </property>
         <property name="uiLastRulerScaleRatio">
-            <value>0.0012584119496855345</value>
+            <value>0.0011883451257861633</value>
         </property>
     </object>
     <object class="EventMixerMaster" id="{14cea772-865c-4e77-8e0d-2f83e35707be}">

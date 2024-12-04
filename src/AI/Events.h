@@ -17,6 +17,14 @@ public:
     int npcID;
 };
 
+class NPCTakingCoverEvent : public Event
+{
+public:
+	NPCTakingCoverEvent(int id) : npcID(id) {}
+
+	int npcID;
+};
+
 class NPCDiedEvent : public Event
 {
 public:

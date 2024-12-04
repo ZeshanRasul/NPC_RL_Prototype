@@ -189,6 +189,20 @@ void Enemy::OnEvent(const Event& event)
 		std::string clipName = "event:/enemy" + std::to_string(enemyAudioIndex) + "_Enemy Squad Member Death" + std::to_string(randomIndex);
 		Speak(clipName, 6.0f, randomFloat);
 	}
+	else if (const NPCTakingCoverEvent* e = dynamic_cast<const NPCTakingCoverEvent*>(&event))
+	{
+		if (e->npcID != id_)
+		{
+			if (isInCover_)
+			{
+				// Come out of cover and provide suppression fire
+				isInCover_ = false;
+				isSeekingCover_ = false;
+				isTakingCover_ = false;
+				provideSuppressionFire_ = true;
+			}
+		}
+	}
 
 }
 
@@ -598,39 +612,48 @@ void Enemy::OnDeath()
 
 void Enemy::ScoreCoverLocations(Player& player)
 {
-    float bestScore = -100000.0f;
+	float bestScore = -FLT_MAX; 
+	Grid::Cover* bestCover = nullptr;
 
-	Grid::Cover* bestCover = selectedCover_;
+	// Tunable weights for scoring factors
+	const float visibilityWeight = 50.0f;  // Strongly prioritize invisible cover.
+	const float enemyProximityWeight = 1.0f; // Prioritize proximity to the enemy.
+	const float playerProximityWeight = 0.5f; // Slightly discourage proximity to the player.
 
 	for (Grid::Cover* cover : grid_->GetCoverLocations())
 	{
-        float score = 0.0f; 
-		
-        float distanceToPlayer = glm::distance(cover->worldPosition, player.getPosition());
-        score += distanceToPlayer * 0.5f;
+		if (grid_->GetGrid()[cover->gridX][cover->gridZ].IsOccupied())
+			continue;
 
-		float distanceToEnemy = glm::distance(cover->worldPosition, getPosition());
-		score -= (1.0f / distanceToEnemy + 1.0f) * 1.0f;
+		float score = 0.0f;
 
 		glm::vec3 rayOrigin = cover->worldPosition + glm::vec3(0.0f, 2.5f, 0.0f);
 		glm::vec3 rayDirection = glm::normalize(player.getPosition() - rayOrigin);
-        glm::vec3 hitPoint = glm::vec3(0.0f);
+		glm::vec3 hitPoint;
+		bool visibleToPlayer = mGameManager->GetPhysicsWorld()->checkPlayerVisibility(rayOrigin, rayDirection, hitPoint, aabb);
 
-        bool visibleToPlayer = mGameManager->GetPhysicsWorld()->checkPlayerVisibility(rayOrigin, rayDirection, hitPoint, aabb);
-        if (!visibleToPlayer) {
-            score += 20.0f;
-        }
+		if (visibleToPlayer)
+			continue; 
 
-        if (grid_->GetGrid()[cover->gridX][cover->gridZ].IsOccupied())
-            continue;
+		score += visibilityWeight;
+
+		float distanceToEnemy = glm::distance(cover->worldPosition, getPosition());
+		score -= enemyProximityWeight * distanceToEnemy;
+
+		float distanceToPlayer = glm::distance(cover->worldPosition, player.getPosition());
+		score += playerProximityWeight * distanceToPlayer;
 
 		if (score > bestScore)
-	    {
+		{
 			bestScore = score;
-			selectedCover_ = cover;
+			bestCover = cover;
 		}
-    }
+	}
+
+	if (bestCover)
+		selectedCover_ = bestCover;
 }
+
 
 glm::vec3 Enemy::selectRandomWaypoint(const glm::vec3& currentWaypoint, const std::vector<glm::vec3>& allWaypoints)
 {
@@ -1653,6 +1676,8 @@ NodeStatus Enemy::TakeCover()
 
 		std::string clipName = "event:/enemy" + std::to_string(enemyAudioIndex) + "_Taking Cover" + std::to_string(randomIndex);
 		Speak(clipName, 5.0f, randomFloat);
+
+		eventManager_.Publish(NPCTakingCoverEvent{ id_ });
     }
 
     isTakingCover_ = true;
@@ -1667,8 +1692,8 @@ NodeStatus Enemy::TakeCover()
    
 
     currentPath_ = grid_->findPath(
-        glm::ivec2(snappedCurrentPos.x / grid_->GetCellSize(), snappedCurrentPos.z / grid_->GetCellSize()),
-		glm::ivec2(snappedCoverPos.x / grid_->GetCellSize(), snappedCoverPos.z / grid_->GetCellSize()),
+        glm::ivec2(getPosition().x / grid_->GetCellSize(), getPosition().z / grid_->GetCellSize()),
+		glm::ivec2(selectedCover_->worldPosition.x / grid_->GetCellSize(), selectedCover_->worldPosition.z / grid_->GetCellSize()),
         grid_->GetGrid(),
         id_
     );
@@ -1755,7 +1780,7 @@ NodeStatus Enemy::Patrol()
 NodeStatus Enemy::InCoverAction()
 {
     coverTimer += dt_;
-    if (coverTimer > 1.0f)
+    if (coverTimer > 2.5f)
     {
 		health_ += 10.0f;
 		coverTimer = 0.0f;
@@ -1792,8 +1817,11 @@ NodeStatus Enemy::InCoverAction()
         }
 	}
 
-    if (provideSuppressionFire_)
+	if (provideSuppressionFire_)
+	{
+		isInCover_ = false;
         return NodeStatus::Success;
+	}
 
 	EDBTState = "In Cover";
     return NodeStatus::Running;

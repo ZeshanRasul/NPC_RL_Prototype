@@ -50,10 +50,6 @@ struct PairHash {
 };
 
 class Enemy : public GameObject {
-public:
-	// NASH LEARNING
-
-
 private:
 
 	const float learningRate = 0.1f;
@@ -66,8 +62,6 @@ private:
 	float DecayExplorationRate(float initialRate, float minRate, int currentSize, int targetSize);
 
 	Player& player;
-
-	// NASH LEARNING
 
 public:
 	Enemy(glm::vec3 pos, glm::vec3 scale, Shader* sdr, Shader* shadowMapShader, bool applySkinning, GameManager* gameMgr, Grid* grd, std::string texFilename, int id, EventManager& eventManager, Player& player, float yaw = 0.0f)
@@ -119,6 +113,7 @@ public:
         eventManager_.Subscribe<PlayerDetectedEvent>([this](const Event& e) { OnEvent(e); });
         eventManager_.Subscribe<NPCDamagedEvent>([this](const Event& e) { OnEvent(e); });
 		eventManager_.Subscribe<NPCDiedEvent>([this](const Event& e) { OnEvent(e); });
+		eventManager_.Subscribe<NPCTakingCoverEvent>([this](const Event& e) { OnEvent(e); });
     }
 
     ~Enemy() 
