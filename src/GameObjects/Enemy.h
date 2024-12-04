@@ -63,13 +63,7 @@ private:
 	float minExplorationRate = 0.1f;
 	int targetQTableSize = 100000;  
 
-	float DecayExplorationRate(float initialRate, float minRate, int currentSize, int targetSize) {
-		if (currentSize >= targetSize) {
-			return minRate;  
-		}
-		float decayedRate = minRate + (initialRate - minRate) * (1.0f - static_cast<float>(currentSize) / targetSize);
-		return decayedRate;
-	}
+	float DecayExplorationRate(float initialRate, float minRate, int currentSize, int targetSize);
 
 	Player& player;
 
@@ -179,16 +173,7 @@ public:
 	float GetHealth() const { return health_; }
 	void SetHealth(float newHealth) { health_ = newHealth; }
 
-	void TakeDamage(float damage) {
-		SetHealth(GetHealth() - damage);
-		if (health_ <= 0)
-		{
-			OnDeath();
-			return;
-		}
-        isTakingDamage_ = true;
-		hasTakenDamage_ = true;
-    }
+	void TakeDamage(float damage);
 
     void OnDeath();
 
@@ -238,24 +223,8 @@ public:
     
     void ScoreCoverLocations(Player& player);
 
-    glm::vec3 selectRandomWaypoint(const glm::vec3& currentWaypoint, const std::vector<glm::vec3>& allWaypoints) {
+	glm::vec3 selectRandomWaypoint(const glm::vec3& currentWaypoint, const std::vector<glm::vec3>& allWaypoints);
 
-        if (isDestroyed) return glm::vec3(0.0f);
-
-        std::vector<glm::vec3> availableWaypoints;
-        for (const auto& wp : allWaypoints) {
-            if (wp != currentWaypoint) {
-                availableWaypoints.push_back(wp);
-            }
-        }
-
-        // Select a random way point from the available way points
-		std::random_device rd;
-		std::mt19937 gen{ rd() };
-		std::uniform_int_distribution<> distrib(0, availableWaypoints.size() - 1);
-		int randomIndex = distrib(gen);
-        return availableWaypoints[randomIndex];
-    }
 	Grid* grid_;
 
     // NASH LEARNING
@@ -267,490 +236,29 @@ public:
 		return static_cast<int>(distance / BUCKET_SIZE);
 	}
 
-    float CalculateReward(const NashState& state, NashAction action, int enemyId, const std::vector<NashAction>& squadActions) {
-		float reward = 0.0f;
+	float CalculateReward(const NashState& state, NashAction action, int enemyId, const std::vector<NashAction>& squadActions);
 
-		if (action == ATTACK) {
-			reward += (state.playerVisible && state.playerDetected) ? 20.0f : -10.0f;
-			if (hasDealtDamage_)
-			{
-				reward += 8.0f;
-				hasDealtDamage_ = false;
-				
-				if (hasKilledPlayer_)
-				{
-					reward += 25.0f;
-					hasKilledPlayer_ = false;
-				}
-			}
-
-			if (state.health <= 20)
-			{
-				reward -= 5.0f;
-			}
-		}
-		else if (action == ADVANCE) {
-			reward += (state.distanceToPlayer > 15.0f && state.playerDetected || (state.playerDetected && !state.playerVisible)) ? 12.0f : -3.0f;
-
-			if (state.distanceToPlayer < 10.0f)
-			{
-				reward -= 5.0f;
-			}
-		}
-		else if (action == RETREAT) {
-			reward += (state.health <= 40) ? 10.0f : -5.0f;
-
-			if (state.health <= 20 && state.distanceToPlayer > 20.0f)
-			{
-				reward += 5.0f;
-			}
-		}
-		else if (action == PATROL) {
-			reward += (!state.playerDetected) ? 5.0f : -10.0f;
-		}
-
-		// Additional reward for coordinated behavior
-		int numAttacking = (int)std::count(squadActions.begin(), squadActions.end(), ATTACK);
-		if (action == ATTACK && numAttacking > 1 && (state.playerVisible && state.playerDetected)) {
-			reward += 10.0f; 
-		}
-
-		if (hasTakenDamage_)
-		{
-			reward -= 5.0f;
-			hasTakenDamage_ = false;
-		}
-
-		if (hasDied_)
-		{
-			reward -= 20.0f;
-			hasDied_ = false;
-
-			if (numDeadAllies = 3)
-			{
-				reward -= 30.0f;
-				numDeadAllies = 0;
-			}
-		}
-
-		if (allyHasDied)
-		{
-			reward -= 10.0f;
-			allyHasDied = false;
-
-		}
-
-		hasDealtDamage_ = false;
-		hasKilledPlayer_ = false;
-
-		return reward;
-	}
-
-	float GetMaxQValue(const NashState& state, int enemyId, std::unordered_map<std::pair<NashState, NashAction>, float, PairHash>* qTable) {
-		float maxQ = -std::numeric_limits<float>::infinity();
-		int targetBucket = getDistanceBucket(state.distanceToPlayer);
-
-		for (auto action : { ATTACK, ADVANCE, RETREAT, PATROL }) {
-		    for (int bucketOffset = -1; bucketOffset <= 1; ++bucketOffset) {
-		        int bucket = targetBucket + bucketOffset;
-		        NashState modifiedState = state;
-		        modifiedState.distanceToPlayer = bucket * BUCKET_SIZE; // Discretized distance
-		        
-		        auto it = qTable[enemyId].find({ modifiedState, action });
-		        if (it != qTable[enemyId].end() && std::abs(it->first.first.distanceToPlayer - state.distanceToPlayer) <= TOLERANCE) {
-		            maxQ = std::max(maxQ, it->second);
-		        }
-		    }
-		}
-		return (maxQ == -std::numeric_limits<float>::infinity()) ? 0.0f : maxQ;
-	}
+	float GetMaxQValue(const NashState& state, int enemyId, std::unordered_map<std::pair<NashState, NashAction>, float, PairHash>* qTable);
 
 	// Choose an action based on epsilon-greedy strategy for a specific enemy
-	NashAction ChooseAction(const NashState& state, int enemyId, std::unordered_map<std::pair<NashState, NashAction>, float, PairHash>* qTable) {
-		static std::random_device rd;
-		static std::mt19937 gen(rd());
-		static std::uniform_real_distribution<> dis(0.0, 1.0);
-
-		int currentQTableSize = qTable[enemyId].size();
-		explorationRate = DecayExplorationRate(initialExplorationRate, minExplorationRate, currentQTableSize, targetQTableSize);
-
-		if (dis(gen) < explorationRate) {
-			// Exploration: choose a random action
-			std::uniform_int_distribution<> actionDist(0, 3);
-			return static_cast<NashAction>(actionDist(gen));
-		}
-		else {
-			// Exploitation: choose the action with the highest Q-value
-			float maxQ = -std::numeric_limits<float>::infinity();
-			NashAction bestAction = PATROL;
-			for (auto action : { ATTACK, ADVANCE, RETREAT, PATROL }) {
-				float qValue = qTable[enemyId][{state, action}];
-				if (qValue > maxQ) {
-					maxQ = qValue;
-					bestAction = action;
-				}
-			}
-			return bestAction;
-		}
-	}
+	NashAction ChooseAction(const NashState& state, int enemyId, std::unordered_map<std::pair<NashState, NashAction>, float, PairHash>* qTable);
 
 	// Update Q-value for a given state-action pair for a specific enemy
 	void UpdateQValue(const NashState& currentState, NashAction action, const NashState& nextState, float reward,
-		int enemyId, std::unordered_map<std::pair<NashState, NashAction>, float, PairHash>* qTable) {
-		float currentQ = qTable[enemyId][{currentState, action}];
-		float maxFutureQ = GetMaxQValue(nextState, enemyId, qTable);
-		float updatedQ = (1 - learningRate) * currentQ + learningRate * (reward + discountFactor * maxFutureQ);
-		qTable[enemyId][{currentState, action}] = updatedQ;
-	}
+		int enemyId, std::unordered_map<std::pair<NashState, NashAction>, float, PairHash>* qTable);
 
 	// Function to perform enemy decision-making during an attack using Nash Q-learning
 	void EnemyDecision(NashState& currentState, int enemyId, std::vector<NashAction>& squadActions,
-		float deltaTime, std::unordered_map<std::pair<NashState, NashAction>, float, PairHash>* qTable) {
-		
-		if (enemyHasShot)
-		{
-			enemyRayDebugRenderTimer -= dt_;
-			enemyShootCooldown -= dt_;
-		}
-		if (enemyShootCooldown <= 0.0f)
-		{
-			enemyHasShot = false;
-		}
-
-		if (damageTimer > 0.0f)
-		{
-			damageTimer -= deltaTime;
-			return;
-		}
-		
-		if (dyingTimer > 0.0f && isDying_)
-		{
-			dyingTimer -= deltaTime;
-			return;
-		}
-		else if (dyingTimer <= 0.0f && isDying_)
-		{
-			isDying_ = false;
-			isDead_ = true;
-			isDestroyed = true;
-			dyingTimer = 100000.0f;
-			return;
-		}
-
-		NashAction chosenAction = ChooseAction(currentState, enemyId, qTable);
-
-		// Simulate taking action and getting a reward
-		NashState nextState = currentState;
-		int numAttacking = (int)std::count(squadActions.begin(), squadActions.end(), ATTACK);
-		bool isSuppressionFire = numAttacking > 0;
-		float playerDistance = glm::distance(getPosition(), player.getPosition());
-
-		if (!IsPlayerDetected() && (playerDistance < 35.0f) && IsPlayerVisible())
-		{
-			DetectPlayer();
-		}
-
-		if (chosenAction == ADVANCE) {
-			EDBTState = "ADVANCE";
-			currentPath_ = grid_->findPath(
-				glm::ivec2(getPosition().x / grid_->GetCellSize(), getPosition().z / grid_->GetCellSize()),
-				glm::ivec2(player.getPosition().x / grid_->GetCellSize(), player.getPosition().z / grid_->GetCellSize()),
-				grid_->GetGrid(),
-				enemyId
-			);
-
-			VacatePreviousCell();
-
-			moveEnemy(currentPath_, deltaTime, 1.0f, false);
-
-			nextState.playerDetected = IsPlayerDetected();
-			nextState.distanceToPlayer = glm::distance(getPosition(), player.getPosition());
-			nextState.playerVisible = IsPlayerVisible();
-			nextState.health = GetHealth();
-			nextState.isSuppressionFire = isSuppressionFire;
-		}
-		else if (chosenAction == RETREAT) {
-			EDBTState = "RETREAT";
-
-			if (!selectedCover_ || grid_->GetGrid()[selectedCover_->gridX][selectedCover_->gridZ].IsOccupied())
-			{
-				ScoreCoverLocations(player);
-			}
-
-			glm::vec3 snappedCurrentPos = grid_->snapToGrid(getPosition());
-			glm::vec3 snappedCoverPos = grid_->snapToGrid(selectedCover_->worldPosition);
-
-
-			currentPath_ = grid_->findPath(
-				glm::ivec2(snappedCurrentPos.x / grid_->GetCellSize(), snappedCurrentPos.z / grid_->GetCellSize()),
-				glm::ivec2(snappedCoverPos.x / grid_->GetCellSize(), snappedCoverPos.z / grid_->GetCellSize()),
-				grid_->GetGrid(),
-				id_
-			);
-
-			VacatePreviousCell();
-
-			moveEnemy(currentPath_, dt_, 1.0f, false);
-
-			nextState.playerDetected = IsPlayerDetected();
-			nextState.distanceToPlayer = glm::distance(getPosition(), player.getPosition());
-			nextState.playerVisible = IsPlayerVisible();
-			nextState.health = GetHealth();
-			nextState.isSuppressionFire = isSuppressionFire;
-		}
-		else if (chosenAction == ATTACK) {
-			EDBTState = "ATTACK";
-
-			if (enemyShootCooldown > 0.0f)
-			{
-				return;
-			}
-
-			Shoot();
-
-			nextState.playerDetected = IsPlayerDetected();
-			nextState.distanceToPlayer = glm::distance(getPosition(), player.getPosition());
-			nextState.playerVisible = IsPlayerVisible();
-			nextState.health = GetHealth();
-			nextState.isSuppressionFire = isSuppressionFire;
-		}
-		else if (chosenAction == PATROL) {
-			EDBTState = "PATROL";
-
-			if (reachedDestination == false)
-			{
-				currentPath_ = grid_->findPath(
-					glm::ivec2((int)(getPosition().x / grid_->GetCellSize()), (int)(getPosition().z / grid_->GetCellSize())),
-					glm::ivec2(currentWaypoint.x / grid_->GetCellSize(), currentWaypoint.z / grid_->GetCellSize()),
-					grid_->GetGrid(),
-					id_
-				);
-
-				VacatePreviousCell();
-
-				moveEnemy(currentPath_, dt_, 1.0f, false);
-			}
-			else
-			{
-				currentWaypoint = selectRandomWaypoint(currentWaypoint, waypointPositions);
-
-				currentPath_ = grid_->findPath(
-					glm::ivec2(getPosition().x / grid_->GetCellSize(), getPosition().z / grid_->GetCellSize()),
-					glm::ivec2(currentWaypoint.x / grid_->GetCellSize(), currentWaypoint.z / grid_->GetCellSize()),
-					grid_->GetGrid(),
-					id_
-				);
-
-				VacatePreviousCell();
-
-				reachedDestination = false;
-
-				moveEnemy(currentPath_, dt_, 1.0f, false);
-			}
-
-			nextState.playerDetected = IsPlayerDetected();
-			nextState.distanceToPlayer = glm::distance(getPosition(), player.getPosition());
-			nextState.playerVisible = IsPlayerVisible();
-			nextState.health = GetHealth();
-			nextState.isSuppressionFire = isSuppressionFire;
-		}
-
-		float reward = CalculateReward(currentState, chosenAction, enemyId, squadActions);
-
-		// Update Q-value
-		UpdateQValue(currentState, chosenAction, nextState, reward, enemyId, qTable);
-
-		// Update current state
-		currentState = nextState;
-		squadActions[enemyId] = chosenAction;
-
-		// Print chosen action
-		std::cout << "Enemy " << enemyId << " Chosen Action: " << chosenAction << " with reward: " << reward << std::endl;
-	}
+		float deltaTime, std::unordered_map<std::pair<NashState, NashAction>, float, PairHash>* qTable);
 
 	// USING PRECOMPUTED Q-VALUES
 
 	// Choose an action based on the highest Q-value for a specific enemy
-	NashAction ChooseActionFromTrainedQTable(const NashState& state, int enemyId, std::unordered_map<std::pair<NashState, NashAction>, float, PairHash>* qTable) {
-		float maxQ = -std::numeric_limits<float>::infinity();
-		NashAction bestAction = PATROL;
-		int targetBucket = getDistanceBucket(state.distanceToPlayer);
-
-		for (auto action : { ATTACK, ADVANCE, RETREAT, PATROL }) {
-			for (int bucketOffset = -1; bucketOffset <= 1; ++bucketOffset) {
-				int bucket = targetBucket + bucketOffset;
-				NashState modifiedState = state;
-				modifiedState.distanceToPlayer = bucket * BUCKET_SIZE;  // Use discretized distance
-
-				auto it = qTable[enemyId].find({ modifiedState, action });
-				// Check if entry exists and is within tolerance range
-				if (it != qTable[enemyId].end() && std::abs(it->first.first.distanceToPlayer - state.distanceToPlayer) <= TOLERANCE) {
-					if (it->second > maxQ) {
-						maxQ = it->second;
-						bestAction = action;
-					}
-				}
-			}
-		}
-
-		return bestAction;
-	}
+	NashAction ChooseActionFromTrainedQTable(const NashState& state, int enemyId,
+		std::unordered_map<std::pair<NashState, NashAction>, float, PairHash>* qTable);
 
 	void EnemyDecisionPrecomputedQ(NashState& currentState, int enemyId, std::vector<NashAction>& squadActions,
-		float deltaTime, std::unordered_map<std::pair<NashState, NashAction>, float, PairHash>* qTable) {
-		
-		if (enemyHasShot)
-		{
-			enemyRayDebugRenderTimer -= dt_;
-			enemyShootCooldown -= dt_;
-		}
-		if (enemyShootCooldown <= 0.0f)
-		{
-			enemyHasShot = false;
-		}
-
-		if (damageTimer > 0.0f)
-		{
-			damageTimer -= deltaTime;
-			return;
-		}
-		
-		if (dyingTimer > 0.0f && isDying_)
-		{
-			dyingTimer -= deltaTime;
-			return;
-		}
-		else if (dyingTimer <= 0.0f && isDying_)
-		{
-			isDying_ = false;
-			isDead_ = true;
-			isDestroyed = true;
-			dyingTimer = 100000.0f;
-			return;
-		}
-
-		NashAction chosenAction = ChooseActionFromTrainedQTable(currentState, enemyId, qTable);
-		
-		int numAttacking = (int)std::count(squadActions.begin(), squadActions.end(), ATTACK);
-		bool isSuppressionFire = numAttacking > 0;
-		float playerDistance = glm::distance(getPosition(), player.getPosition());
-		if (!IsPlayerDetected() && (playerDistance < 35.0f) && IsPlayerVisible())
-		{
-			DetectPlayer();
-		}
-
-		if (chosenAction == ADVANCE) {
-			EDBTState = "ADVANCE";
-			currentPath_ = grid_->findPath(
-				glm::ivec2(getPosition().x / grid_->GetCellSize(), getPosition().z / grid_->GetCellSize()),
-				glm::ivec2(player.getPosition().x / grid_->GetCellSize(), player.getPosition().z / grid_->GetCellSize()),
-				grid_->GetGrid(),
-				enemyId
-			);
-
-			VacatePreviousCell();
-
-			moveEnemy(currentPath_, deltaTime, 1.0f, false);
-
-			currentState.playerDetected = IsPlayerDetected();
-			currentState.distanceToPlayer = glm::distance(getPosition(), player.getPosition());
-			currentState.playerVisible = IsPlayerVisible();
-			currentState.health = GetHealth();
-			currentState.isSuppressionFire = isSuppressionFire;
-		}
-		else if (chosenAction == RETREAT) 
-		{
-			EDBTState = "RETREAT";
-
-			if (!selectedCover_ || grid_->GetGrid()[selectedCover_->gridX][selectedCover_->gridZ].IsOccupied())
-			{
-				ScoreCoverLocations(player);
-			}
-
-			glm::vec3 snappedCurrentPos = grid_->snapToGrid(getPosition());
-			glm::vec3 snappedCoverPos = grid_->snapToGrid(selectedCover_->worldPosition);
-
-
-			currentPath_ = grid_->findPath(
-				glm::ivec2(snappedCurrentPos.x / grid_->GetCellSize(), snappedCurrentPos.z / grid_->GetCellSize()),
-				glm::ivec2(snappedCoverPos.x / grid_->GetCellSize(), snappedCoverPos.z / grid_->GetCellSize()),
-				grid_->GetGrid(),
-				id_
-			);
-
-			VacatePreviousCell();
-
-			moveEnemy(currentPath_, dt_, 1.0f, false);
-			currentState.playerDetected = IsPlayerDetected();
-			currentState.distanceToPlayer = glm::distance(getPosition(), player.getPosition());
-			currentState.playerVisible = IsPlayerVisible();
-			currentState.health = GetHealth();
-			currentState.isSuppressionFire = isSuppressionFire;
-		}
-		else if (chosenAction == ATTACK) 
-		{
-			EDBTState = "ATTACK";
-
-			if (enemyShootCooldown > 0.0f)
-			{
-				return;
-			}
-
-			Shoot();
-
-			currentState.playerDetected = IsPlayerDetected();
-			currentState.distanceToPlayer = glm::distance(getPosition(), player.getPosition());
-			currentState.playerVisible = IsPlayerVisible();
-			currentState.health = GetHealth();
-			currentState.isSuppressionFire = isSuppressionFire;
-		}
-		else if (chosenAction == PATROL) {
-			EDBTState = "PATROL";
-
-			if (reachedDestination == false)
-			{
-				currentPath_ = grid_->findPath(
-					glm::ivec2((int)(getPosition().x / grid_->GetCellSize()), (int)(getPosition().z / grid_->GetCellSize())),
-					glm::ivec2(currentWaypoint.x / grid_->GetCellSize(), currentWaypoint.z / grid_->GetCellSize()),
-					grid_->GetGrid(),
-					id_
-				);
-
-				VacatePreviousCell();
-
-				moveEnemy(currentPath_, dt_, 1.0f, false);
-			}
-			else
-			{
-				currentWaypoint = selectRandomWaypoint(currentWaypoint, waypointPositions);
-
-				currentPath_ = grid_->findPath(
-					glm::ivec2(getPosition().x / grid_->GetCellSize(), getPosition().z / grid_->GetCellSize()),
-					glm::ivec2(currentWaypoint.x / grid_->GetCellSize(), currentWaypoint.z / grid_->GetCellSize()),
-					grid_->GetGrid(),
-					id_
-				);
-
-				VacatePreviousCell();
-
-				reachedDestination = false;
-
-				moveEnemy(currentPath_, dt_, 1.0f, false);
-			}
-
-
-			currentState.playerDetected = IsPlayerDetected();
-			currentState.distanceToPlayer = glm::distance(getPosition(), player.getPosition());
-			currentState.playerVisible = IsPlayerVisible();
-			currentState.health = GetHealth();
-			currentState.isSuppressionFire = isSuppressionFire;
-		}
-
-		squadActions[enemyId] = chosenAction;
-
-		// Print chosen action
-		std::cout << "Enemy " << enemyId << " Chosen Action: " << chosenAction << std::endl;
-	}
+		float deltaTime, std::unordered_map<std::pair<NashState, NashAction>, float, PairHash>* qTable);
 
 
 	// USING PRECOMPUTED Q-VALUES
@@ -759,61 +267,10 @@ public:
 
 	bool isDead_ = false;
 
-	void HasDealtDamage() override { hasDealtDamage_ = true; }
+	void HasDealtDamage() override;
 	void HasKilledPlayer() override { hasKilledPlayer_ = true; }
 
-	void ResetState() 
-	{
-		isPlayerDetected_ = false;
-		isPlayerVisible_ = false;
-		isPlayerInRange_ = false;
-		isTakingDamage_ = false;
-		hasTakenDamage_ = false;
-		isDying_ = false;
-		hasDied_ = false;
-		isInCover_ = false;
-		isSeekingCover_ = false;
-		isTakingCover_ = false;
-		isAttacking_ = false;
-		hasDealtDamage_ = false;
-		hasKilledPlayer_ = false;
-		isPatrolling_ = false;
-		provideSuppressionFire_ = false;
-		allyHasDied = false;
-
-		numDeadAllies = 0;
-		
-		selectedCover_ = nullptr;
-
-		takingDamage = false;
-		damageTimer = 0.0f;
-		dyingTimer = 0.0f;
-		inCover = false;
-		coverTimer = 0.0f;
-		reachedCover = false;
-
-		reachedDestination = false;
-		reachedPlayer = false;
-
-		aabbColor = glm::vec3(0.0f, 0.0f, 1.0f);
-
-		updateAABB();
-
-		animNum = 1;
-		sourceAnim = 1;
-		destAnim = 1;
-		destAnimSet = false;
-		blendSpeed = 5.0f;
-		blendFactor = 0.0f;
-		blendAnim = false;
-		resetBlend = false;
-
-		enemyShootCooldown = 0.0f;
-		enemyRayDebugRenderTimer = 0.3f;
-		enemyHasShot = false;
-		enemyHasHit = false;
-		playerIsVisible = false;
-	}
+	void ResetState();
 
 private:
 	Texture mNormal{};
@@ -938,6 +395,7 @@ private:
 	bool ShouldProvideSuppressionFire();
 	
 	bool StartingSuppressionFire = true;
+	bool playNotVisibleAudio = true;
 
     NodeStatus EnterDyingState();
     NodeStatus EnterTakingDamageState();

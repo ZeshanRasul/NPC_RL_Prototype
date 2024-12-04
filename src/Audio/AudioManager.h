@@ -37,7 +37,7 @@ public:
 private:
 	std::unordered_map<int, float> enemyCooldowns;
 	std::priority_queue<AudioRequest, std::vector<AudioRequest>, ComparePriority> audioQueue;
-	float globalCooldown = 3.0f;
+	float globalCooldown = 1.8f;
 	float globalCooldownTimer = 0.0f;             
 	float priorityThreshold = 2.5f;
 
