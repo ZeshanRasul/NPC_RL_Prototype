@@ -404,10 +404,10 @@ void Enemy::moveEnemy(const std::vector<glm::ivec2>& path, float deltaTime, floa
     //    setPosition(startCellCenter);
     //}
 
-	//if (glm::distance(getPosition(), targetPos) < grid_->GetCellSize()) 
- //   {
-	//	grid_->OccupyCell(path[pathIndex_].x, path[pathIndex_].y, id_);
-	//}
+	if (glm::distance(getPosition(), targetPos) < grid_->GetCellSize() / 3.0f) 
+    {
+		grid_->OccupyCell(path[pathIndex_].x, path[pathIndex_].y, id_);
+	}
 
     if (pathIndex_ >= 1)
        grid_->VacateCell(path[pathIndex_ - 1].x, path[pathIndex_ - 1].y, id_);
@@ -903,8 +903,8 @@ void Enemy::EnemyDecision(NashState& currentState, int enemyId, std::vector<Nash
 
 
 		currentPath_ = grid_->findPath(
-			glm::ivec2(snappedCurrentPos.x / grid_->GetCellSize(), snappedCurrentPos.z / grid_->GetCellSize()),
-			glm::ivec2(snappedCoverPos.x / grid_->GetCellSize(), snappedCoverPos.z / grid_->GetCellSize()),
+			glm::ivec2(getPosition().x / grid_->GetCellSize(), getPosition().z / grid_->GetCellSize()),
+			glm::ivec2(selectedCover_->gridX, selectedCover_->gridZ),
 			grid_->GetGrid(),
 			id_
 		);
@@ -1095,8 +1095,8 @@ void Enemy::EnemyDecisionPrecomputedQ(NashState& currentState, int enemyId, std:
 
 
 		currentPath_ = grid_->findPath(
-			glm::ivec2(snappedCurrentPos.x / grid_->GetCellSize(), snappedCurrentPos.z / grid_->GetCellSize()),
-			glm::ivec2(snappedCoverPos.x / grid_->GetCellSize(), snappedCoverPos.z / grid_->GetCellSize()),
+			glm::ivec2(getPosition().x / grid_->GetCellSize(), getPosition().z / grid_->GetCellSize()),
+			glm::ivec2(selectedCover_->gridX, selectedCover_->gridZ),
 			grid_->GetGrid(),
 			id_
 		);
