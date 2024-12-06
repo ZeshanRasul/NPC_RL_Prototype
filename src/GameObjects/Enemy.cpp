@@ -78,7 +78,7 @@ void Enemy::drawObject(glm::mat4 viewMat, glm::mat4 proj, bool shadowMap, glm::m
     }
 }
 
-void Enemy::Update(bool shouldUseEDBT)
+void Enemy::Update(bool shouldUseEDBT, float speedDivider, float blendFac)
 {
     if (!isDead_ || !isDestroyed)
     {
@@ -129,7 +129,7 @@ void Enemy::Update(bool shouldUseEDBT)
 		if (blendAnim)
 		{
 			blendFactor += (1.0f - blendFactor) * blendSpeed * dt_;
-			SetAnimation(GetSourceAnimNum(), GetDestAnimNum(), 1.0f, blendFactor, false);
+			SetAnimation(GetSourceAnimNum(), GetDestAnimNum(), 2.0f, blendFactor, false);
 			if (blendFactor >= 1.0f)
 			{
 				blendAnim = false;
@@ -139,7 +139,7 @@ void Enemy::Update(bool shouldUseEDBT)
 		}
 		else
 		{
-			SetAnimation(GetSourceAnimNum(), 1.0f, 1.0f, false);
+			SetAnimation(GetSourceAnimNum(), speedDivider, blendFac, false);
 			blendFactor = 0.0f;
 		}
     }
@@ -327,7 +327,7 @@ void Enemy::moveEnemy(const std::vector<glm::ivec2>& path, float deltaTime, floa
                 reachedCover = true;
                 isTakingCover_ = false;
                 isInCover_ = true;
-			//	grid_->OccupyCell(selectedCover_->gridX, selectedCover_->gridZ, id_);
+				grid_->OccupyCell(selectedCover_->gridX, selectedCover_->gridZ, id_);
 				SetSourceAnimNum(destAnim);
 			    SetDestAnimNum(2);
                 blendAnim = true;
@@ -574,6 +574,15 @@ void Enemy::TakeDamage(float damage)
 		OnDeath();
 		return;
 	}
+
+	if (destAnim != 3)
+	{
+		SetSourceAnimNum(destAnim);
+		SetDestAnimNum(3);
+		blendAnim = true;
+		resetBlend = true;
+	}
+
 	isTakingDamage_ = true;
 	hasTakenDamage_ = true;
 }
@@ -637,9 +646,14 @@ void Enemy::ScoreCoverLocations(Player& player)
 		bool visibleToPlayer = mGameManager->GetPhysicsWorld()->checkPlayerVisibility(rayOrigin, rayDirection, hitPoint, aabb);
 
 		if (visibleToPlayer)
-			continue; 
+			score -= 1000.0f; 
+		else
+			score += 100.0f;
 
-		score += visibilityWeight;
+		if (cover->gridPos->IsOccupied())
+			score -= 1000.0f;
+
+		//score += visibilityWeight;
 
 		float distanceToEnemy = glm::distance(cover->worldPosition, getPosition());
 		score -= enemyProximityWeight * distanceToEnemy;
@@ -683,7 +697,7 @@ float Enemy::CalculateReward(const NashState& state, NashAction action, int enem
 	float reward = 0.0f;
 
 	if (action == ATTACK) {
-		reward += (state.playerVisible && state.playerDetected) ? 20.0f : -10.0f;
+		reward += (state.playerVisible && state.playerDetected) ? 20.0f : -15.0f;
 		if (hasDealtDamage_)
 		{
 			reward += 8.0f;
@@ -702,7 +716,7 @@ float Enemy::CalculateReward(const NashState& state, NashAction action, int enem
 		}
 	}
 	else if (action == ADVANCE) {
-		reward += (state.distanceToPlayer > 15.0f && state.playerDetected || (state.playerDetected && !state.playerVisible)) ? 12.0f : -2.0f;
+		reward += ((state.distanceToPlayer > 15.0f && state.playerDetected) || (state.playerDetected && !state.playerVisible) && state.health >= 80.0f) ? 12.0f : -2.0f;
 
 		if (state.distanceToPlayer < 10.0f)
 		{
@@ -718,7 +732,7 @@ float Enemy::CalculateReward(const NashState& state, NashAction action, int enem
 		}
 	}
 	else if (action == PATROL) {
-		reward += (!state.playerDetected) ? 7.0f : -10.0f;
+		reward += (!state.playerDetected) ? 15.0f : -10.0f;
 
 		if (state.health == 100)
 		{
@@ -744,12 +758,12 @@ float Enemy::CalculateReward(const NashState& state, NashAction action, int enem
 
 	if (hasDied_)
 	{
-		reward -= 20.0f;
+		reward -= 30.0f;
 		hasDied_ = false;
 
 		if (numDeadAllies = 3)
 		{
-			reward -= 30.0f;
+			reward -= 50.0f;
 			numDeadAllies = 0;
 		}
 	}
@@ -796,6 +810,10 @@ NashAction Enemy::ChooseAction(const NashState& state, int enemyId, std::unorder
 	int currentQTableSize = qTable[enemyId].size();
 	explorationRate = DecayExplorationRate(initialExplorationRate, minExplorationRate, currentQTableSize, targetQTableSize);
 
+	std::vector<NashAction> actions = { ATTACK, ADVANCE, RETREAT, PATROL };
+
+	std::shuffle(actions.begin(), actions.end(), gen);
+
 	if (dis(gen) < explorationRate) {
 		// Exploration: choose a random action
 		std::uniform_int_distribution<> actionDist(0, 3);
@@ -804,8 +822,8 @@ NashAction Enemy::ChooseAction(const NashState& state, int enemyId, std::unorder
 	else {
 		// Exploitation: choose the action with the highest Q-value
 		float maxQ = -std::numeric_limits<float>::infinity();
-		NashAction bestAction = PATROL;
-		for (auto action : { ATTACK, ADVANCE, RETREAT, PATROL }) {
+		NashAction bestAction = actions.at(0);
+		for (auto action : actions) {
 			float qValue = qTable[enemyId][{state, action}];
 			if (qValue > maxQ) {
 				maxQ = qValue;
@@ -881,6 +899,18 @@ void Enemy::EnemyDecision(NashState& currentState, int enemyId, std::vector<Nash
 		);
 
 		VacatePreviousCell();
+
+		for (glm::ivec2 cell : currentPath_)
+		{
+			if (grid_->GetGrid()[cell.x][cell.y].IsOccupied())
+				currentPath_ = grid_->findPath(
+					glm::ivec2(getPosition().x / grid_->GetCellSize(), getPosition().z / grid_->GetCellSize()),
+					glm::ivec2(player.getPosition().x / grid_->GetCellSize(), player.getPosition().z / grid_->GetCellSize()),
+					grid_->GetGrid(),
+					enemyId
+				);
+		}
+
 
 		moveEnemy(currentPath_, deltaTime, 1.0f, false);
 
@@ -1051,7 +1081,22 @@ void Enemy::EnemyDecisionPrecomputedQ(NashState& currentState, int enemyId, std:
 	if (decisionDelayTimer <= 0.0f)
 	{
 		chosenAction = ChooseActionFromTrainedQTable(currentState, enemyId, qTable);
-		decisionDelayTimer = 1.0f;
+
+		switch (chosenAction)
+		{
+		case ATTACK:
+			decisionDelayTimer = 1.0f;
+			break;
+		case ADVANCE:
+			decisionDelayTimer = 1.0f;
+			break;
+		case RETREAT:
+			decisionDelayTimer = 3.0f;
+			break;
+		case PATROL:
+			decisionDelayTimer = 2.0f;
+			break;
+		}
 	}
 
 	int numAttacking = (int)std::count(squadActions.begin(), squadActions.end(), ATTACK);
@@ -1072,6 +1117,17 @@ void Enemy::EnemyDecisionPrecomputedQ(NashState& currentState, int enemyId, std:
 		);
 
 		VacatePreviousCell();
+
+		for (glm::ivec2 cell : currentPath_)
+		{
+			if (grid_->GetGrid()[cell.x][cell.y].IsOccupied())
+				currentPath_ = grid_->findPath(
+					glm::ivec2(getPosition().x / grid_->GetCellSize(), getPosition().z / grid_->GetCellSize()),
+					glm::ivec2(player.getPosition().x / grid_->GetCellSize(), player.getPosition().z / grid_->GetCellSize()),
+					grid_->GetGrid(),
+					enemyId
+				);
+		}
 
 		moveEnemy(currentPath_, deltaTime, 1.0f, false);
 
@@ -1096,12 +1152,23 @@ void Enemy::EnemyDecisionPrecomputedQ(NashState& currentState, int enemyId, std:
 
 		currentPath_ = grid_->findPath(
 			glm::ivec2(getPosition().x / grid_->GetCellSize(), getPosition().z / grid_->GetCellSize()),
-			glm::ivec2(selectedCover_->gridX, selectedCover_->gridZ),
+			glm::ivec2(selectedCover_->worldPosition.x / grid_->GetCellSize(), selectedCover_->worldPosition.z / grid_->GetCellSize()),
 			grid_->GetGrid(),
 			id_
 		);
 
 		VacatePreviousCell();
+
+		for (glm::ivec2 cell : currentPath_)
+		{
+			if (grid_->GetGrid()[cell.x][cell.y].IsOccupied())
+				currentPath_ = grid_->findPath(
+					glm::ivec2(getPosition().x / grid_->GetCellSize(), getPosition().z / grid_->GetCellSize()),
+					glm::ivec2(selectedCover_->worldPosition.x / grid_->GetCellSize(), selectedCover_->worldPosition.z / grid_->GetCellSize()),
+					grid_->GetGrid(),
+					enemyId
+				);
+		}
 
 		moveEnemy(currentPath_, dt_, 1.0f, false);
 		currentState.playerDetected = IsPlayerDetected();
@@ -1141,6 +1208,17 @@ void Enemy::EnemyDecisionPrecomputedQ(NashState& currentState, int enemyId, std:
 
 			VacatePreviousCell();
 
+			for (glm::ivec2 cell : currentPath_)
+			{
+				if (grid_->GetGrid()[cell.x][cell.y].IsOccupied())
+					currentPath_ = grid_->findPath(
+						glm::ivec2(getPosition().x / grid_->GetCellSize(), getPosition().z / grid_->GetCellSize()),
+						glm::ivec2(currentWaypoint.x / grid_->GetCellSize(), currentWaypoint.z / grid_->GetCellSize()),
+						grid_->GetGrid(),
+						enemyId
+					);
+			}
+
 			moveEnemy(currentPath_, dt_, 1.0f, false);
 		}
 		else
@@ -1157,6 +1235,18 @@ void Enemy::EnemyDecisionPrecomputedQ(NashState& currentState, int enemyId, std:
 			VacatePreviousCell();
 
 			reachedDestination = false;
+
+			for (glm::ivec2 cell : currentPath_)
+			{
+				if (grid_->GetGrid()[cell.x][cell.y].IsOccupied())
+					currentPath_ = grid_->findPath(
+						glm::ivec2(getPosition().x / grid_->GetCellSize(), getPosition().z / grid_->GetCellSize()),
+						glm::ivec2(currentWaypoint.x / grid_->GetCellSize(), currentWaypoint.z / grid_->GetCellSize()),
+						grid_->GetGrid(),
+						enemyId
+					);
+			}
+
 
 			moveEnemy(currentPath_, dt_, 1.0f, false);
 		}
@@ -1623,6 +1713,18 @@ NodeStatus Enemy::AttackChasePlayer()
 
     isAttacking_ = true;
 
+	for (glm::ivec2 cell : currentPath_)
+	{
+		if (cell.x >= 0 && cell.x < grid_->GetGridSize() && cell.y >= 0 && cell.y < grid_->GetGridSize() && grid_->GetGrid()[cell.x][cell.y].IsOccupied())
+			currentPath_ = grid_->findPath(
+				glm::ivec2(getPosition().x / grid_->GetCellSize(), getPosition().z / grid_->GetCellSize()),
+				glm::ivec2(player.getPosition().x / grid_->GetCellSize(), player.getPosition().z / grid_->GetCellSize()),
+				grid_->GetGrid(),
+				id_
+			);
+	}
+
+
 	moveEnemy(currentPath_, dt_, 1.0f, false);
 
 
@@ -1717,6 +1819,18 @@ NodeStatus Enemy::TakeCover()
 
     VacatePreviousCell();
 
+	for (glm::ivec2 cell : currentPath_)
+	{
+		if (grid_->GetGrid()[cell.x][cell.y].IsOccupied())
+			currentPath_ = grid_->findPath(
+				glm::ivec2(getPosition().x / grid_->GetCellSize(), getPosition().z / grid_->GetCellSize()),
+				glm::ivec2(selectedCover_->worldPosition.x / grid_->GetCellSize(), selectedCover_->worldPosition.z / grid_->GetCellSize()),
+				grid_->GetGrid(),
+				id_
+			);
+	}
+
+
     moveEnemy(currentPath_, dt_, 1.0f, false);
 
     if (reachedCover)
@@ -1772,6 +1886,18 @@ NodeStatus Enemy::Patrol()
 
         VacatePreviousCell();
 
+		for (glm::ivec2 cell : currentPath_)
+		{
+			if (grid_->GetGrid()[cell.x][cell.y].IsOccupied())
+				currentPath_ = grid_->findPath(
+					glm::ivec2(getPosition().x / grid_->GetCellSize(), getPosition().z / grid_->GetCellSize()),
+					glm::ivec2(currentWaypoint.x / grid_->GetCellSize(), currentWaypoint.z / grid_->GetCellSize()),
+					grid_->GetGrid(),
+					id_
+				);
+		}
+
+
         moveEnemy(currentPath_, dt_, 1.0f, false);
     }
     else
@@ -1788,6 +1914,18 @@ NodeStatus Enemy::Patrol()
         VacatePreviousCell();
 
         reachedDestination = false;
+
+		for (glm::ivec2 cell : currentPath_)
+		{
+			if (grid_->GetGrid()[cell.x][cell.y].IsOccupied())
+				currentPath_ = grid_->findPath(
+					glm::ivec2(getPosition().x / grid_->GetCellSize(), getPosition().z / grid_->GetCellSize()),
+					glm::ivec2(currentWaypoint.x / grid_->GetCellSize(), currentWaypoint.z / grid_->GetCellSize()),
+					grid_->GetGrid(),
+					id_
+				);
+		}
+
 
         moveEnemy(currentPath_, dt_, 1.0f, false);
     }

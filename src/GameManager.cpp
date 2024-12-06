@@ -440,6 +440,9 @@ void GameManager::ShowEnemyStateWindow()
 
 	ImGui::Checkbox("Use EDBT", &useEDBT);
 
+	ImGui::InputFloat("Speed Divider", &speedDivider);
+	ImGui::InputFloat("Blend Factor", &blendFac);
+
 	ImGui::Text("Player Health: %d", (int)player->GetHealth());
 
     for (Enemy* e : enemies)
@@ -647,7 +650,7 @@ void GameManager::update(float deltaTime)
 			}
 		}
 
-        e->Update(useEDBT);
+        e->Update(useEDBT, speedDivider, blendFac);
     }
 
 	mAudioManager->Update(deltaTime);

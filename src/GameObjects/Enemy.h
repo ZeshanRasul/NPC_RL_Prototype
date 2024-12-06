@@ -15,10 +15,10 @@
 #include "AI/ActionNode.h"
 
 enum NashAction {
-	ATTACK,
-	ADVANCE,
+	PATROL,
 	RETREAT,
-	PATROL
+	ADVANCE,
+	ATTACK
 };
 
 struct NashState {
@@ -125,7 +125,7 @@ public:
 
     void drawObject(glm::mat4 viewMat, glm::mat4 proj, bool shadowMap, glm::mat4 lightSpaceMat, GLuint shadowMapTexture, glm::vec3 camPos) override;
 
-    void Update(bool shouldUseEDBT);
+    void Update(bool shouldUseEDBT, float speedDivider, float blendFac);
 
     void OnEvent(const Event& event);
 
