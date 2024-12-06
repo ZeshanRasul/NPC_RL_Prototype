@@ -402,4 +402,7 @@ private:
     NodeStatus Patrol();
     NodeStatus InCoverAction();
     NodeStatus Die();
+
+	NashAction chosenAction;
+	float decisionDelayTimer = 0.0f;
 };

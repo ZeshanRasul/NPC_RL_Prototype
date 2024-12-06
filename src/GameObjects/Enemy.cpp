@@ -108,6 +108,10 @@ void Enemy::Update(bool shouldUseEDBT)
 				shootAudioCooldown -= dt_;
 			}
         }
+		else
+		{
+			decisionDelayTimer -= dt_;
+		}
 
         if (isDestroyed)
         {
@@ -323,7 +327,7 @@ void Enemy::moveEnemy(const std::vector<glm::ivec2>& path, float deltaTime, floa
                 reachedCover = true;
                 isTakingCover_ = false;
                 isInCover_ = true;
-				grid_->OccupyCell(selectedCover_->gridX, selectedCover_->gridZ, id_);
+			//	grid_->OccupyCell(selectedCover_->gridX, selectedCover_->gridZ, id_);
 				SetSourceAnimNum(destAnim);
 			    SetDestAnimNum(2);
                 blendAnim = true;
@@ -400,10 +404,10 @@ void Enemy::moveEnemy(const std::vector<glm::ivec2>& path, float deltaTime, floa
     //    setPosition(startCellCenter);
     //}
 
-	if (glm::distance(getPosition(), targetPos) < grid_->GetCellSize()) 
-    {
-		grid_->OccupyCell(path[pathIndex_].x, path[pathIndex_].y, id_);
-	}
+	//if (glm::distance(getPosition(), targetPos) < grid_->GetCellSize()) 
+ //   {
+	//	grid_->OccupyCell(path[pathIndex_].x, path[pathIndex_].y, id_);
+	//}
 
     if (pathIndex_ >= 1)
        grid_->VacateCell(path[pathIndex_ - 1].x, path[pathIndex_ - 1].y, id_);
@@ -1044,7 +1048,11 @@ void Enemy::EnemyDecisionPrecomputedQ(NashState& currentState, int enemyId, std:
 		return;
 	}
 
-	NashAction chosenAction = ChooseActionFromTrainedQTable(currentState, enemyId, qTable);
+	if (decisionDelayTimer <= 0.0f)
+	{
+		chosenAction = ChooseActionFromTrainedQTable(currentState, enemyId, qTable);
+		decisionDelayTimer = 1.0f;
+	}
 
 	int numAttacking = (int)std::count(squadActions.begin(), squadActions.end(), ATTACK);
 	bool isSuppressionFire = numAttacking > 0;
