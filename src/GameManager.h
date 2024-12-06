@@ -174,17 +174,16 @@ private:
 
 	bool useEDBT = false;
     bool initializeQTable = false;
-    bool training = true;
+    bool training = false;
     std::string mEnemyStateFilename = "EnemyStateQTable.csv";
     std::unordered_map<std::pair<NashState, NashAction>, float, PairHash> mEnemyStateQTable[4];
-    std::vector<NashState> enemyStates =
-    {
+	std::vector<NashState> enemyStates = {
+	{ false, false, 100.0f, 100.0f, false },
+	{ false, false, 100.0f, 100.0f, false },
+	{ false, false, 100.0f, 100.0f, false },
+	{ false, false, 100.0f, 100.0f, false }
+	};
 
-        { true, true, 30.0f, 60.0f, false },   
-        { false, true, 50.0f, 80.0f, true },   
-        { true, false, 75.0f, 40.0f, false },  
-        { false, false, 100.0f, 100.0f, false }
-    };
     std::vector<NashAction> squadActions =
     {
         NashAction::ADVANCE,

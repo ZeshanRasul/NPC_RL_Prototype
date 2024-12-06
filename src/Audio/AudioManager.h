@@ -34,6 +34,8 @@ public:
 	void SubmitAudioRequest(int enemyId, const std::string& eventName, float priority, float cooldown);
 	void Update(float deltaTime);
 
+	void ClearQueue();
+
 private:
 	std::unordered_map<int, float> enemyCooldowns;
 	std::priority_queue<AudioRequest, std::vector<AudioRequest>, ComparePriority> audioQueue;

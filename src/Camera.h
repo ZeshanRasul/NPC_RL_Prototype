@@ -68,5 +68,7 @@ public:
 	void ProcessMouseScroll(float yOffset);
 
 	void UpdateCameraVectors();
+
+	void SetMode(CameraMode mode) { Mode = mode; }
 private:
 };

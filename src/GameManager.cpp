@@ -540,6 +540,8 @@ void GameManager::RemoveDestroyedGameObjects()
 
 void GameManager::ResetGame()
 {
+	camera->SetMode(PLAYER_FOLLOW);
+	mAudioManager->ClearQueue();
     player->setPosition(player->initialPos);
     player->SetYaw(player->GetInitialYaw());
     player->SetAnimNum(0);
@@ -549,7 +551,6 @@ void GameManager::ResetGame()
 	player->UpdatePlayerAimVectors();
 	player->SetPlayerState(PlayerState::MOVING);
 	player->aabbColor = glm::vec3(0.0f, 0.0f, 1.0f);
-	// TODO: RESET CAMERA
 	enemy->isDestroyed = false;
 	enemy2->isDestroyed = false;
 	enemy3->isDestroyed = false;

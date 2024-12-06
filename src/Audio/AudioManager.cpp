@@ -27,6 +27,14 @@ void AudioManager::Update(float deltaTime)
 	}
 }
 
+void AudioManager::ClearQueue()
+{
+	while (!audioQueue.empty())
+	{
+		audioQueue.pop();
+	}
+}
+
 void AudioManager::ProcessNextAudioRequest()
 {
 	AudioRequest request = audioQueue.top();
