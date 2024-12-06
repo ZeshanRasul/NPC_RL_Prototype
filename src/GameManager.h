@@ -175,7 +175,7 @@ private:
     float speedDivider = 1.0f;
     float blendFac = 1.0f;
 
-	bool useEDBT = false;
+	bool useEDBT = true;
     bool initializeQTable = false;
     bool training = false;
     std::string mEnemyStateFilename = "EnemyStateQTable.csv";

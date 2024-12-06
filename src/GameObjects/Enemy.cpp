@@ -625,45 +625,38 @@ void Enemy::OnDeath()
 
 void Enemy::ScoreCoverLocations(Player& player)
 {
-	float bestScore = -FLT_MAX; 
-	Grid::Cover* bestCover = nullptr;
+	float bestScore = -100000.0f;
 
-	// Tunable weights for scoring factors
-	const float visibilityWeight = 50.0f;  // Strongly prioritize invisible cover.
-	const float enemyProximityWeight = 1.0f; // Prioritize proximity to the enemy.
-	const float playerProximityWeight = 0.5f; // Slightly discourage proximity to the player.
+	Grid::Cover* bestCover = selectedCover_;
 
 	for (Grid::Cover* cover : grid_->GetCoverLocations())
 	{
 		float score = 0.0f;
 
-		glm::vec3 rayOrigin = cover->worldPosition + glm::vec3(0.0f, 2.5f, 0.0f);
-		glm::vec3 rayDirection = glm::normalize(player.getPosition() - rayOrigin);
-		glm::vec3 hitPoint;
-		bool visibleToPlayer = mGameManager->GetPhysicsWorld()->checkPlayerVisibility(rayOrigin, rayDirection, hitPoint, aabb);
-
-		if (visibleToPlayer)
-			score -= 1000.0f; 
-		else
-			score += 100.0f;
-
-		//score += visibilityWeight;
+		float distanceToPlayer = glm::distance(cover->worldPosition, player.getPosition());
+		score += distanceToPlayer * 0.5f;
 
 		float distanceToEnemy = glm::distance(cover->worldPosition, getPosition());
-		score -= enemyProximityWeight * distanceToEnemy;
+		score -= (1.0f / distanceToEnemy + 1.0f) * 1.0f;
 
-		float distanceToPlayer = glm::distance(cover->worldPosition, player.getPosition());
-		score += playerProximityWeight * distanceToPlayer;
+		glm::vec3 rayOrigin = cover->worldPosition + glm::vec3(0.0f, 2.5f, 0.0f);
+		glm::vec3 rayDirection = glm::normalize(player.getPosition() - rayOrigin);
+		glm::vec3 hitPoint = glm::vec3(0.0f);
+
+		bool visibleToPlayer = mGameManager->GetPhysicsWorld()->checkPlayerVisibility(rayOrigin, rayDirection, hitPoint, aabb);
+		if (!visibleToPlayer) {
+			score += 20.0f;
+		}
+
+		if (grid_->GetGrid()[cover->gridX][cover->gridZ].IsOccupied())
+			continue;
 
 		if (score > bestScore)
 		{
 			bestScore = score;
-			bestCover = cover;
+			selectedCover_ = cover;
 		}
 	}
-
-	if (bestCover)
-		selectedCover_ = bestCover;
 }
 
 
