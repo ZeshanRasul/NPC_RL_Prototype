@@ -635,9 +635,6 @@ void Enemy::ScoreCoverLocations(Player& player)
 
 	for (Grid::Cover* cover : grid_->GetCoverLocations())
 	{
-		if (grid_->GetGrid()[cover->gridX][cover->gridZ].IsOccupied())
-			continue;
-
 		float score = 0.0f;
 
 		glm::vec3 rayOrigin = cover->worldPosition + glm::vec3(0.0f, 2.5f, 0.0f);
@@ -649,9 +646,6 @@ void Enemy::ScoreCoverLocations(Player& player)
 			score -= 1000.0f; 
 		else
 			score += 100.0f;
-
-		if (cover->gridPos->IsOccupied())
-			score -= 1000.0f;
 
 		//score += visibilityWeight;
 
