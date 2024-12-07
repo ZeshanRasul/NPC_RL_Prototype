@@ -282,7 +282,7 @@ void Enemy::moveEnemy(const std::vector<glm::ivec2>& path, float deltaTime, floa
     
     if (!reachedPlayer && !inCover)
     {
-        if (destAnim != 1)
+        if (!resetBlend && destAnim != 1)
         {
             SetSourceAnimNum(destAnim);
 			SetDestAnimNum(1);
@@ -328,11 +328,15 @@ void Enemy::moveEnemy(const std::vector<glm::ivec2>& path, float deltaTime, floa
                 isTakingCover_ = false;
                 isInCover_ = true;
 				grid_->OccupyCell(selectedCover_->gridX, selectedCover_->gridZ, id_);
-				SetSourceAnimNum(destAnim);
-			    SetDestAnimNum(2);
-                blendAnim = true;
-                resetBlend = true;
-			    //SetAnimation(GetAnimNum(), 1.0f, blendFactor, playAnimBackwards);
+
+				if (!resetBlend && destAnim != 2)
+				{
+					SetSourceAnimNum(destAnim);
+					SetDestAnimNum(2);
+					blendAnim = true;
+					resetBlend = true;
+					//SetAnimation(GetAnimNum(), 1.0f, blendFactor, playAnimBackwards);
+				}
             }
             else
             {
@@ -462,11 +466,10 @@ void Enemy::Shoot()
     enemyShootDir = (player.getPosition() - getPosition()) + accuracyOffset;
     glm::vec3 hitPoint = glm::vec3(0.0f);
 
-    if (!enemyMissed)
-    {
-        yaw = glm::degrees(glm::atan(enemyShootDir.z, enemyShootDir.x));
-        UpdateEnemyVectors();
-    }
+	glm::vec3 playerDir = glm::normalize(player.getPosition() - getPosition());
+
+    yaw = glm::degrees(glm::atan(playerDir.z, playerDir.x));
+    UpdateEnemyVectors();
 
     bool hit = false;
     hit = GetGameManager()->GetPhysicsWorld()->rayPlayerIntersect(enemyShootPos, enemyShootDir, enemyHitPoint, aabb);
@@ -480,10 +483,14 @@ void Enemy::Shoot()
 		enemyHasHit = false;
     }
     
-    SetSourceAnimNum(destAnim);
-    SetDestAnimNum(2);
-    blendAnim = true;
-    resetBlend = true;
+	if (!resetBlend && destAnim != 2)
+	{
+	    SetSourceAnimNum(destAnim);
+		SetDestAnimNum(2);
+		blendAnim = true;
+		resetBlend = true;
+	}
+
     //shootAC->PlayEvent("event:/EnemyShoot");
     if (shootAudioCooldown <= 0.0f)
     {
@@ -575,7 +582,7 @@ void Enemy::TakeDamage(float damage)
 		return;
 	}
 
-	if (destAnim != 3)
+	if (!resetBlend && destAnim != 3)
 	{
 		SetSourceAnimNum(destAnim);
 		SetDestAnimNum(3);
@@ -591,8 +598,8 @@ void Enemy::OnDeath()
 {
 	Logger::log(1, "%s Enemy Died!\n", __FUNCTION__);
     isDying_ = true;
-	dyingTimer = 0.4f;
-    if (destAnim != 0)
+	dyingTimer = 0.2f;
+    if (!hasDied_ && !resetBlend && destAnim != 0)
     {
 		SetSourceAnimNum(destAnim);
 		SetDestAnimNum(0);
@@ -1921,15 +1928,15 @@ NodeStatus Enemy::Patrol()
 
 NodeStatus Enemy::InCoverAction()
 {
-    coverTimer += dt_;
-    if (coverTimer > 2.5f)
-    {
+	coverTimer += dt_;
+	if (coverTimer > 2.5f)
+	{
 		health_ += 10.0f;
 		coverTimer = 0.0f;
 
-        if (health_ > 40.0f)
-        {
-            isInCover_ = false;
+		if (health_ > 40.0f)
+		{
+			isInCover_ = false;
 			std::random_device rd;
 			std::mt19937 gen{ rd() };
 			std::uniform_int_distribution<> distrib(1, 2);
@@ -1948,24 +1955,37 @@ NodeStatus Enemy::InCoverAction()
 			}
 
 
-            std::string clipName;
-            if (randomIndex == 1)
-			    clipName = "event:/enemy" + std::to_string(enemyAudioIndex) + "_Moving Out of Cover1";
-            else
+			std::string clipName;
+			if (randomIndex == 1)
+				clipName = "event:/enemy" + std::to_string(enemyAudioIndex) + "_Moving Out of Cover1";
+			else
 				clipName = "event:/enemy" + std::to_string(enemyAudioIndex) + "_Moving Out of Cover";
 			Speak(clipName, 4.0f, 1.5f);
 
-            return NodeStatus::Success;
-        }
+			return NodeStatus::Success;
+		}
 	}
 
 	if (provideSuppressionFire_)
 	{
 		isInCover_ = false;
-        return NodeStatus::Success;
+		return NodeStatus::Success;
 	}
 
 	EDBTState = "In Cover";
+
+	glm::vec3 rayOrigin = getPosition() + glm::vec3(0.0f, 2.5f, 0.0f);
+	glm::vec3 rayDirection = glm::normalize(player.getPosition() - rayOrigin);
+	glm::vec3 hitPoint = glm::vec3(0.0f);
+
+	bool visibleToPlayer = mGameManager->GetPhysicsWorld()->checkPlayerVisibility(rayOrigin, rayDirection, hitPoint, aabb);
+
+	if (visibleToPlayer)
+	{
+		isInCover_ = false;
+		return NodeStatus::Success;
+	}
+
     return NodeStatus::Running;
 }
 
