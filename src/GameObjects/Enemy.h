@@ -52,12 +52,12 @@ struct PairHash {
 class Enemy : public GameObject {
 private:
 
-	const float learningRate = 0.1f;
-	const float discountFactor = 0.9f;
+	const float learningRate = 0.15f;
+	const float discountFactor = 0.85f;
 	float explorationRate;
-	float initialExplorationRate = 0.5f;
+	float initialExplorationRate = 0.7f;
 	float minExplorationRate = 0.1f;
-	int targetQTableSize = 100000;  
+	int targetQTableSize = 1500000;  
 
 	float DecayExplorationRate(float initialRate, float minRate, int currentSize, int targetSize);
 
