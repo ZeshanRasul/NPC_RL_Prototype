@@ -164,8 +164,10 @@ bool PhysicsWorld::rayPlayerIntersect(const glm::vec3& rayOrigin, const glm::vec
 		if (closestAABB->isPlayer)
 		{
 			selfAABB->owner->HasDealtDamage();
-            if (closestAABB->owner->isDestroyed)
+            if (closestAABB->owner->isDestroyed && closestAABB->isPlayer)
+            {
                 selfAABB->owner->HasKilledPlayer();
+            }
 		}
 
     }

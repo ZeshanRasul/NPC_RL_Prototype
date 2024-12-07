@@ -327,7 +327,7 @@ void Enemy::moveEnemy(const std::vector<glm::ivec2>& path, float deltaTime, floa
                 reachedCover = true;
                 isTakingCover_ = false;
                 isInCover_ = true;
-				grid_->OccupyCell(selectedCover_->gridX, selectedCover_->gridZ, id_);
+	//			grid_->OccupyCell(selectedCover_->gridX, selectedCover_->gridZ, id_);
 
 				if (!resetBlend && destAnim != 2)
 				{
@@ -410,19 +410,19 @@ void Enemy::moveEnemy(const std::vector<glm::ivec2>& path, float deltaTime, floa
 
 	if (glm::distance(getPosition(), targetPos) < grid_->GetCellSize() / 3.0f) 
     {
-		grid_->OccupyCell(path[pathIndex_].x, path[pathIndex_].y, id_);
+	//	grid_->OccupyCell(path[pathIndex_].x, path[pathIndex_].y, id_);
 	}
 
-    if (pathIndex_ >= 1)
-       grid_->VacateCell(path[pathIndex_ - 1].x, path[pathIndex_ - 1].y, id_);
+//    if (pathIndex_ >= 1)
+ //      grid_->VacateCell(path[pathIndex_ - 1].x, path[pathIndex_ - 1].y, id_);
 
     // Check if the enemy has reached the current target position within a tolerance
     if (glm::distance(getPosition(), targetPos) < tolerance) {
-		grid_->VacateCell(path[pathIndex_].x, path[pathIndex_].y, id_);
+//		grid_->VacateCell(path[pathIndex_].x, path[pathIndex_].y, id_);
 
         pathIndex_++;
         if (pathIndex_ >= path.size()) {
-			grid_->VacateCell(path[pathIndex_ - 1].x, path[pathIndex_ - 1].y, id_);
+//			grid_->VacateCell(path[pathIndex_ - 1].x, path[pathIndex_ - 1].y, id_);
             pathIndex_ = 0; // Reset path index if the end is reached
         }
     }
@@ -691,7 +691,7 @@ float Enemy::CalculateReward(const NashState& state, NashAction action, int enem
 	float reward = 0.0f;
 
 	if (action == ATTACK) {
-		reward += (state.playerVisible && state.playerDetected) ? 20.0f : -35.0f;
+		reward += (state.playerVisible && state.playerDetected) ? 10.0f : -35.0f;
 		if (hasDealtDamage_)
 		{
 			reward += 8.0f;
@@ -711,7 +711,7 @@ float Enemy::CalculateReward(const NashState& state, NashAction action, int enem
 
 		if (!state.playerVisible)
 		{
-			reward -= 15.0f;
+			reward -= 45.0f;
 		}
 	}
 	else if (action == ADVANCE) {
@@ -785,7 +785,15 @@ float Enemy::GetMaxQValue(const NashState& state, int enemyId, std::unordered_ma
 	float maxQ = -std::numeric_limits<float>::infinity();
 	int targetBucket = getDistanceBucket(state.distanceToPlayer);
 
-	for (auto action : { ATTACK, ADVANCE, RETREAT, PATROL }) {
+	static std::random_device rd;
+	static std::mt19937 gen(rd());
+	static std::uniform_real_distribution<> dis(0.0, 1.0);
+
+	std::vector<NashAction> actions = { ATTACK, ADVANCE, RETREAT, PATROL };
+
+	std::shuffle(actions.begin(), actions.end(), gen);
+
+	for (auto action : actions) {
 		for (int bucketOffset = -1; bucketOffset <= 1; ++bucketOffset) {
 			int bucket = targetBucket + bucketOffset;
 			NashState modifiedState = state;
@@ -898,18 +906,6 @@ void Enemy::EnemyDecision(NashState& currentState, int enemyId, std::vector<Nash
 		);
 
 		VacatePreviousCell();
-
-		for (glm::ivec2 cell : currentPath_)
-		{
-			if (grid_->GetGrid()[cell.x][cell.y].IsOccupied())
-				currentPath_ = grid_->findPath(
-					glm::ivec2(getPosition().x / grid_->GetCellSize(), getPosition().z / grid_->GetCellSize()),
-					glm::ivec2(player.getPosition().x / grid_->GetCellSize(), player.getPosition().z / grid_->GetCellSize()),
-					grid_->GetGrid(),
-					enemyId
-				);
-		}
-
 
 		moveEnemy(currentPath_, deltaTime, 1.0f, false);
 
@@ -1290,6 +1286,11 @@ void Enemy::HasDealtDamage()
 	hasDealtDamage_ = true;
 }
 
+void Enemy::HasKilledPlayer()
+{
+	hasKilledPlayer_ = true;
+}
+
 void Enemy::ResetState()
 {
 	isPlayerDetected_ = false;
@@ -1354,7 +1355,7 @@ void Enemy::VacatePreviousCell()
     {
         for (size_t i = 0; i < prevPath_.size(); i++)
         {
-            grid_->VacateCell(prevPath_[i].x, prevPath_[i].y, id_);
+ //           grid_->VacateCell(prevPath_[i].x, prevPath_[i].y, id_);
         }
         prevPathIndex_ = pathIndex_;
 		prevPath_ = currentPath_;

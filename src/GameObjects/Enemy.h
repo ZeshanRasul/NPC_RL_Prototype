@@ -263,7 +263,7 @@ public:
 	bool isDead_ = false;
 
 	void HasDealtDamage() override;
-	void HasKilledPlayer() override { hasKilledPlayer_ = true; }
+	void HasKilledPlayer() override;
 
 	void ResetState();
 

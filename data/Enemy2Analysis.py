@@ -17,7 +17,7 @@ q_table.columns = [
     "q_value"
     ]
 
-action_mapping = {0: "ATTACK", 1: "ADVANCE", 2: "RETREAT", 3: "PATROL"}
+action_mapping = {0: "PATROL", 1: "RETREAT", 2: "ADVANCE", 3: "ATTACK"}
 q_table["action_name"] = q_table["action"].map(action_mapping)
 
 
