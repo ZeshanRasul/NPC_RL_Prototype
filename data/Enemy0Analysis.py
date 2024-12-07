@@ -109,3 +109,41 @@ plt.ylabel("Mean Q-Value")
 plt.legend(title="Action")
 plt.grid()
 plt.show()
+
+# 5. State-Based Action Distributions
+# Define the conditions for the states
+conditions = {
+    "Player Far (distance > 60)": q_table["distance_to_player"] > 60,
+    "Player Medium Range (30 < distance <= 60)": (q_table["distance_to_player"] > 30) & (q_table["distance_to_player"] <= 60),
+    "Player Close (distance <= 30)": q_table["distance_to_player"] <= 30,
+    "Low Health (health <= 40)": q_table["health"] <= 40,
+    "Suppression Fire Active": q_table["is_suppression_fire"] == 1,
+    "Player Detected but Not Visible": (q_table["player_detected"] == 1) & (q_table["player_visible"] == 0),
+    "Player Detected and Visible": (q_table["player_detected"] == 1) & (q_table["player_visible"] == 1),
+}
+
+# Generate bar plots for each condition
+for condition_name, condition_filter in conditions.items():
+    # Filter the data based on the condition
+    filtered_data = q_table[condition_filter]
+    
+    # Group and count actions
+    action_distribution = filtered_data["action_name"].value_counts().reset_index()
+    action_distribution.columns = ["action_name", "count"]
+    
+    # Plot the distribution
+    plt.figure(figsize=(8, 5))
+    ax = sns.barplot(x="action_name", y="count", data=action_distribution, palette="viridis")
+    
+    # Annotate the exact frequency numbers on top of the bars
+    for i, bar in enumerate(ax.patches):
+        ax.annotate(
+            f'{int(bar.get_height())}',  # Display the count as an integer
+            (bar.get_x() + bar.get_width() / 2, bar.get_height()),  # Position the annotation
+            ha='center', va='bottom', fontsize=10, color='black'  # Text properties
+        )
+    
+    plt.title(f"State-Based Action Distribution: {condition_name}")
+    plt.xlabel("Action")
+    plt.ylabel("Frequency")
+    plt.show()
