@@ -2,6 +2,7 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
+import numpy as np
 
 file_path = "0EnemyStateQTable.csv"
 q_table = pd.read_csv(file_path)
@@ -20,44 +21,41 @@ action_mapping = {0: "ATTACK", 1: "ADVANCE", 2: "RETREAT", 3: "PATROL"}
 q_table["action_name"] = q_table["action"].map(action_mapping)
 
 
-# #  1.State-Based Action Distributions
-# conditions = {
-#     "Player Far (distance > 60)": q_table["distance_to_player"] > 60,
-#     "Player Medium Range (30 < distance <= 60)": (q_table["distance_to_player"] > 30) & (q_table["distance_to_player"] <= 60),
-#     "Player Close (distance <= 30)": q_table["distance_to_player"] <= 30,
-#     "Low Health (health <= 40)": q_table["health"] <= 40,
-#     "Suppression Fire Active": q_table["is_suppression_fire"] == 1,
-#     "Player Detected but Not Visible": (q_table["player_detected"] == 1) & (q_table["player_visible"] == 0),
-#     "Player Detected and Visible": (q_table["player_detected"] == 1) & (q_table["player_visible"] == 1),
-# }
+# 1. Q-Value Heatmaps
 
-# for condition_name, condition_filter in conditions.items():
-#     # Filter the data based on the condition
-#     filtered_data = q_table[condition_filter]
-    
-#     # Group and count actions
-#     action_distribution = filtered_data["action_name"].value_counts().reset_index()
-#     action_distribution.columns = ["action_name", "count"]
-    
-#     # Plot the distribution
-#     plt.figure(figsize=(8, 5))
+# Bin the health into levels (e.g., Low, Medium, High)
+q_table["health_bin"] = pd.cut(
+    q_table["health"], bins=[0, 40, 70, 100], labels=["Low", "Medium", "High"]
+)
 
-#     ax = sns.barplot(x="action_name", y="count", data=action_distribution, palette="viridis")
-    
-#     # Annotate the exact frequency numbers on top of the bars
-#     for i, bar in enumerate(ax.patches):
-#         ax.annotate(
-#             f'{int(bar.get_height())}',  # Display the count as an integer
-#             (bar.get_x() + bar.get_width() / 2, bar.get_height()),  # Position the annotation
-#             ha='center', va='bottom', fontsize=10, color='black'  # Text properties
-#         )   
+# Bin the distance_to_player into ranges
+q_table["distance_bin"] = pd.cut(
+    q_table["distance_to_player"], bins=[0, 30, 60, np.inf], labels=["Close", "Medium", "Far"]
+)
 
-#     plt.title(f"State-Based Action Distribution: {condition_name}")
-#     plt.xlabel("Action")
-#     plt.ylabel("Frequency")
-#     plt.show()
+# Create a pivot table for heatmap data (average Q-value for each action and state combination)
+heatmap_data = q_table.pivot_table(
+    values="q_value",
+    index=["health_bin", "distance_bin"],
+    columns=["action_name"],
+    aggfunc="mean"
+)
 
-# 2. Q-Value Heatmap
+# Plot the heatmap
+plt.figure(figsize=(14, 10))
+sns.heatmap(
+    heatmap_data,
+    annot=True,
+    fmt=".2f",
+    cmap="coolwarm",
+    cbar_kws={'label': 'Q-Value'}
+)
+plt.title("Heatmap of Q-Values by Health, Distance, Actions")
+plt.xlabel("Action")
+plt.ylabel("State (Health Bin, Distance Bin)")
+plt.tight_layout()
+plt.show()
+
 heatmap_data = q_table.pivot_table(
     values="q_value",
     index=["player_detected", "player_visible"],

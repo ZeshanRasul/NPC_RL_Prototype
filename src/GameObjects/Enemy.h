@@ -52,8 +52,8 @@ struct PairHash {
 class Enemy : public GameObject {
 private:
 
-	const float learningRate = 0.15f;
-	const float discountFactor = 0.85f;
+	const float learningRate = 0.05f;
+	const float discountFactor = 0.95f;
 	float explorationRate;
 	float initialExplorationRate = 0.7f;
 	float minExplorationRate = 0.1f;
