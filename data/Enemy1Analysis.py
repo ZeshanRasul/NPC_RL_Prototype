@@ -30,7 +30,7 @@ q_table["health_bin"] = pd.cut(
 
 # Bin the distance_to_player into ranges
 q_table["distance_bin"] = pd.cut(
-    q_table["distance_to_player"], bins=[0, 30, 60, np.inf], labels=["Close", "Medium", "Far"]
+    q_table["distance_to_player"], bins=[0, 15, 60, np.inf], labels=["Close", "Medium", "Far"]
 )
 
 # Create a pivot table for heatmap data (average Q-value for each action and state combination)
@@ -114,8 +114,8 @@ plt.show()
 # Define the conditions for the states
 conditions = {
     "Player Far (distance > 60)": q_table["distance_to_player"] > 60,
-    "Player Medium Range (30 < distance <= 60)": (q_table["distance_to_player"] > 30) & (q_table["distance_to_player"] <= 60),
-    "Player Close (distance <= 30)": q_table["distance_to_player"] <= 30,
+    "Player Medium Range (15 < distance <= 60)": (q_table["distance_to_player"] > 15) & (q_table["distance_to_player"] <= 60),
+    "Player Close (distance <= 15)": q_table["distance_to_player"] <= 15,
     "Low Health (health <= 40)": q_table["health"] <= 40,
     "Suppression Fire Active": q_table["is_suppression_fire"] == 1,
     "Player Detected but Not Visible": (q_table["player_detected"] == 1) & (q_table["player_visible"] == 0),

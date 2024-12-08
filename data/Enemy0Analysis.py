@@ -30,7 +30,7 @@ q_table["health_bin"] = pd.cut(
 
 # Bin the distance_to_player into ranges
 q_table["distance_bin"] = pd.cut(
-    q_table["distance_to_player"], bins=[0, 30, 60, np.inf], labels=["Close", "Medium", "Far"]
+    q_table["distance_to_player"], bins=[0, 15, 60, np.inf], labels=["Close", "Medium", "Far"]
 )
 
 # Create a pivot table for heatmap data (average Q-value for each action and state combination)

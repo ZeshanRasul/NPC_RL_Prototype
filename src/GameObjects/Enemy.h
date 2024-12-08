@@ -57,7 +57,7 @@ private:
 	float explorationRate;
 	float initialExplorationRate = 0.7f;
 	float minExplorationRate = 0.1f;
-	int targetQTableSize = 1500000;  
+	int targetQTableSize = 1000000;  
 
 	float DecayExplorationRate(float initialRate, float minRate, int currentSize, int targetSize);
 

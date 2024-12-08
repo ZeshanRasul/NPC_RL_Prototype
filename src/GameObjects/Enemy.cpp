@@ -723,6 +723,12 @@ float Enemy::CalculateReward(const NashState& state, NashAction action, int enem
 		{
 			reward += 10.0f;
 
+			if (state.health >= 60)
+			{
+				reward += 7.0f;
+			}
+		}
+
 	}
 	else if (action == ADVANCE) {
 		reward += ((state.distanceToPlayer > 15.0f && state.playerDetected && state.health >= 60) || (state.playerDetected && !state.playerVisible && state.health >= 60.0f)) ? 12.0f : -2.0f;
