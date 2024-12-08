@@ -22,7 +22,6 @@ q_table["action_name"] = q_table["action"].map(action_mapping)
 
 
 # 1. Q-Value Heatmaps
-
 # Bin the health into levels (e.g., Low, Medium, High)
 q_table["health_bin"] = pd.cut(
     q_table["health"], bins=[0, 40, 70, 100], labels=["Low", "Medium", "High"]

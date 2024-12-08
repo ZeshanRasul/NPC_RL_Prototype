@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import numpy as np
 
-file_path = "0EnemyStateQTable.csv"
+file_path = "2EnemyStateQTable.csv"
 q_table = pd.read_csv(file_path)
 
 q_table.columns = [
@@ -22,7 +22,6 @@ q_table["action_name"] = q_table["action"].map(action_mapping)
 
 
 # 1. Q-Value Heatmaps
-
 # Bin the health into levels (e.g., Low, Medium, High)
 q_table["health_bin"] = pd.cut(
     q_table["health"], bins=[0, 40, 70, 100], labels=["Low", "Medium", "High"]
