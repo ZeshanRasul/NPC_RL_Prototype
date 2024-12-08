@@ -1,6 +1,10 @@
 #include "App.h"
 #include "src/Tools/Logger.h"
 
+#ifdef TRACY_ENABLE
+    #include "tracy/Tracy.hpp"
+#endif
+
 App::App(unsigned int screenWidth, unsigned int screenHeight)
     : width(screenWidth), height(screenHeight)
 {
@@ -44,5 +48,9 @@ void App::run()
 
         mGameManager->renderDebugUI();
         mWindow->mainLoop();
+
+#ifdef TRACY_ENABLE
+        FrameMark;
+#endif
     }
 }

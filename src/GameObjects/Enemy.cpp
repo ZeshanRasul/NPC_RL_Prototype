@@ -5,6 +5,10 @@
 #include "GameManager.h"
 #include "src/Tools/Logger.h"
 
+#ifdef TRACY_ENABLE
+	#include "tracy/Tracy.hpp"
+#endif
+
 float Enemy::DecayExplorationRate(float initialRate, float minRate, int currentSize, int targetSize)
 {
 	if (currentSize >= targetSize) {
@@ -84,6 +88,9 @@ void Enemy::Update(bool shouldUseEDBT, float speedDivider, float blendFac)
     {
         if (shouldUseEDBT)
         {
+#ifdef TRACY_ENABLE
+			ZoneScopedN("EDBT Update");
+#endif
 			float playerEnemyDistance = glm::distance(getPosition(), player.getPosition());
 			if (playerEnemyDistance < 35.0f && !IsPlayerDetected())
 			{
@@ -1058,7 +1065,9 @@ NashAction Enemy::ChooseActionFromTrainedQTable(const NashState& state, int enem
 
 void Enemy::EnemyDecisionPrecomputedQ(NashState& currentState, int enemyId, std::vector<NashAction>& squadActions, float deltaTime, std::unordered_map<std::pair<NashState, NashAction>, float, PairHash>* qTable)
 {
-
+#ifdef TRACY_ENABLE
+	ZoneScopedN("Q-Learning Update");
+#endif
 	if (enemyHasShot)
 	{
 		enemyRayDebugRenderTimer -= dt_;
