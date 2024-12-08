@@ -194,7 +194,7 @@ public:
     float shootDistance = 100000.0f;
     glm::vec3 playerShootHitPoint = glm::vec3(0.0f);
 
-    float MovementSpeed = 7.5f;
+    float MovementSpeed = 10.5f;
     float mVelocity = 0.0f;
 
     bool uploadVertexBuffer = true;

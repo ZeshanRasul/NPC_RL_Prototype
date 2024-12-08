@@ -194,7 +194,7 @@ bool PhysicsWorld::checkPlayerVisibility(const glm::vec3& rayOrigin, const glm::
         glm::vec3 tempHitPoint;
         if (rayAABBIntersect(rayOrigin, rayDirection, collider, tempHitPoint)) {
             float distance = glm::length(tempHitPoint - rayOrigin);
-            if (distance < closestDistance && collider != selfAABB) {
+            if (distance < closestDistance && !collider->isEnemy && collider != selfAABB) {
                 closestDistance = distance;
                 hitPoint = tempHitPoint;
                 hit = true;

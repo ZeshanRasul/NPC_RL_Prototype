@@ -691,10 +691,10 @@ float Enemy::CalculateReward(const NashState& state, NashAction action, int enem
 	float reward = 0.0f;
 
 	if (action == ATTACK) {
-		reward += (state.playerVisible && state.playerDetected) ? 25.0f : -35.0f;
+		reward += (state.playerVisible && state.playerDetected) ? 40.0f : -35.0f;
 		if (hasDealtDamage_)
 		{
-			reward += 8.0f;
+			reward += 12.0f;
 			hasDealtDamage_ = false;
 
 			if (hasKilledPlayer_)
@@ -707,15 +707,25 @@ float Enemy::CalculateReward(const NashState& state, NashAction action, int enem
 		if (state.health <= 20)
 		{
 			reward -= 5.0f;
+		} 
+		else if (state.health >= 60 && (state.playerDetected && state.playerVisible))
+		{
+			reward += 15.0f;
 		}
 
 		if (!state.playerVisible)
 		{
-			reward -= 45.0f;
+			reward -= 15.0f;
 		}
+
+
+		if (state.distanceToPlayer < 15.0f)
+		{
+			reward += 10.0f;
+
 	}
 	else if (action == ADVANCE) {
-		reward += ((state.distanceToPlayer > 15.0f && state.playerDetected) || (state.playerDetected && !state.playerVisible) && state.health >= 60.0f) ? 12.0f : -2.0f;
+		reward += ((state.distanceToPlayer > 15.0f && state.playerDetected && state.health >= 60) || (state.playerDetected && !state.playerVisible && state.health >= 60.0f)) ? 12.0f : -2.0f;
 
 		if (state.distanceToPlayer < 10.0f)
 		{
