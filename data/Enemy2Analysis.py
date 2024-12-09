@@ -74,3 +74,23 @@ plt.title("Enemy 2: Heatmap of Q-Values by State and Action")
 plt.xlabel("Action")
 plt.ylabel("State (Player Detected, Player Visible)")
 plt.show()
+
+heatmap_data = q_table.pivot_table(
+    values="q_value",
+    index=["is_suppression_fire", "health_bin"],
+    columns="action_name",
+    aggfunc="mean"
+)
+
+# Plot Heatmap for Q-Values
+plt.figure(figsize=(10, 6))
+sns.heatmap(
+    heatmap_data,
+    annot=True,
+    fmt=".2f",
+    cmap="coolwarm"
+)
+plt.title("Enemy 2: Heatmap of Q-Values by Suppression Fire, Health and Action")
+plt.xlabel("Action")
+plt.ylabel("State (Is Suppression Fire, Health Bin)")
+plt.show()
