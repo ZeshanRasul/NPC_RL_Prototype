@@ -199,12 +199,22 @@ void InputManager::handlePlayerMovement(GLFWwindow* window, Player& player, Came
 			player.PlayerProcessKeyboard(LEFT, deltaTime);
 		else if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
 			player.PlayerProcessKeyboard(RIGHT, deltaTime);
-		else if (glfwGetKey(window, GLFW_KEY_W) == GLFW_RELEASE ||
-			glfwGetKey(window, GLFW_KEY_S) == GLFW_RELEASE ||
-			glfwGetKey(window, GLFW_KEY_A) == GLFW_RELEASE ||
-			glfwGetKey(window, GLFW_KEY_D) == GLFW_RELEASE)
+		else if (glfwGetKey(window, GLFW_KEY_W) == GLFW_RELEASE && player.prevDirection == FORWARD)
+		{
 			player.SetVelocity(0.0f);
-
+		}
+		else if (glfwGetKey(window, GLFW_KEY_A) == GLFW_RELEASE && player.prevDirection == BACKWARD)
+		{
+			player.SetVelocity(0.0f);
+		}
+		else if (glfwGetKey(window, GLFW_KEY_D) == GLFW_RELEASE && player.prevDirection == LEFT)
+		{
+			player.SetVelocity(0.0f);
+		}
+		else if (glfwGetKey(window, GLFW_KEY_D) == GLFW_RELEASE && player.prevDirection == RIGHT)
+		{
+			player.SetVelocity(0.0f);
+		}
 	}
 
 

@@ -16,9 +16,6 @@ void Player::drawObject(glm::mat4 viewMat, glm::mat4 proj, bool shadowMap, glm::
 
 	mPlayerDualQuatSSBuffer.uploadSsboData(model->getJointDualQuats(), 2);
 
-
-	//    model->playAnimation(0, 0.8f);
-
 	if (uploadVertexBuffer)
 	{
 		model->uploadVertexBuffers();
@@ -115,6 +112,10 @@ void Player::Update(float dt)
 	if (blendAnim)
 	{
 		blendFactor += (1.0f - blendFactor) * blendSpeed * dt;
+
+		if (blendFactor > 1.0f)
+			blendFactor = 1.0f;
+
 		SetAnimation(GetSourceAnimNum(), GetDestAnimNum(), 1.0f, blendFactor, false);
 		if (blendFactor >= 1.0f)
 		{
@@ -125,8 +126,8 @@ void Player::Update(float dt)
 	}
 	else
 	{
-		SetAnimation(GetSourceAnimNum(), 1.0f, 1.0f, false);
 		blendFactor = 0.0f;
+		SetAnimation(GetSourceAnimNum(), 1.0f, 1.0f, false);
 	}
 }
 
@@ -183,22 +184,13 @@ void Player::PlayerProcessKeyboard(CameraMovement direction, float deltaTime)
 		mRecomputeWorldTransform = true;
 		ComputeAudioWorldTransform();
 		UpdateComponents(deltaTime);
-		if (prevDirection != direction && mVelocity > 0.01f && mVelocity < 0.3f)
-		{
-			SetSourceAnimNum(destAnim);
-			SetDestAnimNum(6);
-			//			blendFactor = 0.0f;
-			blendAnim = true;
-		}
-		if (mVelocity >= 0.3f)
+		if (destAnim != 2 && prevDirection != direction)
 		{
 			SetSourceAnimNum(destAnim);
 			SetDestAnimNum(2);
-			//			blendFactor = 0.0f;
 			blendAnim = true;
-		}
-		if (prevDirection != direction)
 			resetBlend = true;
+		}
 	}
 	if (direction == BACKWARD)
 	{
@@ -206,26 +198,13 @@ void Player::PlayerProcessKeyboard(CameraMovement direction, float deltaTime)
 		mRecomputeWorldTransform = true;
 		ComputeAudioWorldTransform();
 		UpdateComponents(deltaTime);
-		if (prevDirection != direction && mVelocity > 0.01f && mVelocity < 0.3f)
+		if (destAnim != 2 && prevDirection != direction)
 		{
-			if (destAnim != 6)
-			{
-				SetSourceAnimNum(destAnim);
-				SetDestAnimNum(6);
-				blendAnim = true;
-			}
-		}
-		if (mVelocity >= 0.3f)
-		{
-			if (destAnim != 2)
-			{
-				SetSourceAnimNum(destAnim);
-				SetDestAnimNum(2);
-				blendAnim = true;
-			}
-		}
-		if (prevDirection != direction)
+			SetSourceAnimNum(destAnim);
+			SetDestAnimNum(2);
+			blendAnim = true;
 			resetBlend = true;
+		}
 	}
 	if (direction == LEFT)
 	{
@@ -233,17 +212,13 @@ void Player::PlayerProcessKeyboard(CameraMovement direction, float deltaTime)
 		mRecomputeWorldTransform = true;
 		ComputeAudioWorldTransform();
 		UpdateComponents(deltaTime);
-
-		if (destAnim != 4 && prevDirection != direction && mVelocity > 0.01f)
+		if (destAnim != 4 && prevDirection != direction)
 		{
-
 			SetSourceAnimNum(destAnim);
 			SetDestAnimNum(4);
-			//            blendFactor = 0.0f;
 			blendAnim = true;
-		}
-		if (prevDirection != direction)
 			resetBlend = true;
+		}
 	}
 	if (direction == RIGHT)
 	{
@@ -251,15 +226,13 @@ void Player::PlayerProcessKeyboard(CameraMovement direction, float deltaTime)
 		mRecomputeWorldTransform = true;
 		ComputeAudioWorldTransform();
 		UpdateComponents(deltaTime);
-		if (destAnim != 5 && prevDirection != direction && mVelocity > 0.01f)
+		if (destAnim != 5 && prevDirection != direction)
 		{
 			SetSourceAnimNum(destAnim);
 			SetDestAnimNum(5);
-			//		    blendFactor = 0.0f;
 			blendAnim = true;
-		}
-		if (prevDirection != direction)
 			resetBlend = true;
+		}
 	}
 
 	prevDirection = direction;
@@ -446,5 +419,6 @@ void Player::OnDeath()
 void Player::ResetGame()
 {
 	mGameManager->ResetGame();
+	playGameStartAudio = true;
 }
 

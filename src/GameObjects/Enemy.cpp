@@ -136,7 +136,9 @@ void Enemy::Update(bool shouldUseEDBT, float speedDivider, float blendFac)
 		if (blendAnim)
 		{
 			blendFactor += (1.0f - blendFactor) * blendSpeed * dt_;
-			SetAnimation(GetSourceAnimNum(), GetDestAnimNum(), 2.0f, blendFactor, false);
+			if (blendFactor > 1.0f)
+				blendFactor = 1.0f;
+			SetAnimation(GetSourceAnimNum(), GetDestAnimNum(), 0.5f, blendFactor, false);
 			if (blendFactor >= 1.0f)
 			{
 				blendAnim = false;
@@ -146,7 +148,7 @@ void Enemy::Update(bool shouldUseEDBT, float speedDivider, float blendFac)
 		}
 		else
 		{
-			SetAnimation(GetSourceAnimNum(), speedDivider, blendFac, false);
+			SetAnimation(GetSourceAnimNum(), 1.0f, 1.0f, false);
 			blendFactor = 0.0f;
 		}
 	}

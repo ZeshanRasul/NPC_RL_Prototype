@@ -166,6 +166,8 @@ public:
 	void HasDealtDamage() override {};
 	void HasKilledPlayer() override {};
 
+	CameraMovement prevDirection;
+
 public:
 	float PlayerYaw;
 	glm::vec3 PlayerFront;
@@ -214,7 +216,6 @@ public:
 	float blendFactor = 0.0f;
 	bool blendAnim = false;
 	bool resetBlend = false;
-	CameraMovement prevDirection;
 
 	glm::vec3 initialPos = glm::vec3(0.0f, 0.0f, 0.0f);
 

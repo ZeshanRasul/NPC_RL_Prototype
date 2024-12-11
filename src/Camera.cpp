@@ -71,10 +71,10 @@ void Camera::ProcessMouseMovement(float xOffset, float yOffset, GLboolean constr
 			if (Pitch < -89.0f)
 				Pitch = -89.0f;
 		}
-		else if (Mode == PLAYER_AIM)
+		else if (Mode == PLAYER_AIM || Mode == PLAYER_FOLLOW)
 		{
-			if (Pitch > 16.0f)
-				Pitch = 16.0f;
+			if (Pitch > 9.0f)
+				Pitch = 9.0f;
 			if (Pitch < -20.0f)
 				Pitch = -20.0f;
 		}

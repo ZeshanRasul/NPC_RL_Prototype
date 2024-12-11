@@ -71,44 +71,16 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 	cell->SetUpVAO();
 	//    cell->LoadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/Ground.png", cell->mTex);
 	std::string cubeTexFilename = "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/Cover.png";
-	gameGrid = new Grid();
-	cover1 = new Cube(gameGrid->snapToGrid(gameGrid->coverPositions[0]), glm::vec3((float)gameGrid->GetCellSize()), &cubeShader, &shadowMapShader, false, this, cubeTexFilename);
-	cover1->SetAABBShader(&aabbShader);
-	cover1->LoadMesh();
-	cover2 = new Cube(gameGrid->snapToGrid(gameGrid->coverPositions[1]), glm::vec3((float)gameGrid->GetCellSize()), &cubeShader, &shadowMapShader, false, this, cubeTexFilename);
-	cover2->SetAABBShader(&aabbShader);
-	cover2->LoadMesh();
-	cover3 = new Cube(gameGrid->snapToGrid(gameGrid->coverPositions[2]), glm::vec3((float)gameGrid->GetCellSize()), &cubeShader, &shadowMapShader, false, this, cubeTexFilename);
-	cover3->SetAABBShader(&aabbShader);
-	cover3->LoadMesh();
-	cover4 = new Cube(gameGrid->snapToGrid(gameGrid->coverPositions[3]), glm::vec3((float)gameGrid->GetCellSize()), &cubeShader, &shadowMapShader, false, this, cubeTexFilename);
-	cover4->SetAABBShader(&aabbShader);
-	cover4->LoadMesh();
-	cover5 = new Cube(gameGrid->snapToGrid(gameGrid->coverPositions[4]), glm::vec3((float)gameGrid->GetCellSize()), &cubeShader, &shadowMapShader, false, this, cubeTexFilename);
-	cover5->SetAABBShader(&aabbShader);
-	cover5->LoadMesh();
-	cover6 = new Cube(gameGrid->snapToGrid(gameGrid->coverPositions[5]), glm::vec3((float)gameGrid->GetCellSize()), &cubeShader, &shadowMapShader, false, this, cubeTexFilename);
-	cover6->SetAABBShader(&aabbShader);
-	cover6->LoadMesh();
-	cover7 = new Cube(gameGrid->snapToGrid(gameGrid->coverPositions[6]), glm::vec3((float)gameGrid->GetCellSize()), &cubeShader, &shadowMapShader, false, this, cubeTexFilename);
-	cover7->SetAABBShader(&aabbShader);
-	cover7->LoadMesh();
-	cover8 = new Cube(gameGrid->snapToGrid(gameGrid->coverPositions[7]), glm::vec3((float)gameGrid->GetCellSize()), &cubeShader, &shadowMapShader, false, this, cubeTexFilename);
-	cover8->SetAABBShader(&aabbShader);
-	cover8->LoadMesh();
-	//cover9 = new Cube(gameGrid->snapToGrid(gameGrid->coverPositions[8]), glm::vec3((float)gameGrid->GetCellSize()), &cubeShader, false, this);
-	//cover9->SetAABBShader(&aabbShader);
-	//cover9->LoadMesh();
-	//cover10 = new Cube(gameGrid->snapToGrid(gameGrid->coverPositions[9]), glm::vec3((float)gameGrid->GetCellSize()), &cubeShader, false, this);
-	//cover10->SetAABBShader(&aabbShader);
-	//cover10->LoadMesh();
-	//cover11 = new Cube(gameGrid->snapToGrid(gameGrid->coverPositions[10]), glm::vec3((float)gameGrid->GetCellSize()), &cubeShader, false, this);
-	//cover11->SetAABBShader(&aabbShader);
-	//cover11->LoadMesh();
-	//cover12 = new Cube(gameGrid->snapToGrid(gameGrid->coverPositions[11]), glm::vec3((float)gameGrid->GetCellSize()), &cubeShader, false, this);
-	//cover12->SetAABBShader(&aabbShader);
-	//cover12->LoadMesh();
 
+	gameGrid = new Grid();
+
+	for (glm::vec3 coverPos : gameGrid->coverPositions)
+	{
+		Cube* cover = new Cube(gameGrid->snapToGrid(coverPos), glm::vec3((float)gameGrid->GetCellSize()), &cubeShader, &shadowMapShader, false, this, cubeTexFilename);
+		cover->SetAABBShader(&aabbShader);
+		cover->LoadMesh();
+		coverSpots.push_back(cover);
+	}
 
 	gameGrid->initializeGrid();
 
@@ -202,21 +174,14 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 
 	gameObjects.push_back(player);
 	gameObjects.push_back(enemy);
-	gameObjects.push_back(cover1);
-	gameObjects.push_back(cover2);
-	gameObjects.push_back(cover3);
-	gameObjects.push_back(cover4);
-	gameObjects.push_back(cover5);
-	gameObjects.push_back(cover6);
-	gameObjects.push_back(cover7);
-	gameObjects.push_back(cover8);
-	//   gameObjects.push_back(cover9);
-	   //gameObjects.push_back(cover10);
-	   //gameObjects.push_back(cover11);
-	   //gameObjects.push_back(cover12);
 	gameObjects.push_back(enemy2);
 	gameObjects.push_back(enemy3);
 	gameObjects.push_back(enemy4);
+
+	for (Cube* coverSpot : coverSpots)
+	{
+		gameObjects.push_back(coverSpot);
+	}
 
 	enemies.push_back(enemy);
 	enemies.push_back(enemy2);
@@ -447,6 +412,8 @@ void GameManager::ShowEnemyStateWindow()
 
 	ImGui::InputFloat("Speed Divider", &speedDivider);
 	ImGui::InputFloat("Blend Factor", &blendFac);
+
+	ImGui::Text("Player Velocity %s", std::to_string(player->GetVelocity()));
 
 	ImGui::Text("Player Health: %d", (int)player->GetHealth());
 

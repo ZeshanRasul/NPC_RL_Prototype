@@ -240,6 +240,9 @@ private:
 	Line* enemy2Line;
 	Line* enemy3Line;
 	Line* enemy4Line;
+
+	std::vector<Cube*> coverSpots;
+
 	Cube* cover1;
 	Cube* cover2;
 	Cube* cover3;
