@@ -243,18 +243,6 @@ private:
 
 	std::vector<Cube*> coverSpots;
 
-	Cube* cover1;
-	Cube* cover2;
-	Cube* cover3;
-	Cube* cover4;
-	Cube* cover5;
-	Cube* cover6;
-	Cube* cover7;
-	Cube* cover8;
-	Cube* cover9;
-	Cube* cover10;
-	Cube* cover11;
-	Cube* cover12;
 	Quad* minimapQuad;
 	Quad* shadowMapQuad;
 	Quad* playerMuzzleFlashQuad;

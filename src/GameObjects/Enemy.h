@@ -174,8 +174,8 @@ public:
 
 	void updateAABB() {
 		glm::mat4 modelMatrix = glm::translate(glm::mat4(1.0f), position) *
-			glm::rotate(glm::mat4(1.0f), glm::radians(-yaw + 90.0f), glm::vec3(0.0f, 1.0f, 0.0f)) *
-			glm::scale(glm::mat4(1.0f), scale);
+			glm::rotate(glm::mat4(1.0f), glm::radians(yaw + 90.0f), glm::vec3(0.0f, 1.0f, 0.0f)) *
+			glm::scale(glm::mat4(1.0f), aabbScale);
 		aabb->update(modelMatrix);
 	};
 
@@ -315,7 +315,7 @@ private:
 	std::vector<glm::ivec2> prevPath_ = {};
 
 	glm::vec3 aabbColor = glm::vec3(0.0f, 0.0f, 1.0f);
-	glm::vec3 aabbScale = glm::vec3(4.5f, 3.0f, 4.5f);
+	glm::vec3 aabbScale = glm::vec3(3.2f, 3.0f, 3.2f);
 
 	float health = 100.0f;
 	float speed = 7.5f;

@@ -48,7 +48,7 @@ public:
 			Logger::log(1, "%s: texture loading failed\n", __FUNCTION__);
 			return false;
 		}
-		Logger::log(1, "%s: Crosshair texture successfully loaded\n", __FUNCTION__, textureFilename);
+		Logger::log(1, "%s: Quad texture successfully loaded\n", __FUNCTION__, textureFilename);
 		return true;
 	}
 
