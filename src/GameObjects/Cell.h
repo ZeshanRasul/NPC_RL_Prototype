@@ -8,51 +8,51 @@
 
 class Cell {
 public:
-    Cell(bool isObs, glm::vec3 col)
+	Cell(bool isObs, glm::vec3 col)
 		: isObstacle(isObs), color(col), isOccupied(false), occupantId(-1), isCover(false)
-    {
-        SetUpVAO();
-    }
+	{
+		SetUpVAO();
+	}
 
-    Cell() : isObstacle(false), color(glm::vec3(0.0f, 1.0f, 0.0f))
-    {
-        SetUpVAO();
-    }
+	Cell() : isObstacle(false), color(glm::vec3(0.0f, 1.0f, 0.0f))
+	{
+		SetUpVAO();
+	}
 
-    void SetUpVAO() {
-        glGenVertexArrays(1, &cellVAO);
-        glGenBuffers(1, &cellVBO);
+	void SetUpVAO() {
+		glGenVertexArrays(1, &cellVAO);
+		glGenBuffers(1, &cellVBO);
 
-        glBindVertexArray(cellVAO);
+		glBindVertexArray(cellVAO);
 
-        glBindBuffer(GL_ARRAY_BUFFER, cellVBO);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(cellVertices), cellVertices, GL_STATIC_DRAW);
+		glBindBuffer(GL_ARRAY_BUFFER, cellVBO);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(cellVertices), cellVertices, GL_STATIC_DRAW);
 
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
-        glEnableVertexAttribArray(0);
-        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
-        glEnableVertexAttribArray(1);
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
+		glEnableVertexAttribArray(0);
+		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
+		glEnableVertexAttribArray(1);
 		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
 		glEnableVertexAttribArray(2);
-        
-        glBindVertexArray(0);
-    }
 
-    bool LoadTexture(std::string textureFilename, Texture* tex)
-    {
-        if (!tex->loadTexture(textureFilename, false)) {
-            Logger::log(1, "%s: texture loading failed\n", __FUNCTION__);
-            return false;
-        }
-        Logger::log(1, "%s: %s texture successfully loaded\n", __FUNCTION__, textureFilename);
-        return true;
-    }
+		glBindVertexArray(0);
+	}
 
-    void BindVAO() const {
-        glBindVertexArray(cellVAO);
-    }
+	bool LoadTexture(std::string textureFilename, Texture* tex)
+	{
+		if (!tex->loadTexture(textureFilename, false)) {
+			Logger::log(1, "%s: texture loading failed\n", __FUNCTION__);
+			return false;
+		}
+		Logger::log(1, "%s: %s texture successfully loaded\n", __FUNCTION__, textureFilename);
+		return true;
+	}
 
-    bool IsObstacle() const {
+	void BindVAO() const {
+		glBindVertexArray(cellVAO);
+	}
+
+	bool IsObstacle() const {
 		return isObstacle;
 	}
 
@@ -60,15 +60,15 @@ public:
 		isObstacle = obs;
 	}
 
-    bool IsCover() const {
-        return isCover;
-    }
+	bool IsCover() const {
+		return isCover;
+	}
 
-    void SetCover(bool cover) {
-        isCover = cover;
-    }
+	void SetCover(bool cover) {
+		isCover = cover;
+	}
 
-    glm::vec3 GetColor() const {
+	glm::vec3 GetColor() const {
 		return color;
 	}
 
@@ -80,9 +80,9 @@ public:
 		return isOccupied;
 	}
 
-    void SetOccupied(bool occ) {
-        isOccupied = occ;
-    }
+	void SetOccupied(bool occ) {
+		isOccupied = occ;
+	}
 
 	bool IsOccupiedBy(int id) const {
 		return occupantId == id;
@@ -94,35 +94,35 @@ public:
 
 	int GetOccupantId() const {
 		return occupantId;
-	}   
+	}
 
-    Texture mTex{};
+	Texture mTex{};
 	Texture mNormal{};
 	Texture mMetallic{};
 	Texture mRoughness{};
 	Texture mAO{};
-    Texture mEmissive{};
+	Texture mEmissive{};
 
 private:
-    GLuint cellVAO = 0;
-    GLuint cellVBO = 0;
+	GLuint cellVAO = 0;
+	GLuint cellVBO = 0;
 
-    // Vertex data for a cell
-    float cellVertices[48] = {
-        // positions        //normals        // texture coords
-         0.0f, 0.0f, 0.0f,  0.0f, 1.0f, 0.0f,  0.0f, 0.0f,
-         1.0f, 0.0f, 0.0f,  0.0f, 1.0f, 0.0f,  1.0f, 0.0f,
-         1.0f, 0.0f, 1.0f,  0.0f, 1.0f, 0.0f,  1.0f, 1.0f,
-                            
-         0.0f, 0.0f, 0.0f,  0.0f, 1.0f, 0.0f,  0.0f, 0.0f,
-         1.0f, 0.0f, 1.0f,  0.0f, 1.0f, 0.0f,  1.0f, 1.0f,
-         0.0f, 0.0f, 1.0f,  0.0f, 1.0f, 0.0f,  0.0f, 1.0f
-    };
+	// Vertex data for a cell
+	float cellVertices[48] = {
+		// positions        //normals        // texture coords
+		 0.0f, 0.0f, 0.0f,  0.0f, 1.0f, 0.0f,  0.0f, 0.0f,
+		 1.0f, 0.0f, 0.0f,  0.0f, 1.0f, 0.0f,  1.0f, 0.0f,
+		 1.0f, 0.0f, 1.0f,  0.0f, 1.0f, 0.0f,  1.0f, 1.0f,
 
-    bool isObstacle;
-    glm::vec3 color;
-    bool isOccupied;
-    int occupantId;
-    bool isCover;
+		 0.0f, 0.0f, 0.0f,  0.0f, 1.0f, 0.0f,  0.0f, 0.0f,
+		 1.0f, 0.0f, 1.0f,  0.0f, 1.0f, 0.0f,  1.0f, 1.0f,
+		 0.0f, 0.0f, 1.0f,  0.0f, 1.0f, 0.0f,  0.0f, 1.0f
+	};
+
+	bool isObstacle;
+	glm::vec3 color;
+	bool isOccupied;
+	int occupantId;
+	bool isCover;
 
 };

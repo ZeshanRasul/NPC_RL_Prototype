@@ -4,20 +4,20 @@
 #include "src/Tools/Logger.h"
 
 void Texture::cleanup() {
-    glDeleteTextures(1, &mTexture);
+	glDeleteTextures(1, &mTexture);
 }
 
 bool Texture::loadTexture(std::string textureFilename, bool flipImage) {
-    mTextureName = textureFilename;
+	mTextureName = textureFilename;
 
-    stbi_set_flip_vertically_on_load(flipImage);
-    unsigned char* textureData = stbi_load(textureFilename.c_str(), &mTexWidth, &mTexHeight, &mNumberOfChannels, 0);
+	stbi_set_flip_vertically_on_load(flipImage);
+	unsigned char* textureData = stbi_load(textureFilename.c_str(), &mTexWidth, &mTexHeight, &mNumberOfChannels, 0);
 
-    if (!textureData) {
-        Logger::log(1, "%s error: could not load file '%s'\n", __FUNCTION__, mTextureName.c_str());
-        stbi_image_free(textureData);
-        return false;
-    }
+	if (!textureData) {
+		Logger::log(1, "%s error: could not load file '%s'\n", __FUNCTION__, mTextureName.c_str());
+		stbi_image_free(textureData);
+		return false;
+	}
 
 	GLenum format;
 	if (mNumberOfChannels == 1)
@@ -28,29 +28,29 @@ bool Texture::loadTexture(std::string textureFilename, bool flipImage) {
 		format = GL_RGBA;
 
 
-    glGenTextures(1, &mTexture);
-    glBindTexture(GL_TEXTURE_2D, mTexture);
+	glGenTextures(1, &mTexture);
+	glBindTexture(GL_TEXTURE_2D, mTexture);
 
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
-    glTexImage2D(GL_TEXTURE_2D, 0, format, mTexWidth, mTexHeight, 0, format, GL_UNSIGNED_BYTE, textureData);
-    glGenerateMipmap(GL_TEXTURE_2D);
-    glBindTexture(GL_TEXTURE_2D, 0);
+	glTexImage2D(GL_TEXTURE_2D, 0, format, mTexWidth, mTexHeight, 0, format, GL_UNSIGNED_BYTE, textureData);
+	glGenerateMipmap(GL_TEXTURE_2D);
+	glBindTexture(GL_TEXTURE_2D, 0);
 
-    stbi_image_free(textureData);
+	stbi_image_free(textureData);
 
-    Logger::log(1, "%s: texture '%s' loaded (%dx%d, %d channels)\n", __FUNCTION__, mTextureName.c_str(), mTexWidth, mTexHeight, mNumberOfChannels);
-    return true;
+	Logger::log(1, "%s: texture '%s' loaded (%dx%d, %d channels)\n", __FUNCTION__, mTextureName.c_str(), mTexWidth, mTexHeight, mNumberOfChannels);
+	return true;
 }
 
 void Texture::bind(int texIndex) {
-    glActiveTexture(GL_TEXTURE0 + texIndex);
-    glBindTexture(GL_TEXTURE_2D, mTexture);
+	glActiveTexture(GL_TEXTURE0 + texIndex);
+	glBindTexture(GL_TEXTURE_2D, mTexture);
 }
 
 void Texture::unbind() {
-    glBindTexture(GL_TEXTURE_2D, 0);
+	glBindTexture(GL_TEXTURE_2D, 0);
 }

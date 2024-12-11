@@ -40,7 +40,7 @@ private:
 	glm::mat4 view = glm::mat4(1.0f);
 	glm::mat4 projection = glm::mat4(1.0f);
 	glm::mat4 cubemapView = glm::mat4(1.0f);
-	
+
 	DirLight sun;
 	GLuint minimapFBO;
 	GLuint minimapColorTex;

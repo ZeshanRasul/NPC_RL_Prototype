@@ -28,7 +28,6 @@ public:
 	bool Initialize();
 	void Shutdown();
 
-	// Load/unload banks
 	void LoadBank(const std::string& name);
 	void UnloadBank(const std::string& name);
 	void UnloadAllBanks();
@@ -52,16 +51,12 @@ private:
 	static unsigned int sNextID;
 
 	class GameManager* mGameManager;
-	// Map of loaded banks
 	std::unordered_map<std::string, FMOD::Studio::Bank*> mBanks;
 	// Map of event name to EventDescription
 	std::unordered_map<std::string, FMOD::Studio::EventDescription*> mEvents;
 	// Map of event id to EventInstance
 	std::unordered_map<unsigned int, FMOD::Studio::EventInstance*> mEventInstances;
-	// Map of buses
 	std::unordered_map<std::string, FMOD::Studio::Bus*> mBuses;
-	// FMOD studio system
 	FMOD::Studio::System* mSystem;
-	// FMOD Low-level system (in case needed)
 	FMOD::System* mLowLevelSystem;
 };

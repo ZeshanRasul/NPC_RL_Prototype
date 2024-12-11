@@ -58,7 +58,7 @@ void Camera::ProcessMouseMovement(float xOffset, float yOffset, GLboolean constr
 	yOffset *= MouseSensitivity;
 
 	Yaw += xOffset;
-	
+
 	if (Mode != PLAYER_FOLLOW)
 		Pitch += yOffset;
 
@@ -70,7 +70,7 @@ void Camera::ProcessMouseMovement(float xOffset, float yOffset, GLboolean constr
 				Pitch = 89.0f;
 			if (Pitch < -89.0f)
 				Pitch = -89.0f;
-		} 
+		}
 		else if (Mode == PLAYER_AIM)
 		{
 			if (Pitch > 16.0f)

@@ -5,15 +5,15 @@
 class ActionNode : public BTNode
 {
 public:
-    using ActionFunc = std::function<NodeStatus()>;
+	using ActionFunc = std::function<NodeStatus()>;
 
-    ActionNode(ActionFunc func) : actionFunc_(func) {}
+	ActionNode(ActionFunc func) : actionFunc_(func) {}
 
-    NodeStatus Tick() override
-    {
-        return actionFunc_();
-    }
+	NodeStatus Tick() override
+	{
+		return actionFunc_();
+	}
 
 private:
-    ActionFunc actionFunc_;
+	ActionFunc actionFunc_;
 };

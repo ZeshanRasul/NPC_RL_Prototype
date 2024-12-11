@@ -2,7 +2,7 @@
 #include "GameObjects/GameObject.h"
 
 Component::Component(GameObject* owner, int updateOrder)
-	:mOwner(owner), 
+	:mOwner(owner),
 	mUpdateOrder(updateOrder)
 {
 	// Add to actor's vector of components

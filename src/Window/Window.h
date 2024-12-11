@@ -12,7 +12,7 @@ public:
 	void mainLoop();
 	bool isOpen() const { return !glfwWindowShouldClose(mWindow); };
 	void clear() { mRenderer->clear(); }
-	
+
 	GLFWwindow* getWindow() { return mWindow; }
 	Renderer* getRenderer() { return mRenderer; }
 

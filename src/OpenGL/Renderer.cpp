@@ -30,7 +30,7 @@ bool Renderer::init(unsigned int width, unsigned int height)
 
 	glViewport(0, 0, width, height);
 
-//	glEnable(GL_CULL_FACE);
+	//	glEnable(GL_CULL_FACE);
 	glEnable(GL_DEPTH_TEST);
 
 	return true;

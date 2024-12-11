@@ -8,9 +8,9 @@
 DirLight dirLight = {
 		glm::vec3(-3.0f, -2.0f, 3.0f),
 
-        glm::vec3(0.15f, 0.2f, 0.25f),
+		glm::vec3(0.15f, 0.2f, 0.25f),
 		glm::vec3(7.0f),
-        glm::vec3(0.8f, 0.9f, 1.0f)
+		glm::vec3(0.8f, 0.9f, 1.0f)
 };
 
 glm::vec3 dirLightPBRColour = glm::vec3(10.f, 10.0f, 10.0f);
@@ -18,34 +18,34 @@ glm::vec3 dirLightPBRColour = glm::vec3(10.f, 10.0f, 10.0f);
 GameManager::GameManager(Window* window, unsigned int width, unsigned int height)
 	: window(window), screenWidth(width), screenHeight(height)
 {
-    inputManager = new InputManager();
+	inputManager = new InputManager();
 	audioSystem = new AudioSystem(this);
 
 	if (!audioSystem->Initialize())
 	{
 		Logger::log(1, "%s error: AudioSystem init error\n", __FUNCTION__);
-        audioSystem->Shutdown();
-        delete audioSystem;
-        audioSystem = nullptr;
+		audioSystem->Shutdown();
+		delete audioSystem;
+		audioSystem = nullptr;
 	}
 
-	mAudioManager = new AudioManager(this);	
+	mAudioManager = new AudioManager(this);
 
-    window->setInputManager(inputManager);
-    
-    renderer = window->getRenderer();
+	window->setInputManager(inputManager);
+
+	renderer = window->getRenderer();
 	renderer->SetUpMinimapFBO(width, height);
 	renderer->SetUpShadowMapFBO(SHADOW_WIDTH, SHADOW_HEIGHT);
 
-    playerShader.loadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/vertex_gpu_dquat_player.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/pbr_fragment.glsl");
-    enemyShader.loadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/vertex_gpu_dquat_enemy.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/pbr_fragment_enemy.glsl");
-    gridShader.loadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/pbr_vertex.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/pbr_fragment_enemy.glsl");
+	playerShader.loadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/vertex_gpu_dquat_player.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/pbr_fragment.glsl");
+	enemyShader.loadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/vertex_gpu_dquat_enemy.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/pbr_fragment_enemy.glsl");
+	gridShader.loadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/pbr_vertex.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/pbr_fragment_enemy.glsl");
 	crosshairShader.loadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/crosshair_vert.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/crosshair_frag.glsl");
 	lineShader.loadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/line_vert.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/line_frag.glsl");
-	aabbShader.loadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/aabb_vert.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/aabb_frag.glsl");   
-    cubeShader.loadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/pbr_vertex.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/pbr_fragment.glsl");
-    cubemapShader.loadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/cubemap_vertex.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/cubemap_fragment.glsl");
-    minimapShader.loadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/quad_vertex.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/quad_fragment.glsl");
+	aabbShader.loadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/aabb_vert.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/aabb_frag.glsl");
+	cubeShader.loadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/pbr_vertex.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/pbr_fragment.glsl");
+	cubemapShader.loadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/cubemap_vertex.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/cubemap_fragment.glsl");
+	minimapShader.loadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/quad_vertex.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/quad_fragment.glsl");
 	shadowMapShader.loadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/shadow_map_vertex.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/shadow_map_fragment.glsl");
 	playerShadowMapShader.loadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/shadow_map_player_vertex.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/shadow_map_fragment.glsl");
 	enemyShadowMapShader.loadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/shadow_map_enemy_vertex.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/shadow_map_fragment.glsl");
@@ -54,7 +54,7 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 
 	physicsWorld = new PhysicsWorld();
 
-    cubemapFaces = {
+	cubemapFaces = {
 		"C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/Skybox/right.png",
 		"C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/Skybox/left.png",
 		"C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/Skybox/top.png",
@@ -63,30 +63,30 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 		"C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/Skybox/back.png"
 	};
 
-    cubemap = new Cubemap(&cubemapShader);
-    cubemap->LoadMesh();
-    cubemap->LoadCubemap(cubemapFaces);
+	cubemap = new Cubemap(&cubemapShader);
+	cubemap->LoadMesh();
+	cubemap->LoadCubemap(cubemapFaces);
 
-    cell = new Cell();
-    cell->SetUpVAO();
-//    cell->LoadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/Ground.png", cell->mTex);
+	cell = new Cell();
+	cell->SetUpVAO();
+	//    cell->LoadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/Ground.png", cell->mTex);
 	std::string cubeTexFilename = "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/Cover.png";
-    gameGrid = new Grid();
+	gameGrid = new Grid();
 	cover1 = new Cube(gameGrid->snapToGrid(gameGrid->coverPositions[0]), glm::vec3((float)gameGrid->GetCellSize()), &cubeShader, &shadowMapShader, false, this, cubeTexFilename);
-    cover1->SetAABBShader(&aabbShader);
-    cover1->LoadMesh();
+	cover1->SetAABBShader(&aabbShader);
+	cover1->LoadMesh();
 	cover2 = new Cube(gameGrid->snapToGrid(gameGrid->coverPositions[1]), glm::vec3((float)gameGrid->GetCellSize()), &cubeShader, &shadowMapShader, false, this, cubeTexFilename);
-    cover2->SetAABBShader(&aabbShader);
-    cover2->LoadMesh();
+	cover2->SetAABBShader(&aabbShader);
+	cover2->LoadMesh();
 	cover3 = new Cube(gameGrid->snapToGrid(gameGrid->coverPositions[2]), glm::vec3((float)gameGrid->GetCellSize()), &cubeShader, &shadowMapShader, false, this, cubeTexFilename);
-    cover3->SetAABBShader(&aabbShader);
-    cover3->LoadMesh();
+	cover3->SetAABBShader(&aabbShader);
+	cover3->LoadMesh();
 	cover4 = new Cube(gameGrid->snapToGrid(gameGrid->coverPositions[3]), glm::vec3((float)gameGrid->GetCellSize()), &cubeShader, &shadowMapShader, false, this, cubeTexFilename);
-    cover4->SetAABBShader(&aabbShader);
-    cover4->LoadMesh();	
-    cover5 = new Cube(gameGrid->snapToGrid(gameGrid->coverPositions[4]), glm::vec3((float)gameGrid->GetCellSize()), &cubeShader, &shadowMapShader, false, this, cubeTexFilename);
-    cover5->SetAABBShader(&aabbShader);
-    cover5->LoadMesh();
+	cover4->SetAABBShader(&aabbShader);
+	cover4->LoadMesh();
+	cover5 = new Cube(gameGrid->snapToGrid(gameGrid->coverPositions[4]), glm::vec3((float)gameGrid->GetCellSize()), &cubeShader, &shadowMapShader, false, this, cubeTexFilename);
+	cover5->SetAABBShader(&aabbShader);
+	cover5->LoadMesh();
 	cover6 = new Cube(gameGrid->snapToGrid(gameGrid->coverPositions[5]), glm::vec3((float)gameGrid->GetCellSize()), &cubeShader, &shadowMapShader, false, this, cubeTexFilename);
 	cover6->SetAABBShader(&aabbShader);
 	cover6->LoadMesh();
@@ -94,8 +94,8 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 	cover7->SetAABBShader(&aabbShader);
 	cover7->LoadMesh();
 	cover8 = new Cube(gameGrid->snapToGrid(gameGrid->coverPositions[7]), glm::vec3((float)gameGrid->GetCellSize()), &cubeShader, &shadowMapShader, false, this, cubeTexFilename);
-    cover8->SetAABBShader(&aabbShader);
-    cover8->LoadMesh();
+	cover8->SetAABBShader(&aabbShader);
+	cover8->LoadMesh();
 	//cover9 = new Cube(gameGrid->snapToGrid(gameGrid->coverPositions[8]), glm::vec3((float)gameGrid->GetCellSize()), &cubeShader, false, this);
 	//cover9->SetAABBShader(&aabbShader);
 	//cover9->LoadMesh();
@@ -110,11 +110,11 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 	//cover12->LoadMesh();
 
 
-    gameGrid->initializeGrid();
+	gameGrid->initializeGrid();
 
-    camera = new Camera(glm::vec3(50.0f, 3.0f, 80.0f));
+	camera = new Camera(glm::vec3(50.0f, 3.0f, 80.0f));
 	minimapCamera = new Camera(glm::vec3((gameGrid->GetCellSize() * gameGrid->GetGridSize()) / 2.0f, 140.0f, (gameGrid->GetCellSize() * gameGrid->GetGridSize()) / 2.0f), glm::vec3(0.0f, -1.0f, 0.0f), 0.0f, -90.0f, glm::vec3(0.0f, 0.0f, -1.0f));
-	
+
 	minimapQuad = new Quad();
 	minimapQuad->SetUpVAO(false);
 
@@ -147,84 +147,84 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 	enemy4MuzzleFlashQuad->LoadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/muzzleflash.png");
 
 
-    player = new Player(gameGrid->snapToGrid(glm::vec3(90.0f, 0.0f, 25.0f)), glm::vec3(3.0f), &playerShader, &playerShadowMapShader, true, this);
-//	player = new Player(gameGrid->snapToGrid(glm::vec3(23.0f, 0.0f, 37.0f)), glm::vec3(3.0f), &playerShader, &playerShadowMapShader, true, this);
+	player = new Player(gameGrid->snapToGrid(glm::vec3(90.0f, 0.0f, 25.0f)), glm::vec3(3.0f), &playerShader, &playerShadowMapShader, true, this);
+	//	player = new Player(gameGrid->snapToGrid(glm::vec3(23.0f, 0.0f, 37.0f)), glm::vec3(3.0f), &playerShader, &playerShadowMapShader, true, this);
 
-    player->aabbShader = &aabbShader;
+	player->aabbShader = &aabbShader;
 
 	std::string texture = "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Models/GLTF/Enemies/Ely/EnemyEly_ely_vanguardsoldier_kerwinatienza_M2_BaseColor.png";
 	std::string texture2 = "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Models/GLTF/Enemies/Ely/ely-vanguardsoldier-kerwinatienza_diffuse_2.png";
 	std::string texture3 = "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Models/GLTF/Enemies/Ely/ely-vanguardsoldier-kerwinatienza_diffuse_3.png";
 	std::string texture4 = "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Models/GLTF/Enemies/Ely/ely-vanguardsoldier-kerwinatienza_diffuse_4.png";
 
-    enemy = new Enemy(gameGrid->snapToGrid(glm::vec3(33.0f, 0.0f, 23.0f)), glm::vec3(3.0f), &enemyShader, &enemyShadowMapShader, true, this, gameGrid, texture, 0, GetEventManager(), *player);
-    enemy->SetAABBShader(&aabbShader);
-    enemy->SetUpAABB();
+	enemy = new Enemy(gameGrid->snapToGrid(glm::vec3(33.0f, 0.0f, 23.0f)), glm::vec3(3.0f), &enemyShader, &enemyShadowMapShader, true, this, gameGrid, texture, 0, GetEventManager(), *player);
+	enemy->SetAABBShader(&aabbShader);
+	enemy->SetUpAABB();
 
-    enemy2 = new Enemy(gameGrid->snapToGrid(glm::vec3(3.0f, 0.0f, 53.0f)), glm::vec3(3.0f), &enemyShader, &enemyShadowMapShader, true, this, gameGrid, texture2, 1, GetEventManager(), *player);
+	enemy2 = new Enemy(gameGrid->snapToGrid(glm::vec3(3.0f, 0.0f, 53.0f)), glm::vec3(3.0f), &enemyShader, &enemyShadowMapShader, true, this, gameGrid, texture2, 1, GetEventManager(), *player);
 	enemy2->SetAABBShader(&aabbShader);
-    enemy2->SetUpAABB();
+	enemy2->SetUpAABB();
 
 	enemy3 = new Enemy(gameGrid->snapToGrid(glm::vec3(43.0f, 0.0f, 53.0f)), glm::vec3(3.0f), &enemyShader, &enemyShadowMapShader, true, this, gameGrid, texture3, 2, GetEventManager(), *player);
 	enemy3->SetAABBShader(&aabbShader);
-    enemy3->SetUpAABB();
+	enemy3->SetUpAABB();
 
-    enemy4 = new Enemy(gameGrid->snapToGrid(glm::vec3(11.0f, 0.0f, 23.0f)), glm::vec3(3.0f), &enemyShader, &enemyShadowMapShader, true, this, gameGrid, texture4, 3, GetEventManager(), *player);
-    enemy4->SetAABBShader(&aabbShader);
-    enemy4->SetUpAABB();
+	enemy4 = new Enemy(gameGrid->snapToGrid(glm::vec3(11.0f, 0.0f, 23.0f)), glm::vec3(3.0f), &enemyShader, &enemyShadowMapShader, true, this, gameGrid, texture4, 3, GetEventManager(), *player);
+	enemy4->SetAABBShader(&aabbShader);
+	enemy4->SetUpAABB();
 
 	crosshair = new Crosshair(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f), &crosshairShader, &shadowMapShader, false, this);
 	crosshair->LoadMesh();
 	crosshair->LoadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/Crosshair.png");
 	line = new Line(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f), &lineShader, &shadowMapShader, false, this);
-    line->LoadMesh();
+	line->LoadMesh();
 
-    enemyLine = new Line(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f), &lineShader, &shadowMapShader, false, this);
-    enemy2Line = new Line(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f), &lineShader, &shadowMapShader, false, this);
-    enemy3Line = new Line(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f), &lineShader, &shadowMapShader, false, this);
-    enemy4Line = new Line(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f), &lineShader, &shadowMapShader, false, this);
-    enemyLine->LoadMesh();
-    enemy2Line->LoadMesh();
-    enemy3Line->LoadMesh();
-    enemy4Line->LoadMesh();
+	enemyLine = new Line(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f), &lineShader, &shadowMapShader, false, this);
+	enemy2Line = new Line(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f), &lineShader, &shadowMapShader, false, this);
+	enemy3Line = new Line(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f), &lineShader, &shadowMapShader, false, this);
+	enemy4Line = new Line(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f), &lineShader, &shadowMapShader, false, this);
+	enemyLine->LoadMesh();
+	enemy2Line->LoadMesh();
+	enemy3Line->LoadMesh();
+	enemy4Line->LoadMesh();
 
-    AudioComponent* fireAudioComponent = new AudioComponent(enemy);
-    fireAudioComponent->PlayEvent("event:/FireLoop");
+	AudioComponent* fireAudioComponent = new AudioComponent(enemy);
+	fireAudioComponent->PlayEvent("event:/FireLoop");
 
 
-    inputManager->setContext(camera, player, enemy, width, height);
+	inputManager->setContext(camera, player, enemy, width, height);
 
-    /* reset skeleton split */
-    playerSkeletonSplitNode = player->model->getNodeCount() - 1;
-    enemySkeletonSplitNode = enemy->model->getNodeCount() - 1;
+	/* reset skeleton split */
+	playerSkeletonSplitNode = player->model->getNodeCount() - 1;
+	enemySkeletonSplitNode = enemy->model->getNodeCount() - 1;
 
-    std::srand(static_cast<unsigned int>(std::time(nullptr)));
+	std::srand(static_cast<unsigned int>(std::time(nullptr)));
 
-    gameObjects.push_back(player);
-    gameObjects.push_back(enemy); 
-    gameObjects.push_back(cover1);
-    gameObjects.push_back(cover2);
-    gameObjects.push_back(cover3);
-	gameObjects.push_back(cover4);    
-    gameObjects.push_back(cover5);
+	gameObjects.push_back(player);
+	gameObjects.push_back(enemy);
+	gameObjects.push_back(cover1);
+	gameObjects.push_back(cover2);
+	gameObjects.push_back(cover3);
+	gameObjects.push_back(cover4);
+	gameObjects.push_back(cover5);
 	gameObjects.push_back(cover6);
 	gameObjects.push_back(cover7);
-	gameObjects.push_back(cover8);    
- //   gameObjects.push_back(cover9);
-	//gameObjects.push_back(cover10);
-	//gameObjects.push_back(cover11);
-	//gameObjects.push_back(cover12);
-    gameObjects.push_back(enemy2);  
-    gameObjects.push_back(enemy3);  
-    gameObjects.push_back(enemy4);  
+	gameObjects.push_back(cover8);
+	//   gameObjects.push_back(cover9);
+	   //gameObjects.push_back(cover10);
+	   //gameObjects.push_back(cover11);
+	   //gameObjects.push_back(cover12);
+	gameObjects.push_back(enemy2);
+	gameObjects.push_back(enemy3);
+	gameObjects.push_back(enemy4);
 
-    enemies.push_back(enemy);
-    enemies.push_back(enemy2);
-    enemies.push_back(enemy3);
-    enemies.push_back(enemy4);
+	enemies.push_back(enemy);
+	enemies.push_back(enemy2);
+	enemies.push_back(enemy3);
+	enemies.push_back(enemy4);
 
-    if (initializeQTable)
-    {
+	if (initializeQTable)
+	{
 		for (auto& enem : enemies)
 		{
 			int enemyID = enem->GetID();
@@ -233,80 +233,80 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 			Logger::log(1, "%s Initialized Q Table for Enemy %d\n", __FUNCTION__, enemyID);
 		}
 	}
-    else
-    {
-        for (auto& enem : enemies)
-        {
-            int enemyID = enem->GetID();
-            Logger::log(1, "%s Loading Q Table for Enemy %d\n", __FUNCTION__, enemyID);
-            LoadQTable(mEnemyStateQTable[enemyID], std::to_string(enemyID) + mEnemyStateFilename);
-            Logger::log(1, "%s Loaded Q Table for Enemy %d\n", __FUNCTION__, enemyID);
-        }
-    }
+	else if (loadQTable)
+	{
+		for (auto& enem : enemies)
+		{
+			int enemyID = enem->GetID();
+			Logger::log(1, "%s Loading Q Table for Enemy %d\n", __FUNCTION__, enemyID);
+			LoadQTable(mEnemyStateQTable[enemyID], std::to_string(enemyID) + mEnemyStateFilename);
+			Logger::log(1, "%s Loaded Q Table for Enemy %d\n", __FUNCTION__, enemyID);
+		}
+	}
 
-    mMusicEvent = audioSystem->PlayEvent("event:/bgm");
+	mMusicEvent = audioSystem->PlayEvent("event:/bgm");
 }
 
 void GameManager::setupCamera(unsigned int width, unsigned int height)
 {
 	camera->Zoom = 45.0f;
-    if (camera->Mode == PLAYER_FOLLOW)
-    {
+	if (camera->Mode == PLAYER_FOLLOW)
+	{
 		camera->Pitch = 45.0f;
-        camera->FollowTarget(player->getPosition() + (player->PlayerFront * camera->playerPosOffset), player->PlayerFront, camera->playerCamRearOffset, camera->playerCamHeightOffset);
-        view = camera->GetViewMatrixPlayerFollow(player->getPosition() + (player->PlayerFront * camera->playerPosOffset), glm::vec3(0.0f, 1.0f, 0.0f));
-    }
-    else if (camera->Mode == ENEMY_FOLLOW)
-    {
-        if (enemy->isDestroyed)
-        {
+		camera->FollowTarget(player->getPosition() + (player->PlayerFront * camera->playerPosOffset), player->PlayerFront, camera->playerCamRearOffset, camera->playerCamHeightOffset);
+		view = camera->GetViewMatrixPlayerFollow(player->getPosition() + (player->PlayerFront * camera->playerPosOffset), glm::vec3(0.0f, 1.0f, 0.0f));
+	}
+	else if (camera->Mode == ENEMY_FOLLOW)
+	{
+		if (enemy->isDestroyed)
+		{
 			camera->Mode = FLY;
-            return;
-        }
-        camera->FollowTarget(enemy->getPosition(), enemy->GetEnemyFront(), camera->enemyCamRearOffset, camera->enemyCamHeightOffset);
-        view = camera->GetViewMatrixEnemyFollow(enemy->getPosition(), glm::vec3(0.0f, 1.0f, 0.0f));
-    }
-    else if (camera->Mode == FLY)
-    {
-        if (firstFlyCamSwitch)
-        {
+			return;
+		}
+		camera->FollowTarget(enemy->getPosition(), enemy->GetEnemyFront(), camera->enemyCamRearOffset, camera->enemyCamHeightOffset);
+		view = camera->GetViewMatrixEnemyFollow(enemy->getPosition(), glm::vec3(0.0f, 1.0f, 0.0f));
+	}
+	else if (camera->Mode == FLY)
+	{
+		if (firstFlyCamSwitch)
+		{
 			camera->FollowTarget(player->getPosition(), player->PlayerFront, camera->playerCamRearOffset, camera->playerCamHeightOffset);
-            firstFlyCamSwitch = false;
-            return;
-        }
-        view = camera->GetViewMatrix();
-    }
-    else if (camera->Mode == PLAYER_AIM)
-    {
+			firstFlyCamSwitch = false;
+			return;
+		}
+		view = camera->GetViewMatrix();
+	}
+	else if (camera->Mode == PLAYER_AIM)
+	{
 		camera->Zoom = 40.0f;
 		if (camera->Pitch > 16.0f)
 			camera->Pitch = 16.0f;
 
-        camera->FollowTarget(player->getPosition() + (player->PlayerFront * camera->playerPosOffset) + (player->PlayerRight * camera->playerAimRightOffset), player->PlayerAimFront, camera->playerCamRearOffset, camera->playerCamHeightOffset);
-        view = camera->GetViewMatrixPlayerFollow(player->getPosition() + (player->PlayerFront * camera->playerPosOffset), player->PlayerAimUp);
-    }
+		camera->FollowTarget(player->getPosition() + (player->PlayerFront * camera->playerPosOffset) + (player->PlayerRight * camera->playerAimRightOffset), player->PlayerAimFront, camera->playerCamRearOffset, camera->playerCamHeightOffset);
+		view = camera->GetViewMatrixPlayerFollow(player->getPosition() + (player->PlayerFront * camera->playerPosOffset), player->PlayerAimUp);
+	}
 	cubemapView = glm::mat4(glm::mat3(camera->GetViewMatrixPlayerFollow(player->getPosition(), glm::vec3(0.0f, 1.0f, 0.0f))));
 
-    projection = glm::perspective(glm::radians(camera->Zoom), (float)width / (float)height, 0.1f, 500.0f);
+	projection = glm::perspective(glm::radians(camera->Zoom), (float)width / (float)height, 0.1f, 500.0f);
 
 	minimapView = minimapCamera->GetViewMatrix();
 	minimapProjection = glm::perspective(glm::radians(camera->Zoom), (float)width / (float)height, 0.1f, 500.0f);
 
 	player->SetCameraMatrices(view, projection);
 
-    audioSystem->SetListener(view);
+	audioSystem->SetListener(view);
 }
 
 void GameManager::setSceneData()
 {
-    renderer->setScene(view, projection, cubemapView, dirLight);
+	renderer->setScene(view, projection, cubemapView, dirLight);
 }
 
 void GameManager::setUpDebugUI()
 {
-    ImGui_ImplOpenGL3_NewFrame();
-    ImGui_ImplGlfw_NewFrame();
-    ImGui::NewFrame();
+	ImGui_ImplOpenGL3_NewFrame();
+	ImGui_ImplGlfw_NewFrame();
+	ImGui::NewFrame();
 }
 
 void GameManager::showDebugUI()
@@ -329,28 +329,28 @@ void GameManager::showDebugUI()
 	ShowAnimationControlWindow();
 
 	ShowPerformanceWindow();
-    ShowEnemyStateWindow();
+	ShowEnemyStateWindow();
 }
 
 void GameManager::renderDebugUI()
 {
-    ImGui::Render();
-    ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+	ImGui::Render();
+	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
 
 void GameManager::ShowLightControlWindow(DirLight& light)
 {
-    ImGui::Begin("Directional Light Control");
+	ImGui::Begin("Directional Light Control");
 
-    ImGui::Text("Light Direction");
-    ImGui::DragFloat3("Direction", (float*)&light.direction, dirLight.direction.x, dirLight.direction.y, dirLight.direction.z);
+	ImGui::Text("Light Direction");
+	ImGui::DragFloat3("Direction", (float*)&light.direction, dirLight.direction.x, dirLight.direction.y, dirLight.direction.z);
 
-    ImGui::ColorEdit4("Ambient", (float*)&light.ambient);
+	ImGui::ColorEdit4("Ambient", (float*)&light.ambient);
 
-    ImGui::ColorEdit4("Diffuse", (float*)&light.diffuse);
-    ImGui::ColorEdit4("PBR Color", (float*)&dirLightPBRColour);
+	ImGui::ColorEdit4("Diffuse", (float*)&light.diffuse);
+	ImGui::ColorEdit4("PBR Color", (float*)&dirLightPBRColour);
 
-    ImGui::ColorEdit4("Specular", (float*)&light.specular);
+	ImGui::ColorEdit4("Specular", (float*)&light.specular);
 
 	ImGui::DragFloat("Ortho Left", (float*)&orthoLeft);
 	ImGui::DragFloat("Ortho Right", (float*)&orthoRight);
@@ -359,68 +359,68 @@ void GameManager::ShowLightControlWindow(DirLight& light)
 	ImGui::DragFloat("Near Plane", (float*)&near_plane);
 	ImGui::DragFloat("Far Plane", (float*)&far_plane);
 
-    ImGui::End();
+	ImGui::End();
 }
 
 void GameManager::ShowAnimationControlWindow()
 {
-    ImGui::Begin("Player Animation Control");
+	ImGui::Begin("Player Animation Control");
 
-    ImGui::Checkbox("Blending Type: ", &playerCrossBlend);
-    ImGui::SameLine();
-    if (playerCrossBlend)
-    {
-        ImGui::Text("Cross");
-    }
-    else 
-    { 
-	    ImGui::Text("Single");
-    }
+	ImGui::Checkbox("Blending Type: ", &playerCrossBlend);
+	ImGui::SameLine();
+	if (playerCrossBlend)
+	{
+		ImGui::Text("Cross");
+	}
+	else
+	{
+		ImGui::Text("Single");
+	}
 
-    if (playerCrossBlend)
-        ImGui::BeginDisabled();
+	if (playerCrossBlend)
+		ImGui::BeginDisabled();
 
-    ImGui::Text("Player Blend Factor");
-    ImGui::SameLine();
-    ImGui::SliderFloat("##PlayerBlendFactor", &playerAnimBlendFactor, 0.0f, 1.0f);
+	ImGui::Text("Player Blend Factor");
+	ImGui::SameLine();
+	ImGui::SliderFloat("##PlayerBlendFactor", &playerAnimBlendFactor, 0.0f, 1.0f);
 
-    if (playerCrossBlend)
-        ImGui::EndDisabled();
+	if (playerCrossBlend)
+		ImGui::EndDisabled();
 
-    if (!playerCrossBlend)
-	    ImGui::BeginDisabled();
+	if (!playerCrossBlend)
+		ImGui::BeginDisabled();
 
-    ImGui::Text("Source Clip   ");
-    ImGui::SameLine();
-    ImGui::SliderInt("##SourceClip", &playerCrossBlendSourceClip, 0, player->model->getAnimClipsSize() - 1);
+	ImGui::Text("Source Clip   ");
+	ImGui::SameLine();
+	ImGui::SliderInt("##SourceClip", &playerCrossBlendSourceClip, 0, player->model->getAnimClipsSize() - 1);
 
 
-    ImGui::Text("Dest Clip   ");
-    ImGui::SameLine();
-    ImGui::SliderInt("##DestClip", &playerCrossBlendDestClip, 0, player->model->getAnimClipsSize() - 1);
+	ImGui::Text("Dest Clip   ");
+	ImGui::SameLine();
+	ImGui::SliderInt("##DestClip", &playerCrossBlendDestClip, 0, player->model->getAnimClipsSize() - 1);
 
-    ImGui::Text("Cross Blend ");
-    ImGui::SameLine();
-    ImGui::SliderFloat("##CrossBlendFactor", &playerAnimCrossBlendFactor, 0.0f, 1.0f);
+	ImGui::Text("Cross Blend ");
+	ImGui::SameLine();
+	ImGui::SliderFloat("##CrossBlendFactor", &playerAnimCrossBlendFactor, 0.0f, 1.0f);
 
-    ImGui::Checkbox("Additive Blending", &playerAdditiveBlend);
+	ImGui::Checkbox("Additive Blending", &playerAdditiveBlend);
 
-    if (!playerAdditiveBlend) {
-        ImGui::BeginDisabled();
-    }
-    ImGui::Text("Split Node  ");
-    ImGui::SameLine();
-    ImGui::SliderInt("##SplitNode", &playerSkeletonSplitNode, 0, player->model->getNodeCount() - 1);
-    ImGui::Text("Split Node Name: %s", playerSkeletonSplitNodeName.c_str());
+	if (!playerAdditiveBlend) {
+		ImGui::BeginDisabled();
+	}
+	ImGui::Text("Split Node  ");
+	ImGui::SameLine();
+	ImGui::SliderInt("##SplitNode", &playerSkeletonSplitNode, 0, player->model->getNodeCount() - 1);
+	ImGui::Text("Split Node Name: %s", playerSkeletonSplitNodeName.c_str());
 
-    if (!playerAdditiveBlend) {
-        ImGui::EndDisabled();
-    }
+	if (!playerAdditiveBlend) {
+		ImGui::EndDisabled();
+	}
 
-    if (!playerCrossBlend)
-	    ImGui::EndDisabled();
+	if (!playerCrossBlend)
+		ImGui::EndDisabled();
 
-    ImGui::End();
+	ImGui::End();
 
 }
 
@@ -438,7 +438,7 @@ void GameManager::ShowPerformanceWindow()
 
 void GameManager::ShowEnemyStateWindow()
 {
-    ImGui::Begin("Game States");
+	ImGui::Begin("Game States");
 
 	ImGui::Checkbox("Use EDBT", &useEDBT);
 
@@ -447,40 +447,40 @@ void GameManager::ShowEnemyStateWindow()
 
 	ImGui::Text("Player Health: %d", (int)player->GetHealth());
 
-    for (Enemy* e : enemies)
-    {
+	for (Enemy* e : enemies)
+	{
 		if (e == nullptr || e->isDestroyed)
 			continue;
 		ImTextureID texID = (void*)(intptr_t)e->mTex.getTexID();
 		ImGui::Image(texID, ImVec2(100, 100));
-        ImGui::SameLine(); 
-        ImGui::Text("Enemy %d", e->GetID());
-        ImGui::SameLine();
+		ImGui::SameLine();
+		ImGui::Text("Enemy %d", e->GetID());
+		ImGui::SameLine();
 		ImGui::Text("State: %s", e->GetEDBTState().c_str());
-        ImGui::SameLine();
-        ImGui::Text("Health %d", (int)e->GetHealth());
-    }
+		ImGui::SameLine();
+		ImGui::Text("Health %d", (int)e->GetHealth());
+	}
 
-    ImGui::End();
+	ImGui::End();
 }
 
 void GameManager::calculatePerformance(float deltaTime)
 {
-    fps = 1.0f / deltaTime;
+	fps = 1.0f / deltaTime;
 
 	fpsSum += fps;
-    frameCount++;
+	frameCount++;
 
-    if (frameCount == numFramesAvg)
-    {
+	if (frameCount == numFramesAvg)
+	{
 		avgFPS = fpsSum / numFramesAvg;
 		fpsSum = 0.0f;
 		frameCount = 0;
-    }
+	}
 
 	frameTime = deltaTime * 1000.0f;
 
-    elapsedTime += deltaTime;
+	elapsedTime += deltaTime;
 }
 
 void GameManager::CreateLightSpaceMatrices()
@@ -509,10 +509,10 @@ void GameManager::CreateLightSpaceMatrices()
 
 void GameManager::RemoveDestroyedGameObjects()
 {
-    //for (auto it = gameObjects.begin(); it != gameObjects.end(); ) {
-    //    if ((*it)->isDestroyed) {
-    //        if ((*it)->isEnemy)
-    //        {
+	//for (auto it = gameObjects.begin(); it != gameObjects.end(); ) {
+	//    if ((*it)->isDestroyed) {
+	//        if ((*it)->isEnemy)
+	//        {
 				//for (auto it2 = enemies.begin(); it2 != enemies.end(); )
 				//{
 				//	if ((*it2) == (*it))
@@ -526,32 +526,32 @@ void GameManager::RemoveDestroyedGameObjects()
 				//		++it2;
 				//	}
 				//}
-    //        }
-    //        else
-    //        {
-    //            delete* it; 
-    //            *it = nullptr;
-    //        }
-    //        it = gameObjects.erase(it); 
-    //    }
-    //    else {
-    //        ++it;
-    //    }
-    //}
+	//        }
+	//        else
+	//        {
+	//            delete* it; 
+	//            *it = nullptr;
+	//        }
+	//        it = gameObjects.erase(it); 
+	//    }
+	//    else {
+	//        ++it;
+	//    }
+	//}
 
-    if ((enemy->isDestroyed && enemy2->isDestroyed && enemy3->isDestroyed && enemy4->isDestroyed) || player->isDestroyed)
-        ResetGame();
+	if ((enemy->isDestroyed && enemy2->isDestroyed && enemy3->isDestroyed && enemy4->isDestroyed) || player->isDestroyed)
+		ResetGame();
 }
 
 void GameManager::ResetGame()
 {
 	camera->SetMode(PLAYER_FOLLOW);
 	mAudioManager->ClearQueue();
-    player->setPosition(player->initialPos);
-    player->SetYaw(player->GetInitialYaw());
-    player->SetAnimNum(0);
-    player->isDestroyed = false;
-    player->SetHealth(100.0f);
+	player->setPosition(player->initialPos);
+	player->SetYaw(player->GetInitialYaw());
+	player->SetAnimNum(0);
+	player->isDestroyed = false;
+	player->SetHealth(100.0f);
 	player->UpdatePlayerVectors();
 	player->UpdatePlayerAimVectors();
 	player->SetPlayerState(PlayerState::MOVING);
@@ -560,7 +560,7 @@ void GameManager::ResetGame()
 	enemy2->isDestroyed = false;
 	enemy3->isDestroyed = false;
 	enemy4->isDestroyed = false;
-    enemy->isDead_ = false;
+	enemy->isDead_ = false;
 	enemy2->isDead_ = false;
 	enemy3->isDead_ = false;
 	enemy4->isDead_ = false;
@@ -595,50 +595,50 @@ void GameManager::ResetGame()
 
 void GameManager::ShowCameraControlWindow(Camera& cam)
 {
-    ImGui::Begin("Camera Control");
+	ImGui::Begin("Camera Control");
 
-    std::string modeText = "";
+	std::string modeText = "";
 
-    if (cam.Mode == FLY)
-    {
-        modeText = "Flycam";
+	if (cam.Mode == FLY)
+	{
+		modeText = "Flycam";
 
 
-        cam.UpdateCameraVectors();
-    }
-    else if (cam.Mode == PLAYER_FOLLOW)
-        modeText = "Player Follow";
-    else if (cam.Mode == ENEMY_FOLLOW)
-        modeText = "Enemy Follow";
-    else if (cam.Mode == PLAYER_AIM)
-        modeText = "Player Aim"
-        ;
-    ImGui::Text(modeText.c_str());
+		cam.UpdateCameraVectors();
+	}
+	else if (cam.Mode == PLAYER_FOLLOW)
+		modeText = "Player Follow";
+	else if (cam.Mode == ENEMY_FOLLOW)
+		modeText = "Enemy Follow";
+	else if (cam.Mode == PLAYER_AIM)
+		modeText = "Player Aim"
+		;
+	ImGui::Text(modeText.c_str());
 
-    ImGui::InputFloat3("Position", (float*)&cam.Position);
+	ImGui::InputFloat3("Position", (float*)&cam.Position);
 
-    ImGui::InputFloat("Pitch", (float*)&cam.Pitch);
-    ImGui::InputFloat("Yaw", (float*)&cam.Yaw);
-    ImGui::InputFloat("Zoom", (float*)&cam.Zoom);
+	ImGui::InputFloat("Pitch", (float*)&cam.Pitch);
+	ImGui::InputFloat("Yaw", (float*)&cam.Yaw);
+	ImGui::InputFloat("Zoom", (float*)&cam.Zoom);
 
-    ImGui::End();
+	ImGui::End();
 }
 
 void GameManager::update(float deltaTime)
 {
-    inputManager->processInput(window->getWindow(), deltaTime);
-    player->UpdatePlayerVectors();
-    player->UpdatePlayerAimVectors();
+	inputManager->processInput(window->getWindow(), deltaTime);
+	player->UpdatePlayerVectors();
+	player->UpdatePlayerAimVectors();
 
-    player->Update(deltaTime);
+	player->Update(deltaTime);
 
-    int enemyID = 0;
-    for (Enemy* e : enemies)
-    {
-        if (e == nullptr || e->isDestroyed)
-            continue;
+	int enemyID = 0;
+	for (Enemy* e : enemies)
+	{
+		if (e == nullptr || e->isDestroyed)
+			continue;
 
-        e->SetDeltaTime(deltaTime);
+		e->SetDeltaTime(deltaTime);
 
 		if (!useEDBT)
 		{
@@ -652,11 +652,11 @@ void GameManager::update(float deltaTime)
 			}
 		}
 
-        e->Update(useEDBT, speedDivider, blendFac);
-    }
+		e->Update(useEDBT, speedDivider, blendFac);
+	}
 
 	mAudioManager->Update(deltaTime);
-    audioSystem->Update(deltaTime);
+	audioSystem->Update(deltaTime);
 
 	calculatePerformance(deltaTime);
 }
@@ -681,8 +681,8 @@ void GameManager::render(bool isMinimapRenderPass, bool isShadowMapRenderPass, b
 
 
 	for (auto obj : gameObjects) {
-        if (obj->isDestroyed)
-            continue;
+		if (obj->isDestroyed)
+			continue;
 		if (isMinimapRenderPass)
 		{
 			renderer->draw(obj, minimapView, minimapProjection, camera->Position, false, lightSpaceMatrix);
@@ -829,14 +829,14 @@ void GameManager::render(bool isMinimapRenderPass, bool isShadowMapRenderPass, b
 		if (enemy2->GetEnemyHasShot() && enemy2->GetEnemyDebugRayRenderTimer() > 0.0f)
 		{
 			glm::vec3 enemy2LineColor = glm::vec3(0.2f, 0.2f, 0.2f);
-            if (enemy2->GetEnemyHasHit())
-            {
-                enemy2RayEnd = enemy2->GetEnemyHitPoint();
-            } 
-            else
-            {
-			    enemy2RayEnd = enemy2->GetEnemyShootPos() + enemy2->GetEnemyShootDir() * enemy2->GetEnemyShootDistance();
-            }
+			if (enemy2->GetEnemyHasHit())
+			{
+				enemy2RayEnd = enemy2->GetEnemyHitPoint();
+			}
+			else
+			{
+				enemy2RayEnd = enemy2->GetEnemyShootPos() + enemy2->GetEnemyShootDir() * enemy2->GetEnemyShootDistance();
+			}
 
 			enemy2Line->UpdateVertexBuffer(enemy2->GetEnemyShootPos(), enemy2RayEnd);
 			if (isMinimapRenderPass)
@@ -976,7 +976,7 @@ void GameManager::render(bool isMinimapRenderPass, bool isShadowMapRenderPass, b
 			}
 		}
 	}
-//	renderer->setScene(view, projection, dirLight);
+	//	renderer->setScene(view, projection, dirLight);
 	renderer->drawCubemap(cubemap);
 	if ((player->GetPlayerState() == AIMING || player->GetPlayerState() == SHOOTING) && camSwitchedToAim == false && isMainRenderPass)
 	{
@@ -1031,11 +1031,11 @@ void GameManager::render(bool isMinimapRenderPass, bool isShadowMapRenderPass, b
 		glm::vec4 rayEndWorldSpace = glm::vec4(rayEnd, 1.0f);
 		glm::vec4 rayEndCameraSpace = view * rayEndWorldSpace;
 		glm::vec4 rayEndNDC = projection * rayEndCameraSpace;
-		
-		glm::vec4 targetNDC(0.0f, 0.5f, rayEndNDC.z / rayEndNDC.w, 1.0f); 
+
+		glm::vec4 targetNDC(0.0f, 0.5f, rayEndNDC.z / rayEndNDC.w, 1.0f);
 		glm::vec4 targetCameraSpace = glm::inverse(projection) * targetNDC;
 		glm::vec4 targetWorldSpace = glm::inverse(view) * targetCameraSpace;
-		
+
 		rayEnd = glm::vec3(targetWorldSpace) / targetWorldSpace.w;
 
 		glm::vec3 crosshairHitpoint;
@@ -1044,7 +1044,7 @@ void GameManager::render(bool isMinimapRenderPass, bool isShadowMapRenderPass, b
 		if (physicsWorld->rayEnemyCrosshairIntersect(rayO, glm::normalize(rayEnd - rayO), crosshairHitpoint))
 		{
 			crosshairCol = glm::vec3(1.0f, 0.0f, 0.0f);
-		} 
+		}
 		else
 		{
 			crosshairCol = glm::vec3(1.0f, 1.0f, 1.0f);
@@ -1078,7 +1078,7 @@ void GameManager::render(bool isMinimapRenderPass, bool isShadowMapRenderPass, b
 		glDisable(GL_BLEND);
 
 	}
-	
+
 	if (isMainRenderPass)
 	{
 		renderer->drawMinimap(minimapQuad, &minimapShader);

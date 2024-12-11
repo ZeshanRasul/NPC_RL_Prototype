@@ -6,7 +6,7 @@
 #include "src/Tools/Logger.h"
 
 #ifdef TRACY_ENABLE
-	#include "tracy/Tracy.hpp"
+#include "tracy/Tracy.hpp"
 #endif
 
 float Enemy::DecayExplorationRate(float initialRate, float minRate, int currentSize, int targetSize)
@@ -20,19 +20,19 @@ float Enemy::DecayExplorationRate(float initialRate, float minRate, int currentS
 
 void Enemy::SetUpModel()
 {
-    if (uploadVertexBuffer)
-    {
-        model->uploadEnemyVertexBuffers();
-        uploadVertexBuffer = false;
-    }
+	if (uploadVertexBuffer)
+	{
+		model->uploadEnemyVertexBuffers();
+		uploadVertexBuffer = false;
+	}
 
-    model->uploadIndexBuffer();
-    Logger::log(1, "%s: glTF model '%s' successfully loaded\n", __FUNCTION__, model->filename.c_str());
+	model->uploadIndexBuffer();
+	Logger::log(1, "%s: glTF model '%s' successfully loaded\n", __FUNCTION__, model->filename.c_str());
 
-    size_t enemyModelJointDualQuatBufferSize = model->getJointDualQuatsSize() *
-        sizeof(glm::mat2x4);
-    mEnemyDualQuatSSBuffer.init(enemyModelJointDualQuatBufferSize);
-    Logger::log(1, "%s: glTF joint dual quaternions shader storage buffer (size %i bytes) successfully created\n", __FUNCTION__, enemyModelJointDualQuatBufferSize);
+	size_t enemyModelJointDualQuatBufferSize = model->getJointDualQuatsSize() *
+		sizeof(glm::mat2x4);
+	mEnemyDualQuatSSBuffer.init(enemyModelJointDualQuatBufferSize);
+	Logger::log(1, "%s: glTF joint dual quaternions shader storage buffer (size %i bytes) successfully created\n", __FUNCTION__, enemyModelJointDualQuatBufferSize);
 }
 
 void Enemy::drawObject(glm::mat4 viewMat, glm::mat4 proj, bool shadowMap, glm::mat4 lightSpaceMat, GLuint shadowMapTexture, glm::vec3 camPos)
@@ -41,21 +41,21 @@ void Enemy::drawObject(glm::mat4 viewMat, glm::mat4 proj, bool shadowMap, glm::m
 	modelMat = glm::translate(modelMat, position);
 	modelMat = glm::rotate(modelMat, glm::radians(-yaw + 90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 	modelMat = glm::scale(modelMat, scale);
-    std::vector<glm::mat4> matrixData;
-    matrixData.push_back(viewMat);
-    matrixData.push_back(proj);
-    matrixData.push_back(modelMat);
+	std::vector<glm::mat4> matrixData;
+	matrixData.push_back(viewMat);
+	matrixData.push_back(proj);
+	matrixData.push_back(modelMat);
 	matrixData.push_back(lightSpaceMat);
-    mUniformBuffer.uploadUboData(matrixData, 0);
+	mUniformBuffer.uploadUboData(matrixData, 0);
 
-    if (shadowMap)
-    {
+	if (shadowMap)
+	{
 		shadowShader->use();
 		mEnemyDualQuatSSBuffer.uploadSsboData(model->getJointDualQuats(), 2);
 		model->draw(mTex);
-    }
-    else
-    {
+	}
+	else
+	{
 		GetShader()->use();
 		shader->setVec3("cameraPos", mGameManager->GetCamera()->Position);
 		mEnemyDualQuatSSBuffer.uploadSsboData(model->getJointDualQuats(), 2);
@@ -79,15 +79,15 @@ void Enemy::drawObject(glm::mat4 viewMat, glm::mat4 proj, bool shadowMap, glm::m
 #ifdef _DEBUG
 		aabb->render(viewMat, proj, modelMat, aabbColor);
 #endif
-    }
+	}
 }
 
 void Enemy::Update(bool shouldUseEDBT, float speedDivider, float blendFac)
 {
-    if (!isDead_ || !isDestroyed)
-    {
-        if (shouldUseEDBT)
-        {
+	if (!isDead_ || !isDestroyed)
+	{
+		if (shouldUseEDBT)
+		{
 #ifdef TRACY_ENABLE
 			ZoneScopedN("EDBT Update");
 #endif
@@ -114,17 +114,17 @@ void Enemy::Update(bool shouldUseEDBT, float speedDivider, float blendFac)
 			{
 				shootAudioCooldown -= dt_;
 			}
-        }
+		}
 		else
 		{
 			decisionDelayTimer -= dt_;
 		}
 
-        if (isDestroyed)
-        {
-            GetGameManager()->GetPhysicsWorld()->removeCollider(GetAABB());
-            GetGameManager()->GetPhysicsWorld()->removeEnemyCollider(GetAABB());
-        }
+		if (isDestroyed)
+		{
+			GetGameManager()->GetPhysicsWorld()->removeCollider(GetAABB());
+			GetGameManager()->GetPhysicsWorld()->removeEnemyCollider(GetAABB());
+		}
 
 		if (resetBlend)
 		{
@@ -149,37 +149,37 @@ void Enemy::Update(bool shouldUseEDBT, float speedDivider, float blendFac)
 			SetAnimation(GetSourceAnimNum(), speedDivider, blendFac, false);
 			blendFactor = 0.0f;
 		}
-    }
+	}
 }
 
 void Enemy::OnEvent(const Event& event)
 {
-    if (const PlayerDetectedEvent* e = dynamic_cast<const PlayerDetectedEvent*>(&event))
-    {
-        if (e->npcID != id_)
-        {
-            isPlayerDetected_ = true;
+	if (const PlayerDetectedEvent* e = dynamic_cast<const PlayerDetectedEvent*>(&event))
+	{
+		if (e->npcID != id_)
+		{
+			isPlayerDetected_ = true;
 			Logger::log(1, "Player detected by enemy %d\n", id_);
-        }
-    }
-    else if (const NPCDamagedEvent* e = dynamic_cast<const NPCDamagedEvent*>(&event))
-    {
-        if (e->npcID != id_)
-        {
-            if (isInCover_)
-            {
-                // Come out of cover and provide suppression fire
-                isInCover_ = false;
-                isSeekingCover_ = false;
-                isTakingCover_ = false;
-                provideSuppressionFire_ = true;
-            }
-        }
+		}
+	}
+	else if (const NPCDamagedEvent* e = dynamic_cast<const NPCDamagedEvent*>(&event))
+	{
+		if (e->npcID != id_)
+		{
+			if (isInCover_)
+			{
+				// Come out of cover and provide suppression fire
+				isInCover_ = false;
+				isSeekingCover_ = false;
+				isTakingCover_ = false;
+				provideSuppressionFire_ = true;
+			}
+		}
 	}
 	else if (const NPCDiedEvent* e = dynamic_cast<const NPCDiedEvent*>(&event))
 	{
-        allyHasDied = true;
-        numDeadAllies++;
+		allyHasDied = true;
+		numDeadAllies++;
 		std::random_device rd;
 		std::mt19937 gen{ rd() };
 		std::uniform_int_distribution<> distrib(1, 3);
@@ -219,21 +219,21 @@ void Enemy::OnEvent(const Event& event)
 
 void Enemy::ComputeAudioWorldTransform()
 {
-    if (mRecomputeWorldTransform)
-    {
-        mRecomputeWorldTransform = false;
-        glm::mat4 worldTransform = glm::mat4(1.0f);
-        // Scale, then rotate, then translate
-        audioWorldTransform = glm::translate(worldTransform, position);
-        audioWorldTransform = glm::rotate(worldTransform, glm::radians(-yaw + 90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-        audioWorldTransform = glm::scale(worldTransform, scale);
+	if (mRecomputeWorldTransform)
+	{
+		mRecomputeWorldTransform = false;
+		glm::mat4 worldTransform = glm::mat4(1.0f);
+		// Scale, then rotate, then translate
+		audioWorldTransform = glm::translate(worldTransform, position);
+		audioWorldTransform = glm::rotate(worldTransform, glm::radians(-yaw + 90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		audioWorldTransform = glm::scale(worldTransform, scale);
 
-        // Inform components world transform updated
-        for (auto comp : mComponents)
-        {
-            comp->OnUpdateWorldTransform();
-        }
-    }
+		// Inform components world transform updated
+		for (auto comp : mComponents)
+		{
+			comp->OnUpdateWorldTransform();
+		}
+	}
 };
 
 void Enemy::UpdateEnemyCameraVectors()
@@ -278,34 +278,34 @@ void Enemy::EnemyProcessMouseMovement(float xOffset, float yOffset, bool constra
 }
 
 void Enemy::moveEnemy(const std::vector<glm::ivec2>& path, float deltaTime, float blendFactor, bool playAnimBackwards) {
-//    static size_t pathIndex = 0;
-    if (path.empty())
-    {
-        return;
-    }
+	//    static size_t pathIndex = 0;
+	if (path.empty())
+	{
+		return;
+	}
 
-    const float tolerance = 0.1f; // Smaller tolerance for better alignment
-    const float agentRadius = 0.5f; // Adjust this value to match the agent's radius
-    
-    if (!reachedPlayer && !inCover)
-    {
-        if (!resetBlend && destAnim != 1)
-        {
-            SetSourceAnimNum(destAnim);
+	const float tolerance = 0.1f; // Smaller tolerance for better alignment
+	const float agentRadius = 0.5f; // Adjust this value to match the agent's radius
+
+	if (!reachedPlayer && !inCover)
+	{
+		if (!resetBlend && destAnim != 1)
+		{
+			SetSourceAnimNum(destAnim);
 			SetDestAnimNum(1);
-            blendAnim = true;
-            resetBlend = true;
-        }
-        //SetAnimation(GetAnimNum(), 1.0f, blendFactor, playAnimBackwards);
-    }
+			blendAnim = true;
+			resetBlend = true;
+		}
+		//SetAnimation(GetAnimNum(), 1.0f, blendFactor, playAnimBackwards);
+	}
 
-    if (pathIndex_ >= path.size()) {
-        Logger::log(1, "%s success: Agent has reached its destination.\n", __FUNCTION__);
+	if (pathIndex_ >= path.size()) {
+		Logger::log(1, "%s success: Agent has reached its destination.\n", __FUNCTION__);
 		grid_->VacateCell(path[pathIndex_ - 1].x, path[pathIndex_ - 1].y, id_);
 
-        if (IsPatrolling() || EDBTState == "Patrol" || EDBTState == "PATROL")
-        {
-            reachedDestination = true;
+		if (IsPatrolling() || EDBTState == "Patrol" || EDBTState == "PATROL")
+		{
+			reachedDestination = true;
 			std::random_device rd;
 			std::mt19937 gen{ rd() };
 			std::uniform_int_distribution<> distrib(1, 2);
@@ -324,17 +324,17 @@ void Enemy::moveEnemy(const std::vector<glm::ivec2>& path, float deltaTime, floa
 			}
 
 			std::string clipName = "event:/enemy" + std::to_string(enemyAudioIndex) + "_Patrolling" + std::to_string(randomIndex);
-            Speak(clipName, 2.0f, randomFloat);
-        }
+			Speak(clipName, 2.0f, randomFloat);
+		}
 
 		if (isTakingCover_)
 		{
 			if (glm::distance(getPosition(), selectedCover_->worldPosition) < grid_->GetCellSize() / 4.0f)
-            {
-                reachedCover = true;
-                isTakingCover_ = false;
-                isInCover_ = true;
-	//			grid_->OccupyCell(selectedCover_->gridX, selectedCover_->gridZ, id_);
+			{
+				reachedCover = true;
+				isTakingCover_ = false;
+				isInCover_ = true;
+				//			grid_->OccupyCell(selectedCover_->gridX, selectedCover_->gridZ, id_);
 
 				if (!resetBlend && destAnim != 2)
 				{
@@ -344,100 +344,100 @@ void Enemy::moveEnemy(const std::vector<glm::ivec2>& path, float deltaTime, floa
 					resetBlend = true;
 					//SetAnimation(GetAnimNum(), 1.0f, blendFactor, playAnimBackwards);
 				}
-            }
-            else
-            {
+			}
+			else
+			{
 				setPosition(getPosition() + (glm::normalize(selectedCover_->worldPosition - getPosition()) * 2.0f) * speed * deltaTime);
-            }
+			}
 		}
-		
-        return; // Stop moving if the agent has reached its destination
-    }
 
-    // Calculate the target position from the current path node
-    glm::vec3 targetPos = glm::vec3(path[pathIndex_].x * grid_->GetCellSize() + grid_->GetCellSize() / 2.0f, getPosition().y, path[pathIndex_].y * grid_->GetCellSize() + grid_->GetCellSize() / 2.0f);
- 
-    // Calculate the direction to the target position
-    glm::vec3 direction = glm::normalize(targetPos - getPosition());
-
-    //enemy.Yaw = glm::degrees(glm::acos(glm::dot(glm::normalize(enemy.Front), direction)));
-    yaw = glm::degrees(glm::atan(direction.z, direction.x));
-	mRecomputeWorldTransform = true;
-
-    UpdateEnemyVectors();
-
-    // Calculate the new position
-    glm::vec3 newPos = getPosition() + direction * speed * deltaTime;
-
-    // Ensure the new position is not within an obstacle by checking the bounding box
-    bool isObstacleFree = true;
-    for (float xOffset = -agentRadius; xOffset <= agentRadius; xOffset += agentRadius * 2) {
-        for (float zOffset = -agentRadius; zOffset <= agentRadius; zOffset += agentRadius * 2) {
-            glm::ivec2 checkPos = glm::ivec2((newPos.x + xOffset) / grid_->GetCellSize(), (newPos.z + zOffset) / grid_->GetCellSize());
-            if (checkPos.x < 0 || checkPos.x >= grid_->GetGridSize() || checkPos.y < 0 || checkPos.y >= grid_->GetGridSize()
-				|| grid_->GetGrid()[checkPos.x][checkPos.y].IsObstacle() || (grid_->GetGrid()[checkPos.x][checkPos.y].IsOccupied()
-					&& !grid_->GetGrid()[checkPos.x][checkPos.y].IsOccupiedBy(id_))) {
-                isObstacleFree = false;
-                break;
-            }
-        }
-        if (!isObstacleFree) break;
-    }
-
-    if (isObstacleFree) {
-        setPosition(newPos);
-    }
-    else {
-        // If the new position is within an obstacle, try to adjust the position slightly
-        newPos = getPosition() + direction * (speed * deltaTime * 0.01f);
-        isObstacleFree = true;
-        for (float xOffset = -agentRadius; xOffset <= agentRadius; xOffset += agentRadius * 2) {
-            for (float zOffset = -agentRadius; zOffset <= agentRadius; zOffset += agentRadius * 2) {
-                glm::ivec2 checkPos = glm::ivec2((newPos.x + xOffset) / grid_->GetCellSize(), (newPos.z + zOffset) / grid_->GetCellSize());
-                if (checkPos.x < 0 || checkPos.x >= grid_->GetGridSize() || checkPos.y < 0 || checkPos.y >= grid_->GetGridSize()
-					|| grid_->GetGrid()[checkPos.x][checkPos.y].IsObstacle() || (grid_->GetGrid()[checkPos.x][checkPos.y].IsOccupied()
-						&& !grid_->GetGrid()[checkPos.x][checkPos.y].IsOccupiedBy(id_))) {
-                    isObstacleFree = false;
-                    break;
-                }
-            }
-            if (!isObstacleFree) break;
-        }
-
-        if (isObstacleFree) {
-            setPosition(newPos);
-        }
-    }
-        
-    //if (pathIndex_ == 0) {
-    //    // Snap the enemy to the center of the starting grid cell when the path starts
-    //    glm::vec3 startCellCenter = glm::vec3(path[pathIndex_].x * grid_->GetCellSize() + grid_->GetCellSize() / 2.0f, getPosition().z, path[pathIndex_].y * grid_->GetCellSize() + grid_->GetCellSize() / 2.0f);
-    //    setPosition(startCellCenter);
-    //}
-
-	if (glm::distance(getPosition(), targetPos) < grid_->GetCellSize() / 3.0f) 
-    {
-	//	grid_->OccupyCell(path[pathIndex_].x, path[pathIndex_].y, id_);
+		return; // Stop moving if the agent has reached its destination
 	}
 
-//    if (pathIndex_ >= 1)
- //      grid_->VacateCell(path[pathIndex_ - 1].x, path[pathIndex_ - 1].y, id_);
+	// Calculate the target position from the current path node
+	glm::vec3 targetPos = glm::vec3(path[pathIndex_].x * grid_->GetCellSize() + grid_->GetCellSize() / 2.0f, getPosition().y, path[pathIndex_].y * grid_->GetCellSize() + grid_->GetCellSize() / 2.0f);
 
-    // Check if the enemy has reached the current target position within a tolerance
-    if (glm::distance(getPosition(), targetPos) < tolerance) {
-//		grid_->VacateCell(path[pathIndex_].x, path[pathIndex_].y, id_);
+	// Calculate the direction to the target position
+	glm::vec3 direction = glm::normalize(targetPos - getPosition());
 
-        pathIndex_++;
-        if (pathIndex_ >= path.size()) {
-//			grid_->VacateCell(path[pathIndex_ - 1].x, path[pathIndex_ - 1].y, id_);
-            pathIndex_ = 0; // Reset path index if the end is reached
-        }
-    }
+	//enemy.Yaw = glm::degrees(glm::acos(glm::dot(glm::normalize(enemy.Front), direction)));
+	yaw = glm::degrees(glm::atan(direction.z, direction.x));
+	mRecomputeWorldTransform = true;
+
+	UpdateEnemyVectors();
+
+	// Calculate the new position
+	glm::vec3 newPos = getPosition() + direction * speed * deltaTime;
+
+	// Ensure the new position is not within an obstacle by checking the bounding box
+	bool isObstacleFree = true;
+	for (float xOffset = -agentRadius; xOffset <= agentRadius; xOffset += agentRadius * 2) {
+		for (float zOffset = -agentRadius; zOffset <= agentRadius; zOffset += agentRadius * 2) {
+			glm::ivec2 checkPos = glm::ivec2((newPos.x + xOffset) / grid_->GetCellSize(), (newPos.z + zOffset) / grid_->GetCellSize());
+			if (checkPos.x < 0 || checkPos.x >= grid_->GetGridSize() || checkPos.y < 0 || checkPos.y >= grid_->GetGridSize()
+				|| grid_->GetGrid()[checkPos.x][checkPos.y].IsObstacle() || (grid_->GetGrid()[checkPos.x][checkPos.y].IsOccupied()
+					&& !grid_->GetGrid()[checkPos.x][checkPos.y].IsOccupiedBy(id_))) {
+				isObstacleFree = false;
+				break;
+			}
+		}
+		if (!isObstacleFree) break;
+	}
+
+	if (isObstacleFree) {
+		setPosition(newPos);
+	}
+	else {
+		// If the new position is within an obstacle, try to adjust the position slightly
+		newPos = getPosition() + direction * (speed * deltaTime * 0.01f);
+		isObstacleFree = true;
+		for (float xOffset = -agentRadius; xOffset <= agentRadius; xOffset += agentRadius * 2) {
+			for (float zOffset = -agentRadius; zOffset <= agentRadius; zOffset += agentRadius * 2) {
+				glm::ivec2 checkPos = glm::ivec2((newPos.x + xOffset) / grid_->GetCellSize(), (newPos.z + zOffset) / grid_->GetCellSize());
+				if (checkPos.x < 0 || checkPos.x >= grid_->GetGridSize() || checkPos.y < 0 || checkPos.y >= grid_->GetGridSize()
+					|| grid_->GetGrid()[checkPos.x][checkPos.y].IsObstacle() || (grid_->GetGrid()[checkPos.x][checkPos.y].IsOccupied()
+						&& !grid_->GetGrid()[checkPos.x][checkPos.y].IsOccupiedBy(id_))) {
+					isObstacleFree = false;
+					break;
+				}
+			}
+			if (!isObstacleFree) break;
+		}
+
+		if (isObstacleFree) {
+			setPosition(newPos);
+		}
+	}
+
+	//if (pathIndex_ == 0) {
+	//    // Snap the enemy to the center of the starting grid cell when the path starts
+	//    glm::vec3 startCellCenter = glm::vec3(path[pathIndex_].x * grid_->GetCellSize() + grid_->GetCellSize() / 2.0f, getPosition().z, path[pathIndex_].y * grid_->GetCellSize() + grid_->GetCellSize() / 2.0f);
+	//    setPosition(startCellCenter);
+	//}
+
+	if (glm::distance(getPosition(), targetPos) < grid_->GetCellSize() / 3.0f)
+	{
+		//	grid_->OccupyCell(path[pathIndex_].x, path[pathIndex_].y, id_);
+	}
+
+	//    if (pathIndex_ >= 1)
+	 //      grid_->VacateCell(path[pathIndex_ - 1].x, path[pathIndex_ - 1].y, id_);
+
+		// Check if the enemy has reached the current target position within a tolerance
+	if (glm::distance(getPosition(), targetPos) < tolerance) {
+		//		grid_->VacateCell(path[pathIndex_].x, path[pathIndex_].y, id_);
+
+		pathIndex_++;
+		if (pathIndex_ >= path.size()) {
+			//			grid_->VacateCell(path[pathIndex_ - 1].x, path[pathIndex_ - 1].y, id_);
+			pathIndex_ = 0; // Reset path index if the end is reached
+		}
+	}
 }
 
 void Enemy::SetAnimation(int animNum, float speedDivider, float blendFactor, bool playBackwards)
 {
-    model->playAnimation(animNum, speedDivider, blendFactor, playBackwards);
+	model->playAnimation(animNum, speedDivider, blendFactor, playBackwards);
 }
 
 void Enemy::SetAnimation(int srcAnimNum, int destAnimNum, float speedDivider, float blendFactor, bool playBackwards)
@@ -447,60 +447,60 @@ void Enemy::SetAnimation(int srcAnimNum, int destAnimNum, float speedDivider, fl
 
 void Enemy::Shoot()
 {
-    glm::vec3 accuracyOffset = glm::vec3(0.0f);
-    glm::vec3 accuracyOffsetFactor = glm::vec3(0.1f);
+	glm::vec3 accuracyOffset = glm::vec3(0.0f);
+	glm::vec3 accuracyOffsetFactor = glm::vec3(0.1f);
 
-    std::random_device dev;
-    std::mt19937 rng(dev());
-    std::uniform_int_distribution<std::mt19937::result_type> dist100(0, 100); // distribution in range [1, 100]
+	std::random_device dev;
+	std::mt19937 rng(dev());
+	std::uniform_int_distribution<std::mt19937::result_type> dist100(0, 100); // distribution in range [1, 100]
 
-    bool enemyMissed = false;
+	bool enemyMissed = false;
 
-    if (dist100(rng) < 60)
-    {
-        enemyMissed = true;
-        if (dist100(rng) % 2 == 0)
-        {
-		    accuracyOffset = accuracyOffset + (accuracyOffsetFactor * -(float)dist100(rng));
-        }
-        else
-        {
+	if (dist100(rng) < 60)
+	{
+		enemyMissed = true;
+		if (dist100(rng) % 2 == 0)
+		{
+			accuracyOffset = accuracyOffset + (accuracyOffsetFactor * -(float)dist100(rng));
+		}
+		else
+		{
 			accuracyOffset = accuracyOffset + (accuracyOffsetFactor * (float)dist100(rng));
-        }
-    }
+		}
+	}
 
-    enemyShootPos = getPosition() + glm::vec3(0.0f, 2.5f, 0.0f);
-    enemyShootDir = (player.getPosition() - getPosition()) + accuracyOffset;
-    glm::vec3 hitPoint = glm::vec3(0.0f);
+	enemyShootPos = getPosition() + glm::vec3(0.0f, 2.5f, 0.0f);
+	enemyShootDir = (player.getPosition() - getPosition()) + accuracyOffset;
+	glm::vec3 hitPoint = glm::vec3(0.0f);
 
 	glm::vec3 playerDir = glm::normalize(player.getPosition() - getPosition());
 
-    yaw = glm::degrees(glm::atan(playerDir.z, playerDir.x));
-    UpdateEnemyVectors();
+	yaw = glm::degrees(glm::atan(playerDir.z, playerDir.x));
+	UpdateEnemyVectors();
 
-    bool hit = false;
-    hit = GetGameManager()->GetPhysicsWorld()->rayPlayerIntersect(enemyShootPos, enemyShootDir, enemyHitPoint, aabb);
+	bool hit = false;
+	hit = GetGameManager()->GetPhysicsWorld()->rayPlayerIntersect(enemyShootPos, enemyShootDir, enemyHitPoint, aabb);
 
-    if (hit)
-    {
-        enemyHasHit = true;
-    }
-    else
-    {
+	if (hit)
+	{
+		enemyHasHit = true;
+	}
+	else
+	{
 		enemyHasHit = false;
-    }
-    
+	}
+
 	if (!resetBlend && destAnim != 2)
 	{
-	    SetSourceAnimNum(destAnim);
+		SetSourceAnimNum(destAnim);
 		SetDestAnimNum(2);
 		blendAnim = true;
 		resetBlend = true;
 	}
 
-    //shootAC->PlayEvent("event:/EnemyShoot");
-    if (shootAudioCooldown <= 0.0f)
-    {
+	//shootAC->PlayEvent("event:/EnemyShoot");
+	if (shootAudioCooldown <= 0.0f)
+	{
 		std::random_device rd;
 		std::mt19937 gen{ rd() };
 		std::uniform_int_distribution<> distrib(1, 3);
@@ -519,28 +519,28 @@ void Enemy::Shoot()
 		}
 
 
-	    std::string clipName = "event:/enemy" + std::to_string(enemyAudioIndex) + "_Attacking-Shooting" + std::to_string(randomIndex);
-	    Speak(clipName, 1.0f, randomFloat);
-        shootAudioCooldown = 3.0f;
-    }
+		std::string clipName = "event:/enemy" + std::to_string(enemyAudioIndex) + "_Attacking-Shooting" + std::to_string(randomIndex);
+		Speak(clipName, 1.0f, randomFloat);
+		shootAudioCooldown = 3.0f;
+	}
 
 
-    enemyRayDebugRenderTimer = 0.3f;
-    enemyHasShot = true;
-    enemyShootCooldown = 0.3f;
+	enemyRayDebugRenderTimer = 0.3f;
+	enemyHasShot = true;
+	enemyShootCooldown = 0.3f;
 }
 
 void Enemy::SetUpAABB()
 {
-    aabb = new AABB();
-    aabb->calculateAABB(model->getVertices());
-    aabb->setShader(aabbShader);
-    updateAABB();
-    aabb->setUpMesh();
-    aabb->owner = this;
+	aabb = new AABB();
+	aabb->calculateAABB(model->getVertices());
+	aabb->setShader(aabbShader);
+	updateAABB();
+	aabb->setUpMesh();
+	aabb->owner = this;
 	aabb->isEnemy = true;
-    mGameManager->GetPhysicsWorld()->addCollider(GetAABB());
-    mGameManager->GetPhysicsWorld()->addEnemyCollider(GetAABB());
+	mGameManager->GetPhysicsWorld()->addCollider(GetAABB());
+	mGameManager->GetPhysicsWorld()->addEnemyCollider(GetAABB());
 }
 
 void Enemy::Speak(const std::string& clipName, float priority, float cooldown)
@@ -552,9 +552,9 @@ void Enemy::OnHit()
 {
 	Logger::log(1, "Enemy was hit!\n", __FUNCTION__);
 	setAABBColor(glm::vec3(1.0f, 0.0f, 1.0f));
-    TakeDamage(20.0f);
-    isTakingDamage_ = true;
-    //takeDamageAC->PlayEvent("event:/EnemyTakeDamage");
+	TakeDamage(20.0f);
+	isTakingDamage_ = true;
+	//takeDamageAC->PlayEvent("event:/EnemyTakeDamage");
 	std::random_device rd;
 	std::mt19937 gen{ rd() };
 	std::uniform_int_distribution<> distrib(1, 3);
@@ -576,8 +576,8 @@ void Enemy::OnHit()
 	std::string clipName = "event:/enemy" + std::to_string(enemyAudioIndex) + "_Taking Damage" + std::to_string(randomIndex);
 	Speak(clipName, 2.0f, randomFloat);
 
-    damageTimer = 0.2f;
-    eventManager_.Publish(NPCDamagedEvent{ id_ });
+	damageTimer = 0.2f;
+	eventManager_.Publish(NPCDamagedEvent{ id_ });
 }
 
 void Enemy::TakeDamage(float damage)
@@ -604,15 +604,15 @@ void Enemy::TakeDamage(float damage)
 void Enemy::OnDeath()
 {
 	Logger::log(1, "%s Enemy Died!\n", __FUNCTION__);
-    isDying_ = true;
+	isDying_ = true;
 	dyingTimer = 0.2f;
-    if (!hasDied_ && !resetBlend && destAnim != 0)
-    {
+	if (!hasDied_ && !resetBlend && destAnim != 0)
+	{
 		SetSourceAnimNum(destAnim);
 		SetDestAnimNum(0);
 		blendAnim = true;
 		resetBlend = true;
-    }
+	}
 	//deathAC->PlayEvent("event:/EnemyDeath");
 	std::random_device rd;
 	std::mt19937 gen{ rd() };
@@ -633,7 +633,7 @@ void Enemy::OnDeath()
 
 	std::string clipName = "event:/enemy" + std::to_string(enemyAudioIndex) + "_Taking Damage" + std::to_string(randomIndex);
 	Speak(clipName, 3.0f, randomFloat);
-    hasDied_ = true;
+	hasDied_ = true;
 	eventManager_.Publish(NPCDiedEvent{ id_ });
 }
 
@@ -714,7 +714,7 @@ float Enemy::CalculateReward(const NashState& state, NashAction action, int enem
 		if (state.health <= 20)
 		{
 			reward -= 5.0f;
-		} 
+		}
 		else if (state.health >= 60 && (state.playerDetected && state.playerVisible))
 		{
 			reward += 15.0f;
@@ -864,7 +864,7 @@ NashAction Enemy::ChooseAction(const NashState& state, int enemyId, std::unorder
 	}
 }
 
-void Enemy::UpdateQValue(const NashState& currentState, NashAction action, const NashState& nextState, float reward, 
+void Enemy::UpdateQValue(const NashState& currentState, NashAction action, const NashState& nextState, float reward,
 	int enemyId, std::unordered_map<std::pair<NashState, NashAction>, float, PairHash>* qTable)
 {
 	float currentQ = qTable[enemyId][{currentState, action}];
@@ -1034,7 +1034,7 @@ void Enemy::EnemyDecision(NashState& currentState, int enemyId, std::vector<Nash
 	squadActions[enemyId] = chosenAction;
 
 	// Print chosen action
-	std::cout << "Enemy " << enemyId << " Chosen Action: " << chosenAction << " with reward: " << reward << std::endl;
+	Logger::log(1, "Enemy %d Chosen Action: %d with reward: %d", enemyId, chosenAction, reward);
 }
 
 NashAction Enemy::ChooseActionFromTrainedQTable(const NashState& state, int enemyId, std::unordered_map<std::pair<NashState, NashAction>, float, PairHash>* qTable)
@@ -1282,7 +1282,7 @@ void Enemy::EnemyDecisionPrecomputedQ(NashState& currentState, int enemyId, std:
 	squadActions[enemyId] = chosenAction;
 
 	// Print chosen action
-	std::cout << "Enemy " << enemyId << " Chosen Action: " << chosenAction << std::endl;
+	Logger::log(1, "Enemy %d Chosen Action: %d", enemyId, chosenAction);
 }
 
 void Enemy::HasDealtDamage()
@@ -1371,279 +1371,279 @@ void Enemy::ResetState()
 
 void Enemy::VacatePreviousCell()
 {
-    if (prevPath_.empty())
-    {
-        prevPathIndex_ = pathIndex_;
-        prevPath_ = currentPath_;
-    }
-	else if (prevPath_ != currentPath_)
-    {
-        for (size_t i = 0; i < prevPath_.size(); i++)
-        {
- //           grid_->VacateCell(prevPath_[i].x, prevPath_[i].y, id_);
-        }
-        prevPathIndex_ = pathIndex_;
+	if (prevPath_.empty())
+	{
+		prevPathIndex_ = pathIndex_;
 		prevPath_ = currentPath_;
-    }
+	}
+	else if (prevPath_ != currentPath_)
+	{
+		for (size_t i = 0; i < prevPath_.size(); i++)
+		{
+			//           grid_->VacateCell(prevPath_[i].x, prevPath_[i].y, id_);
+		}
+		prevPathIndex_ = pathIndex_;
+		prevPath_ = currentPath_;
+	}
 }
 
 void Enemy::BuildBehaviorTree()
 {
-    // Top-level Selector
-    auto root = std::make_shared<SelectorNode>();
+	// Top-level Selector
+	auto root = std::make_shared<SelectorNode>();
 
-    // Dead check
-    auto isDeadCondition = std::make_shared<ConditionNode>([this]() { return IsDead(); });
-    auto deadAction = std::make_shared<ActionNode>([this]() { return Die(); });
+	// Dead check
+	auto isDeadCondition = std::make_shared<ConditionNode>([this]() { return IsDead(); });
+	auto deadAction = std::make_shared<ActionNode>([this]() { return Die(); });
 
-    auto isDeadSequence = std::make_shared<SequenceNode>();
+	auto isDeadSequence = std::make_shared<SequenceNode>();
 
 
-    auto deadSequence = std::make_shared<SequenceNode>();
-    deadSequence->AddChild(isDeadCondition);
-    deadSequence->AddChild(deadAction);
+	auto deadSequence = std::make_shared<SequenceNode>();
+	deadSequence->AddChild(isDeadCondition);
+	deadSequence->AddChild(deadAction);
 
-    // Dying sequence
-    auto dyingSequence = std::make_shared<SequenceNode>();
-    dyingSequence->AddChild(std::make_shared<ConditionNode>([this]() { return IsHealthZeroOrBelow(); }));
-    dyingSequence->AddChild(std::make_shared<ActionNode>([this]() { return EnterDyingState(); }));
+	// Dying sequence
+	auto dyingSequence = std::make_shared<SequenceNode>();
+	dyingSequence->AddChild(std::make_shared<ConditionNode>([this]() { return IsHealthZeroOrBelow(); }));
+	dyingSequence->AddChild(std::make_shared<ActionNode>([this]() { return EnterDyingState(); }));
 
 	isDeadSequence->AddChild(dyingSequence);
 	isDeadSequence->AddChild(deadSequence);
 
-    // Taking Damage sequence
-    auto takingDamageSequence = std::make_shared<SequenceNode>();
-    takingDamageSequence->AddChild(std::make_shared<ConditionNode>([this]() {return !IsHealthZeroOrBelow(); }));
-    takingDamageSequence->AddChild(std::make_shared<ConditionNode>([this]() { return IsTakingDamage(); }));
-    takingDamageSequence->AddChild(std::make_shared<ActionNode>([this]() { return EnterTakingDamageState(); }));
+	// Taking Damage sequence
+	auto takingDamageSequence = std::make_shared<SequenceNode>();
+	takingDamageSequence->AddChild(std::make_shared<ConditionNode>([this]() {return !IsHealthZeroOrBelow(); }));
+	takingDamageSequence->AddChild(std::make_shared<ConditionNode>([this]() { return IsTakingDamage(); }));
+	takingDamageSequence->AddChild(std::make_shared<ActionNode>([this]() { return EnterTakingDamageState(); }));
 
-    // Attack Selector
-    auto attackSelector = std::make_shared<SelectorNode>();
+	// Attack Selector
+	auto attackSelector = std::make_shared<SelectorNode>();
 
-    // Player detected sequence
-    auto playerDetectedSequence = std::make_shared<SequenceNode>();
-    playerDetectedSequence->AddChild(std::make_shared<ConditionNode>([this]() {return !IsHealthZeroOrBelow(); }));
-    playerDetectedSequence->AddChild(std::make_shared<ConditionNode>([this]() { return IsPlayerDetected(); }));
- 
-    // Suppression Fire sequence
-    auto suppressionFireSequence = std::make_shared<SequenceNode>();
-    suppressionFireSequence->AddChild(std::make_shared<ConditionNode>([this]() {return !IsHealthZeroOrBelow(); }));
-    suppressionFireSequence->AddChild(std::make_shared<ConditionNode>([this]() { return ShouldProvideSuppressionFire(); }));
+	// Player detected sequence
+	auto playerDetectedSequence = std::make_shared<SequenceNode>();
+	playerDetectedSequence->AddChild(std::make_shared<ConditionNode>([this]() {return !IsHealthZeroOrBelow(); }));
+	playerDetectedSequence->AddChild(std::make_shared<ConditionNode>([this]() { return IsPlayerDetected(); }));
 
-    // Player Detected Selector: Player Visible or Not Visible
-    auto playerDetectedSelector = std::make_shared<SelectorNode>();
+	// Suppression Fire sequence
+	auto suppressionFireSequence = std::make_shared<SequenceNode>();
+	suppressionFireSequence->AddChild(std::make_shared<ConditionNode>([this]() {return !IsHealthZeroOrBelow(); }));
+	suppressionFireSequence->AddChild(std::make_shared<ConditionNode>([this]() { return ShouldProvideSuppressionFire(); }));
 
-    // Player Detected Selector: Player Visible or Not Visible
-    auto suppressionFireSelector = std::make_shared<SelectorNode>();
+	// Player Detected Selector: Player Visible or Not Visible
+	auto playerDetectedSelector = std::make_shared<SelectorNode>();
 
-    // Player visible sequence
-    auto playerVisibleSequence = std::make_shared<SequenceNode>();
-    playerVisibleSequence->AddChild(std::make_shared<ConditionNode>([this]() { return IsPlayerVisible(); }));
-    playerVisibleSequence->AddChild(std::make_shared<ConditionNode>([this]() { return IsCooldownComplete(); }));
-    playerVisibleSequence->AddChild(std::make_shared<ActionNode>([this]() { return AttackShoot(); }));
+	// Player Detected Selector: Player Visible or Not Visible
+	auto suppressionFireSelector = std::make_shared<SelectorNode>();
 
-    // Player not visible sequence
-    auto playerNotVisibleSequence = std::make_shared<SequenceNode>();
-    playerNotVisibleSequence->AddChild(std::make_shared<ConditionNode>([this]() { return !IsPlayerVisible(); }));
-    playerNotVisibleSequence->AddChild(std::make_shared<ActionNode>([this]() { return AttackChasePlayer(); }));
-        
-    // Health below threshold sequence (Seek Cover)
-    auto seekCoverSequence = std::make_shared<SequenceNode>();
-    seekCoverSequence->AddChild(std::make_shared<ConditionNode>([this]() {return !IsHealthZeroOrBelow(); }));
-    seekCoverSequence->AddChild(std::make_shared<ConditionNode>([this]() {return !IsInCover(); }));
-    seekCoverSequence->AddChild(std::make_shared<ConditionNode>([this]() {return !ShouldProvideSuppressionFire(); }));
-    seekCoverSequence->AddChild(std::make_shared<ConditionNode>([this]() { return IsHealthBelowThreshold(); }));
-    seekCoverSequence->AddChild(std::make_shared<ActionNode>([this]() { return SeekCover(); }));
-    seekCoverSequence->AddChild(std::make_shared<ActionNode>([this]() { return TakeCover(); }));
-    seekCoverSequence->AddChild(std::make_shared<ActionNode>([this]() { return EnterInCoverState(); }));
+	// Player visible sequence
+	auto playerVisibleSequence = std::make_shared<SequenceNode>();
+	playerVisibleSequence->AddChild(std::make_shared<ConditionNode>([this]() { return IsPlayerVisible(); }));
+	playerVisibleSequence->AddChild(std::make_shared<ConditionNode>([this]() { return IsCooldownComplete(); }));
+	playerVisibleSequence->AddChild(std::make_shared<ActionNode>([this]() { return AttackShoot(); }));
 
-    // In Cover condition
-    auto inCoverCondition = std::make_shared<ConditionNode>([this]() { return IsInCover(); });
-    auto inCoverAction = std::make_shared<ActionNode>([this]() { return InCoverAction(); });
+	// Player not visible sequence
+	auto playerNotVisibleSequence = std::make_shared<SequenceNode>();
+	playerNotVisibleSequence->AddChild(std::make_shared<ConditionNode>([this]() { return !IsPlayerVisible(); }));
+	playerNotVisibleSequence->AddChild(std::make_shared<ActionNode>([this]() { return AttackChasePlayer(); }));
 
-    auto inCoverSequence = std::make_shared<SequenceNode>();
-    inCoverSequence->AddChild(std::make_shared<ConditionNode>([this]() {return !IsHealthZeroOrBelow(); }));
-    inCoverSequence->AddChild(inCoverCondition);
-    inCoverSequence->AddChild(inCoverAction);
-    
-    inCoverSequence->AddChild(playerVisibleSequence);
-    inCoverSequence->AddChild(playerNotVisibleSequence);
+	// Health below threshold sequence (Seek Cover)
+	auto seekCoverSequence = std::make_shared<SequenceNode>();
+	seekCoverSequence->AddChild(std::make_shared<ConditionNode>([this]() {return !IsHealthZeroOrBelow(); }));
+	seekCoverSequence->AddChild(std::make_shared<ConditionNode>([this]() {return !IsInCover(); }));
+	seekCoverSequence->AddChild(std::make_shared<ConditionNode>([this]() {return !ShouldProvideSuppressionFire(); }));
+	seekCoverSequence->AddChild(std::make_shared<ConditionNode>([this]() { return IsHealthBelowThreshold(); }));
+	seekCoverSequence->AddChild(std::make_shared<ActionNode>([this]() { return SeekCover(); }));
+	seekCoverSequence->AddChild(std::make_shared<ActionNode>([this]() { return TakeCover(); }));
+	seekCoverSequence->AddChild(std::make_shared<ActionNode>([this]() { return EnterInCoverState(); }));
 
-    // Patrol action
-    auto patrolSequence = std::make_shared<SequenceNode>();
-    patrolSequence->AddChild(std::make_shared<ConditionNode>([this]() {return !IsHealthZeroOrBelow(); }));
-    patrolSequence->AddChild(std::make_shared<ConditionNode>([this]() { return !IsPlayerInRange(); }));
-    patrolSequence->AddChild(std::make_shared<ConditionNode>([this]() { return !IsHealthBelowThreshold(); }));
-    patrolSequence->AddChild(std::make_shared<ConditionNode>([this]() { return !IsAttacking(); }));
-    patrolSequence->AddChild(std::make_shared<ActionNode>([this]() { return Patrol(); }));
+	// In Cover condition
+	auto inCoverCondition = std::make_shared<ConditionNode>([this]() { return IsInCover(); });
+	auto inCoverAction = std::make_shared<ActionNode>([this]() { return InCoverAction(); });
 
-    // Add the Player Visible and Not Visible sequences to the Player Detected Selector
-    playerDetectedSelector->AddChild(playerVisibleSequence);
-    playerDetectedSelector->AddChild(playerNotVisibleSequence);
+	auto inCoverSequence = std::make_shared<SequenceNode>();
+	inCoverSequence->AddChild(std::make_shared<ConditionNode>([this]() {return !IsHealthZeroOrBelow(); }));
+	inCoverSequence->AddChild(inCoverCondition);
+	inCoverSequence->AddChild(inCoverAction);
 
-    // Add the Player Detected Selector to the Player Detected Sequence
-    playerDetectedSequence->AddChild(playerDetectedSelector);
+	inCoverSequence->AddChild(playerVisibleSequence);
+	inCoverSequence->AddChild(playerNotVisibleSequence);
 
-    // Add the Player Visible and Not Visible sequences to the Suppression Fire Selector
-    suppressionFireSelector->AddChild(playerVisibleSequence);
-    suppressionFireSelector->AddChild(playerNotVisibleSequence);
+	// Patrol action
+	auto patrolSequence = std::make_shared<SequenceNode>();
+	patrolSequence->AddChild(std::make_shared<ConditionNode>([this]() {return !IsHealthZeroOrBelow(); }));
+	patrolSequence->AddChild(std::make_shared<ConditionNode>([this]() { return !IsPlayerInRange(); }));
+	patrolSequence->AddChild(std::make_shared<ConditionNode>([this]() { return !IsHealthBelowThreshold(); }));
+	patrolSequence->AddChild(std::make_shared<ConditionNode>([this]() { return !IsAttacking(); }));
+	patrolSequence->AddChild(std::make_shared<ActionNode>([this]() { return Patrol(); }));
 
-    // Add the Suppression Fire Selector to the Suppression Fire Sequence
-    suppressionFireSequence->AddChild(suppressionFireSelector);
+	// Add the Player Visible and Not Visible sequences to the Player Detected Selector
+	playerDetectedSelector->AddChild(playerVisibleSequence);
+	playerDetectedSelector->AddChild(playerNotVisibleSequence);
 
-    // Add sequences to attack selector
-    attackSelector->AddChild(playerDetectedSequence);
-    attackSelector->AddChild(patrolSequence);
+	// Add the Player Detected Selector to the Player Detected Sequence
+	playerDetectedSequence->AddChild(playerDetectedSelector);
 
-    takingDamageSequence->AddChild(attackSelector);
+	// Add the Player Visible and Not Visible sequences to the Suppression Fire Selector
+	suppressionFireSelector->AddChild(playerVisibleSequence);
+	suppressionFireSelector->AddChild(playerNotVisibleSequence);
 
-    // Add sequences to root
+	// Add the Suppression Fire Selector to the Suppression Fire Sequence
+	suppressionFireSequence->AddChild(suppressionFireSelector);
+
+	// Add sequences to attack selector
+	attackSelector->AddChild(playerDetectedSequence);
+	attackSelector->AddChild(patrolSequence);
+
+	takingDamageSequence->AddChild(attackSelector);
+
+	// Add sequences to root
 	root->AddChild(isDeadSequence);
-    root->AddChild(takingDamageSequence);
-    root->AddChild(seekCoverSequence);
-    root->AddChild(inCoverSequence);
-    root->AddChild(suppressionFireSequence);
-    root->AddChild(attackSelector);
-    root->AddChild(patrolSequence);
+	root->AddChild(takingDamageSequence);
+	root->AddChild(seekCoverSequence);
+	root->AddChild(inCoverSequence);
+	root->AddChild(suppressionFireSequence);
+	root->AddChild(attackSelector);
+	root->AddChild(patrolSequence);
 
-    behaviorTree_ = root;
+	behaviorTree_ = root;
 }
 
 void Enemy::DetectPlayer()
 {
-    isPlayerDetected_ = true;
+	isPlayerDetected_ = true;
 	std::random_device rd;
 	std::mt19937 gen{ rd() };
 	std::uniform_int_distribution<> distrib(1, 3);
 	int randomIndex = distrib(gen);
 	std::uniform_real_distribution<> distribReal(2.0, 3.0);
 	int randomFloat = distribReal(gen);
-    int enemyAudioIndex;
-    if (id_ == 3)
-    {
-        enemyAudioIndex = 4;
-    }
-    else
-    {
+	int enemyAudioIndex;
+	if (id_ == 3)
+	{
+		enemyAudioIndex = 4;
+	}
+	else
+	{
 		enemyAudioIndex = id_;
-    }
+	}
 
-    std::string clipName = "event:/enemy" + std::to_string(enemyAudioIndex) + "_Player Detected" + std::to_string(randomIndex);
+	std::string clipName = "event:/enemy" + std::to_string(enemyAudioIndex) + "_Player Detected" + std::to_string(randomIndex);
 	Speak(clipName, 5.0f, randomFloat);
 
-    eventManager_.Publish(PlayerDetectedEvent{ id_ });
+	eventManager_.Publish(PlayerDetectedEvent{ id_ });
 }
 
 bool Enemy::IsDead()
 {
-    return isDead_;
+	return isDead_;
 }
 
 bool Enemy::IsHealthZeroOrBelow()
 {
-    return health_ <= 0;
+	return health_ <= 0;
 }
 
 bool Enemy::IsTakingDamage()
 {
-    return isTakingDamage_;
+	return isTakingDamage_;
 }
 
 bool Enemy::IsPlayerDetected()
 {
-    return isPlayerDetected_;
+	return isPlayerDetected_;
 }
 
 bool Enemy::IsPlayerVisible()
 {
-    glm::vec3 tempEnemyShootPos = getPosition() + glm::vec3(0.0f, 2.5f, 0.0f);
-    glm::vec3 tempEnemyShootDir = glm::normalize(player.getPosition() - getPosition());
-    glm::vec3 hitPoint = glm::vec3(0.0f);
+	glm::vec3 tempEnemyShootPos = getPosition() + glm::vec3(0.0f, 2.5f, 0.0f);
+	glm::vec3 tempEnemyShootDir = glm::normalize(player.getPosition() - getPosition());
+	glm::vec3 hitPoint = glm::vec3(0.0f);
 
-    
-    isPlayerVisible_ = mGameManager->GetPhysicsWorld()->checkPlayerVisibility(tempEnemyShootPos, tempEnemyShootDir, hitPoint, aabb);
 
-    return isPlayerVisible_;
+	isPlayerVisible_ = mGameManager->GetPhysicsWorld()->checkPlayerVisibility(tempEnemyShootPos, tempEnemyShootDir, hitPoint, aabb);
+
+	return isPlayerVisible_;
 }
 
 bool Enemy::IsCooldownComplete()
 {
-    return enemyShootCooldown <= 0.0f;
+	return enemyShootCooldown <= 0.0f;
 }
 
 bool Enemy::IsHealthBelowThreshold()
 {
-    return health_ < 40;
+	return health_ < 40;
 }
 
 bool Enemy::IsPlayerInRange()
 {
-    float playerEnemyDistance = glm::distance(getPosition(), player.getPosition());
+	float playerEnemyDistance = glm::distance(getPosition(), player.getPosition());
 
-    glm::vec3 tempEnemyShootPos = getPosition() + glm::vec3(0.0f, 2.5f, 0.0f);
-    glm::vec3 tempEnemyShootDir = glm::normalize(player.getPosition() - getPosition());
-    glm::vec3 hitPoint = glm::vec3(0.0f);
+	glm::vec3 tempEnemyShootPos = getPosition() + glm::vec3(0.0f, 2.5f, 0.0f);
+	glm::vec3 tempEnemyShootDir = glm::normalize(player.getPosition() - getPosition());
+	glm::vec3 hitPoint = glm::vec3(0.0f);
 
-    if (playerEnemyDistance < 35.0f && !IsPlayerDetected())
-    {
-        DetectPlayer();
-        isPlayerInRange_ = true;
-    }
+	if (playerEnemyDistance < 35.0f && !IsPlayerDetected())
+	{
+		DetectPlayer();
+		isPlayerInRange_ = true;
+	}
 
-    return isPlayerInRange_;
+	return isPlayerInRange_;
 }
 
 bool Enemy::IsInCover()
 {
-    return isInCover_;
+	return isInCover_;
 }
 
 bool Enemy::IsAttacking()
 {
-    return isAttacking_;
+	return isAttacking_;
 }
 
 bool Enemy::IsPatrolling()
 {
-    return isPatrolling_;
+	return isPatrolling_;
 }
 
 bool Enemy::ShouldProvideSuppressionFire()
 {
-    return provideSuppressionFire_;
+	return provideSuppressionFire_;
 }
 
 NodeStatus Enemy::EnterDyingState()
 {
 	EDBTState = "Dying";
-    //SetAnimNum(0);
-    
-    if (!isDying_)
+	//SetAnimNum(0);
+
+	if (!isDying_)
 	{
 		//deathAC->PlayEvent("event:/EnemyDeath");
 		//std::string clipName = "event:/enemy" + std::to_string(id_) + "_Taking Damage1";
 		//Speak(clipName, 1.0f, 0.5f);
 
-        dyingTimer = 0.5f;
+		dyingTimer = 0.5f;
 		isDying_ = true;
 	}
 
-    if (dyingTimer > 0.0f)
-    {
-        dyingTimer -= dt_;
+	if (dyingTimer > 0.0f)
+	{
+		dyingTimer -= dt_;
 		return NodeStatus::Running;
-    }
+	}
 
-    isDead_ = true;
-    eventManager_.Publish(NPCDiedEvent{ id_ });
-    return NodeStatus::Success;
+	isDead_ = true;
+	eventManager_.Publish(NPCDiedEvent{ id_ });
+	return NodeStatus::Success;
 }
 
 NodeStatus Enemy::EnterTakingDamageState()
 {
-    EDBTState = "Taking Damage";
-    setAABBColor(glm::vec3(1.0f, 0.0f, 1.0f));
-    //SetAnimNum(3);
+	EDBTState = "Taking Damage";
+	setAABBColor(glm::vec3(1.0f, 0.0f, 1.0f));
+	//SetAnimNum(3);
 	if (destAnim != 3)
 	{
 		SetSourceAnimNum(destAnim);
@@ -1652,14 +1652,14 @@ NodeStatus Enemy::EnterTakingDamageState()
 		resetBlend = true;
 	}
 
-    if (damageTimer > 0.0f)
-    {
+	if (damageTimer > 0.0f)
+	{
 		damageTimer -= dt_;
 		return NodeStatus::Running;
-    }
+	}
 
-    isTakingDamage_ = false;
-    return NodeStatus::Success;
+	isTakingDamage_ = false;
+	return NodeStatus::Success;
 }
 
 NodeStatus Enemy::AttackShoot()
@@ -1668,8 +1668,8 @@ NodeStatus Enemy::AttackShoot()
 	{
 		EDBTState = "Providing Suppression Fire";
 
-        if (StartingSuppressionFire)
-        {
+		if (StartingSuppressionFire)
+		{
 			std::random_device rd;
 			std::mt19937 gen{ rd() };
 			std::uniform_int_distribution<> distrib(1, 3);
@@ -1677,7 +1677,7 @@ NodeStatus Enemy::AttackShoot()
 			std::uniform_real_distribution<> distribReal(2.0, 3.0);
 			int randomFloat = distribReal(gen);
 
-            int enemyAudioIndex;
+			int enemyAudioIndex;
 			if (id_ == 3)
 			{
 				enemyAudioIndex = 4;
@@ -1687,10 +1687,10 @@ NodeStatus Enemy::AttackShoot()
 				enemyAudioIndex = id_;
 			}
 
-		   	std::string clipName = "event:/enemy" + std::to_string(enemyAudioIndex) + "_Providing Suppression Fire" + std::to_string(randomIndex);
-            Speak(clipName, 1.0f, randomFloat);
+			std::string clipName = "event:/enemy" + std::to_string(enemyAudioIndex) + "_Providing Suppression Fire" + std::to_string(randomIndex);
+			Speak(clipName, 1.0f, randomFloat);
 			StartingSuppressionFire = false;
-        }
+		}
 
 		coverTimer += dt_;
 		if (coverTimer > 1.0f)
@@ -1701,18 +1701,18 @@ NodeStatus Enemy::AttackShoot()
 			if (health_ > 40.0f)
 			{
 				isInCover_ = false;
-                provideSuppressionFire_ = false;
+				provideSuppressionFire_ = false;
 				StartingSuppressionFire = true;
 				return NodeStatus::Success;
 			}
 		}
-    } 
-    else
-    {
+	}
+	else
+	{
 		EDBTState = "Attacking";
-    }
+	}
 
-    Shoot();
+	Shoot();
 	isAttacking_ = true;
 
 	if (!IsPlayerVisible())
@@ -1720,23 +1720,23 @@ NodeStatus Enemy::AttackShoot()
 		return NodeStatus::Failure;
 	}
 
-    return NodeStatus::Running;
+	return NodeStatus::Running;
 }
 
 NodeStatus Enemy::AttackChasePlayer()
 {
-    EDBTState = "Chasing Player";
+	EDBTState = "Chasing Player";
 
-    currentPath_ = grid_->findPath(
-        glm::ivec2(getPosition().x / grid_->GetCellSize(), getPosition().z / grid_->GetCellSize()),
-        glm::ivec2(player.getPosition().x / grid_->GetCellSize(), player.getPosition().z / grid_->GetCellSize()),
-        grid_->GetGrid(),
-        id_
-    );
+	currentPath_ = grid_->findPath(
+		glm::ivec2(getPosition().x / grid_->GetCellSize(), getPosition().z / grid_->GetCellSize()),
+		glm::ivec2(player.getPosition().x / grid_->GetCellSize(), player.getPosition().z / grid_->GetCellSize()),
+		grid_->GetGrid(),
+		id_
+	);
 
-    VacatePreviousCell();
+	VacatePreviousCell();
 
-    isAttacking_ = true;
+	isAttacking_ = true;
 
 	for (glm::ivec2 cell : currentPath_)
 	{
@@ -1753,10 +1753,10 @@ NodeStatus Enemy::AttackChasePlayer()
 	moveEnemy(currentPath_, dt_, 1.0f, false);
 
 
-    if (!IsPlayerVisible())
-    {
-        if (playNotVisibleAudio)
-        {
+	if (!IsPlayerVisible())
+	{
+		if (playNotVisibleAudio)
+		{
 			std::random_device rd;
 			std::mt19937 gen{ rd() };
 			std::uniform_int_distribution<> distrib(1, 3);
@@ -1777,29 +1777,29 @@ NodeStatus Enemy::AttackChasePlayer()
 
 			std::string clipName = "event:/enemy" + std::to_string(enemyAudioIndex) + "_Chasing(Out of Sight)" + std::to_string(randomIndex);
 			Speak(clipName, 3.0f, randomFloat);
-            playNotVisibleAudio = false;
-        }
-        return NodeStatus::Running;
-    }
+			playNotVisibleAudio = false;
+		}
+		return NodeStatus::Running;
+	}
 
-    playNotVisibleAudio = true;
-    return NodeStatus::Success;
+	playNotVisibleAudio = true;
+	return NodeStatus::Success;
 }
 
 NodeStatus Enemy::SeekCover()
 {
-    isSeekingCover_ = true;
+	isSeekingCover_ = true;
 	ScoreCoverLocations(player);
-    return NodeStatus::Success;
+	return NodeStatus::Success;
 }
 
 NodeStatus Enemy::TakeCover()
 {
 	EDBTState = "Taking Cover";
-    isSeekingCover_ = false;
+	isSeekingCover_ = false;
 
-    if (!isTakingCover_)
-    {
+	if (!isTakingCover_)
+	{
 		std::random_device rd;
 		std::mt19937 gen{ rd() };
 		std::uniform_int_distribution<> distrib(1, 4);
@@ -1822,9 +1822,9 @@ NodeStatus Enemy::TakeCover()
 		Speak(clipName, 5.0f, randomFloat);
 
 		eventManager_.Publish(NPCTakingCoverEvent{ id_ });
-    }
+	}
 
-    isTakingCover_ = true;
+	isTakingCover_ = true;
 
 	if (grid_->GetGrid()[selectedCover_->gridX][selectedCover_->gridZ].IsOccupied())
 	{
@@ -1832,17 +1832,17 @@ NodeStatus Enemy::TakeCover()
 	}
 
 	glm::vec3 snappedCurrentPos = grid_->snapToGrid(getPosition());
-    glm::vec3 snappedCoverPos = grid_->snapToGrid(selectedCover_->worldPosition);
-   
+	glm::vec3 snappedCoverPos = grid_->snapToGrid(selectedCover_->worldPosition);
 
-    currentPath_ = grid_->findPath(
-        glm::ivec2(getPosition().x / grid_->GetCellSize(), getPosition().z / grid_->GetCellSize()),
+
+	currentPath_ = grid_->findPath(
+		glm::ivec2(getPosition().x / grid_->GetCellSize(), getPosition().z / grid_->GetCellSize()),
 		glm::ivec2(selectedCover_->worldPosition.x / grid_->GetCellSize(), selectedCover_->worldPosition.z / grid_->GetCellSize()),
-        grid_->GetGrid(),
-        id_
-    );
+		grid_->GetGrid(),
+		id_
+	);
 
-    VacatePreviousCell();
+	VacatePreviousCell();
 
 	for (glm::ivec2 cell : currentPath_)
 	{
@@ -1856,20 +1856,20 @@ NodeStatus Enemy::TakeCover()
 	}
 
 
-    moveEnemy(currentPath_, dt_, 1.0f, false);
+	moveEnemy(currentPath_, dt_, 1.0f, false);
 
-    if (reachedCover)
-        return NodeStatus::Success;
+	if (reachedCover)
+		return NodeStatus::Success;
 
-    return NodeStatus::Running;
+	return NodeStatus::Running;
 }
 
 NodeStatus Enemy::EnterInCoverState()
 {
-    isInCover_ = true;
-    isSeekingCover_ = false;
-    isTakingCover_ = false;
-    coverTimer = 0.0f;
+	isInCover_ = true;
+	isSeekingCover_ = false;
+	isTakingCover_ = false;
+	coverTimer = 0.0f;
 	std::random_device rd;
 	std::mt19937 gen{ rd() };
 	std::uniform_int_distribution<> distrib(1, 2);
@@ -1888,57 +1888,28 @@ NodeStatus Enemy::EnterInCoverState()
 	}
 
 
-    std::string clipName = "event:/enemy" + std::to_string(enemyAudioIndex) + "_In Cover" + std::to_string(randomIndex);
-    Speak(clipName, 5.0f, randomFloat);
+	std::string clipName = "event:/enemy" + std::to_string(enemyAudioIndex) + "_In Cover" + std::to_string(randomIndex);
+	Speak(clipName, 5.0f, randomFloat);
 
-    return NodeStatus::Success;
+	return NodeStatus::Success;
 }
 
 NodeStatus Enemy::Patrol()
 {
 	EDBTState = "Patrolling";
-    isAttacking_ = false;
+	isAttacking_ = false;
 	isPatrolling_ = true;
 
-    if (reachedDestination == false)
-    {
-        currentPath_ = grid_->findPath(
-            glm::ivec2((int)(getPosition().x / grid_->GetCellSize()), (int)(getPosition().z / grid_->GetCellSize())),
-            glm::ivec2(currentWaypoint.x / grid_->GetCellSize(), currentWaypoint.z / grid_->GetCellSize()),
-            grid_->GetGrid(),
-            id_
-        );
+	if (reachedDestination == false)
+	{
+		currentPath_ = grid_->findPath(
+			glm::ivec2((int)(getPosition().x / grid_->GetCellSize()), (int)(getPosition().z / grid_->GetCellSize())),
+			glm::ivec2(currentWaypoint.x / grid_->GetCellSize(), currentWaypoint.z / grid_->GetCellSize()),
+			grid_->GetGrid(),
+			id_
+		);
 
-        VacatePreviousCell();
-
-		for (glm::ivec2 cell : currentPath_)
-		{
-			if (grid_->GetGrid()[cell.x][cell.y].IsOccupied())
-				currentPath_ = grid_->findPath(
-					glm::ivec2(getPosition().x / grid_->GetCellSize(), getPosition().z / grid_->GetCellSize()),
-					glm::ivec2(currentWaypoint.x / grid_->GetCellSize(), currentWaypoint.z / grid_->GetCellSize()),
-					grid_->GetGrid(),
-					id_
-				);
-		}
-
-
-        moveEnemy(currentPath_, dt_, 1.0f, false);
-    }
-    else
-    {
-        currentWaypoint = selectRandomWaypoint(currentWaypoint, waypointPositions);
-
-        currentPath_ = grid_->findPath(
-            glm::ivec2(getPosition().x / grid_->GetCellSize(), getPosition().z / grid_->GetCellSize()),
-            glm::ivec2(currentWaypoint.x / grid_->GetCellSize(), currentWaypoint.z / grid_->GetCellSize()),
-            grid_->GetGrid(),
-            id_
-        );
-
-        VacatePreviousCell();
-
-        reachedDestination = false;
+		VacatePreviousCell();
 
 		for (glm::ivec2 cell : currentPath_)
 		{
@@ -1952,9 +1923,38 @@ NodeStatus Enemy::Patrol()
 		}
 
 
-        moveEnemy(currentPath_, dt_, 1.0f, false);
-    }
-    return NodeStatus::Running;
+		moveEnemy(currentPath_, dt_, 1.0f, false);
+	}
+	else
+	{
+		currentWaypoint = selectRandomWaypoint(currentWaypoint, waypointPositions);
+
+		currentPath_ = grid_->findPath(
+			glm::ivec2(getPosition().x / grid_->GetCellSize(), getPosition().z / grid_->GetCellSize()),
+			glm::ivec2(currentWaypoint.x / grid_->GetCellSize(), currentWaypoint.z / grid_->GetCellSize()),
+			grid_->GetGrid(),
+			id_
+		);
+
+		VacatePreviousCell();
+
+		reachedDestination = false;
+
+		for (glm::ivec2 cell : currentPath_)
+		{
+			if (grid_->GetGrid()[cell.x][cell.y].IsOccupied())
+				currentPath_ = grid_->findPath(
+					glm::ivec2(getPosition().x / grid_->GetCellSize(), getPosition().z / grid_->GetCellSize()),
+					glm::ivec2(currentWaypoint.x / grid_->GetCellSize(), currentWaypoint.z / grid_->GetCellSize()),
+					grid_->GetGrid(),
+					id_
+				);
+		}
+
+
+		moveEnemy(currentPath_, dt_, 1.0f, false);
+	}
+	return NodeStatus::Running;
 }
 
 NodeStatus Enemy::InCoverAction()
@@ -2017,14 +2017,14 @@ NodeStatus Enemy::InCoverAction()
 		return NodeStatus::Success;
 	}
 
-    return NodeStatus::Running;
+	return NodeStatus::Running;
 }
 
 NodeStatus Enemy::Die()
 {
-    isDead_ = true;
-    isDestroyed = true;
+	isDead_ = true;
+	isDestroyed = true;
 	EDBTState = "Dead";
-    eventManager_.Publish(NPCDiedEvent{ id_ });
-    return NodeStatus::Success;
+	eventManager_.Publish(NPCDiedEvent{ id_ });
+	return NodeStatus::Success;
 }

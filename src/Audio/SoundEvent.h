@@ -6,23 +6,17 @@ class SoundEvent
 {
 public:
 	SoundEvent();
-	// Returns true if associated FMOD event still exists
 	bool IsValid();
-	// Restart event from beginning
 	void Restart();
-	// Stop this event
 	void Stop(bool allowFadeOut = true);
-	// Setters
 	void SetPaused(bool pause);
 	void SetVolume(float value);
 	void SetPitch(float value);
 	void SetParameter(const std::string& name, float value);
-	// Getters
 	bool GetPaused() const;
 	float GetVolume() const;
 	float GetPitch() const;
 	float GetParameter(const std::string& name);
-	// Positional
 	bool Is3D() const;
 	void Set3DAttributes(const glm::mat4& worldTrans);
 protected:

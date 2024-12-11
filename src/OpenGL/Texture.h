@@ -5,17 +5,17 @@
 
 class Texture {
 public:
-    bool loadTexture(std::string textureFilename, bool flipImage = true);
-    void bind(int texIndex = 0);
-    void unbind();
-    void cleanup();
+	bool loadTexture(std::string textureFilename, bool flipImage = true);
+	void bind(int texIndex = 0);
+	void unbind();
+	void cleanup();
 
 	int getTexID() const { return mTexture; }
 
 private:
-    GLuint mTexture = 0;
-    int mTexWidth = 0;
-    int mTexHeight = 0;
-    int mNumberOfChannels = 0;
-    std::string mTextureName;
+	GLuint mTexture = 0;
+	int mTexWidth = 0;
+	int mTexHeight = 0;
+	int mNumberOfChannels = 0;
+	std::string mTextureName;
 };

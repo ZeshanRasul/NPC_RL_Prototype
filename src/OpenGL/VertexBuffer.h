@@ -8,15 +8,15 @@
 
 class VertexBuffer {
 public:
-    void init();
-    void uploadData(Mesh vertexData);
-    void bind();
-    void unbind();
-    void draw(GLuint mode, unsigned int start, unsigned int num);
-    void bindAndDraw(GLuint mode, unsigned int start, unsigned int num);
-    void cleanup();
+	void init();
+	void uploadData(Mesh vertexData);
+	void bind();
+	void unbind();
+	void draw(GLuint mode, unsigned int start, unsigned int num);
+	void bindAndDraw(GLuint mode, unsigned int start, unsigned int num);
+	void cleanup();
 
 private:
-    GLuint mVAO = 0;
-    GLuint mVertexVBO = 0;
+	GLuint mVAO = 0;
+	GLuint mVertexVBO = 0;
 };

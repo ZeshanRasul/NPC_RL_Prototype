@@ -85,7 +85,7 @@ private:
 		std::uniform_real_distribution<float> dist(-0.1f, 0.1f);
 
 		std::vector<float> distances = { 0.0f, 10.0f, 20.0f, 30.0f, 40.0f, 50.0f, 60.0f, 70.0f, 80.0f, 90.0f, 100.0f };
-		std::vector<float> healthLevels = { 20.0f, 40.0f, 60.0f, 80.0f, 100.0f };  
+		std::vector<float> healthLevels = { 20.0f, 40.0f, 60.0f, 80.0f, 100.0f };
 
 		for (bool playerDetected : {true, false}) {
 			for (bool playerVisible : {true, false}) {
@@ -105,81 +105,82 @@ private:
 
 
 public:
-    GameManager(Window* window, unsigned int width, unsigned int height);
+	GameManager(Window* window, unsigned int width, unsigned int height);
 
-    ~GameManager() {
-		
-        if (training)
-        {
-            for (int enemyID = 0; enemyID < 4; ++enemyID) {
-			    SaveQTable(mEnemyStateQTable[enemyID], std::to_string(enemyID) + mEnemyStateFilename);
-		    }
-        }
+	~GameManager() {
 
-        delete camera;
-        for (auto it = gameObjects.begin(); it != gameObjects.end(); ) {
-            if (*it) {
-                delete* it;
-            }
-            it = gameObjects.erase(it);
-        }
-        delete inputManager;
-    }
+		if (training)
+		{
+			for (int enemyID = 0; enemyID < 4; ++enemyID) {
+				SaveQTable(mEnemyStateQTable[enemyID], std::to_string(enemyID) + mEnemyStateFilename);
+			}
+		}
 
-    void setupCamera(unsigned int width, unsigned int height);
-    void setSceneData();
-    AudioSystem* getAudioSystem() { return audioSystem; }
+		delete camera;
+		for (auto it = gameObjects.begin(); it != gameObjects.end(); ) {
+			if (*it) {
+				delete* it;
+			}
+			it = gameObjects.erase(it);
+		}
+		delete inputManager;
+	}
 
-    void update(float deltaTime);
+	void setupCamera(unsigned int width, unsigned int height);
+	void setSceneData();
+	AudioSystem* getAudioSystem() { return audioSystem; }
 
-    void render(bool isMinimapRenderPass, bool isShadowMapRenderPass, bool isMainRenderPass);
+	void update(float deltaTime);
 
-    void setUpDebugUI();
-    void showDebugUI();
-    void renderDebugUI();
+	void render(bool isMinimapRenderPass, bool isShadowMapRenderPass, bool isMainRenderPass);
 
-    bool camSwitchedToAim = false;
+	void setUpDebugUI();
+	void showDebugUI();
+	void renderDebugUI();
 
-    PhysicsWorld* GetPhysicsWorld() { return physicsWorld; }
-    Camera* GetCamera() { return camera; }
+	bool camSwitchedToAim = false;
 
-    void RemoveDestroyedGameObjects();
+	PhysicsWorld* GetPhysicsWorld() { return physicsWorld; }
+	Camera* GetCamera() { return camera; }
 
-    void ResetGame();
+	void RemoveDestroyedGameObjects();
+
+	void ResetGame();
 
 	bool ShouldUseEDBT() const { return useEDBT; }
 	void CreateLightSpaceMatrices();
 
-    Enemy* GetEnemyByID(int id) {
-        for (auto& enemy : enemies) {
-            if (enemy->GetID() == id) {
-                return enemy;
-            }
-        }
-        return nullptr;
-    };
+	Enemy* GetEnemyByID(int id) {
+		for (auto& enemy : enemies) {
+			if (enemy->GetID() == id) {
+				return enemy;
+			}
+		}
+		return nullptr;
+	};
 
 	AudioManager* GetAudioManager() { return mAudioManager; }
 
 private:
-    void ShowCameraControlWindow(Camera& cam);
-    void ShowLightControlWindow(DirLight& light);
-    void ShowAnimationControlWindow();
-    void ShowPerformanceWindow();
-    void ShowEnemyStateWindow();
+	void ShowCameraControlWindow(Camera& cam);
+	void ShowLightControlWindow(DirLight& light);
+	void ShowAnimationControlWindow();
+	void ShowPerformanceWindow();
+	void ShowEnemyStateWindow();
 
-    void calculatePerformance(float deltaTime);
+	void calculatePerformance(float deltaTime);
 
-    EventManager& GetEventManager() { return eventManager; }
+	EventManager& GetEventManager() { return eventManager; }
 
-    float speedDivider = 1.0f;
-    float blendFac = 1.0f;
+	float speedDivider = 1.0f;
+	float blendFac = 1.0f;
 
-	bool useEDBT = false;
-    bool initializeQTable = false;
-    bool training = true;
-    std::string mEnemyStateFilename = "EnemyStateQTable.csv";
-    std::unordered_map<std::pair<NashState, NashAction>, float, PairHash> mEnemyStateQTable[4];
+	bool useEDBT = true;
+	bool loadQTable = false;
+	bool initializeQTable = false;
+	bool training = false;
+	std::string mEnemyStateFilename = "EnemyStateQTable.csv";
+	std::unordered_map<std::pair<NashState, NashAction>, float, PairHash> mEnemyStateQTable[4];
 	std::vector<NashState> enemyStates = {
 	{ false, false, 100.0f, 100.0f, false },
 	{ false, false, 100.0f, 100.0f, false },
@@ -187,26 +188,26 @@ private:
 	{ false, false, 100.0f, 100.0f, false }
 	};
 
-    std::vector<NashAction> squadActions =
-    {
-		NashAction::PATROL,
-        NashAction::PATROL,
+	std::vector<NashAction> squadActions =
+	{
 		NashAction::PATROL,
 		NashAction::PATROL,
-    };
+		NashAction::PATROL,
+		NashAction::PATROL,
+	};
 
 	float decisionTimer = 0.0f;
-	float decisionInterval = 0.5f; 
+	float decisionInterval = 0.5f;
 
-    float fps = 0.0f;
-    int numFramesAvg = 100;
+	float fps = 0.0f;
+	int numFramesAvg = 100;
 	float fpsSum = 0.0f;
 	int frameCount = 0;
 	float frameTime = 0.0f;
 	float elapsedTime = 0.0f;
 	float avgFPS = 0.0f;
 
-    int screenWidth;
+	int screenWidth;
 	int screenHeight;
 	const int SHADOW_WIDTH = 4096;
 	const int SHADOW_HEIGHT = 4096;
@@ -215,32 +216,32 @@ private:
 	float orthoRight = 90.0f;
 	float orthoBottom = -90.0f;
 	float orthoTop = 90.0f;
-    float near_plane = 1.0f;
-    float far_plane = 300.0f;
+	float near_plane = 1.0f;
+	float far_plane = 300.0f;
 
-    Renderer* renderer;
-    Window* window;
-    Camera* camera;
+	Renderer* renderer;
+	Window* window;
+	Camera* camera;
 	Camera* minimapCamera;
 
 	EventManager eventManager;
 
-    Player* player;
-    Enemy* enemy;
-    Enemy* enemy2;
-    Enemy* enemy3;
-    Enemy* enemy4;
+	Player* player;
+	Enemy* enemy;
+	Enemy* enemy2;
+	Enemy* enemy3;
+	Enemy* enemy4;
 	Crosshair* crosshair;
 	Line* line;
-    Line* enemyLine;
-    Line* enemy2Line;
-    Line* enemy3Line;
-    Line* enemy4Line;
-    Cube* cover1;
-    Cube* cover2;
-    Cube* cover3;
-	Cube* cover4; 
-    Cube* cover5;
+	Line* enemyLine;
+	Line* enemy2Line;
+	Line* enemy3Line;
+	Line* enemy4Line;
+	Cube* cover1;
+	Cube* cover2;
+	Cube* cover3;
+	Cube* cover4;
+	Cube* cover5;
 	Cube* cover6;
 	Cube* cover7;
 	Cube* cover8;
@@ -249,102 +250,102 @@ private:
 	Cube* cover11;
 	Cube* cover12;
 	Quad* minimapQuad;
-    Quad* shadowMapQuad;
-    Quad* playerMuzzleFlashQuad;
+	Quad* shadowMapQuad;
+	Quad* playerMuzzleFlashQuad;
 	Quad* enemyMuzzleFlashQuad;
 	Quad* enemy2MuzzleFlashQuad;
 	Quad* enemy3MuzzleFlashQuad;
 	Quad* enemy4MuzzleFlashQuad;
 
-    InputManager* inputManager;
+	InputManager* inputManager;
 	AudioSystem* audioSystem;
 	PhysicsWorld* physicsWorld;
 
-    std::vector<GameObject*> gameObjects;
-    std::vector<Enemy*> enemies;
+	std::vector<GameObject*> gameObjects;
+	std::vector<Enemy*> enemies;
 
-    Shader playerShader{};
-    Shader enemyShader{};
-    Shader gridShader{};
+	Shader playerShader{};
+	Shader enemyShader{};
+	Shader gridShader{};
 	Shader crosshairShader{};
 	Shader lineShader{};
 	Shader aabbShader{};
 	Shader cubeShader{};
-    Shader cubemapShader{};
-    Shader minimapShader{};
-    Shader shadowMapShader{};
+	Shader cubemapShader{};
+	Shader minimapShader{};
+	Shader shadowMapShader{};
 	Shader playerShadowMapShader{};
 	Shader enemyShadowMapShader{};
-    Shader shadowMapQuadShader{};
+	Shader shadowMapQuadShader{};
 	Shader playerMuzzleFlashShader{};
 
-    ShaderStorageBuffer mPlayerSSBuffer{};
-    ShaderStorageBuffer mEnemySSBuffer{};
-    ShaderStorageBuffer mPlayerDualQuatSSBuffer{};
-    ShaderStorageBuffer mEnemyDualQuatSSBuffer{};
-   
-    size_t mPlayerJointMatrixSize;
-    size_t mEnemyJointMatrixSize;
+	ShaderStorageBuffer mPlayerSSBuffer{};
+	ShaderStorageBuffer mEnemySSBuffer{};
+	ShaderStorageBuffer mPlayerDualQuatSSBuffer{};
+	ShaderStorageBuffer mEnemyDualQuatSSBuffer{};
+
+	size_t mPlayerJointMatrixSize;
+	size_t mEnemyJointMatrixSize;
 	std::vector<glm::mat2x4> playerJointDualQuatsVec;
 
 	float playerAnimBlendFactor = 1.0f;
-    bool playerCrossBlend = false;
-    int playerCrossBlendSourceClip = 0;
+	bool playerCrossBlend = false;
+	int playerCrossBlendSourceClip = 0;
 	int playerCrossBlendDestClip = 8;
-    float playerAnimCrossBlendFactor = 0.0f;
+	float playerAnimCrossBlendFactor = 0.0f;
 	bool playerAdditiveBlend = false;
-    int playerSkeletonSplitNode = 0;
+	int playerSkeletonSplitNode = 0;
 	std::string playerSkeletonSplitNodeName = "None";
 
-    float enemyAnimBlendFactor = 1.0f;
-    bool enemyCrossBlend = false;
-    int enemyCrossBlendSourceClip = 1;
-    int enemyCrossBlendDestClip = 7;
-    float enemyAnimCrossBlendFactor = 0.0f;
+	float enemyAnimBlendFactor = 1.0f;
+	bool enemyCrossBlend = false;
+	int enemyCrossBlendSourceClip = 1;
+	int enemyCrossBlendDestClip = 7;
+	float enemyAnimCrossBlendFactor = 0.0f;
 	bool enemyAdditiveBlend = false;
-    int enemySkeletonSplitNode = 0;
-    std::string enemySkeletonSplitNodeName = "None";
+	int enemySkeletonSplitNode = 0;
+	std::string enemySkeletonSplitNodeName = "None";
 
 
-    bool renderPlayerMuzzleFlash = false;
+	bool renderPlayerMuzzleFlash = false;
 	float playerMuzzleFlashStartTime = 0.0f;
-    float playerMuzzleTimeSinceStart = 0.0f;
-    float playerMuzzleFlashDuration = 0.1f;
+	float playerMuzzleTimeSinceStart = 0.0f;
+	float playerMuzzleFlashDuration = 0.1f;
 	float playerMuzzleAlpha = 0.0f;
 	glm::vec3 playerMuzzleTint = { 1.0f, 1.0f, 1.0f };
 	float playerMuzzleFlashScale = 1.0f;
-    glm::mat4 playerMuzzleModel = glm::mat4(1.0f);
+	glm::mat4 playerMuzzleModel = glm::mat4(1.0f);
 
-    bool renderEnemyMuzzleFlash = false;
-    float enemyMuzzleFlashStartTime = 0.0f;
-    float enemyMuzzleTimeSinceStart = 0.0f;
-    float enemyMuzzleFlashDuration = 0.1f;
-    float enemyMuzzleAlpha = 0.0f;
-    glm::vec3 enemyMuzzleTint = { 1.0f, 1.0f, 1.0f };
-    float enemyMuzzleFlashScale = 1.0f;
-    glm::mat4 enemyMuzzleModel = glm::mat4(1.0f);
-    
-    bool renderEnemy2MuzzleFlash = false;
-    float enemy2MuzzleFlashStartTime = 0.0f;
-    float enemy2MuzzleTimeSinceStart = 0.0f;
-    float enemy2MuzzleFlashDuration = 0.1f;
-    float enemy2MuzzleAlpha = 0.0f;
-    glm::vec3 enemy2MuzzleTint = { 1.0f, 1.0f, 1.0f };
-    float enemy2MuzzleFlashScale = 1.0f;
-    glm::mat4 enemy2MuzzleModel = glm::mat4(1.0f);
-    
-    bool renderEnemy3MuzzleFlash = false;
-    float enemy3MuzzleFlashStartTime = 0.0f;
-    float enemy3MuzzleTimeSinceStart = 0.0f;
-    float enemy3MuzzleFlashDuration = 0.1f;
-    float enemy3MuzzleAlpha = 0.0f;
-    glm::vec3 enemy3MuzzleTint = { 1.0f, 1.0f, 1.0f };
-    float enemy3MuzzleFlashScale = 1.0f;
-    glm::mat4 enemy3MuzzleModel = glm::mat4(1.0f);
-    
-    bool renderEnemy4MuzzleFlash = false;
-    float enemy4MuzzleFlashStartTime = 0.0f;
-    float enemy4MuzzleTimeSinceStart = 0.0f;
+	bool renderEnemyMuzzleFlash = false;
+	float enemyMuzzleFlashStartTime = 0.0f;
+	float enemyMuzzleTimeSinceStart = 0.0f;
+	float enemyMuzzleFlashDuration = 0.1f;
+	float enemyMuzzleAlpha = 0.0f;
+	glm::vec3 enemyMuzzleTint = { 1.0f, 1.0f, 1.0f };
+	float enemyMuzzleFlashScale = 1.0f;
+	glm::mat4 enemyMuzzleModel = glm::mat4(1.0f);
+
+	bool renderEnemy2MuzzleFlash = false;
+	float enemy2MuzzleFlashStartTime = 0.0f;
+	float enemy2MuzzleTimeSinceStart = 0.0f;
+	float enemy2MuzzleFlashDuration = 0.1f;
+	float enemy2MuzzleAlpha = 0.0f;
+	glm::vec3 enemy2MuzzleTint = { 1.0f, 1.0f, 1.0f };
+	float enemy2MuzzleFlashScale = 1.0f;
+	glm::mat4 enemy2MuzzleModel = glm::mat4(1.0f);
+
+	bool renderEnemy3MuzzleFlash = false;
+	float enemy3MuzzleFlashStartTime = 0.0f;
+	float enemy3MuzzleTimeSinceStart = 0.0f;
+	float enemy3MuzzleFlashDuration = 0.1f;
+	float enemy3MuzzleAlpha = 0.0f;
+	glm::vec3 enemy3MuzzleTint = { 1.0f, 1.0f, 1.0f };
+	float enemy3MuzzleFlashScale = 1.0f;
+	glm::mat4 enemy3MuzzleModel = glm::mat4(1.0f);
+
+	bool renderEnemy4MuzzleFlash = false;
+	float enemy4MuzzleFlashStartTime = 0.0f;
+	float enemy4MuzzleTimeSinceStart = 0.0f;
 	float enemy4MuzzleFlashDuration = 0.1f;
 	float enemy4MuzzleAlpha = 0.0f;
 	glm::vec3 enemy4MuzzleTint = { 1.0f, 1.0f, 1.0f };
@@ -352,32 +353,32 @@ private:
 	glm::mat4 enemy4MuzzleModel = glm::mat4(1.0f);
 
 
-    glm::mat4 view = glm::mat4(1.0f);
-    glm::mat4 projection = glm::mat4(1.0f);
-    glm::mat4 cubemapView = glm::mat4(1.0f);
+	glm::mat4 view = glm::mat4(1.0f);
+	glm::mat4 projection = glm::mat4(1.0f);
+	glm::mat4 cubemapView = glm::mat4(1.0f);
 	glm::mat4 minimapView = glm::mat4(1.0f);
 	glm::mat4 minimapProjection = glm::mat4(1.0f);
-    glm::mat4 lightSpaceView = glm::mat4(1.0f);
-    glm::mat4 lightSpaceProjection = glm::mat4(1.0f);
-    glm::mat4 lightSpaceMatrix = glm::mat4(1.0f);
+	glm::mat4 lightSpaceView = glm::mat4(1.0f);
+	glm::mat4 lightSpaceProjection = glm::mat4(1.0f);
+	glm::mat4 lightSpaceMatrix = glm::mat4(1.0f);
 
 
-    Cell* cell;
-    Grid* gameGrid;
+	Cell* cell;
+	Grid* gameGrid;
 
-    std::vector<std::string> cubemapFaces;
-    Cubemap* cubemap;
+	std::vector<std::string> cubemapFaces;
+	Cubemap* cubemap;
 
-    Waypoint* waypoint1;
-    Waypoint* waypoint2;
-    Waypoint* waypoint3;
-    Waypoint* waypoint4;
+	Waypoint* waypoint1;
+	Waypoint* waypoint2;
+	Waypoint* waypoint3;
+	Waypoint* waypoint4;
 
-    int currentStateIndex = 0;
+	int currentStateIndex = 0;
 
-    SoundEvent mMusicEvent;
+	SoundEvent mMusicEvent;
 
-    bool firstFlyCamSwitch = true;
+	bool firstFlyCamSwitch = true;
 
 	AudioManager* mAudioManager;
 };

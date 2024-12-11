@@ -14,39 +14,39 @@ public:
 	struct Cover {
 		glm::vec3 worldPosition;
 		Cell* gridPos;
-        int gridX;
+		int gridX;
 		int gridZ;
 	};
 
-    std::vector<glm::vec3> coverPositions = {
-        //glm::vec3(30.0f, 3.5f, 27.0f),
-        //glm::vec3(30.0f, 3.5f, 34.0f),
-        //glm::vec3(30.0f, 3.5f, 41.0f),
-        //glm::vec3(30.0f, 3.5f, 48.0f),
-        glm::vec3(50.0f, 3.5f, 50.0f),
-        glm::vec3(50.0f, 3.5f, 57.0f),
-        glm::vec3(50.0f, 3.5f, 64.0f),
-        glm::vec3(50.0f, 3.5f, 71.0f),
-        glm::vec3(70.0f, 3.5f, 27.0f),
-        glm::vec3(70.0f, 3.5f, 34.0f),
-        glm::vec3(70.0f, 3.5f, 41.0f),
-        glm::vec3(70.0f, 3.5f, 48.0f),
-    };
+	std::vector<glm::vec3> coverPositions = {
+		//glm::vec3(30.0f, 3.5f, 27.0f),
+		//glm::vec3(30.0f, 3.5f, 34.0f),
+		//glm::vec3(30.0f, 3.5f, 41.0f),
+		//glm::vec3(30.0f, 3.5f, 48.0f),
+		glm::vec3(50.0f, 3.5f, 50.0f),
+		glm::vec3(50.0f, 3.5f, 57.0f),
+		glm::vec3(50.0f, 3.5f, 64.0f),
+		glm::vec3(50.0f, 3.5f, 71.0f),
+		glm::vec3(70.0f, 3.5f, 27.0f),
+		glm::vec3(70.0f, 3.5f, 34.0f),
+		glm::vec3(70.0f, 3.5f, 41.0f),
+		glm::vec3(70.0f, 3.5f, 48.0f),
+	};
 
-    std::vector<glm::vec3> snappedCoverPositions;
+	std::vector<glm::vec3> snappedCoverPositions;
 
 
-    Grid() {};
+	Grid() {};
 
-    void initializeGrid();
-    void drawGrid(Shader& gridShader, glm::mat4 viewMat, glm::mat4 projMat, glm::vec3 camPos, bool shadowMap, glm::mat4 lightSpaceMat, GLuint shadowMapTexture);
+	void initializeGrid();
+	void drawGrid(Shader& gridShader, glm::mat4 viewMat, glm::mat4 projMat, glm::vec3 camPos, bool shadowMap, glm::mat4 lightSpaceMat, GLuint shadowMapTexture);
 
-    glm::vec3 snapToGrid(const glm::vec3& position) const
-    {
-        int gridX = static_cast<int>(position.x / CELL_SIZE);
-        int gridZ = static_cast<int>(position.z / CELL_SIZE);
-        return glm::vec3(gridX * CELL_SIZE + CELL_SIZE / 2.0f, position.y, gridZ * CELL_SIZE + CELL_SIZE / 2.0f);
-    }
+	glm::vec3 snapToGrid(const glm::vec3& position) const
+	{
+		int gridX = static_cast<int>(position.x / CELL_SIZE);
+		int gridZ = static_cast<int>(position.z / CELL_SIZE);
+		return glm::vec3(gridX * CELL_SIZE + CELL_SIZE / 2.0f, position.y, gridZ * CELL_SIZE + CELL_SIZE / 2.0f);
+	}
 
 	std::vector<glm::vec3> snapCoverPositionsToGrid() const
 	{
@@ -55,9 +55,9 @@ public:
 		{
 			int gridX = static_cast<int>(coverPos.x / CELL_SIZE);
 			int gridZ = static_cast<int>(coverPos.z / CELL_SIZE);
-            snappedCoverPositions.push_back(glm::vec3(gridX * CELL_SIZE + CELL_SIZE / 2.0f, 0.0f, gridZ * CELL_SIZE + CELL_SIZE / 2.0f));
-	    
-        }
+			snappedCoverPositions.push_back(glm::vec3(gridX * CELL_SIZE + CELL_SIZE / 2.0f, 0.0f, gridZ * CELL_SIZE + CELL_SIZE / 2.0f));
+
+		}
 		;
 		return snappedCoverPositions;
 	}
@@ -67,34 +67,34 @@ public:
 		return glm::vec3(gridX * CELL_SIZE + CELL_SIZE / 2.0f, 0.0f, gridZ * CELL_SIZE + CELL_SIZE / 2.0f);
 	}
 
-    std::vector<glm::ivec2> findPath(const glm::ivec2& start, const glm::ivec2& goal, const std::vector<std::vector<Cell>>& grid, int npcId);
+	std::vector<glm::ivec2> findPath(const glm::ivec2& start, const glm::ivec2& goal, const std::vector<std::vector<Cell>>& grid, int npcId);
 
-    void OccupyCell(int x, int y, int npcId);
-    void VacateCell(int x, int y, int npcId);
+	void OccupyCell(int x, int y, int npcId);
+	void VacateCell(int x, int y, int npcId);
 
-    std::vector<std::vector<Cell>> GetGrid() const { return grid; }
-    std::vector<Cover*> GetCoverLocations() const { return coverLocations; }
+	std::vector<std::vector<Cell>> GetGrid() const { return grid; }
+	std::vector<Cover*> GetCoverLocations() const { return coverLocations; }
 
 	int GetGridSize() const { return GRID_SIZE; }
-    int GetCellSize() const { return CELL_SIZE; }
+	int GetCellSize() const { return CELL_SIZE; }
 
-    std::vector<Cover*> coverLocations;
+	std::vector<Cover*> coverLocations;
 private:
-    UniformBuffer mGridUniformBuffer{};
-    UniformBuffer mGridColorUniformBuffer{};
+	UniformBuffer mGridUniformBuffer{};
+	UniformBuffer mGridColorUniformBuffer{};
 
-    int GRID_SIZE = 15;
-    int CELL_SIZE = 7;
-    std::vector<std::vector<Cell>> grid;
+	int GRID_SIZE = 15;
+	int CELL_SIZE = 7;
+	std::vector<std::vector<Cell>> grid;
 
-    bool firstLoad = true;
-}; 
+	bool firstLoad = true;
+};
 
 
 // Custom hash function for glm::ivec2
 struct ivec2_hash {
-    std::size_t operator()(const glm::ivec2& v) const {
-        return std::hash<int>()(v.x) ^ (std::hash<int>()(v.y) << 1);
-    }
+	std::size_t operator()(const glm::ivec2& v) const {
+		return std::hash<int>()(v.x) ^ (std::hash<int>()(v.y) << 1);
+	}
 };
- 
+

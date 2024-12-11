@@ -36,7 +36,7 @@ public:
 			glEnableVertexAttribArray(0);
 			glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)));
 			glEnableVertexAttribArray(1);
-			
+
 		}
 
 		glBindVertexArray(0);
@@ -106,12 +106,12 @@ private:
 	};
 
 	unsigned int indices[6] = {
-		0, 1, 3, 
-		1, 2, 3  
+		0, 1, 3,
+		1, 2, 3
 	};
 
 	unsigned int quadIndices3D[6] = {
-	0, 1, 2, 
-	0, 2, 3  
+	0, 1, 2,
+	0, 2, 3
 	};
 };

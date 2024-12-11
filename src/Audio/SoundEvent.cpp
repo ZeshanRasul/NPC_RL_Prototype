@@ -143,8 +143,6 @@ namespace
 {
 	FMOD_VECTOR VecToFMOD(const glm::vec3& in)
 	{
-		// Convert from our coordinates (+x forward, +y right, +z up)
-		// to FMOD (+z forward, +x right, +y up)
 		FMOD_VECTOR v;
 		v.x = in.x;
 		v.y = in.y;
