@@ -283,7 +283,10 @@ void GameManager::setupCamera(unsigned int width, unsigned int height)
 			camera->Pitch = 16.0f;
 
 		camera->FollowTarget(player->getPosition() + (player->PlayerFront * camera->playerPosOffset) + (player->PlayerRight * camera->playerAimRightOffset), player->PlayerAimFront, camera->playerCamRearOffset, camera->playerCamHeightOffset);
-		view = camera->GetViewMatrixPlayerFollow(player->getPosition() + (player->PlayerFront * camera->playerPosOffset), player->PlayerAimUp);
+		glm::vec3 target = player->getPosition() + (player->PlayerFront * camera->playerPosOffset);
+		if (target.y < 0.0f)
+			target.y = 0.0f;
+		view = camera->GetViewMatrixPlayerFollow(target, player->PlayerAimUp);
 	}
 	cubemapView = glm::mat4(glm::mat3(camera->GetViewMatrixPlayerFollow(player->getPosition(), glm::vec3(0.0f, 1.0f, 0.0f))));
 

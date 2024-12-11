@@ -15,9 +15,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\ShaderOld.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\Camera.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -25,12 +22,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\GameObjects\Enemy.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Mesh.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Model.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\GameObjects\Ground.cpp">
@@ -161,9 +152,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\ShaderOld.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\Camera.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -177,12 +165,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Primitives.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Mesh.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Model.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\stb_image.h">
@@ -344,7 +326,6 @@
     <None Include="src\Shaders\fragment.glsl" />
     <None Include="src\Shaders\lightVertex.glsl" />
     <None Include="src\Shaders\lightFragment.glsl" />
-    <None Include="src\Assets\Models\backpack\backpack.mtl" />
     <None Include="src\Shaders\gridVertex.glsl" />
     <None Include="src\Shaders\gridFragment.glsl" />
     <None Include="src\Shaders\fragment_gpu.glsl" />
@@ -375,13 +356,5 @@
     <None Include="src\Shaders\shadow_map_enemy_vertex.glsl" />
     <None Include="src\Shaders\muzzle_flash_vertex.glsl" />
     <None Include="src\Shaders\muzzle_flash_fragment.glsl" />
-  </ItemGroup>
-  <ItemGroup>
-    <Image Include="src\Assets\Models\backpack\specular.jpg">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="src\Assets\Models\backpack\diffuse.jpg">
-      <Filter>Resource Files</Filter>
-    </Image>
   </ItemGroup>
 </Project>

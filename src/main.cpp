@@ -16,7 +16,6 @@
 
 #include "Window/Window.h"
 #include "Tools/Logger.h"
-#include "ShaderOld.h"
 #include "Camera.h"
 #include "GameObjects/Player.h"
 #include "GameObjects/Enemy.h"

@@ -1,5 +1,3 @@
-#include <stdio.h>
-
 #include "Player.h"
 #include "GameManager.h"
 

@@ -1,5 +1,8 @@
 #pragma once
 #include <unordered_map>
+#include <iostream>
+#include <fstream>
+#include <sstream>
 
 #include "src/OpenGL/Renderer.h"
 #include "src/OpenGL/RenderData.h"
