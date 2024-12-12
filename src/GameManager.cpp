@@ -94,9 +94,9 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 			navMeshVertices.push_back(coverPosVerts.z);
 		}
 
-		GLuint* indices = coverSpot->GetIndices();
+		GLuint* indices = coverSpot->indices;
 
-		int numIndices = sizeof(indices) / sizeof(GLuint);
+		int numIndices = 36;
 
 		for (int i = 0; i < numIndices; i++)
 		{
@@ -128,7 +128,7 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 		triIndices[i] = navMeshIndices[i];
 	}
 
-	triAreas = new unsigned char[indexCount / 3];
+	triAreas = new unsigned char[indexCount];
 
 	Logger::log(1, "Tri Areas: %s", triAreas);
 
@@ -138,25 +138,45 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 
 	cfg.cs = 0.3f;                      // Cell size
 	cfg.ch = 0.2f;                      // Cell height
-	cfg.walkableSlopeAngle = 45.0f;     // Allow steeper slopes
-	cfg.walkableHeight = 7.0f;          // Agent height (in grid units)
-	cfg.walkableClimb = 3.0f;           // Max climb height
-	cfg.walkableRadius = 3.0f;          // Agent radius
-	cfg.maxEdgeLen = 24;                // Larger edge length
-	cfg.minRegionArea = 8;  // Keep smaller regions
-	cfg.maxSimplificationError = 0.5f;  // Fine simplification
-	cfg.detailSampleDist = cfg.cs * 6;  // Balance detail
-	cfg.maxVertsPerPoly = 6;			// Fewer verts per poly
-	cfg.tileSize = 32;					// Tile size
-	cfg.borderSize = (int)(cfg.walkableRadius / cfg.cs + 0.5f);
-	cfg.width = cfg.tileSize + cfg.borderSize * 2;
-	cfg.height = cfg.tileSize + cfg.borderSize * 2;
+	cfg.walkableSlopeAngle = 35.0f;     // Steeper slopes allowed
+	cfg.walkableHeight = 2.0f;          // Min agent height
+	cfg.walkableClimb = 1.0f;           // Step height
+	cfg.walkableRadius = 1.0f;          // Agent radius
+	cfg.maxEdgeLen = 48;                // Longer edges for smoother polys
+	cfg.minRegionArea = 4;              // Retain smaller regions
+	cfg.mergeRegionArea = 16;           // Merge small regions
+	cfg.maxSimplificationError = 0.3f;  // Less aggressive simplification
+	cfg.detailSampleDist = cfg.cs * 6;  // Balanced detail
+	cfg.maxVertsPerPoly = 6;            // Max verts per poly
+	cfg.tileSize = 32;                  // Tile size
+	cfg.borderSize = (int)(cfg.walkableRadius / cfg.cs + 0.5f); // Tile overlap
+	cfg.width = 500.0f;
+	cfg.height = 500.0f;
 
 	float minBounds[3] = { 0.0f, 0.0f, 0.0f };
-	float maxBounds[3] = { gameGrid->GetCellSize() * gameGrid->GetGridSize(), 2.0f, gameGrid->GetCellSize() * gameGrid->GetGridSize()};
+	float maxBounds[3] = { 500.0f, 10.0f, 500.0f };
+
+	//cfg.cs = 0.3f;                      // Cell size
+	//cfg.ch = 0.2f;                      // Cell height
+	//cfg.walkableSlopeAngle = 30.0f;     // Allow steeper slopes
+	//cfg.walkableHeight = 2.0f;          // Agent height (in grid units)
+	//cfg.walkableClimb = 1.0f;           // Max climb height
+	//cfg.walkableRadius = 1.0f;          // Agent radius
+	//cfg.maxEdgeLen = 24;                // Larger edge length
+	//cfg.minRegionArea = 8;  // Keep smaller regions
+	//cfg.maxSimplificationError = 0.5f;  // Fine simplification
+	//cfg.detailSampleDist = cfg.cs * 6;  // Balance detail
+	//cfg.maxVertsPerPoly = 6;			// Fewer verts per poly
+	//cfg.tileSize = 32;					// Tile size
+	//cfg.borderSize = (int)(cfg.walkableRadius / cfg.cs + 0.5f);
+	//cfg.width = 500.0f;
+	//cfg.height = 500.0f;
+
+	//float minBounds[3] = { 0.0f, 0.0f, 0.0f };
+	//float maxBounds[3] = { 500.0f, 1.0f, 500.0f };
 
 	heightField = rcAllocHeightfield();
-	if (!rcCreateHeightfield(ctx, *heightField, gameGrid->GetCellSize() * gameGrid->GetGridSize(), gameGrid->GetCellSize() * gameGrid->GetGridSize(), minBounds, maxBounds, cfg.cs, cfg.ch))
+	if (!rcCreateHeightfield(ctx, *heightField, 500.0f, 500.0f, minBounds, maxBounds, cfg.cs, cfg.ch))
 	{
 		Logger::log(1, "%s error: Could not create heightfield\n", __FUNCTION__);
 	}
@@ -425,19 +445,62 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 
 	mMusicEvent = audioSystem->PlayEvent("event:/bgm");
 
-	for (int i = 0; i < polyMesh->nverts; ++i) {
-		const unsigned short* v = &polyMesh->verts[i * 3];
-		navmeshVertices.push_back(v[0]); // X
-		navmeshVertices.push_back(v[1]); // Y
-		navmeshVertices.push_back(v[2]); // Z
-	}
-	for (int i = 0; i < polyMesh->npolys; ++i) {
-		for (int j = 0; j < polyMesh->nvp; ++j) {
-			unsigned short index = polyMesh->polys[i * polyMesh->nvp + j];
-			if (index == RC_MESH_NULL_IDX) break;
-			navmeshIndices.push_back(static_cast<unsigned int>(index));
+	//for (int i = 0; i < polyMesh->nverts; ++i) {
+	//	const unsigned short* v = &polyMesh->verts[i * 3];
+	//	navmeshVertices.push_back(v[0]); // X
+	//	navmeshVertices.push_back(v[1]); // Y
+	//	navmeshVertices.push_back(v[2]); // Z
+	//}
+	//for (int i = 0; i < polyMesh->npolys; ++i) {
+	//	for (int j = 0; j < polyMesh->nvp; ++j) {
+	//		unsigned short index = polyMesh->polys[i * polyMesh->nvp + j];
+	//		if (index == RC_MESH_NULL_IDX) break;
+	//		navmeshIndices.push_back(static_cast<unsigned int>(index));
+	//	}
+	//}
+	// 
+	
+	const int nvp = polyMesh->nvp;
+	const float cs = polyMesh->cs;
+	const float ch = polyMesh->ch;
+	const float* orig = polyMesh->bmin;
+
+	for (int i = 0; i < polyMesh->npolys; ++i)
+	{
+		const unsigned short* p = &polyMesh->polys[i * nvp * 2];
+		//const unsigned char area = polyMesh->areas[i];
+
+		//unsigned int color;
+		//if (area == RC_WALKABLE_AREA)
+		//	color = duRGBA(0, 192, 255, 64);
+		//else if (area == RC_NULL_AREA)
+		//	color = duRGBA(0, 0, 0, 64);
+		//else
+		//	color = dd->areaToCol(area);
+
+		unsigned short vi[3];
+		for (int j = 2; j < nvp; ++j)
+		{
+			if (p[j] == RC_MESH_NULL_IDX) break;
+			vi[0] = p[0];
+			vi[1] = p[j - 1];
+			vi[2] = p[j];
+			navmeshIndices.push_back(vi[0]);
+			navmeshIndices.push_back(vi[1]);
+			navmeshIndices.push_back(vi[2]);
+			for (int k = 0; k < 3; ++k)
+			{
+				const unsigned short* v = &polyMesh->verts[vi[k] * 3];
+				const float x = orig[0] + v[0] * cs;
+				const float y = orig[1] + (v[1] + 1) * ch;
+				const float z = orig[2] + v[2] * cs;
+				navmeshVertices.push_back(x);
+				navmeshVertices.push_back(y);
+				navmeshVertices.push_back(z);
+			}
 		}
 	}
+
 	// Create VAO
 	glGenVertexArrays(1, &vao);
 	glBindVertexArray(vao);
@@ -946,15 +1009,6 @@ void GameManager::render(bool isMinimapRenderPass, bool isShadowMapRenderPass, b
 	else if (isShadowMapRenderPass)
 	{
 		gameGrid->drawGrid(shadowMapShader, lightSpaceView, lightSpaceProjection, camera->Position, true, lightSpaceMatrix, renderer->GetShadowMapTexture());
-		navMeshShader.use();
-		navMeshShader.setMat4("view", view);
-		navMeshShader.setMat4("projection", projection);
-		glBindVertexArray(vao);
-		glDrawElements(GL_TRIANGLES, navmeshIndices.size(), GL_UNSIGNED_INT, 0);
-		glBindVertexArray(0);
-		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-		glDrawElements(GL_TRIANGLES, navmeshIndices.size(), GL_UNSIGNED_INT, 0);
-		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	}
 	else
 	{
@@ -964,8 +1018,10 @@ void GameManager::render(bool isMinimapRenderPass, bool isShadowMapRenderPass, b
 		navMeshShader.setMat4("projection", projection);
 		glBindVertexArray(vao);
 		glDrawElements(GL_TRIANGLES, navmeshIndices.size(), GL_UNSIGNED_INT, 0);
+
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 		glDrawElements(GL_TRIANGLES, navmeshIndices.size(), GL_UNSIGNED_INT, 0);
+
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	}
 
@@ -1342,5 +1398,6 @@ void GameManager::render(bool isMinimapRenderPass, bool isShadowMapRenderPass, b
 	{
 		renderer->unbindShadowMapFBO();
 	}
+
 
 }
