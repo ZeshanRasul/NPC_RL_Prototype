@@ -76,7 +76,24 @@ public:
 	void HasDealtDamage() override {};
 	void HasKilledPlayer() override {};
 
+	std::vector<glm::vec3> GetPositionVertices() 
+	{
+		for (int i = 0; i < 192; i = i + 8)
+		{
+			glm::mat4 modelMatrix = glm::translate(glm::mat4(1.0f), position) *
+				glm::rotate(glm::mat4(1.0f), glm::radians(yaw), glm::vec3(0.0f, 1.0f, 0.0f)) *
+				glm::scale(glm::mat4(1.0f), scale);
+
+			posVertices.push_back(glm::vec3(modelMatrix * glm::vec4(vertices[i], vertices[i + 1], vertices[i + 2], 1.0f)));
+		}
+		return posVertices;
+	}
+
+	GLuint* GetIndices() { return indices; }
+
 private:
+
+	std::vector<glm::vec3> posVertices;
 
 	float vertices[192] = {
 		// Positions           // Normals          // Texture Coords

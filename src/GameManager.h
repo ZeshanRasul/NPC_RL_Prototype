@@ -4,6 +4,8 @@
 #include <fstream>
 #include <sstream>
 
+#include "Recast/Recast.h"
+
 #include "src/OpenGL/Renderer.h"
 #include "src/OpenGL/RenderData.h"
 #include "src/OpenGL/ShaderStorageBuffer.h"
@@ -375,4 +377,15 @@ private:
 	bool firstFlyCamSwitch = true;
 
 	AudioManager* mAudioManager;
+
+	std::vector<float> navMeshVertices;
+	std::vector<unsigned int> navMeshIndices;
+	int* triIndices;
+	unsigned char* triAreas;
+
+	rcContext* ctx;
+	rcHeightfield* heightField;
+	rcCompactHeightfield* compactHeightField;
+	rcContourSet* contourSet;
+	rcPolyMesh* polyMesh;
 };

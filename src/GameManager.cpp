@@ -82,7 +82,90 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 		coverSpots.push_back(cover);
 	}
 
+	size_t vertexOffset = 0;
+
+	for (Cube* coverSpot : coverSpots)
+	{
+		for (glm::vec3 coverPosVerts : coverSpot->GetPositionVertices())
+		{
+			navMeshVertices.push_back(coverPosVerts.x);
+			navMeshVertices.push_back(coverPosVerts.y);
+			navMeshVertices.push_back(coverPosVerts.z);
+		}
+
+		GLuint* indices = coverSpot->GetIndices();
+
+		UINT numIndices = sizeof(indices) * sizeof(GLuint);
+
+		for (int i = 0; i < numIndices; i++)
+		{
+			navMeshIndices.push_back(indices[i] + vertexOffset);
+		}
+
+		vertexOffset += coverSpot->GetPositionVertices().size();
+	}
+
 	gameGrid->initializeGrid();
+
+	for (glm::vec3 gridCellPosVerts : gameGrid->GetWSVertices())
+	{
+		navMeshVertices.push_back(gridCellPosVerts.x);
+		navMeshVertices.push_back(gridCellPosVerts.y);
+		navMeshVertices.push_back(gridCellPosVerts.z);
+	}
+
+	for (int index : gameGrid->GetIndices())
+	{
+		navMeshIndices.push_back(index + vertexOffset);
+	}
+
+	size_t indexCount = navMeshIndices.size();
+	triIndices = new int[navMeshIndices.size()];
+
+	for (size_t i = 0; i < indexCount; i++)
+	{
+		triIndices[i] = navMeshIndices[i];
+	}
+
+	triAreas = new unsigned char[indexCount / 3];
+
+	ctx = new rcContext();
+
+	rcConfig cfg;
+
+	cfg.cs = 0.3f;					 // Cell size (XZ resolution)
+	cfg.ch = 0.2f;					 // Cell height (Y resolution)
+	cfg.walkableSlopeAngle = 15.0f;  // Max slope walkable
+	cfg.walkableHeight = 2.0f;       // Min agent height
+	cfg.walkableClimb = 0.5f;        // Max height the agent can climb
+	cfg.walkableRadius = 0.6f;       // Agent radius
+	cfg.maxEdgeLen = 12;             // Max edge length in voxel units
+	cfg.minRegionArea = 50;          // Min region size
+	cfg.maxVertsPerPoly = 6;         // Max verts per poly
+	cfg.maxSimplificationError = 0.5f; // Max simplification error
+
+	float minBounds[3] = { 0.0f, 0.0f, 0.0f };
+	float maxBounds[3] = { gameGrid->GetCellSize() * gameGrid->GetGridSize(), 0, gameGrid->GetCellSize() * gameGrid->GetGridSize() };
+
+	heightField = rcAllocHeightfield();
+	rcCreateHeightfield(ctx, *heightField, gameGrid->GetCellSize() * gameGrid->GetGridSize(), gameGrid->GetCellSize() * gameGrid->GetGridSize(), minBounds, maxBounds, cfg.cs, cfg.ch);
+
+	rcMarkWalkableTriangles(ctx, cfg.walkableSlopeAngle, navMeshVertices.data(), navMeshVertices.size(), triIndices, indexCount / 3, triAreas);
+	rcRasterizeTriangles(ctx, navMeshVertices.data(), triAreas, indexCount / 3, *heightField, cfg.walkableClimb);
+
+	rcFilterLowHangingWalkableObstacles(ctx, cfg.walkableClimb, *heightField);
+	rcFilterWalkableLowHeightSpans(ctx, cfg.walkableHeight, *heightField);
+	rcFilterLedgeSpans(ctx, cfg.walkableHeight, cfg.walkableClimb, *heightField);
+
+	compactHeightField = rcAllocCompactHeightfield();
+	rcBuildCompactHeightfield(ctx, cfg.walkableHeight, cfg.walkableClimb, *heightField, *compactHeightField);
+
+	contourSet = rcAllocContourSet();
+
+	rcBuildContours(ctx, *compactHeightField, cfg.maxSimplificationError, cfg.maxEdgeLen, *contourSet);
+
+	polyMesh = rcAllocPolyMesh();
+	rcBuildPolyMesh(ctx, *contourSet, cfg.maxVertsPerPoly, *polyMesh);
 
 	camera = new Camera(glm::vec3(50.0f, 3.0f, 80.0f));
 	minimapCamera = new Camera(glm::vec3((gameGrid->GetCellSize() * gameGrid->GetGridSize()) / 2.0f, 140.0f, (gameGrid->GetCellSize() * gameGrid->GetGridSize()) / 2.0f), glm::vec3(0.0f, -1.0f, 0.0f), 0.0f, -90.0f, glm::vec3(0.0f, 0.0f, -1.0f));

@@ -8,6 +8,28 @@ void Grid::initializeGrid() {
 	std::vector<Cell> row(GRID_SIZE, Cell(false, glm::vec3(0.0f, 1.0f, 0.0f)));
 	grid = std::vector<std::vector<Cell>>(GRID_SIZE, row);
 
+	std::vector<glm::vec3> cellVerts = grid[0][0].GetVertices();
+
+	for (int i = 0; i < GRID_SIZE; ++i) {
+		for (int j = 0; j < GRID_SIZE; ++j) {
+			glm::vec3 position = glm::vec3(i * CELL_SIZE, 0.0f, j * CELL_SIZE);
+			glm::mat4 model = glm::translate(glm::mat4(1.0f), position);
+			model = glm::scale(model, glm::vec3(CELL_SIZE, 1.0f, CELL_SIZE));
+			
+
+			for (glm::vec3 posVerts : cellVerts) 
+			{
+				wsVertices.push_back(glm::vec3(model * glm::vec4(posVerts, 1.0f)));
+				indices.push_back(0);
+				indices.push_back(1);
+				indices.push_back(2);
+				indices.push_back(3);
+				indices.push_back(4);
+				indices.push_back(5);
+			}
+		}
+	}
+
 	for (glm::vec3 coverPos : snapCoverPositionsToGrid())
 	{
 		int gridX = static_cast<int>(coverPos.x / CELL_SIZE);

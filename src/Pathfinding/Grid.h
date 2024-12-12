@@ -79,7 +79,15 @@ public:
 	int GetCellSize() const { return CELL_SIZE; }
 
 	std::vector<Cover*> coverLocations;
+
+	std::vector<glm::vec3> GetWSVertices() const { return wsVertices; }
+
+	std::vector<int> GetIndices() const { return indices; }
+
 private:
+	std::vector<glm::vec3> wsVertices;
+	std::vector<int> indices;
+
 	UniformBuffer mGridUniformBuffer{};
 	UniformBuffer mGridColorUniformBuffer{};
 

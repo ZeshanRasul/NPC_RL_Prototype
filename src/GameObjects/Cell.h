@@ -96,6 +96,15 @@ public:
 		return occupantId;
 	}
 
+	std::vector<glm::vec3> GetVertices() {
+		for (int i = 0; i < 48; i = i + 8)
+		{
+	
+			cellPosVerts.push_back(glm::vec3(cellVertices[i], cellVertices[i + 1], cellVertices[i + 2]));
+		}
+		return cellPosVerts;
+	}
+
 	Texture mTex{};
 	Texture mNormal{};
 	Texture mMetallic{};
@@ -106,6 +115,8 @@ public:
 private:
 	GLuint cellVAO = 0;
 	GLuint cellVBO = 0;
+
+	std::vector<glm::vec3> cellPosVerts;
 
 	// Vertex data for a cell
 	float cellVertices[48] = {
