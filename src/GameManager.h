@@ -380,22 +380,4 @@ private:
 	bool firstFlyCamSwitch = true;
 
 	AudioManager* mAudioManager;
-
-	std::vector<float> navMeshVertices;
-	std::vector<unsigned int> navMeshIndices;
-	int* triIndices;
-	unsigned char* triAreas;
-
-	rcContext* ctx;
-	rcHeightfield* heightField;
-	rcCompactHeightfield* compactHeightField;
-	rcContourSet* contourSet;
-	rcPolyMesh* polyMesh;
-	rcPolyMeshDetail* polyMeshDetail;
-
-
-	dtNavMesh* navMesh;
-	dtNavMeshQuery* navMeshQuery = nullptr;
-	unsigned char* navData;
-	int navDataSize;
 };
