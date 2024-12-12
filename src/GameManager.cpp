@@ -74,6 +74,16 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 
 	gameGrid = new Grid();
 
+	for (glm::vec3 coverPos : gameGrid->coverPositions)
+	{
+		Cube* cover = new Cube(gameGrid->snapToGrid(coverPos), glm::vec3((float)gameGrid->GetCellSize()), &cubeShader, &shadowMapShader, false, this, cubeTexFilename);
+		cover->SetAABBShader(&aabbShader);
+		cover->LoadMesh();
+		coverSpots.push_back(cover);
+	}
+
+	gameGrid->initializeGrid();
+
 	camera = new Camera(glm::vec3(50.0f, 3.0f, 80.0f));
 	minimapCamera = new Camera(glm::vec3((gameGrid->GetCellSize() * gameGrid->GetGridSize()) / 2.0f, 140.0f, (gameGrid->GetCellSize() * gameGrid->GetGridSize()) / 2.0f), glm::vec3(0.0f, -1.0f, 0.0f), 0.0f, -90.0f, glm::vec3(0.0f, 0.0f, -1.0f));
 
