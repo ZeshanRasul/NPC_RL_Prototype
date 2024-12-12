@@ -153,10 +153,10 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 	cfg.height = cfg.tileSize + cfg.borderSize * 2;
 
 	float minBounds[3] = { 0.0f, 0.0f, 0.0f };
-	float maxBounds[3] = { gameGrid->GetCellSize() * gameGrid->GetGridSize() * 1000.0f, 2.0f, gameGrid->GetCellSize() * gameGrid->GetGridSize() * 1000.0f};
+	float maxBounds[3] = { gameGrid->GetCellSize() * gameGrid->GetGridSize(), 2.0f, gameGrid->GetCellSize() * gameGrid->GetGridSize()};
 
 	heightField = rcAllocHeightfield();
-	if (!rcCreateHeightfield(ctx, *heightField, gameGrid->GetCellSize() * gameGrid->GetGridSize() * 100.0f, gameGrid->GetCellSize() * gameGrid->GetGridSize() * 100.0f, minBounds, maxBounds, cfg.cs, cfg.ch))
+	if (!rcCreateHeightfield(ctx, *heightField, gameGrid->GetCellSize() * gameGrid->GetGridSize(), gameGrid->GetCellSize() * gameGrid->GetGridSize(), minBounds, maxBounds, cfg.cs, cfg.ch))
 	{
 		Logger::log(1, "%s error: Could not create heightfield\n", __FUNCTION__);
 	}
@@ -427,9 +427,9 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 
 	for (int i = 0; i < polyMesh->nverts; ++i) {
 		const unsigned short* v = &polyMesh->verts[i * 3];
-		navmeshVertices.push_back(v[0] * cfg.cs); // X
-		navmeshVertices.push_back(v[1] * cfg.ch); // Y
-		navmeshVertices.push_back(v[2] * cfg.cs); // Z
+		navmeshVertices.push_back(v[0]); // X
+		navmeshVertices.push_back(v[1]); // Y
+		navmeshVertices.push_back(v[2]); // Z
 	}
 	for (int i = 0; i < polyMesh->npolys; ++i) {
 		for (int j = 0; j < polyMesh->nvp; ++j) {
@@ -964,7 +964,6 @@ void GameManager::render(bool isMinimapRenderPass, bool isShadowMapRenderPass, b
 		navMeshShader.setMat4("projection", projection);
 		glBindVertexArray(vao);
 		glDrawElements(GL_TRIANGLES, navmeshIndices.size(), GL_UNSIGNED_INT, 0);
-		glBindVertexArray(0);
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 		glDrawElements(GL_TRIANGLES, navmeshIndices.size(), GL_UNSIGNED_INT, 0);
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
