@@ -4,7 +4,10 @@
 #include <fstream>
 #include <sstream>
 
-#include "Recast/Recast.h"
+#include "Recast.h"
+#include "DetourNavMesh.h"
+#include "DetourNavMeshBuilder.h"
+#include "DetourNavMeshQuery.h"
 
 #include "src/OpenGL/Renderer.h"
 #include "src/OpenGL/RenderData.h"
@@ -388,4 +391,11 @@ private:
 	rcCompactHeightfield* compactHeightField;
 	rcContourSet* contourSet;
 	rcPolyMesh* polyMesh;
+	rcPolyMeshDetail* polyMeshDetail;
+
+
+	dtNavMesh* navMesh;
+	dtNavMeshQuery* navMeshQuery = nullptr;
+	unsigned char* navData;
+	int navDataSize;
 };

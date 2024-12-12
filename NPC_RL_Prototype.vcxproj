@@ -148,7 +148,7 @@
       <SDLCheck>false</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions);_CRT_SECURE_NO_WARNINGS;GLM_ENABLE_EXPERIMENTAL</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(ProjectDir)include;$(ProjectDir)include/imgui;$(ProjectDir);$(ProjectDir)src;$(ProjectDir)src/tinygltf;$(ProjectDir)src/OpenGL;$(ProjectDir)src/Tools;C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\studio\inc;C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\lowlevel\inc</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)include;$(ProjectDir)include/imgui;$(ProjectDir);$(ProjectDir)src;$(ProjectDir)src/tinygltf;$(ProjectDir)src/OpenGL;$(ProjectDir)src/Tools;C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\studio\inc;C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\lowlevel\inc;;$(ProjectDir)include/Recast/Include;$(ProjectDir)include/Detour/Include</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
@@ -166,7 +166,7 @@
       <SDLCheck>false</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions);_CRT_SECURE_NO_WARNINGS;GLM_ENABLE_EXPERIMENTAL</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(ProjectDir)include;$(ProjectDir)include/imgui;$(ProjectDir);$(ProjectDir)src;$(ProjectDir)src/tinygltf;$(ProjectDir)src/OpenGL;$(ProjectDir)src/Tools;C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\studio\inc;C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\lowlevel\inc</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)include;$(ProjectDir)include/imgui;$(ProjectDir);$(ProjectDir)src;$(ProjectDir)src/tinygltf;$(ProjectDir)src/OpenGL;$(ProjectDir)src/Tools;C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\studio\inc;C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\lowlevel\inc;;$(ProjectDir)include/Recast/Include;$(ProjectDir)include/Detour/Include</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
@@ -186,7 +186,7 @@
       <SDLCheck>false</SDLCheck>
       <PreprocessorDefinitions>TRACY_ENABLE;NDEBUG;_CONSOLE;%(PreprocessorDefinitions);_CRT_SECURE_NO_WARNINGS;GLM_ENABLE_EXPERIMENTAL</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(ProjectDir)include;$(ProjectDir)include/imgui;$(ProjectDir);$(ProjectDir)src;$(ProjectDir)src/tinygltf;$(ProjectDir)src/OpenGL;$(ProjectDir)src/Tools;C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\studio\inc;C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\lowlevel\inc;$(ProjectDir)src/tracy</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)include;$(ProjectDir)include/imgui;$(ProjectDir);$(ProjectDir)src;$(ProjectDir)src/tinygltf;$(ProjectDir)src/OpenGL;$(ProjectDir)src/Tools;C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\studio\inc;C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\lowlevel\inc;$(ProjectDir)src/tracy;$(ProjectDir)include/Recast/Include;$(ProjectDir)include/Detour/Include</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <DebugInformationFormat>None</DebugInformationFormat>
     </ClCompile>
@@ -200,6 +200,13 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="include\Detour\Source\DetourAlloc.cpp" />
+    <ClCompile Include="include\Detour\Source\DetourAssert.cpp" />
+    <ClCompile Include="include\Detour\Source\DetourCommon.cpp" />
+    <ClCompile Include="include\Detour\Source\DetourNavMesh.cpp" />
+    <ClCompile Include="include\Detour\Source\DetourNavMeshBuilder.cpp" />
+    <ClCompile Include="include\Detour\Source\DetourNavMeshQuery.cpp" />
+    <ClCompile Include="include\Detour\Source\DetourNode.cpp" />
     <ClCompile Include="include\imgui\backend\imgui_impl_glfw.cpp" />
     <ClCompile Include="include\imgui\backend\imgui_impl_opengl3.cpp" />
     <ClCompile Include="include\imgui\imgui.cpp" />
@@ -207,6 +214,17 @@
     <ClCompile Include="include\imgui\imgui_draw.cpp" />
     <ClCompile Include="include\imgui\imgui_tables.cpp" />
     <ClCompile Include="include\imgui\imgui_widgets.cpp" />
+    <ClCompile Include="include\Recast\Source\Recast.cpp" />
+    <ClCompile Include="include\Recast\Source\RecastAlloc.cpp" />
+    <ClCompile Include="include\Recast\Source\RecastArea.cpp" />
+    <ClCompile Include="include\Recast\Source\RecastAssert.cpp" />
+    <ClCompile Include="include\Recast\Source\RecastContour.cpp" />
+    <ClCompile Include="include\Recast\Source\RecastFilter.cpp" />
+    <ClCompile Include="include\Recast\Source\RecastLayers.cpp" />
+    <ClCompile Include="include\Recast\Source\RecastMesh.cpp" />
+    <ClCompile Include="include\Recast\Source\RecastMeshDetail.cpp" />
+    <ClCompile Include="include\Recast\Source\RecastRasterization.cpp" />
+    <ClCompile Include="include\Recast\Source\RecastRegion.cpp" />
     <ClCompile Include="src\App.cpp" />
     <ClCompile Include="src\Audio\AudioManager.cpp" />
     <ClCompile Include="src\Audio\AudioSystem.cpp" />
@@ -247,6 +265,15 @@
     <ClCompile Include="src\Window\Window.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="include\Detour\Include\DetourAlloc.h" />
+    <ClInclude Include="include\Detour\Include\DetourAssert.h" />
+    <ClInclude Include="include\Detour\Include\DetourCommon.h" />
+    <ClInclude Include="include\Detour\Include\DetourMath.h" />
+    <ClInclude Include="include\Detour\Include\DetourNavMesh.h" />
+    <ClInclude Include="include\Detour\Include\DetourNavMeshBuilder.h" />
+    <ClInclude Include="include\Detour\Include\DetourNavMeshQuery.h" />
+    <ClInclude Include="include\Detour\Include\DetourNode.h" />
+    <ClInclude Include="include\Detour\Include\DetourStatus.h" />
     <ClInclude Include="include\imgui\backend\imgui_impl_glfw.h" />
     <ClInclude Include="include\imgui\backend\imgui_impl_opengl3.h" />
     <ClInclude Include="include\imgui\backend\imgui_impl_opengl3_loader.h" />
@@ -256,6 +283,9 @@
     <ClInclude Include="include\imgui\imstb_rectpack.h" />
     <ClInclude Include="include\imgui\imstb_textedit.h" />
     <ClInclude Include="include\imgui\imstb_truetype.h" />
+    <ClInclude Include="include\Recast\Include\Recast.h" />
+    <ClInclude Include="include\Recast\Include\RecastAlloc.h" />
+    <ClInclude Include="include\Recast\Include\RecastAssert.h" />
     <ClInclude Include="include\stb_image.h" />
     <ClInclude Include="include\stb_image_write.h" />
     <ClInclude Include="src\AI\ActionNode.h" />
