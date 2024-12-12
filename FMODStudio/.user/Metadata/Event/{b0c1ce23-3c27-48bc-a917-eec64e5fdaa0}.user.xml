@@ -22,7 +22,7 @@
     </object>
     <object class="MixerBusEffectChain" id="{3f162078-c2eb-429d-b30b-f617cf9936e8}"/>
     <object class="MixerBusPanner" id="{3f64564b-2975-4b44-b48d-15aa9f58f017}"/>
-    <object class="SingleSound" id="{3a102d37-079e-4493-a853-d2ed5cab0f1a}"/>
+    <object class="SingleSound" id="{f4b48efa-0cbf-4fec-b42c-67aefabbd7f6}"/>
     <object class="EventMixerGroup" id="{5c4ca4d0-5ad6-4ec5-ab11-dffe64dbad4b}"/>
     <object class="MixerBusEffectChain" id="{714d521e-9aab-4856-a0d3-31417d61f42e}"/>
     <object class="MixerBusPanner" id="{4e10c1fc-b21a-49ee-8a4d-f20163e03261}"/>

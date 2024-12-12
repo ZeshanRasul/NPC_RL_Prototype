@@ -29,6 +29,9 @@ public:
 
 	GLuint GetShadowMapTexture() { return shadowMapTex; }
 
+	void ResetRenderStates();
+	void RemoveDepthAndSetBlending();
+
 	void ResetViewport(unsigned int width, unsigned int height);
 	void clear();
 

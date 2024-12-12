@@ -177,6 +177,19 @@ void Renderer::unbindShadowMapFBO()
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
+void Renderer::ResetRenderStates()
+{
+	glEnable(GL_DEPTH_TEST);
+	glDisable(GL_BLEND);
+}
+
+void Renderer::RemoveDepthAndSetBlending()
+{
+	glDisable(GL_DEPTH_TEST);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+}
+
 void Renderer::ResetViewport(unsigned int width, unsigned int height)
 {
 	glViewport(0, 0, width, height);

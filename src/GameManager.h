@@ -241,10 +241,7 @@ private:
 	Enemy* enemy4;
 	Crosshair* crosshair;
 	Line* line;
-	Line* enemyLine;
-	Line* enemy2Line;
-	Line* enemy3Line;
-	Line* enemy4Line;
+	std::vector<Line*> enemyLines;
 
 	std::vector<Cube*> coverSpots;
 
@@ -315,42 +312,16 @@ private:
 	float playerMuzzleFlashScale = 1.0f;
 	glm::mat4 playerMuzzleModel = glm::mat4(1.0f);
 
-	bool renderEnemyMuzzleFlash = false;
-	float enemyMuzzleFlashStartTime = 0.0f;
-	float enemyMuzzleTimeSinceStart = 0.0f;
-	float enemyMuzzleFlashDuration = 0.1f;
-	float enemyMuzzleAlpha = 0.0f;
-	glm::vec3 enemyMuzzleTint = { 1.0f, 1.0f, 1.0f };
-	float enemyMuzzleFlashScale = 1.0f;
-	glm::mat4 enemyMuzzleModel = glm::mat4(1.0f);
-
-	bool renderEnemy2MuzzleFlash = false;
-	float enemy2MuzzleFlashStartTime = 0.0f;
-	float enemy2MuzzleTimeSinceStart = 0.0f;
-	float enemy2MuzzleFlashDuration = 0.1f;
-	float enemy2MuzzleAlpha = 0.0f;
-	glm::vec3 enemy2MuzzleTint = { 1.0f, 1.0f, 1.0f };
-	float enemy2MuzzleFlashScale = 1.0f;
-	glm::mat4 enemy2MuzzleModel = glm::mat4(1.0f);
-
-	bool renderEnemy3MuzzleFlash = false;
-	float enemy3MuzzleFlashStartTime = 0.0f;
-	float enemy3MuzzleTimeSinceStart = 0.0f;
-	float enemy3MuzzleFlashDuration = 0.1f;
-	float enemy3MuzzleAlpha = 0.0f;
-	glm::vec3 enemy3MuzzleTint = { 1.0f, 1.0f, 1.0f };
-	float enemy3MuzzleFlashScale = 1.0f;
-	glm::mat4 enemy3MuzzleModel = glm::mat4(1.0f);
-
-	bool renderEnemy4MuzzleFlash = false;
-	float enemy4MuzzleFlashStartTime = 0.0f;
-	float enemy4MuzzleTimeSinceStart = 0.0f;
-	float enemy4MuzzleFlashDuration = 0.1f;
-	float enemy4MuzzleAlpha = 0.0f;
-	glm::vec3 enemy4MuzzleTint = { 1.0f, 1.0f, 1.0f };
-	float enemy4MuzzleFlashScale = 1.0f;
-	glm::mat4 enemy4MuzzleModel = glm::mat4(1.0f);
-
+	std::vector<bool> renderEnemyMuzzleFlash = { false, false, false, false };
+	std::vector<float> enemyMuzzleFlashStartTime = { 0.0f, 0.0f, 0.0f, 0.0f };
+	std::vector<float> enemyMuzzleTimeSinceStart = { 0.0f, 0.0f, 0.0f, 0.0f };
+	std::vector<float> enemyMuzzleFlashDuration = { 0.1f, 0.1f, 0.1f, 0.1f };
+	std::vector<float> enemyMuzzleAlpha = { 0.0f, 0.0f, 0.0f, 0.0f };
+	std::vector<glm::vec3> enemyMuzzleFlashTint = { {1.0f, 1.0f, 1.0f}, {1.0f, 1.0f, 1.0f}, {1.0f, 1.0f, 1.0f}, {1.0f, 1.0f, 1.0f} };
+	std::vector<float> enemyMuzzleFlashScale = { 1.0f, 1.0f, 1.0f, 1.0f };
+	std::vector<glm::mat4> enemyMuzzleModel = { glm::mat4(1.0f), glm::mat4(1.0f), glm::mat4(1.0f), glm::mat4(1.0f) };
+	glm::vec3 enemyMuzzleFlashOffset = glm::vec3(0.0f);
+	float muzzleOffset = 2.4f;
 
 	glm::mat4 view = glm::mat4(1.0f);
 	glm::mat4 projection = glm::mat4(1.0f);

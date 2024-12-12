@@ -151,19 +151,6 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 	line = new Line(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f), &lineShader, &shadowMapShader, false, this);
 	line->LoadMesh();
 
-	enemyLine = new Line(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f), &lineShader, &shadowMapShader, false, this);
-	enemy2Line = new Line(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f), &lineShader, &shadowMapShader, false, this);
-	enemy3Line = new Line(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f), &lineShader, &shadowMapShader, false, this);
-	enemy4Line = new Line(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f), &lineShader, &shadowMapShader, false, this);
-	enemyLine->LoadMesh();
-	enemy2Line->LoadMesh();
-	enemy3Line->LoadMesh();
-	enemy4Line->LoadMesh();
-
-	AudioComponent* fireAudioComponent = new AudioComponent(enemy);
-	fireAudioComponent->PlayEvent("event:/FireLoop");
-
-
 	inputManager->setContext(camera, player, enemy, width, height);
 
 	/* reset skeleton split */
@@ -187,6 +174,13 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 	enemies.push_back(enemy2);
 	enemies.push_back(enemy3);
 	enemies.push_back(enemy4);
+
+	for (int i = 0; i < enemies.size(); i++)
+	{
+		line = new Line(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f), &lineShader, &shadowMapShader, false, this);
+		line->LoadMesh();
+		enemyLines.push_back(line);
+	}
 
 	if (initializeQTable)
 	{
@@ -412,8 +406,10 @@ void GameManager::ShowEnemyStateWindow()
 
 	ImGui::InputFloat("Speed Divider", &speedDivider);
 	ImGui::InputFloat("Blend Factor", &blendFac);
+	ImGui::InputFloat("Muzzle Offset", &muzzleOffset);
 
-	ImGui::Text("Player Velocity %s", std::to_string(player->GetVelocity()));
+	ImGui::InputFloat3("Enemy Muzzle Flash Offset", &enemyMuzzleFlashOffset[0]);
+
 
 	ImGui::Text("Player Health: %d", (int)player->GetHealth());
 
@@ -633,8 +629,9 @@ void GameManager::update(float deltaTime)
 
 void GameManager::render(bool isMinimapRenderPass, bool isShadowMapRenderPass, bool isMainRenderPass)
 {
-	glEnable(GL_DEPTH_TEST);
-	glDisable(GL_BLEND);
+
+	renderer->ResetRenderStates();
+
 
 	if (!isShadowMapRenderPass)
 	{
@@ -700,249 +697,69 @@ void GameManager::render(bool isMinimapRenderPass, bool isShadowMapRenderPass, b
 	if (camSwitchedToAim)
 		camSwitchedToAim = false;
 
-	if (!enemy->isDestroyed)
+	for (auto& enem : enemies)
 	{
-		glm::vec3 enemyRayEnd = glm::vec3(0.0f);
-
-		if (enemy->GetEnemyHasShot())
+		if (!enem->isDestroyed)
 		{
-			float enemyMuzzleCurrentTime = glfwGetTime();
+			glm::vec3 enemyRayEnd = glm::vec3(0.0f);
 
-			if (renderEnemyMuzzleFlash && enemyMuzzleFlashStartTime + enemyMuzzleFlashDuration > enemyMuzzleCurrentTime)
+			int enemyID = enem->GetID();
+
+			if (enem->GetEnemyHasShot())
 			{
-				renderEnemyMuzzleFlash = false;
-			}
-			else
-			{
-				renderEnemyMuzzleFlash = true;
-				enemyMuzzleFlashStartTime = enemyMuzzleCurrentTime;
-			}
+				float enemyMuzzleCurrentTime = glfwGetTime();
 
-			if (renderEnemyMuzzleFlash && isMainRenderPass)
-			{
-				enemyMuzzleTimeSinceStart = enemyMuzzleCurrentTime - enemyMuzzleFlashStartTime;
-				enemyMuzzleAlpha = glm::max(0.0f, 1.0f - (enemyMuzzleTimeSinceStart / enemyMuzzleFlashDuration));
-				enemyMuzzleFlashScale = 1.0f + (0.5f * enemyMuzzleAlpha);
+				if (renderEnemyMuzzleFlash.at(enemyID) && enemyMuzzleFlashStartTime.at(enemyID) + enemyMuzzleFlashDuration.at(enemyID) > enemyMuzzleCurrentTime)
+				{
+					renderEnemyMuzzleFlash.at(enemyID) = false;
+				}
+				else
+				{
+					renderEnemyMuzzleFlash.at(enemyID) = true;
+					enemyMuzzleFlashStartTime.at(enemyID) = enemyMuzzleCurrentTime;
+				}
 
-				enemyMuzzleModel = glm::mat4(1.0f);
+				if (renderEnemyMuzzleFlash.at(enemyID) && isMainRenderPass)
+				{
+					enemyMuzzleTimeSinceStart.at(enemyID) = enemyMuzzleCurrentTime - enemyMuzzleFlashStartTime.at(enemyID);
+					enemyMuzzleAlpha.at(enemyID) = glm::max(0.0f, 1.0f - (enemyMuzzleTimeSinceStart.at(enemyID) / enemyMuzzleFlashDuration.at(enemyID)));
+					enemyMuzzleFlashScale.at(enemyID) = 1.0f + (0.5f * enemyMuzzleAlpha.at(enemyID));
 
-				enemyMuzzleModel = glm::translate(enemyMuzzleModel, enemy->GetEnemyShootPos());
-				enemyMuzzleModel = glm::rotate(enemyMuzzleModel, enemy->yaw, glm::vec3(0.0f, 1.0f, 0.0f));
-				enemyMuzzleModel = glm::scale(enemyMuzzleModel, glm::vec3(enemyMuzzleFlashScale, enemyMuzzleFlashScale, 1.0f));
-				enemyMuzzleFlashQuad->Draw3D(enemyMuzzleTint, enemyMuzzleAlpha, projection, view, enemyMuzzleModel);
-			}
-		}
+					enemyMuzzleModel.at(enemyID) = glm::mat4(1.0f);
 
-		if (enemy->GetEnemyHasShot() && enemy->GetEnemyDebugRayRenderTimer() > 0.0f)
-		{
-			glm::vec3 enemyLineColor = glm::vec3(0.2f, 0.2f, 0.2f);
-
-			if (enemy->GetEnemyHasHit())
-			{
-				enemyRayEnd = enemy->GetEnemyHitPoint();
-			}
-			else
-			{
-				enemyRayEnd = enemy->GetEnemyShootPos() + enemy->GetEnemyShootDir() * enemy->GetEnemyShootDistance();
+					enemyMuzzleModel.at(enemyID) = glm::translate(enemyMuzzleModel.at(enemyID), enem->GetEnemyShootPos(muzzleOffset));
+					enemyMuzzleModel.at(enemyID) = glm::rotate(enemyMuzzleModel.at(enemyID), enem->yaw, glm::vec3(0.0f, 1.0f, 0.0f));
+					enemyMuzzleModel.at(enemyID) = glm::scale(enemyMuzzleModel.at(enemyID), glm::vec3(enemyMuzzleFlashScale.at(enemyID), enemyMuzzleFlashScale.at(enemyID), 1.0f));
+					enemyMuzzleFlashQuad->Draw3D(enemyMuzzleFlashTint.at(enemyID), enemyMuzzleAlpha.at(enemyID), projection, view, enemyMuzzleModel.at(enemyID));
+				}
 			}
 
-			glm::vec3 enemyRayEnd = enemy->GetEnemyShootPos() + enemy->GetEnemyShootDir() * enemy->GetEnemyShootDistance();
-			enemyLine->UpdateVertexBuffer(enemy->GetEnemyShootPos(), enemyRayEnd);
-			if (isMinimapRenderPass)
+			if (enem->GetEnemyHasShot() && enem->GetEnemyDebugRayRenderTimer() > 0.0f)
 			{
-				enemyLine->DrawLine(minimapView, minimapProjection, enemyLineColor, lightSpaceMatrix, renderer->GetShadowMapTexture(), false, enemy->GetEnemyDebugRayRenderTimer());
-			}
-			else if (isShadowMapRenderPass)
-			{
-				enemyLine->DrawLine(lightSpaceView, lightSpaceProjection, enemyLineColor, lightSpaceMatrix, renderer->GetShadowMapTexture(), true, enemy->GetEnemyDebugRayRenderTimer());
-			}
-			else
-			{
-				enemyLine->DrawLine(view, projection, enemyLineColor, lightSpaceMatrix, renderer->GetShadowMapTexture(), false, enemy->GetEnemyDebugRayRenderTimer());
-			}
-		}
-	}
+				glm::vec3 enemyLineColor = glm::vec3(0.2f, 0.2f, 0.2f);
 
-	if (!enemy2->isDestroyed)
-	{
-		glm::vec3 enemy2RayEnd = glm::vec3(0.0f);
+				if (enem->GetEnemyHasHit())
+				{
+					enemyRayEnd = enem->GetEnemyHitPoint();
+				}
+				else
+				{
+					enemyRayEnd = enem->GetEnemyShootPos(muzzleOffset) + enem->GetEnemyShootDir() * enem->GetEnemyShootDistance();
+				}
 
-		if (enemy2->GetEnemyHasShot())
-		{
-			float enemy2MuzzleCurrentTime = glfwGetTime();
-
-			if (renderEnemy2MuzzleFlash && enemy2MuzzleFlashStartTime + enemy2MuzzleFlashDuration > enemy2MuzzleCurrentTime)
-			{
-				renderEnemy2MuzzleFlash = false;
-			}
-			else
-			{
-				renderEnemy2MuzzleFlash = true;
-				enemy2MuzzleFlashStartTime = enemy2MuzzleCurrentTime;
-			}
-
-			if (renderEnemy2MuzzleFlash && isMainRenderPass)
-			{
-				enemy2MuzzleTimeSinceStart = enemy2MuzzleCurrentTime - enemy2MuzzleFlashStartTime;
-				enemy2MuzzleAlpha = glm::max(0.0f, 1.0f - (enemy2MuzzleTimeSinceStart / enemy2MuzzleFlashDuration));
-				enemy2MuzzleFlashScale = 1.0f + (0.5f * enemy2MuzzleAlpha);
-
-				enemy2MuzzleModel = glm::mat4(1.0f);
-
-				enemy2MuzzleModel = glm::translate(enemy2MuzzleModel, enemy2->GetEnemyShootPos());
-				enemy2MuzzleModel = glm::rotate(enemy2MuzzleModel, enemy2->yaw, glm::vec3(0.0f, 1.0f, 0.0f));
-				enemy2MuzzleModel = glm::scale(enemy2MuzzleModel, glm::vec3(enemy2MuzzleFlashScale, enemy2MuzzleFlashScale, 1.0f));
-				enemy2MuzzleFlashQuad->Draw3D(enemy2MuzzleTint, enemy2MuzzleAlpha, projection, view, enemy2MuzzleModel);
-			}
-		}
-
-		if (enemy2->GetEnemyHasShot() && enemy2->GetEnemyDebugRayRenderTimer() > 0.0f)
-		{
-			glm::vec3 enemy2LineColor = glm::vec3(0.2f, 0.2f, 0.2f);
-			if (enemy2->GetEnemyHasHit())
-			{
-				enemy2RayEnd = enemy2->GetEnemyHitPoint();
-			}
-			else
-			{
-				enemy2RayEnd = enemy2->GetEnemyShootPos() + enemy2->GetEnemyShootDir() * enemy2->GetEnemyShootDistance();
-			}
-
-			enemy2Line->UpdateVertexBuffer(enemy2->GetEnemyShootPos(), enemy2RayEnd);
-			if (isMinimapRenderPass)
-			{
-				enemy2Line->DrawLine(minimapView, minimapProjection, enemy2LineColor, lightSpaceMatrix, renderer->GetShadowMapTexture(), false, enemy2->GetEnemyDebugRayRenderTimer());
-			}
-			else if (isShadowMapRenderPass)
-			{
-				enemy2Line->DrawLine(lightSpaceView, lightSpaceProjection, enemy2LineColor, lightSpaceMatrix, renderer->GetShadowMapTexture(), true, enemy2->GetEnemyDebugRayRenderTimer());
-			}
-			else
-			{
-				enemy2Line->DrawLine(view, projection, enemy2LineColor, lightSpaceMatrix, renderer->GetShadowMapTexture(), false, enemy2->GetEnemyDebugRayRenderTimer());
-			}
-		}
-	}
-
-	if (!enemy3->isDestroyed)
-	{
-		glm::vec3 enemy3RayEnd = glm::vec3(0.0f);
-
-		if (enemy3->GetEnemyHasShot())
-		{
-			float enemy3MuzzleCurrentTime = glfwGetTime();
-
-			if (renderEnemy3MuzzleFlash && enemy3MuzzleFlashStartTime + enemy3MuzzleFlashDuration > enemy3MuzzleCurrentTime)
-			{
-				renderEnemy3MuzzleFlash = false;
-			}
-			else
-			{
-				renderEnemy3MuzzleFlash = true;
-				enemy3MuzzleFlashStartTime = enemy3MuzzleCurrentTime;
-			}
-
-			if (renderEnemy3MuzzleFlash && isMainRenderPass)
-			{
-				enemy3MuzzleTimeSinceStart = enemy3MuzzleCurrentTime - enemy3MuzzleFlashStartTime;
-				enemy3MuzzleAlpha = glm::max(0.0f, 1.0f - (enemy3MuzzleTimeSinceStart / enemy3MuzzleFlashDuration));
-				enemy3MuzzleFlashScale = 1.0f + (0.5f * enemy3MuzzleAlpha);
-
-				enemy3MuzzleModel = glm::mat4(1.0f);
-
-				enemy3MuzzleModel = glm::translate(enemy3MuzzleModel, enemy3->GetEnemyShootPos());
-				enemy3MuzzleModel = glm::rotate(enemy3MuzzleModel, enemy3->yaw, glm::vec3(0.0f, 1.0f, 0.0f));
-				enemy3MuzzleModel = glm::scale(enemy3MuzzleModel, glm::vec3(enemy3MuzzleFlashScale, enemy3MuzzleFlashScale, 1.0f));
-				enemy3MuzzleFlashQuad->Draw3D(enemy3MuzzleTint, enemy3MuzzleAlpha, projection, view, enemy3MuzzleModel);
-			}
-		}
-
-		if (enemy3->GetEnemyHasShot() && enemy3->GetEnemyDebugRayRenderTimer() > 0.0f)
-		{
-			glm::vec3 enemy3LineColor = glm::vec3(0.2f, 0.2f, 0.2f);
-
-			if (enemy3->GetEnemyHasHit())
-			{
-				enemy3RayEnd = enemy3->GetEnemyHitPoint();
-			}
-			else
-			{
-				enemy3RayEnd = enemy3->GetEnemyShootPos() + enemy3->GetEnemyShootDir() * enemy3->GetEnemyShootDistance();
-			}
-
-			enemy3Line->UpdateVertexBuffer(enemy3->GetEnemyShootPos(), enemy3RayEnd);
-			if (isMinimapRenderPass)
-			{
-				enemy3Line->DrawLine(minimapView, minimapProjection, enemy3LineColor, lightSpaceMatrix, renderer->GetShadowMapTexture(), false, enemy3->GetEnemyDebugRayRenderTimer());
-			}
-			else if (isShadowMapRenderPass)
-			{
-				enemy3Line->DrawLine(lightSpaceView, lightSpaceProjection, enemy3LineColor, lightSpaceMatrix, renderer->GetShadowMapTexture(), true, enemy3->GetEnemyDebugRayRenderTimer());
-			}
-			else
-			{
-				enemy3Line->DrawLine(view, projection, enemy3LineColor, lightSpaceMatrix, renderer->GetShadowMapTexture(), false, enemy3->GetEnemyDebugRayRenderTimer());
-			}
-		}
-	}
-
-	if (!enemy4->isDestroyed)
-	{
-		glm::vec3 enemy4RayEnd = glm::vec3(0.0f);
-
-		if (enemy4->GetEnemyHasShot())
-		{
-			float enemy4MuzzleCurrentTime = glfwGetTime();
-
-			if (renderEnemy4MuzzleFlash && enemy4MuzzleFlashStartTime + enemy4MuzzleFlashDuration > enemy4MuzzleCurrentTime)
-			{
-				renderEnemy4MuzzleFlash = false;
-			}
-			else
-			{
-				renderEnemy4MuzzleFlash = true;
-				enemy4MuzzleFlashStartTime = enemy4MuzzleCurrentTime;
-			}
-
-			if (renderEnemy4MuzzleFlash && isMainRenderPass)
-			{
-				enemy4MuzzleTimeSinceStart = enemy4MuzzleCurrentTime - enemy4MuzzleFlashStartTime;
-				enemy4MuzzleAlpha = glm::max(0.0f, 1.0f - (enemy4MuzzleTimeSinceStart / enemy4MuzzleFlashDuration));
-				enemy4MuzzleFlashScale = 1.0f + (0.5f * enemy4MuzzleAlpha);
-
-				enemy4MuzzleModel = glm::mat4(1.0f);
-
-				enemy4MuzzleModel = glm::translate(enemy4MuzzleModel, enemy4->GetEnemyShootPos());
-				enemy4MuzzleModel = glm::rotate(enemy4MuzzleModel, enemy4->yaw, glm::vec3(0.0f, 1.0f, 0.0f));
-				enemy4MuzzleModel = glm::scale(enemy4MuzzleModel, glm::vec3(enemy4MuzzleFlashScale, enemy4MuzzleFlashScale, 1.0f));
-				enemy4MuzzleFlashQuad->Draw3D(enemy4MuzzleTint, enemy4MuzzleAlpha, projection, view, enemy4MuzzleModel);
-			}
-		}
-
-		if (enemy4->GetEnemyHasShot() && enemy4->GetEnemyDebugRayRenderTimer() > 0.0f)
-		{
-			glm::vec3 enemy4LineColor = glm::vec3(0.2f, 0.2f, 0.2f);
-			if (enemy3->GetEnemyHasHit())
-			{
-				enemy4RayEnd = enemy4->GetEnemyHitPoint();
-			}
-			else
-			{
-				enemy4RayEnd = enemy4->GetEnemyShootPos() + enemy4->GetEnemyShootDir() * enemy4->GetEnemyShootDistance();
-			}
-
-			enemy4Line->UpdateVertexBuffer(enemy4->GetEnemyShootPos(), enemy4RayEnd);
-			if (isMinimapRenderPass)
-			{
-				enemy4Line->DrawLine(minimapView, minimapProjection, enemy4LineColor, lightSpaceMatrix, renderer->GetShadowMapTexture(), false, enemy4->GetEnemyDebugRayRenderTimer());
-			}
-			else if (isShadowMapRenderPass)
-			{
-				enemy4Line->DrawLine(lightSpaceView, lightSpaceProjection, enemy4LineColor, lightSpaceMatrix, renderer->GetShadowMapTexture(), true, enemy4->GetEnemyDebugRayRenderTimer());
-			}
-			else
-			{
-				enemy4Line->DrawLine(view, projection, enemy4LineColor, lightSpaceMatrix, renderer->GetShadowMapTexture(), false, enemy4->GetEnemyDebugRayRenderTimer());
+				enemyLines.at(enemyID)->UpdateVertexBuffer(enem->GetEnemyShootPos(muzzleOffset), enemyRayEnd);
+				if (isMinimapRenderPass)
+				{
+					enemyLines.at(enemyID)->DrawLine(minimapView, minimapProjection, enemyLineColor, lightSpaceMatrix, renderer->GetShadowMapTexture(), false, enem->GetEnemyDebugRayRenderTimer());
+				}
+				else if (isShadowMapRenderPass)
+				{
+					enemyLines.at(enemyID)->DrawLine(lightSpaceView, lightSpaceProjection, enemyLineColor, lightSpaceMatrix, renderer->GetShadowMapTexture(), true, enem->GetEnemyDebugRayRenderTimer());
+				}
+				else
+				{
+					enemyLines.at(enemyID)->DrawLine(view, projection, enemyLineColor, lightSpaceMatrix, renderer->GetShadowMapTexture(), false, enem->GetEnemyDebugRayRenderTimer());
+				}
 			}
 		}
 	}
@@ -950,9 +767,7 @@ void GameManager::render(bool isMinimapRenderPass, bool isShadowMapRenderPass, b
 	renderer->drawCubemap(cubemap);
 	if ((player->GetPlayerState() == AIMING || player->GetPlayerState() == SHOOTING) && camSwitchedToAim == false && isMainRenderPass)
 	{
-		glDisable(GL_DEPTH_TEST);
-		glEnable(GL_BLEND);
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		renderer->RemoveDepthAndSetBlending();
 
 		glm::vec3 rayO = player->GetShootPos();
 		glm::vec3 rayD = glm::normalize(player->PlayerAimFront);
@@ -1028,24 +843,7 @@ void GameManager::render(bool isMinimapRenderPass, bool isShadowMapRenderPass, b
 		if (isMainRenderPass)
 			crosshair->DrawCrosshair(glm::vec2(0.0f, 0.5f), crosshairCol);
 
-
-		//line->UpdateVertexBuffer(rayO, rayEnd);
-
-		//if (minimap)
-		//{
-		//	line->DrawLine(minimapView, minimapProjection, lineColor, lightSpaceMatrix, renderer->GetShadowMapTexture(), false);
-		//}
-		//else if (shadowMap)
-		//{
-		//	line->DrawLine(lightSpaceView, lightSpaceProjection, lineColor, lightSpaceMatrix, renderer->GetShadowMapTexture(), true);
-		//}
-		//else
-		//{
-		//	line->DrawLine(view, projection, lineColor, lightSpaceMatrix, renderer->GetShadowMapTexture(), false);
-		//}
-
-		glEnable(GL_DEPTH_TEST);
-		glDisable(GL_BLEND);
+		renderer->ResetRenderStates();
 
 	}
 
