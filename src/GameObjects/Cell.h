@@ -97,9 +97,8 @@ public:
 	}
 
 	std::vector<glm::vec3> GetVertices() {
-		for (int i = 0; i < 48; i = i + 8)
-		{
-	
+		std::vector<glm::vec3> cellPosVerts;
+		for (int i = 0; i < 48; i += 8) {
 			cellPosVerts.push_back(glm::vec3(cellVertices[i], cellVertices[i + 1], cellVertices[i + 2]));
 		}
 		return cellPosVerts;

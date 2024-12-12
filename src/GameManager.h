@@ -180,6 +180,9 @@ private:
 
 	EventManager& GetEventManager() { return eventManager; }
 
+	void SetUpAndRenderNavMesh();
+	std::vector<float> renderNavMeshVerts;
+
 	float speedDivider = 1.0f;
 	float blendFac = 1.0f;
 
@@ -398,4 +401,10 @@ private:
 	dtNavMeshQuery* navMeshQuery = nullptr;
 	unsigned char* navData;
 	int navDataSize;
+
+	GLuint vao, vbo, ebo;
+	Shader navMeshShader{};
+	std::vector<float> navmeshVertices;
+	std::vector<unsigned int> navmeshIndices; // Use unsigned int for consistency
+
 };

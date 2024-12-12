@@ -51,6 +51,7 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 	enemyShadowMapShader.loadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/shadow_map_enemy_vertex.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/shadow_map_fragment.glsl");
 	shadowMapQuadShader.loadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/shadow_map_quad_vertex.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/shadow_map_quad_fragment.glsl");
 	playerMuzzleFlashShader.loadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/muzzle_flash_vertex.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/muzzle_flash_fragment.glsl");
+	navMeshShader.loadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/navmesh_vert.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/navmesh_frag.glsl");
 
 	physicsWorld = new PhysicsWorld();
 
@@ -135,23 +136,27 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 
 	rcConfig cfg{};
 
-	cfg.cs = 0.3f;					 // Cell size (XZ resolution)
-	cfg.ch = 0.2f;					 // Cell height (Y resolution)
-	cfg.walkableSlopeAngle = 30.0f;  // Max slope walkable
-	cfg.walkableHeight = 2.0f;       // Min agent height
-	cfg.walkableClimb = 1;        // Max height the agent can climb
-	cfg.walkableRadius = 1.0f;       // Agent radius
-	cfg.maxEdgeLen = 12;             // Max edge length in voxel units
-	cfg.minRegionArea = 8;          // Min region size
-	cfg.maxVertsPerPoly = 6;         // Max verts per poly
-	cfg.maxSimplificationError = 0.1f; // Max simplification error
-	cfg.detailSampleDist = 6.0f;     // Detail mesh sample distance
+	cfg.cs = 0.3f;                      // Cell size
+	cfg.ch = 0.2f;                      // Cell height
+	cfg.walkableSlopeAngle = 45.0f;     // Allow steeper slopes
+	cfg.walkableHeight = 7.0f;          // Agent height (in grid units)
+	cfg.walkableClimb = 3.0f;           // Max climb height
+	cfg.walkableRadius = 3.0f;          // Agent radius
+	cfg.maxEdgeLen = 24;                // Larger edge length
+	cfg.minRegionArea = 8;  // Keep smaller regions
+	cfg.maxSimplificationError = 0.5f;  // Fine simplification
+	cfg.detailSampleDist = cfg.cs * 6;  // Balance detail
+	cfg.maxVertsPerPoly = 6;			// Fewer verts per poly
+	cfg.tileSize = 32;					// Tile size
+	cfg.borderSize = (int)(cfg.walkableRadius / cfg.cs + 0.5f);
+	cfg.width = cfg.tileSize + cfg.borderSize * 2;
+	cfg.height = cfg.tileSize + cfg.borderSize * 2;
 
 	float minBounds[3] = { 0.0f, 0.0f, 0.0f };
-	float maxBounds[3] = { gameGrid->GetCellSize() * gameGrid->GetGridSize(), 0, gameGrid->GetCellSize() * gameGrid->GetGridSize() };
+	float maxBounds[3] = { gameGrid->GetCellSize() * gameGrid->GetGridSize() * 1000.0f, 2.0f, gameGrid->GetCellSize() * gameGrid->GetGridSize() * 1000.0f};
 
 	heightField = rcAllocHeightfield();
-	if (!rcCreateHeightfield(ctx, *heightField, gameGrid->GetCellSize() * gameGrid->GetGridSize(), gameGrid->GetCellSize() * gameGrid->GetGridSize(), minBounds, maxBounds, cfg.cs, cfg.ch))
+	if (!rcCreateHeightfield(ctx, *heightField, gameGrid->GetCellSize() * gameGrid->GetGridSize() * 100.0f, gameGrid->GetCellSize() * gameGrid->GetGridSize() * 100.0f, minBounds, maxBounds, cfg.cs, cfg.ch))
 	{
 		Logger::log(1, "%s error: Could not create heightfield\n", __FUNCTION__);
 	}
@@ -419,6 +424,40 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 	}
 
 	mMusicEvent = audioSystem->PlayEvent("event:/bgm");
+
+	for (int i = 0; i < polyMesh->nverts; ++i) {
+		const unsigned short* v = &polyMesh->verts[i * 3];
+		navmeshVertices.push_back(v[0] * cfg.cs); // X
+		navmeshVertices.push_back(v[1] * cfg.ch); // Y
+		navmeshVertices.push_back(v[2] * cfg.cs); // Z
+	}
+	for (int i = 0; i < polyMesh->npolys; ++i) {
+		for (int j = 0; j < polyMesh->nvp; ++j) {
+			unsigned short index = polyMesh->polys[i * polyMesh->nvp + j];
+			if (index == RC_MESH_NULL_IDX) break;
+			navmeshIndices.push_back(static_cast<unsigned int>(index));
+		}
+	}
+	// Create VAO
+	glGenVertexArrays(1, &vao);
+	glBindVertexArray(vao);
+
+	// Create VBO
+	glGenBuffers(1, &vbo);
+	glBindBuffer(GL_ARRAY_BUFFER, vbo);
+	glBufferData(GL_ARRAY_BUFFER, navmeshVertices.size() * sizeof(float), navmeshVertices.data(), GL_STATIC_DRAW);
+
+	// Create EBO
+	glGenBuffers(1, &ebo);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, navmeshIndices.size() * sizeof(int), navmeshIndices.data(), GL_STATIC_DRAW);
+
+	// Enable vertex attribute (e.g., position at location 0)
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(0);
+
+	glBindVertexArray(0);
+
 }
 
 void GameManager::setupCamera(unsigned int width, unsigned int height)
@@ -662,6 +701,11 @@ void GameManager::calculatePerformance(float deltaTime)
 	elapsedTime += deltaTime;
 }
 
+void GameManager::SetUpAndRenderNavMesh()
+{
+
+}
+
 void GameManager::CreateLightSpaceMatrices()
 {
 	float gridWidth = gameGrid->GetCellSize() * gameGrid->GetGridSize();
@@ -859,6 +903,7 @@ void GameManager::render(bool isMinimapRenderPass, bool isShadowMapRenderPass, b
 
 
 
+
 	for (auto obj : gameObjects) {
 		if (obj->isDestroyed)
 			continue;
@@ -891,6 +936,7 @@ void GameManager::render(bool isMinimapRenderPass, bool isShadowMapRenderPass, b
 		gridShader.setVec3("dirLight.ambient", dirLight.ambient);
 		gridShader.setVec3("dirLight.diffuse", dirLight.diffuse);
 		gridShader.setVec3("dirLight.specular", dirLight.specular);
+
 	}
 
 	if (isMinimapRenderPass)
@@ -900,10 +946,28 @@ void GameManager::render(bool isMinimapRenderPass, bool isShadowMapRenderPass, b
 	else if (isShadowMapRenderPass)
 	{
 		gameGrid->drawGrid(shadowMapShader, lightSpaceView, lightSpaceProjection, camera->Position, true, lightSpaceMatrix, renderer->GetShadowMapTexture());
+		navMeshShader.use();
+		navMeshShader.setMat4("view", view);
+		navMeshShader.setMat4("projection", projection);
+		glBindVertexArray(vao);
+		glDrawElements(GL_TRIANGLES, navmeshIndices.size(), GL_UNSIGNED_INT, 0);
+		glBindVertexArray(0);
+		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+		glDrawElements(GL_TRIANGLES, navmeshIndices.size(), GL_UNSIGNED_INT, 0);
+		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	}
 	else
 	{
 		gameGrid->drawGrid(gridShader, view, projection, camera->Position, false, lightSpaceMatrix, renderer->GetShadowMapTexture());
+		navMeshShader.use();
+		navMeshShader.setMat4("view", view);
+		navMeshShader.setMat4("projection", projection);
+		glBindVertexArray(vao);
+		glDrawElements(GL_TRIANGLES, navmeshIndices.size(), GL_UNSIGNED_INT, 0);
+		glBindVertexArray(0);
+		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+		glDrawElements(GL_TRIANGLES, navmeshIndices.size(), GL_UNSIGNED_INT, 0);
+		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	}
 
 	if (camSwitchedToAim)
@@ -1261,6 +1325,7 @@ void GameManager::render(bool isMinimapRenderPass, bool isShadowMapRenderPass, b
 	if (isMainRenderPass)
 	{
 		renderer->drawMinimap(minimapQuad, &minimapShader);
+
 	}
 
 #ifdef _DEBUG
