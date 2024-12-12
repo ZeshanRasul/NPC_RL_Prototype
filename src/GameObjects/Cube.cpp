@@ -56,9 +56,11 @@ void Cube::drawObject(glm::mat4 viewMat, glm::mat4 proj, bool shadowMap, glm::ma
 		shader->setInt("roughnessMap", 3);
 		mAO.bind(4);
 		shader->setInt("aoMap", 4);
-		glActiveTexture(GL_TEXTURE5);
+		mEmissive.bind(5);
+		shader->setInt("emissiveMap", 5);
+		glActiveTexture(GL_TEXTURE6);
 		glBindTexture(GL_TEXTURE_2D, shadowMapTexture);
-		shader->setInt("shadowMap", 5);
+		shader->setInt("shadowMap", 6);
 		glBindVertexArray(mVAO);
 		glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
 		glBindVertexArray(0);
