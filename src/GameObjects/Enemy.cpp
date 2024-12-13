@@ -417,13 +417,13 @@ void Enemy::moveEnemy(const std::vector<glm::ivec2>& path, float deltaTime, floa
 	//    setPosition(startCellCenter);
 	//}
 
-	if (glm::distance(getPosition(), targetPos) < grid_->GetCellSize() / 3.0f)
+	if (glm::distance(getPosition(), targetPos) < grid_->GetCellSize())
 	{
 			grid_->OccupyCell(path[pathIndex_].x, path[pathIndex_].y, id_);
 	}
 
-	    if (pathIndex_ >= 1)
-	       grid_->VacateCell(path[pathIndex_ - 1].x, path[pathIndex_ - 1].y, id_);
+	if (pathIndex_ >= 1)
+		grid_->VacateCell(path[pathIndex_ - 1].x, path[pathIndex_ - 1].y, id_);
 
 		// Check if the enemy has reached the current target position within a tolerance
 	if (glm::distance(getPosition(), targetPos) < tolerance) {
@@ -1140,16 +1140,16 @@ void Enemy::EnemyDecisionPrecomputedQ(NashState& currentState, int enemyId, std:
 
 		VacatePreviousCell();
 
-		for (glm::ivec2 cell : currentPath_)
-		{
-			if (grid_->GetGrid()[cell.x][cell.y].IsOccupied())
-				currentPath_ = grid_->findPath(
-					glm::ivec2(getPosition().x / grid_->GetCellSize(), getPosition().z / grid_->GetCellSize()),
-					glm::ivec2(player.getPosition().x / grid_->GetCellSize(), player.getPosition().z / grid_->GetCellSize()),
-					grid_->GetGrid(),
-					enemyId
-				);
-		}
+		//for (glm::ivec2& cell : currentPath_)
+		//{
+		//	if (grid_->GetGrid()[cell.x][cell.y].IsOccupied())
+		//		currentPath_ = grid_->findPath(
+		//			glm::ivec2(getPosition().x / grid_->GetCellSize(), getPosition().z / grid_->GetCellSize()),
+		//			glm::ivec2(player.getPosition().x / grid_->GetCellSize(), player.getPosition().z / grid_->GetCellSize()),
+		//			grid_->GetGrid(),
+		//			enemyId
+		//		);
+		//}
 
 		moveEnemy(currentPath_, deltaTime, 1.0f, false);
 
@@ -1181,16 +1181,16 @@ void Enemy::EnemyDecisionPrecomputedQ(NashState& currentState, int enemyId, std:
 
 		VacatePreviousCell();
 
-		for (glm::ivec2 cell : currentPath_)
-		{
-			if (grid_->GetGrid()[cell.x][cell.y].IsOccupied())
-				currentPath_ = grid_->findPath(
-					glm::ivec2(getPosition().x / grid_->GetCellSize(), getPosition().z / grid_->GetCellSize()),
-					glm::ivec2(selectedCover_->worldPosition.x / grid_->GetCellSize(), selectedCover_->worldPosition.z / grid_->GetCellSize()),
-					grid_->GetGrid(),
-					enemyId
-				);
-		}
+		//for (glm::ivec2& cell : currentPath_)
+		//{
+		//	if (grid_->GetGrid()[cell.x][cell.y].IsOccupied())
+		//		currentPath_ = grid_->findPath(
+		//			glm::ivec2(getPosition().x / grid_->GetCellSize(), getPosition().z / grid_->GetCellSize()),
+		//			glm::ivec2(selectedCover_->worldPosition.x / grid_->GetCellSize(), selectedCover_->worldPosition.z / grid_->GetCellSize()),
+		//			grid_->GetGrid(),
+		//			enemyId
+		//		);
+		//}
 
 		moveEnemy(currentPath_, dt_, 1.0f, false);
 		currentState.playerDetected = IsPlayerDetected();
@@ -1230,16 +1230,16 @@ void Enemy::EnemyDecisionPrecomputedQ(NashState& currentState, int enemyId, std:
 
 			VacatePreviousCell();
 
-			for (glm::ivec2 cell : currentPath_)
-			{
-				if (grid_->GetGrid()[cell.x][cell.y].IsOccupied())
-					currentPath_ = grid_->findPath(
-						glm::ivec2(getPosition().x / grid_->GetCellSize(), getPosition().z / grid_->GetCellSize()),
-						glm::ivec2(currentWaypoint.x / grid_->GetCellSize(), currentWaypoint.z / grid_->GetCellSize()),
-						grid_->GetGrid(),
-						enemyId
-					);
-			}
+			//for (glm::ivec2& cell : currentPath_)
+			//{
+			//	if (grid_->GetGrid()[cell.x][cell.y].IsOccupied())
+			//		currentPath_ = grid_->findPath(
+			//			glm::ivec2(getPosition().x / grid_->GetCellSize(), getPosition().z / grid_->GetCellSize()),
+			//			glm::ivec2(currentWaypoint.x / grid_->GetCellSize(), currentWaypoint.z / grid_->GetCellSize()),
+			//			grid_->GetGrid(),
+			//			enemyId
+			//		);
+			//}
 
 			moveEnemy(currentPath_, dt_, 1.0f, false);
 		}
@@ -1258,7 +1258,7 @@ void Enemy::EnemyDecisionPrecomputedQ(NashState& currentState, int enemyId, std:
 
 			reachedDestination = false;
 
-			for (glm::ivec2 cell : currentPath_)
+	/*		for (glm::ivec2& cell : currentPath_)
 			{
 				if (grid_->GetGrid()[cell.x][cell.y].IsOccupied())
 					currentPath_ = grid_->findPath(
@@ -1267,7 +1267,7 @@ void Enemy::EnemyDecisionPrecomputedQ(NashState& currentState, int enemyId, std:
 						grid_->GetGrid(),
 						enemyId
 					);
-			}
+			}*/
 
 
 			moveEnemy(currentPath_, dt_, 1.0f, false);
@@ -1740,16 +1740,16 @@ NodeStatus Enemy::AttackChasePlayer()
 
 	isAttacking_ = true;
 
-	for (glm::ivec2 cell : currentPath_)
-	{
-		if (cell.x >= 0 && cell.x < grid_->GetGridSize() && cell.y >= 0 && cell.y < grid_->GetGridSize() && grid_->GetGrid()[cell.x][cell.y].IsOccupied())
-			currentPath_ = grid_->findPath(
-				glm::ivec2(getPosition().x / grid_->GetCellSize(), getPosition().z / grid_->GetCellSize()),
-				glm::ivec2(player.getPosition().x / grid_->GetCellSize(), player.getPosition().z / grid_->GetCellSize()),
-				grid_->GetGrid(),
-				id_
-			);
-	}
+	//for (glm::ivec2& cell : currentPath_)
+	//{
+	//	if (cell.x >= 0 && cell.x < grid_->GetGridSize() && cell.y >= 0 && cell.y < grid_->GetGridSize() && grid_->GetGrid()[cell.x][cell.y].IsOccupied())
+	//		currentPath_ = grid_->findPath(
+	//			glm::ivec2(getPosition().x / grid_->GetCellSize(), getPosition().z / grid_->GetCellSize()),
+	//			glm::ivec2(player.getPosition().x / grid_->GetCellSize(), player.getPosition().z / grid_->GetCellSize()),
+	//			grid_->GetGrid(),
+	//			id_
+	//		);
+	//}
 
 
 	moveEnemy(currentPath_, dt_, 1.0f, false);
@@ -1846,16 +1846,16 @@ NodeStatus Enemy::TakeCover()
 
 	VacatePreviousCell();
 
-	for (glm::ivec2 cell : currentPath_)
-	{
-		if (grid_->GetGrid()[cell.x][cell.y].IsOccupied())
-			currentPath_ = grid_->findPath(
-				glm::ivec2(getPosition().x / grid_->GetCellSize(), getPosition().z / grid_->GetCellSize()),
-				glm::ivec2(selectedCover_->worldPosition.x / grid_->GetCellSize(), selectedCover_->worldPosition.z / grid_->GetCellSize()),
-				grid_->GetGrid(),
-				id_
-			);
-	}
+	//for (glm::ivec2& cell : currentPath_)
+	//{
+	//	if (grid_->GetGrid()[cell.x][cell.y].IsOccupied())
+	//		currentPath_ = grid_->findPath(
+	//			glm::ivec2(getPosition().x / grid_->GetCellSize(), getPosition().z / grid_->GetCellSize()),
+	//			glm::ivec2(selectedCover_->worldPosition.x / grid_->GetCellSize(), selectedCover_->worldPosition.z / grid_->GetCellSize()),
+	//			grid_->GetGrid(),
+	//			id_
+	//		);
+	//}
 
 
 	moveEnemy(currentPath_, dt_, 1.0f, false);
@@ -1913,16 +1913,16 @@ NodeStatus Enemy::Patrol()
 
 		VacatePreviousCell();
 
-		for (glm::ivec2 cell : currentPath_)
-		{
-			if (grid_->GetGrid()[cell.x][cell.y].IsOccupied())
-				currentPath_ = grid_->findPath(
-					glm::ivec2(getPosition().x / grid_->GetCellSize(), getPosition().z / grid_->GetCellSize()),
-					glm::ivec2(currentWaypoint.x / grid_->GetCellSize(), currentWaypoint.z / grid_->GetCellSize()),
-					grid_->GetGrid(),
-					id_
-				);
-		}
+		//for (glm::ivec2& cell : currentPath_)
+		//{
+		//	if (grid_->GetGrid()[cell.x][cell.y].IsOccupied())
+		//		currentPath_ = grid_->findPath(
+		//			glm::ivec2(getPosition().x / grid_->GetCellSize(), getPosition().z / grid_->GetCellSize()),
+		//			glm::ivec2(currentWaypoint.x / grid_->GetCellSize(), currentWaypoint.z / grid_->GetCellSize()),
+		//			grid_->GetGrid(),
+		//			id_
+		//		);
+		//}
 
 
 		moveEnemy(currentPath_, dt_, 1.0f, false);
@@ -1942,16 +1942,16 @@ NodeStatus Enemy::Patrol()
 
 		reachedDestination = false;
 
-		for (glm::ivec2 cell : currentPath_)
-		{
-			if (grid_->GetGrid()[cell.x][cell.y].IsOccupied())
-				currentPath_ = grid_->findPath(
-					glm::ivec2(getPosition().x / grid_->GetCellSize(), getPosition().z / grid_->GetCellSize()),
-					glm::ivec2(currentWaypoint.x / grid_->GetCellSize(), currentWaypoint.z / grid_->GetCellSize()),
-					grid_->GetGrid(),
-					id_
-				);
-		}
+		//for (glm::ivec2& cell : currentPath_)
+		//{
+		//	if (grid_->GetGrid()[cell.x][cell.y].IsOccupied())
+		//		currentPath_ = grid_->findPath(
+		//			glm::ivec2(getPosition().x / grid_->GetCellSize(), getPosition().z / grid_->GetCellSize()),
+		//			glm::ivec2(currentWaypoint.x / grid_->GetCellSize(), currentWaypoint.z / grid_->GetCellSize()),
+		//			grid_->GetGrid(),
+		//			id_
+		//		);
+		//}
 
 
 		moveEnemy(currentPath_, dt_, 1.0f, false);
