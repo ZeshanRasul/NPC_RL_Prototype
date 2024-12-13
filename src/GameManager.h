@@ -405,6 +405,5 @@ private:
 	GLuint vao, vbo, ebo;
 	Shader navMeshShader{};
 	std::vector<float> navmeshVertices;
-	std::vector<unsigned int> navmeshIndices; // Use unsigned int for consistency
-
+	std::vector<unsigned int> navmeshIndices; 
 };

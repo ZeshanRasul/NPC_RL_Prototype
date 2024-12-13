@@ -465,41 +465,30 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 	const float ch = polyMesh->ch;
 	const float* orig = polyMesh->bmin;
 
+	for (int i = 0; i < polyMesh->nverts; ++i)
+	{
+		const unsigned short* v = &polyMesh->verts[i * 3];
+		const float x = orig[0] + v[0] * cs;
+		const float y = orig[1] + v[1] * ch;
+		const float z = orig[2] + v[2] * cs;
+		navmeshVertices.push_back(x);
+		navmeshVertices.push_back(y);
+		navmeshVertices.push_back(z);
+	}
+
+	// Process indices
 	for (int i = 0; i < polyMesh->npolys; ++i)
 	{
 		const unsigned short* p = &polyMesh->polys[i * nvp * 2];
-		//const unsigned char area = polyMesh->areas[i];
-
-		//unsigned int color;
-		//if (area == RC_WALKABLE_AREA)
-		//	color = duRGBA(0, 192, 255, 64);
-		//else if (area == RC_NULL_AREA)
-		//	color = duRGBA(0, 0, 0, 64);
-		//else
-		//	color = dd->areaToCol(area);
-
-		unsigned short vi[3];
 		for (int j = 2; j < nvp; ++j)
 		{
 			if (p[j] == RC_MESH_NULL_IDX) break;
-			vi[0] = p[0];
-			vi[1] = p[j - 1];
-			vi[2] = p[j];
-			navmeshIndices.push_back(vi[0]);
-			navmeshIndices.push_back(vi[1]);
-			navmeshIndices.push_back(vi[2]);
-			for (int k = 0; k < 3; ++k)
-			{
-				const unsigned short* v = &polyMesh->verts[vi[k] * 3];
-				const float x = orig[0] + v[0] * cs;
-				const float y = orig[1] + (v[1] + 1) * ch;
-				const float z = orig[2] + v[2] * cs;
-				navmeshVertices.push_back(x);
-				navmeshVertices.push_back(y);
-				navmeshVertices.push_back(z);
-			}
+			navmeshIndices.push_back(p[0]);      // Triangle vertex 1
+			navmeshIndices.push_back(p[j - 1]); // Triangle vertex 2
+			navmeshIndices.push_back(p[j]);     // Triangle vertex 3
 		}
 	}
+
 
 	// Create VAO
 	glGenVertexArrays(1, &vao);
@@ -513,7 +502,7 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 	// Create EBO
 	glGenBuffers(1, &ebo);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, navmeshIndices.size() * sizeof(int), navmeshIndices.data(), GL_STATIC_DRAW);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, navmeshIndices.size() * sizeof(unsigned int), navmeshIndices.data(), GL_STATIC_DRAW);
 
 	// Enable vertex attribute (e.g., position at location 0)
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
@@ -1016,13 +1005,14 @@ void GameManager::render(bool isMinimapRenderPass, bool isShadowMapRenderPass, b
 		navMeshShader.use();
 		navMeshShader.setMat4("view", view);
 		navMeshShader.setMat4("projection", projection);
+		glDisable(GL_CULL_FACE);
 		glBindVertexArray(vao);
 		glDrawElements(GL_TRIANGLES, navmeshIndices.size(), GL_UNSIGNED_INT, 0);
 
-		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-		glDrawElements(GL_TRIANGLES, navmeshIndices.size(), GL_UNSIGNED_INT, 0);
+		//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+		//glDrawElements(GL_TRIANGLES, navmeshIndices.size(), GL_UNSIGNED_INT, 0);
 
-		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+		//glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	}
 
 	if (camSwitchedToAim)

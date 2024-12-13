@@ -23,7 +23,7 @@ void Grid::initializeGrid() {
 			}
 
 			// Compute indices for this cell
-			int baseIndex = wsVertices.size() - 6; // Last 6 vertices form this cell
+			int baseIndex = (i * GRID_SIZE + j) * 6;
 			indices.push_back(baseIndex + 0);
 			indices.push_back(baseIndex + 1);
 			indices.push_back(baseIndex + 2);
