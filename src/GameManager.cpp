@@ -154,11 +154,11 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 	cfg.maxVertsPerPoly = 6;            // Max verts per poly
 	cfg.tileSize = 32;                  // Tile size
 	cfg.borderSize = (int)(cfg.walkableRadius / cfg.cs + 0.5f); // Tile overlap
-	cfg.width = gameGrid->GetCellSize() * gameGrid->GetGridSize() / cfg.cs;
-	cfg.height = gameGrid->GetCellSize() * gameGrid->GetGridSize() / cfg.ch;
+	cfg.width = 500.0f;
+	cfg.height = 500.0f;
 
-	float minBounds[3] = { 0.0f, 0.0f, 0.0f };
-	float maxBounds[3] = { gameGrid->GetCellSize() * gameGrid->GetGridSize() / cfg.cs, 1.0f, gameGrid->GetCellSize() * gameGrid->GetGridSize() / cfg.ch };
+	float minBounds[3] = { -10.0f, 0.0f, -10.0f };
+	float maxBounds[3] = { 500.0f, 1.0f, 500.0f };
 
 	//cfg.cs = 0.3f;                      // Cell size
 	//cfg.ch = 0.2f;                      // Cell height
@@ -180,7 +180,7 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 	//float maxBounds[3] = { 500.0f, 1.0f, 500.0f };
 
 	heightField = rcAllocHeightfield();
-	if (!rcCreateHeightfield(ctx, *heightField, maxBounds[0], maxBounds[2], minBounds, maxBounds, cfg.cs, cfg.ch))
+	if (!rcCreateHeightfield(ctx, *heightField, 500.0f, 500.0f, minBounds, maxBounds, cfg.cs, cfg.ch))
 	{
 		Logger::log(1, "%s error: Could not create heightfield\n", __FUNCTION__);
 	}
@@ -318,7 +318,7 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 
 	navMeshQuery = dtAllocNavMeshQuery();
 
-	dtStatus status = navMeshQuery->init(navMesh, 2048);
+	dtStatus status = navMeshQuery->init(navMesh, 60000);
 	if (dtStatusFailed(status))
 	{
 		Logger::log(1, "%s error: Could not init Detour navMeshQuery\n", __FUNCTION__);
@@ -958,22 +958,36 @@ void GameManager::update(float deltaTime)
 		}
 //		e->Update(useEDBT, speedDivider, blendFac);
 
-		float targetPos[3] = { player->getPosition().x, player->getPosition().y, player->getPosition().z };
+		
+		float targetPos[3] = { polyMesh->bmin[0] + 1.0f, 0.1f, polyMesh->bmin[2] + 1.0f };
+		Logger::log(1, "Target position on nav mesh after query: %f, %f, %f\n", targetPos[0], targetPos[1], targetPos[2]);
+
 
 		dtPolyRef targetPoly;
 		float targetPosOnNavMesh[3];
-		dtStatus status = navMeshQuery->findNearestPoly(targetPos, halfExtents, &filter, &targetPoly, targetPosOnNavMesh);
+		filter.setIncludeFlags(0xFFFF); // Include all polygons for testing
+		filter.setExcludeFlags(0);      // Exclude no polygons
 
-		Logger::log(1, "Player position: %f %f %f\n", player->getPosition().x, player->getPosition().y, player->getPosition().z); Logger::log(1, "Target position on nav mesh after query: %f, %f, %f\n", targetPosOnNavMesh[0], targetPosOnNavMesh[1], targetPosOnNavMesh[2]);
+		if (!navMeshQuery)
+		{
+			Logger::log(1, "%s error: NavMeshQuery is null\n", __FUNCTION__);
+		}
+		dtStatus status;
+		if (navMeshQuery)
+			status = navMeshQuery->findNearestPoly(targetPos, halfExtents, &filter, &targetPoly, targetPosOnNavMesh);
+
+		Logger::log(1, "Player position: %f %f %f\n", player->getPosition().x, player->getPosition().y, player->getPosition().z); 
 		Logger::log(1, "Target position on nav mesh after query: %f, %f, %f\n", targetPosOnNavMesh[0], targetPosOnNavMesh[1], targetPosOnNavMesh[2]);
 
 		if (dtStatusFailed(status))
 		{
 			Logger::log(1, "%s error: Could not find nearest poly enemy %d\n", __FUNCTION__, e->GetID());
+			Logger::log(1, "findNearestPoly failed: %u\n", status);
 		}
 		else
 		{
 			Logger::log(1, "%s: Found nearest poly enemy %d\n", __FUNCTION__, e->GetID());
+			Logger::log(1, "findNearestPoly succeeded: PolyRef = %u, Pos = %f %f %f\n", targetPoly, targetPosOnNavMesh[0], targetPosOnNavMesh[1], targetPosOnNavMesh[2]);
 		}
 
 		status = crowd->requestMoveTarget(e->GetID(), targetPoly, targetPosOnNavMesh);
@@ -998,8 +1012,8 @@ void GameManager::update(float deltaTime)
 		const dtCrowdAgent* agent = crowd->getAgent(e->GetID());
 		float agentPos[3];
 		dtVcopy(agentPos, agent->npos);
-		Logger::log(1, "%s: Agent %d position: %f %f %f\n", __FUNCTION__, e->GetID(), agentPos[0], agentPos[1], agentPos[2]);
-		Logger::log(1, "%s: Crowd Agent %d position: %f %f %f\n", __FUNCTION__, e->GetID(), agent->npos[0], agent->npos[1], agent->npos[2]);
+		//Logger::log(1, "%s: Agent %d position: %f %f %f\n", __FUNCTION__, e->GetID(), agentPos[0], agentPos[1], agentPos[2]);
+		//Logger::log(1, "%s: Crowd Agent %d position: %f %f %f\n", __FUNCTION__, e->GetID(), agent->npos[0], agent->npos[1], agent->npos[2]);
 		e->setPosition(glm::vec3(agentPos[0], agentPos[1], agentPos[2]));
 	}
 
@@ -1076,14 +1090,16 @@ void GameManager::render(bool isMinimapRenderPass, bool isShadowMapRenderPass, b
 	{
 		gameGrid->drawGrid(gridShader, view, projection, camera->Position, false, lightSpaceMatrix, renderer->GetShadowMapTexture());
 
+
+		navMeshShader.use();
+		navMeshShader.setMat4("view", view);
+		navMeshShader.setMat4("projection", projection);
+		//glBindVertexArray(vao);
 		//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 		//glDrawElements(GL_TRIANGLES, navmeshIndices.size(), GL_UNSIGNED_INT, 0);
 
 		//glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
-		navMeshShader.use();
-		navMeshShader.setMat4("view", view);
-		navMeshShader.setMat4("projection", projection);
 		glDisable(GL_CULL_FACE);
 		glBindVertexArray(vao);
 		glDrawElements(GL_TRIANGLES, navmeshIndices.size(), GL_UNSIGNED_INT, 0);

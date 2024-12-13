@@ -401,7 +401,7 @@ private:
 	std::vector<int> enemyAgentIDs;
 	float* targetPosOnNavMesh;
 	dtQueryFilter filter;
-	const float halfExtents[3] = { 10.0f, 10.0f, 10.0f };
+	const float halfExtents[3] = { 100.0f, 100.0f, 100.0f };
 
 	dtNavMesh* navMesh;
 	dtNavMeshQuery* navMeshQuery = nullptr;
