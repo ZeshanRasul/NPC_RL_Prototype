@@ -154,11 +154,11 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 	cfg.maxVertsPerPoly = 6;            // Max verts per poly
 	cfg.tileSize = 32;                  // Tile size
 	cfg.borderSize = (int)(cfg.walkableRadius / cfg.cs + 0.5f); // Tile overlap
-	cfg.width = 500.0f;
-	cfg.height = 500.0f;
+	cfg.width = gameGrid->GetCellSize() * gameGrid->GetGridSize() / cfg.cs;
+	cfg.height = gameGrid->GetCellSize() * gameGrid->GetGridSize() / cfg.ch;
 
 	float minBounds[3] = { 0.0f, 0.0f, 0.0f };
-	float maxBounds[3] = { 500.0f, 1.0f, 500.0f };
+	float maxBounds[3] = { gameGrid->GetCellSize() * gameGrid->GetGridSize() / cfg.cs, 0.1f, gameGrid->GetCellSize() * gameGrid->GetGridSize() / cfg.ch };
 
 	//cfg.cs = 0.3f;                      // Cell size
 	//cfg.ch = 0.2f;                      // Cell height
@@ -180,7 +180,7 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 	//float maxBounds[3] = { 500.0f, 1.0f, 500.0f };
 
 	heightField = rcAllocHeightfield();
-	if (!rcCreateHeightfield(ctx, *heightField, 500.0f, 500.0f, minBounds, maxBounds, cfg.cs, cfg.ch))
+	if (!rcCreateHeightfield(ctx, *heightField, maxBounds[0], maxBounds[2], minBounds, maxBounds, cfg.cs, cfg.ch))
 	{
 		Logger::log(1, "%s error: Could not create heightfield\n", __FUNCTION__);
 	}
