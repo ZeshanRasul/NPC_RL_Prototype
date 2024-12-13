@@ -263,6 +263,7 @@ private:
 	Shader playerShader{};
 	Shader enemyShader{};
 	Shader gridShader{};
+	Shader gridDebugShader{};
 	Shader crosshairShader{};
 	Shader lineShader{};
 	Shader aabbShader{};

@@ -336,7 +336,7 @@ void Enemy::moveEnemy(const std::vector<glm::ivec2>& path, float deltaTime, floa
 				reachedCover = true;
 				isTakingCover_ = false;
 				isInCover_ = true;
-				//			grid_->OccupyCell(selectedCover_->gridX, selectedCover_->gridZ, id_);
+				grid_->OccupyCell(selectedCover_->gridX, selectedCover_->gridZ, id_);
 
 				if (!resetBlend && destAnim != 2)
 				{
@@ -419,19 +419,19 @@ void Enemy::moveEnemy(const std::vector<glm::ivec2>& path, float deltaTime, floa
 
 	if (glm::distance(getPosition(), targetPos) < grid_->GetCellSize() / 3.0f)
 	{
-		//	grid_->OccupyCell(path[pathIndex_].x, path[pathIndex_].y, id_);
+			grid_->OccupyCell(path[pathIndex_].x, path[pathIndex_].y, id_);
 	}
 
-	//    if (pathIndex_ >= 1)
-	 //      grid_->VacateCell(path[pathIndex_ - 1].x, path[pathIndex_ - 1].y, id_);
+	    if (pathIndex_ >= 1)
+	       grid_->VacateCell(path[pathIndex_ - 1].x, path[pathIndex_ - 1].y, id_);
 
 		// Check if the enemy has reached the current target position within a tolerance
 	if (glm::distance(getPosition(), targetPos) < tolerance) {
-		//		grid_->VacateCell(path[pathIndex_].x, path[pathIndex_].y, id_);
+				grid_->VacateCell(path[pathIndex_].x, path[pathIndex_].y, id_);
 
 		pathIndex_++;
 		if (pathIndex_ >= path.size()) {
-			//			grid_->VacateCell(path[pathIndex_ - 1].x, path[pathIndex_ - 1].y, id_);
+			grid_->VacateCell(path[pathIndex_ - 1].x, path[pathIndex_ - 1].y, id_);
 			pathIndex_ = 0; // Reset path index if the end is reached
 		}
 	}
@@ -1382,7 +1382,7 @@ void Enemy::VacatePreviousCell()
 	{
 		for (size_t i = 0; i < prevPath_.size(); i++)
 		{
-			//           grid_->VacateCell(prevPath_[i].x, prevPath_[i].y, id_);
+			grid_->VacateCell(prevPath_[i].x, prevPath_[i].y, id_);
 		}
 		prevPathIndex_ = pathIndex_;
 		prevPath_ = currentPath_;

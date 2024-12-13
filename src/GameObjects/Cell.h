@@ -111,6 +111,7 @@ public:
 	Texture mRoughness{};
 	Texture mAO{};
 	Texture mEmissive{};
+	Texture mDebugOutline{};
 
 private:
 	GLuint cellVAO = 0;

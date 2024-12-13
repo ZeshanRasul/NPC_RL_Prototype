@@ -100,6 +100,9 @@ void Grid::drawGrid(Shader& gridShader, glm::mat4 viewMat, glm::mat4 projMat, gl
 			grid[0][0].LoadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/Floor/TCom_Scifi_Floor2_4K_roughness.png", &grid[0][0].mRoughness);
 			grid[0][0].LoadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/Floor/TCom_Scifi_Floor2_4K_ao.png", &grid[0][0].mAO);
 			grid[0][0].LoadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/Floor/TCom_Scifi_Floor2_4K_emissive.png", &grid[0][0].mEmissive);
+#ifdef DEBUG
+#endif
+			grid[0][0].LoadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/Cell.png", &grid[0][0].mDebugOutline);
 
 			firstLoad = false;
 		}
@@ -119,6 +122,11 @@ void Grid::drawGrid(Shader& gridShader, glm::mat4 viewMat, glm::mat4 projMat, gl
 		glActiveTexture(GL_TEXTURE6);
 		glBindTexture(GL_TEXTURE_2D, shadowMapTexture);
 		gridShader.setInt("shadowMap", 6);
+
+#ifdef DEBUG
+#endif
+		grid[0][0].mDebugOutline.bind(7);
+		gridShader.setInt("debugOutline", 7);
 	}
 	for (int i = 0; i < GRID_SIZE; ++i) {
 		for (int j = 0; j < GRID_SIZE; ++j) {
@@ -132,7 +140,9 @@ void Grid::drawGrid(Shader& gridShader, glm::mat4 viewMat, glm::mat4 projMat, gl
 			matrixData.push_back(lightSpaceMat);
 			mGridUniformBuffer.uploadUboData(matrixData, 0);
 			glm::vec3 cellColor = grid[i][j].GetColor();
-			gridShader.setVec3("color", cellColor);
+#ifdef DEBUG
+#endif
+			gridShader.setVec3("debugColor", cellColor);
 			gridShader.setVec3("cameraPos", camPos);
 			// Render cell
 			grid[i][j].BindVAO();

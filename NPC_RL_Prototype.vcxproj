@@ -338,6 +338,8 @@
     <None Include="src\Shaders\muzzle_flash_fragment.glsl" />
     <None Include="src\Shaders\muzzle_flash_vertex.glsl" />
     <None Include="src\Shaders\pbr_fragment_emissive.glsl" />
+    <None Include="src\Shaders\pbr_grid_debug_frag.glsl" />
+    <None Include="src\Shaders\pbr_grid_debug_vert.glsl" />
     <None Include="src\Shaders\shadow_map_enemy_vertex.glsl" />
     <None Include="src\Shaders\shadow_map_fragment.glsl" />
     <None Include="src\Shaders\shadow_map_player_vertex.glsl" />
