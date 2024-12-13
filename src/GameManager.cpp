@@ -85,6 +85,8 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 
 	size_t vertexOffset = 0;
 
+	int coverCount = 0;
+
 	for (Cube* coverSpot : coverSpots)
 	{
 		for (glm::vec3 coverPosVerts : coverSpot->GetPositionVertices())
@@ -104,6 +106,8 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 		}
 
 		vertexOffset += coverSpot->GetPositionVertices().size();
+	
+		coverCount++;
 	}
 
 	gameGrid->initializeGrid();
@@ -191,6 +195,13 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 	Logger::log(1, "Triangle count: %d\n", numTris);
 
 	rcMarkWalkableTriangles(ctx, cfg.walkableSlopeAngle, navMeshVertices.data(), navMeshVertices.size(), triIndices, numTris, triAreas);
+
+	for (int i = 0; i < indexCount / 3; ++i) {
+		if (i < coverCount * 36 / 3) {
+			triAreas[i] = RC_NULL_AREA; // Mark this triangle as non-walkable
+		}
+	}
+
 	if (!rcRasterizeTriangles(ctx, navMeshVertices.data(), navMeshVertices.size(), triIndices, triAreas, numTris, *heightField, cfg.walkableClimb))
 	{
 		Logger::log(1, "%s error: Could not rasterize triangles\n", __FUNCTION__);
@@ -1007,14 +1018,14 @@ void GameManager::render(bool isMinimapRenderPass, bool isShadowMapRenderPass, b
 		//glDrawElements(GL_TRIANGLES, navmeshIndices.size(), GL_UNSIGNED_INT, 0);
 
 		//glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-	}
 
-	navMeshShader.use();
-	navMeshShader.setMat4("view", view);
-	navMeshShader.setMat4("projection", projection);
-	glDisable(GL_CULL_FACE);
-	glBindVertexArray(vao);
-	glDrawElements(GL_TRIANGLES, navmeshIndices.size(), GL_UNSIGNED_INT, 0);
+		navMeshShader.use();
+		navMeshShader.setMat4("view", view);
+		navMeshShader.setMat4("projection", projection);
+		glDisable(GL_CULL_FACE);
+		glBindVertexArray(vao);
+		glDrawElements(GL_TRIANGLES, navmeshIndices.size(), GL_UNSIGNED_INT, 0);
+	}
 
 	if (camSwitchedToAim)
 		camSwitchedToAim = false;
