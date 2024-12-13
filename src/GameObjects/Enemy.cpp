@@ -281,160 +281,160 @@ void Enemy::EnemyProcessMouseMovement(float xOffset, float yOffset, bool constra
 
 void Enemy::moveEnemy(const std::vector<glm::ivec2>& path, float deltaTime, float blendFactor, bool playAnimBackwards) {
 	//    static size_t pathIndex = 0;
-	if (path.empty())
-	{
-		return;
-	}
-
-	const float tolerance = 0.1f; // Smaller tolerance for better alignment
-	const float agentRadius = 0.5f; // Adjust this value to match the agent's radius
-
-	if (!reachedPlayer && !inCover)
-	{
-		if (!resetBlend && destAnim != 1)
-		{
-			SetSourceAnimNum(destAnim);
-			SetDestAnimNum(1);
-			blendAnim = true;
-			resetBlend = true;
-		}
-		//SetAnimation(GetAnimNum(), 1.0f, blendFactor, playAnimBackwards);
-	}
-
-	if (pathIndex_ >= path.size()) {
-		Logger::log(1, "%s success: Agent has reached its destination.\n", __FUNCTION__);
-		grid_->VacateCell(path[pathIndex_ - 1].x, path[pathIndex_ - 1].y, id_);
-
-		if (IsPatrolling() || EDBTState == "Patrol" || EDBTState == "PATROL")
-		{
-			reachedDestination = true;
-			std::random_device rd;
-			std::mt19937 gen{ rd() };
-			std::uniform_int_distribution<> distrib(1, 2);
-			int randomIndex = distrib(gen);
-			std::uniform_real_distribution<> distribReal(2.0, 3.0);
-			int randomFloat = distribReal(gen);
-
-			int enemyAudioIndex;
-			if (id_ == 3)
-			{
-				enemyAudioIndex = 4;
-			}
-			else
-			{
-				enemyAudioIndex = id_;
-			}
-
-			std::string clipName = "event:/enemy" + std::to_string(enemyAudioIndex) + "_Patrolling" + std::to_string(randomIndex);
-			Speak(clipName, 2.0f, randomFloat);
-		}
-
-		if (isTakingCover_)
-		{
-			if (glm::distance(getPosition(), selectedCover_->worldPosition) < grid_->GetCellSize() / 4.0f)
-			{
-				reachedCover = true;
-				isTakingCover_ = false;
-				isInCover_ = true;
-				//			grid_->OccupyCell(selectedCover_->gridX, selectedCover_->gridZ, id_);
-
-				if (!resetBlend && destAnim != 2)
-				{
-					SetSourceAnimNum(destAnim);
-					SetDestAnimNum(2);
-					blendAnim = true;
-					resetBlend = true;
-					//SetAnimation(GetAnimNum(), 1.0f, blendFactor, playAnimBackwards);
-				}
-			}
-			else
-			{
-				setPosition(getPosition() + (glm::normalize(selectedCover_->worldPosition - getPosition()) * 2.0f) * speed * deltaTime);
-			}
-		}
-
-		return; // Stop moving if the agent has reached its destination
-	}
-
-	// Calculate the target position from the current path node
-	glm::vec3 targetPos = glm::vec3(path[pathIndex_].x * grid_->GetCellSize() + grid_->GetCellSize() / 2.0f, getPosition().y, path[pathIndex_].y * grid_->GetCellSize() + grid_->GetCellSize() / 2.0f);
-
-	// Calculate the direction to the target position
-	glm::vec3 direction = glm::normalize(targetPos - getPosition());
-
-	//enemy.Yaw = glm::degrees(glm::acos(glm::dot(glm::normalize(enemy.Front), direction)));
-	yaw = glm::degrees(glm::atan(direction.z, direction.x));
-	mRecomputeWorldTransform = true;
-
-	UpdateEnemyVectors();
-
-	// Calculate the new position
-	glm::vec3 newPos = getPosition() + direction * speed * deltaTime;
-
-	// Ensure the new position is not within an obstacle by checking the bounding box
-	bool isObstacleFree = true;
-	for (float xOffset = -agentRadius; xOffset <= agentRadius; xOffset += agentRadius * 2) {
-		for (float zOffset = -agentRadius; zOffset <= agentRadius; zOffset += agentRadius * 2) {
-			glm::ivec2 checkPos = glm::ivec2((newPos.x + xOffset) / grid_->GetCellSize(), (newPos.z + zOffset) / grid_->GetCellSize());
-			if (checkPos.x < 0 || checkPos.x >= grid_->GetGridSize() || checkPos.y < 0 || checkPos.y >= grid_->GetGridSize()
-				|| grid_->GetGrid()[checkPos.x][checkPos.y].IsObstacle() || (grid_->GetGrid()[checkPos.x][checkPos.y].IsOccupied()
-					&& !grid_->GetGrid()[checkPos.x][checkPos.y].IsOccupiedBy(id_))) {
-				isObstacleFree = false;
-				break;
-			}
-		}
-		if (!isObstacleFree) break;
-	}
-
-	if (isObstacleFree) {
-		setPosition(newPos);
-	}
-	else {
-		// If the new position is within an obstacle, try to adjust the position slightly
-		newPos = getPosition() + direction * (speed * deltaTime * 0.01f);
-		isObstacleFree = true;
-		for (float xOffset = -agentRadius; xOffset <= agentRadius; xOffset += agentRadius * 2) {
-			for (float zOffset = -agentRadius; zOffset <= agentRadius; zOffset += agentRadius * 2) {
-				glm::ivec2 checkPos = glm::ivec2((newPos.x + xOffset) / grid_->GetCellSize(), (newPos.z + zOffset) / grid_->GetCellSize());
-				if (checkPos.x < 0 || checkPos.x >= grid_->GetGridSize() || checkPos.y < 0 || checkPos.y >= grid_->GetGridSize()
-					|| grid_->GetGrid()[checkPos.x][checkPos.y].IsObstacle() || (grid_->GetGrid()[checkPos.x][checkPos.y].IsOccupied()
-						&& !grid_->GetGrid()[checkPos.x][checkPos.y].IsOccupiedBy(id_))) {
-					isObstacleFree = false;
-					break;
-				}
-			}
-			if (!isObstacleFree) break;
-		}
-
-		if (isObstacleFree) {
-			setPosition(newPos);
-		}
-	}
-
-	//if (pathIndex_ == 0) {
-	//    // Snap the enemy to the center of the starting grid cell when the path starts
-	//    glm::vec3 startCellCenter = glm::vec3(path[pathIndex_].x * grid_->GetCellSize() + grid_->GetCellSize() / 2.0f, getPosition().z, path[pathIndex_].y * grid_->GetCellSize() + grid_->GetCellSize() / 2.0f);
-	//    setPosition(startCellCenter);
+	//if (path.empty())
+	//{
+	//	return;
 	//}
 
-	if (glm::distance(getPosition(), targetPos) < grid_->GetCellSize() / 3.0f)
-	{
-		//	grid_->OccupyCell(path[pathIndex_].x, path[pathIndex_].y, id_);
-	}
+	//const float tolerance = 0.1f; // Smaller tolerance for better alignment
+	//const float agentRadius = 0.5f; // Adjust this value to match the agent's radius
 
-	//    if (pathIndex_ >= 1)
-	 //      grid_->VacateCell(path[pathIndex_ - 1].x, path[pathIndex_ - 1].y, id_);
+	//if (!reachedPlayer && !inCover)
+	//{
+	//	if (!resetBlend && destAnim != 1)
+	//	{
+	//		SetSourceAnimNum(destAnim);
+	//		SetDestAnimNum(1);
+	//		blendAnim = true;
+	//		resetBlend = true;
+	//	}
+	//	//SetAnimation(GetAnimNum(), 1.0f, blendFactor, playAnimBackwards);
+	//}
 
-		// Check if the enemy has reached the current target position within a tolerance
-	if (glm::distance(getPosition(), targetPos) < tolerance) {
-		//		grid_->VacateCell(path[pathIndex_].x, path[pathIndex_].y, id_);
+	//if (pathIndex_ >= path.size()) {
+	//	Logger::log(1, "%s success: Agent has reached its destination.\n", __FUNCTION__);
+	//	grid_->VacateCell(path[pathIndex_ - 1].x, path[pathIndex_ - 1].y, id_);
 
-		pathIndex_++;
-		if (pathIndex_ >= path.size()) {
-			//			grid_->VacateCell(path[pathIndex_ - 1].x, path[pathIndex_ - 1].y, id_);
-			pathIndex_ = 0; // Reset path index if the end is reached
-		}
-	}
+	//	if (IsPatrolling() || EDBTState == "Patrol" || EDBTState == "PATROL")
+	//	{
+	//		reachedDestination = true;
+	//		std::random_device rd;
+	//		std::mt19937 gen{ rd() };
+	//		std::uniform_int_distribution<> distrib(1, 2);
+	//		int randomIndex = distrib(gen);
+	//		std::uniform_real_distribution<> distribReal(2.0, 3.0);
+	//		int randomFloat = distribReal(gen);
+
+	//		int enemyAudioIndex;
+	//		if (id_ == 3)
+	//		{
+	//			enemyAudioIndex = 4;
+	//		}
+	//		else
+	//		{
+	//			enemyAudioIndex = id_;
+	//		}
+
+	//		std::string clipName = "event:/enemy" + std::to_string(enemyAudioIndex) + "_Patrolling" + std::to_string(randomIndex);
+	//		Speak(clipName, 2.0f, randomFloat);
+	//	}
+
+	//	if (isTakingCover_)
+	//	{
+	//		if (glm::distance(getPosition(), selectedCover_->worldPosition) < grid_->GetCellSize() / 4.0f)
+	//		{
+	//			reachedCover = true;
+	//			isTakingCover_ = false;
+	//			isInCover_ = true;
+	//			//			grid_->OccupyCell(selectedCover_->gridX, selectedCover_->gridZ, id_);
+
+	//			if (!resetBlend && destAnim != 2)
+	//			{
+	//				SetSourceAnimNum(destAnim);
+	//				SetDestAnimNum(2);
+	//				blendAnim = true;
+	//				resetBlend = true;
+	//				//SetAnimation(GetAnimNum(), 1.0f, blendFactor, playAnimBackwards);
+	//			}
+	//		}
+	//		else
+	//		{
+	//			setPosition(getPosition() + (glm::normalize(selectedCover_->worldPosition - getPosition()) * 2.0f) * speed * deltaTime);
+	//		}
+	//	}
+
+	//	return; // Stop moving if the agent has reached its destination
+	//}
+
+	//// Calculate the target position from the current path node
+	//glm::vec3 targetPos = glm::vec3(path[pathIndex_].x * grid_->GetCellSize() + grid_->GetCellSize() / 2.0f, getPosition().y, path[pathIndex_].y * grid_->GetCellSize() + grid_->GetCellSize() / 2.0f);
+
+	//// Calculate the direction to the target position
+	//glm::vec3 direction = glm::normalize(targetPos - getPosition());
+
+	////enemy.Yaw = glm::degrees(glm::acos(glm::dot(glm::normalize(enemy.Front), direction)));
+	//yaw = glm::degrees(glm::atan(direction.z, direction.x));
+	//mRecomputeWorldTransform = true;
+
+	//UpdateEnemyVectors();
+
+	//// Calculate the new position
+	//glm::vec3 newPos = getPosition() + direction * speed * deltaTime;
+
+	//// Ensure the new position is not within an obstacle by checking the bounding box
+	//bool isObstacleFree = true;
+	//for (float xOffset = -agentRadius; xOffset <= agentRadius; xOffset += agentRadius * 2) {
+	//	for (float zOffset = -agentRadius; zOffset <= agentRadius; zOffset += agentRadius * 2) {
+	//		glm::ivec2 checkPos = glm::ivec2((newPos.x + xOffset) / grid_->GetCellSize(), (newPos.z + zOffset) / grid_->GetCellSize());
+	//		if (checkPos.x < 0 || checkPos.x >= grid_->GetGridSize() || checkPos.y < 0 || checkPos.y >= grid_->GetGridSize()
+	//			|| grid_->GetGrid()[checkPos.x][checkPos.y].IsObstacle() || (grid_->GetGrid()[checkPos.x][checkPos.y].IsOccupied()
+	//				&& !grid_->GetGrid()[checkPos.x][checkPos.y].IsOccupiedBy(id_))) {
+	//			isObstacleFree = false;
+	//			break;
+	//		}
+	//	}
+	//	if (!isObstacleFree) break;
+	//}
+
+	//if (isObstacleFree) {
+	//	setPosition(newPos);
+	//}
+	//else {
+	//	// If the new position is within an obstacle, try to adjust the position slightly
+	//	newPos = getPosition() + direction * (speed * deltaTime * 0.01f);
+	//	isObstacleFree = true;
+	//	for (float xOffset = -agentRadius; xOffset <= agentRadius; xOffset += agentRadius * 2) {
+	//		for (float zOffset = -agentRadius; zOffset <= agentRadius; zOffset += agentRadius * 2) {
+	//			glm::ivec2 checkPos = glm::ivec2((newPos.x + xOffset) / grid_->GetCellSize(), (newPos.z + zOffset) / grid_->GetCellSize());
+	//			if (checkPos.x < 0 || checkPos.x >= grid_->GetGridSize() || checkPos.y < 0 || checkPos.y >= grid_->GetGridSize()
+	//				|| grid_->GetGrid()[checkPos.x][checkPos.y].IsObstacle() || (grid_->GetGrid()[checkPos.x][checkPos.y].IsOccupied()
+	//					&& !grid_->GetGrid()[checkPos.x][checkPos.y].IsOccupiedBy(id_))) {
+	//				isObstacleFree = false;
+	//				break;
+	//			}
+	//		}
+	//		if (!isObstacleFree) break;
+	//	}
+
+	//	if (isObstacleFree) {
+	//		setPosition(newPos);
+	//	}
+	//}
+
+	////if (pathIndex_ == 0) {
+	////    // Snap the enemy to the center of the starting grid cell when the path starts
+	////    glm::vec3 startCellCenter = glm::vec3(path[pathIndex_].x * grid_->GetCellSize() + grid_->GetCellSize() / 2.0f, getPosition().z, path[pathIndex_].y * grid_->GetCellSize() + grid_->GetCellSize() / 2.0f);
+	////    setPosition(startCellCenter);
+	////}
+
+	//if (glm::distance(getPosition(), targetPos) < grid_->GetCellSize() / 3.0f)
+	//{
+	//	//	grid_->OccupyCell(path[pathIndex_].x, path[pathIndex_].y, id_);
+	//}
+
+	////    if (pathIndex_ >= 1)
+	// //      grid_->VacateCell(path[pathIndex_ - 1].x, path[pathIndex_ - 1].y, id_);
+
+	//	// Check if the enemy has reached the current target position within a tolerance
+	//if (glm::distance(getPosition(), targetPos) < tolerance) {
+	//	//		grid_->VacateCell(path[pathIndex_].x, path[pathIndex_].y, id_);
+
+	//	pathIndex_++;
+	//	if (pathIndex_ >= path.size()) {
+	//		//			grid_->VacateCell(path[pathIndex_ - 1].x, path[pathIndex_ - 1].y, id_);
+	//		pathIndex_ = 0; // Reset path index if the end is reached
+	//	}
+	//}
 }
 
 void Enemy::SetAnimation(int animNum, float speedDivider, float blendFactor, bool playBackwards)

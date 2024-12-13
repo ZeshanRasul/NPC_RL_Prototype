@@ -145,7 +145,7 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 	cfg.walkableSlopeAngle = 35.0f;     // Steeper slopes allowed
 	cfg.walkableHeight = 2.0f;          // Min agent height
 	cfg.walkableClimb = 1.0f;           // Step height
-	cfg.walkableRadius = 1.0f;          // Agent radius
+	cfg.walkableRadius = 0.6f;          // Agent radius
 	cfg.maxEdgeLen = 48;                // Longer edges for smoother polys
 	cfg.minRegionArea = 4;              // Retain smaller regions
 	cfg.mergeRegionArea = 16;           // Merge small regions
@@ -158,7 +158,7 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 	cfg.height = gameGrid->GetCellSize() * gameGrid->GetGridSize() / cfg.ch;
 
 	float minBounds[3] = { 0.0f, 0.0f, 0.0f };
-	float maxBounds[3] = { gameGrid->GetCellSize() * gameGrid->GetGridSize() / cfg.cs, 0.1f, gameGrid->GetCellSize() * gameGrid->GetGridSize() / cfg.ch };
+	float maxBounds[3] = { gameGrid->GetCellSize() * gameGrid->GetGridSize() / cfg.cs, 1.0f, gameGrid->GetCellSize() * gameGrid->GetGridSize() / cfg.ch };
 
 	//cfg.cs = 0.3f;                      // Cell size
 	//cfg.ch = 0.2f;                      // Cell height
@@ -521,6 +521,25 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 
 	glBindVertexArray(0);
 
+
+	crowd = dtAllocCrowd();
+	crowd->init(5, 1.0f, navMesh);
+
+	for (auto& enem : enemies)
+	{
+		dtCrowdAgentParams ap;
+		memset(&ap, 0, sizeof(ap));
+		ap.radius = 0.6f;
+		ap.height = 2.0f;
+		ap.maxSpeed = 3.5f;
+		ap.maxAcceleration = 8.0f; // Meters per second squared
+		ap.collisionQueryRange = ap.radius * 12.0f;
+
+		float startingPos[3] = { enem->getPosition().x, enem->getPosition().y, enem->getPosition().z };
+		enemyAgentIDs.push_back(crowd->addAgent(startingPos, &ap));
+
+
+	}
 }
 
 void GameManager::setupCamera(unsigned int width, unsigned int height)
@@ -937,8 +956,51 @@ void GameManager::update(float deltaTime)
 				e->EnemyDecisionPrecomputedQ(enemyStates[e->GetID()], e->GetID(), squadActions, deltaTime, mEnemyStateQTable);
 			}
 		}
+//		e->Update(useEDBT, speedDivider, blendFac);
 
-		e->Update(useEDBT, speedDivider, blendFac);
+		float targetPos[3] = { player->getPosition().x, player->getPosition().y, player->getPosition().z };
+
+		dtPolyRef targetPoly;
+		float targetPosOnNavMesh[3];
+		dtStatus status = navMeshQuery->findNearestPoly(targetPos, halfExtents, &filter, &targetPoly, targetPosOnNavMesh);
+
+		Logger::log(1, "Player position: %f %f %f\n", player->getPosition().x, player->getPosition().y, player->getPosition().z); Logger::log(1, "Target position on nav mesh after query: %f, %f, %f\n", targetPosOnNavMesh[0], targetPosOnNavMesh[1], targetPosOnNavMesh[2]);
+		Logger::log(1, "Target position on nav mesh after query: %f, %f, %f\n", targetPosOnNavMesh[0], targetPosOnNavMesh[1], targetPosOnNavMesh[2]);
+
+		if (dtStatusFailed(status))
+		{
+			Logger::log(1, "%s error: Could not find nearest poly enemy %d\n", __FUNCTION__, e->GetID());
+		}
+		else
+		{
+			Logger::log(1, "%s: Found nearest poly enemy %d\n", __FUNCTION__, e->GetID());
+		}
+
+		status = crowd->requestMoveTarget(e->GetID(), targetPoly, targetPosOnNavMesh);
+
+		if (dtStatusFailed(status))
+		{
+			Logger::log(1, "%s error: Could not set move target for enemy %d\n", __FUNCTION__, e->GetID());
+		}
+		else
+		{
+			Logger::log(1, "%s: Move target set for enemy %d %f, %f, %f\n", __FUNCTION__, e->GetID(), targetPosOnNavMesh[0], targetPosOnNavMesh[1], targetPosOnNavMesh[2]);
+		}
+		
+
+	}
+	crowd->update(deltaTime, nullptr);
+
+
+	for (Enemy* e : enemies)
+	{
+		
+		const dtCrowdAgent* agent = crowd->getAgent(e->GetID());
+		float agentPos[3];
+		dtVcopy(agentPos, agent->npos);
+		Logger::log(1, "%s: Agent %d position: %f %f %f\n", __FUNCTION__, e->GetID(), agentPos[0], agentPos[1], agentPos[2]);
+		Logger::log(1, "%s: Crowd Agent %d position: %f %f %f\n", __FUNCTION__, e->GetID(), agent->npos[0], agent->npos[1], agent->npos[2]);
+		e->setPosition(glm::vec3(agentPos[0], agentPos[1], agentPos[2]));
 	}
 
 	mAudioManager->Update(deltaTime);

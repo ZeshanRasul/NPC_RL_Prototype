@@ -8,6 +8,8 @@
 #include "DetourNavMesh.h"
 #include "DetourNavMeshBuilder.h"
 #include "DetourNavMeshQuery.h"
+#include "DetourCrowd.h"
+#include "DetourCommon.h"
 
 #include "src/OpenGL/Renderer.h"
 #include "src/OpenGL/RenderData.h"
@@ -395,7 +397,11 @@ private:
 	rcContourSet* contourSet;
 	rcPolyMesh* polyMesh;
 	rcPolyMeshDetail* polyMeshDetail;
-
+	dtCrowd* crowd;
+	std::vector<int> enemyAgentIDs;
+	float* targetPosOnNavMesh;
+	dtQueryFilter filter;
+	const float halfExtents[3] = { 10.0f, 10.0f, 10.0f };
 
 	dtNavMesh* navMesh;
 	dtNavMeshQuery* navMeshQuery = nullptr;
