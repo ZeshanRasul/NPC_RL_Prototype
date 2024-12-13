@@ -85,10 +85,9 @@ void Grid::initializeGrid() {
 
 }
 
-void Grid::drawGrid(Shader& gridShader, glm::mat4 viewMat, glm::mat4 projMat, glm::vec3 camPos, bool shadowMap, glm::mat4 lightSpaceMat, GLuint shadowMapTexture)
+void Grid::drawGrid(Shader& gridShader, glm::mat4 viewMat, glm::mat4 projMat, glm::vec3 camPos, bool shadowMap, glm::mat4 lightSpaceMat, GLuint shadowMapTexture, 
+	glm::vec3 lightDir, glm::vec3 lightAmbient, glm::vec3 lightDiff, glm::vec3 lightSpec)
 {
-	//    glEnable(GL_BLEND);
-	//    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	if (!shadowMap)
 	{
 		gridShader.use();
@@ -124,10 +123,15 @@ void Grid::drawGrid(Shader& gridShader, glm::mat4 viewMat, glm::mat4 projMat, gl
 		gridShader.setInt("shadowMap", 6);
 
 #ifdef DEBUG
-#endif
 		grid[0][0].mDebugOutline.bind(7);
 		gridShader.setInt("debugOutline", 7);
+#endif
 	}
+		gridShader.setVec3("dirLight.direction", lightDir);
+		gridShader.setVec3("dirLight.ambient", lightAmbient);
+		gridShader.setVec3("dirLight.diffuse", lightDiff);
+		gridShader.setVec3("dirLight.specular", lightSpec);
+
 	for (int i = 0; i < GRID_SIZE; ++i) {
 		for (int j = 0; j < GRID_SIZE; ++j) {
 			glm::vec3 position = glm::vec3(i * CELL_SIZE, 0.0f, j * CELL_SIZE);

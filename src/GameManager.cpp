@@ -41,9 +41,10 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 	enemyShader.loadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/vertex_gpu_dquat_enemy.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/pbr_fragment_emissive.glsl");
 	
 #ifdef DEBUG
+	gridShader.loadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/pbr_grid_debug_vert.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/pbr_grid_debug_frag.glsl");
+#else
 	gridShader.loadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/pbr_vertex.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/pbr_fragment.glsl");
 #endif
-	gridShader.loadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/pbr_grid_debug_vert.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/pbr_grid_debug_frag.glsl");
 
 	crosshairShader.loadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/crosshair_vert.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/crosshair_frag.glsl");
 	lineShader.loadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/line_vert.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/line_frag.glsl");
@@ -564,6 +565,160 @@ void GameManager::ResetGame()
 
 }
 
+void GameManager::RenderEnemyLineAndMuzzleFlash(bool isMainPass, bool isMinimapPass, bool isShadowPass)
+{
+	for (auto& enem : enemies)
+	{
+		if (!enem->isDestroyed)
+		{
+			glm::vec3 enemyRayEnd = glm::vec3(0.0f);
+
+			int enemyID = enem->GetID();
+
+			if (enem->GetEnemyHasShot())
+			{
+				float enemyMuzzleCurrentTime = glfwGetTime();
+
+				if (renderEnemyMuzzleFlash.at(enemyID) && enemyMuzzleFlashStartTime.at(enemyID) + enemyMuzzleFlashDuration.at(enemyID) > enemyMuzzleCurrentTime)
+				{
+					renderEnemyMuzzleFlash.at(enemyID) = false;
+				}
+				else
+				{
+					renderEnemyMuzzleFlash.at(enemyID) = true;
+					enemyMuzzleFlashStartTime.at(enemyID) = enemyMuzzleCurrentTime;
+				}
+
+				if (renderEnemyMuzzleFlash.at(enemyID) && isMainPass)
+				{
+					enemyMuzzleTimeSinceStart.at(enemyID) = enemyMuzzleCurrentTime - enemyMuzzleFlashStartTime.at(enemyID);
+					enemyMuzzleAlpha.at(enemyID) = glm::max(0.0f, 1.0f - (enemyMuzzleTimeSinceStart.at(enemyID) / enemyMuzzleFlashDuration.at(enemyID)));
+					enemyMuzzleFlashScale.at(enemyID) = 1.0f + (0.5f * enemyMuzzleAlpha.at(enemyID));
+
+					enemyMuzzleModel.at(enemyID) = glm::mat4(1.0f);
+
+					enemyMuzzleModel.at(enemyID) = glm::translate(enemyMuzzleModel.at(enemyID), enem->GetEnemyShootPos(muzzleOffset));
+					enemyMuzzleModel.at(enemyID) = glm::rotate(enemyMuzzleModel.at(enemyID), enem->yaw, glm::vec3(0.0f, 1.0f, 0.0f));
+					enemyMuzzleModel.at(enemyID) = glm::scale(enemyMuzzleModel.at(enemyID), glm::vec3(enemyMuzzleFlashScale.at(enemyID), enemyMuzzleFlashScale.at(enemyID), 1.0f));
+					enemyMuzzleFlashQuad->Draw3D(enemyMuzzleFlashTint.at(enemyID), enemyMuzzleAlpha.at(enemyID), projection, view, enemyMuzzleModel.at(enemyID));
+				}
+			}
+
+			if (enem->GetEnemyHasShot() && enem->GetEnemyDebugRayRenderTimer() > 0.0f)
+			{
+				glm::vec3 enemyLineColor = glm::vec3(0.2f, 0.2f, 0.2f);
+
+				if (enem->GetEnemyHasHit())
+				{
+					enemyRayEnd = enem->GetEnemyHitPoint();
+				}
+				else
+				{
+					enemyRayEnd = enem->GetEnemyShootPos(muzzleOffset) + enem->GetEnemyShootDir() * enem->GetEnemyShootDistance();
+				}
+
+				enemyLines.at(enemyID)->UpdateVertexBuffer(enem->GetEnemyShootPos(muzzleOffset), enemyRayEnd);
+				if (isMinimapPass)
+				{
+					enemyLines.at(enemyID)->DrawLine(minimapView, minimapProjection, enemyLineColor, lightSpaceMatrix, renderer->GetShadowMapTexture(), false, enem->GetEnemyDebugRayRenderTimer());
+				}
+				else if (isShadowPass)
+				{
+					enemyLines.at(enemyID)->DrawLine(lightSpaceView, lightSpaceProjection, enemyLineColor, lightSpaceMatrix, renderer->GetShadowMapTexture(), true, enem->GetEnemyDebugRayRenderTimer());
+				}
+				else
+				{
+					enemyLines.at(enemyID)->DrawLine(view, projection, enemyLineColor, lightSpaceMatrix, renderer->GetShadowMapTexture(), false, enem->GetEnemyDebugRayRenderTimer());
+				}
+			}
+		}
+	}
+}
+
+void GameManager::RenderPlayerCrosshairAndMuzzleFlash(bool isMainPass)
+{
+	if ((player->GetPlayerState() == AIMING || player->GetPlayerState() == SHOOTING) && camSwitchedToAim == false && isMainPass)
+	{
+		renderer->RemoveDepthAndSetBlending();
+
+		glm::vec3 rayO = player->GetShootPos();
+		glm::vec3 rayD = glm::normalize(player->PlayerAimFront);
+		float dist = player->GetShootDistance();
+
+		glm::vec3 rayEnd = rayO + rayD * dist;
+
+		glm::vec3 lineColor = glm::vec3(1.0f, 0.0f, 0.0f);
+
+		glm::vec3 hitPoint;
+
+		if (player->GetPlayerState() == SHOOTING)
+		{
+			lineColor = glm::vec3(0.0f, 1.0f, 0.0f);
+
+			float currentTime = glfwGetTime();
+
+			if (renderPlayerMuzzleFlash && playerMuzzleFlashStartTime + playerMuzzleFlashDuration > currentTime)
+			{
+				renderPlayerMuzzleFlash = false;
+			}
+			else
+			{
+				renderPlayerMuzzleFlash = true;
+				playerMuzzleFlashStartTime = currentTime;
+			}
+
+
+			if (renderPlayerMuzzleFlash)
+
+			{
+				playerMuzzleTimeSinceStart = currentTime - playerMuzzleFlashStartTime;
+				playerMuzzleAlpha = glm::max(0.0f, 1.0f - (playerMuzzleTimeSinceStart / playerMuzzleFlashDuration));
+				playerMuzzleFlashScale = 1.0f + (0.5f * playerMuzzleAlpha);
+
+				playerMuzzleModel = glm::mat4(1.0f);
+
+				playerMuzzleModel = glm::translate(playerMuzzleModel, player->GetShootPos());
+				playerMuzzleModel = glm::rotate(playerMuzzleModel, (-player->yaw + 180.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+				playerMuzzleModel = glm::scale(playerMuzzleModel, glm::vec3(playerMuzzleFlashScale, playerMuzzleFlashScale, 1.0f));
+				playerMuzzleFlashQuad->Draw3D(playerMuzzleTint, playerMuzzleAlpha, projection, view, playerMuzzleModel);
+			}
+		}
+
+
+		glm::vec4 rayEndWorldSpace = glm::vec4(rayEnd, 1.0f);
+		glm::vec4 rayEndCameraSpace = view * rayEndWorldSpace;
+		glm::vec4 rayEndNDC = projection * rayEndCameraSpace;
+
+		glm::vec4 targetNDC(0.0f, 0.5f, rayEndNDC.z / rayEndNDC.w, 1.0f);
+		glm::vec4 targetCameraSpace = glm::inverse(projection) * targetNDC;
+		glm::vec4 targetWorldSpace = glm::inverse(view) * targetCameraSpace;
+
+		rayEnd = glm::vec3(targetWorldSpace) / targetWorldSpace.w;
+
+		glm::vec3 crosshairHitpoint;
+		glm::vec3 crosshairCol;
+
+		if (physicsWorld->rayEnemyCrosshairIntersect(rayO, glm::normalize(rayEnd - rayO), crosshairHitpoint))
+		{
+			crosshairCol = glm::vec3(1.0f, 0.0f, 0.0f);
+		}
+		else
+		{
+			crosshairCol = glm::vec3(1.0f, 1.0f, 1.0f);
+		}
+
+		glm::vec2 ndcPos = crosshair->CalculateCrosshairPosition(rayEnd, window->GetWidth(), window->GetHeight(), projection, view);
+
+		float ndcX = (ndcPos.x / window->GetWidth()) * 2.0f - 1.0f;
+		float ndcY = (ndcPos.y / window->GetHeight()) * 2.0f - 1.0f;
+
+		if (isMainPass)
+			crosshair->DrawCrosshair(glm::vec2(0.0f, 0.5f), crosshairCol);
+
+		renderer->ResetRenderStates();
+	}
+}
+
 void GameManager::ShowCameraControlWindow(Camera& cam)
 {
 	ImGui::Begin("Camera Control");
@@ -669,188 +824,30 @@ void GameManager::render(bool isMinimapRenderPass, bool isShadowMapRenderPass, b
 		}
 	}
 
-	if (isShadowMapRenderPass)
-	{
-		shadowMapShader.use();
-		shadowMapShader.setVec3("dirLight.direction", dirLight.direction);
-		shadowMapShader.setVec3("dirLight.ambient", dirLight.ambient);
-		shadowMapShader.setVec3("dirLight.diffuse", dirLight.diffuse);
-		shadowMapShader.setVec3("dirLight.specular", dirLight.specular);
-	}
-	else
-	{
-		gridShader.use();
-		gridShader.setVec3("dirLight.direction", dirLight.direction);
-		gridShader.setVec3("dirLight.ambient", dirLight.ambient);
-		gridShader.setVec3("dirLight.diffuse", dirLight.diffuse);
-		gridShader.setVec3("dirLight.specular", dirLight.specular);
-	}
-
 	if (isMinimapRenderPass)
 	{
-		gameGrid->drawGrid(gridShader, minimapView, minimapProjection, camera->Position, false, lightSpaceMatrix, renderer->GetShadowMapTexture());
+		gameGrid->drawGrid(gridShader, minimapView, minimapProjection, camera->Position, false, lightSpaceMatrix, renderer->GetShadowMapTexture(),
+			dirLight.direction, dirLight.ambient, dirLight.diffuse, dirLight.specular);
 	}
 	else if (isShadowMapRenderPass)
 	{
-		gameGrid->drawGrid(shadowMapShader, lightSpaceView, lightSpaceProjection, camera->Position, true, lightSpaceMatrix, renderer->GetShadowMapTexture());
+		gameGrid->drawGrid(shadowMapShader, lightSpaceView, lightSpaceProjection, camera->Position, true, lightSpaceMatrix, renderer->GetShadowMapTexture(),
+			dirLight.direction, dirLight.ambient, dirLight.diffuse, dirLight.specular);
 	}
 	else
 	{
-		gameGrid->drawGrid(gridShader, view, projection, camera->Position, false, lightSpaceMatrix, renderer->GetShadowMapTexture());
+		gameGrid->drawGrid(gridShader, view, projection, camera->Position, false, lightSpaceMatrix, renderer->GetShadowMapTexture(),
+			dirLight.direction, dirLight.ambient, dirLight.diffuse, dirLight.specular);
 	}
 
 	if (camSwitchedToAim)
 		camSwitchedToAim = false;
 
-	for (auto& enem : enemies)
-	{
-		if (!enem->isDestroyed)
-		{
-			glm::vec3 enemyRayEnd = glm::vec3(0.0f);
+	RenderEnemyLineAndMuzzleFlash(isMainRenderPass, isMinimapRenderPass, isShadowMapRenderPass);
 
-			int enemyID = enem->GetID();
-
-			if (enem->GetEnemyHasShot())
-			{
-				float enemyMuzzleCurrentTime = glfwGetTime();
-
-				if (renderEnemyMuzzleFlash.at(enemyID) && enemyMuzzleFlashStartTime.at(enemyID) + enemyMuzzleFlashDuration.at(enemyID) > enemyMuzzleCurrentTime)
-				{
-					renderEnemyMuzzleFlash.at(enemyID) = false;
-				}
-				else
-				{
-					renderEnemyMuzzleFlash.at(enemyID) = true;
-					enemyMuzzleFlashStartTime.at(enemyID) = enemyMuzzleCurrentTime;
-				}
-
-				if (renderEnemyMuzzleFlash.at(enemyID) && isMainRenderPass)
-				{
-					enemyMuzzleTimeSinceStart.at(enemyID) = enemyMuzzleCurrentTime - enemyMuzzleFlashStartTime.at(enemyID);
-					enemyMuzzleAlpha.at(enemyID) = glm::max(0.0f, 1.0f - (enemyMuzzleTimeSinceStart.at(enemyID) / enemyMuzzleFlashDuration.at(enemyID)));
-					enemyMuzzleFlashScale.at(enemyID) = 1.0f + (0.5f * enemyMuzzleAlpha.at(enemyID));
-
-					enemyMuzzleModel.at(enemyID) = glm::mat4(1.0f);
-
-					enemyMuzzleModel.at(enemyID) = glm::translate(enemyMuzzleModel.at(enemyID), enem->GetEnemyShootPos(muzzleOffset));
-					enemyMuzzleModel.at(enemyID) = glm::rotate(enemyMuzzleModel.at(enemyID), enem->yaw, glm::vec3(0.0f, 1.0f, 0.0f));
-					enemyMuzzleModel.at(enemyID) = glm::scale(enemyMuzzleModel.at(enemyID), glm::vec3(enemyMuzzleFlashScale.at(enemyID), enemyMuzzleFlashScale.at(enemyID), 1.0f));
-					enemyMuzzleFlashQuad->Draw3D(enemyMuzzleFlashTint.at(enemyID), enemyMuzzleAlpha.at(enemyID), projection, view, enemyMuzzleModel.at(enemyID));
-				}
-			}
-
-			if (enem->GetEnemyHasShot() && enem->GetEnemyDebugRayRenderTimer() > 0.0f)
-			{
-				glm::vec3 enemyLineColor = glm::vec3(0.2f, 0.2f, 0.2f);
-
-				if (enem->GetEnemyHasHit())
-				{
-					enemyRayEnd = enem->GetEnemyHitPoint();
-				}
-				else
-				{
-					enemyRayEnd = enem->GetEnemyShootPos(muzzleOffset) + enem->GetEnemyShootDir() * enem->GetEnemyShootDistance();
-				}
-
-				enemyLines.at(enemyID)->UpdateVertexBuffer(enem->GetEnemyShootPos(muzzleOffset), enemyRayEnd);
-				if (isMinimapRenderPass)
-				{
-					enemyLines.at(enemyID)->DrawLine(minimapView, minimapProjection, enemyLineColor, lightSpaceMatrix, renderer->GetShadowMapTexture(), false, enem->GetEnemyDebugRayRenderTimer());
-				}
-				else if (isShadowMapRenderPass)
-				{
-					enemyLines.at(enemyID)->DrawLine(lightSpaceView, lightSpaceProjection, enemyLineColor, lightSpaceMatrix, renderer->GetShadowMapTexture(), true, enem->GetEnemyDebugRayRenderTimer());
-				}
-				else
-				{
-					enemyLines.at(enemyID)->DrawLine(view, projection, enemyLineColor, lightSpaceMatrix, renderer->GetShadowMapTexture(), false, enem->GetEnemyDebugRayRenderTimer());
-				}
-			}
-		}
-	}
-	//	renderer->setScene(view, projection, dirLight);
 	renderer->drawCubemap(cubemap);
-	if ((player->GetPlayerState() == AIMING || player->GetPlayerState() == SHOOTING) && camSwitchedToAim == false && isMainRenderPass)
-	{
-		renderer->RemoveDepthAndSetBlending();
 
-		glm::vec3 rayO = player->GetShootPos();
-		glm::vec3 rayD = glm::normalize(player->PlayerAimFront);
-		float dist = player->GetShootDistance();
-
-		glm::vec3 rayEnd = rayO + rayD * dist;
-
-		glm::vec3 lineColor = glm::vec3(1.0f, 0.0f, 0.0f);
-
-		glm::vec3 hitPoint;
-
-		if (player->GetPlayerState() == SHOOTING)
-		{
-			lineColor = glm::vec3(0.0f, 1.0f, 0.0f);
-
-			float currentTime = glfwGetTime();
-
-			if (renderPlayerMuzzleFlash && playerMuzzleFlashStartTime + playerMuzzleFlashDuration > currentTime)
-			{
-				renderPlayerMuzzleFlash = false;
-			}
-			else
-			{
-				renderPlayerMuzzleFlash = true;
-				playerMuzzleFlashStartTime = currentTime;
-			}
-
-
-			if (renderPlayerMuzzleFlash)
-
-			{
-				playerMuzzleTimeSinceStart = currentTime - playerMuzzleFlashStartTime;
-				playerMuzzleAlpha = glm::max(0.0f, 1.0f - (playerMuzzleTimeSinceStart / playerMuzzleFlashDuration));
-				playerMuzzleFlashScale = 1.0f + (0.5f * playerMuzzleAlpha);
-
-				playerMuzzleModel = glm::mat4(1.0f);
-
-				playerMuzzleModel = glm::translate(playerMuzzleModel, player->GetShootPos());
-				playerMuzzleModel = glm::rotate(playerMuzzleModel, (-player->yaw + 180.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-				playerMuzzleModel = glm::scale(playerMuzzleModel, glm::vec3(playerMuzzleFlashScale, playerMuzzleFlashScale, 1.0f));
-				playerMuzzleFlashQuad->Draw3D(playerMuzzleTint, playerMuzzleAlpha, projection, view, playerMuzzleModel);
-			}
-		}
-
-
-		glm::vec4 rayEndWorldSpace = glm::vec4(rayEnd, 1.0f);
-		glm::vec4 rayEndCameraSpace = view * rayEndWorldSpace;
-		glm::vec4 rayEndNDC = projection * rayEndCameraSpace;
-
-		glm::vec4 targetNDC(0.0f, 0.5f, rayEndNDC.z / rayEndNDC.w, 1.0f);
-		glm::vec4 targetCameraSpace = glm::inverse(projection) * targetNDC;
-		glm::vec4 targetWorldSpace = glm::inverse(view) * targetCameraSpace;
-
-		rayEnd = glm::vec3(targetWorldSpace) / targetWorldSpace.w;
-
-		glm::vec3 crosshairHitpoint;
-		glm::vec3 crosshairCol;
-
-		if (physicsWorld->rayEnemyCrosshairIntersect(rayO, glm::normalize(rayEnd - rayO), crosshairHitpoint))
-		{
-			crosshairCol = glm::vec3(1.0f, 0.0f, 0.0f);
-		}
-		else
-		{
-			crosshairCol = glm::vec3(1.0f, 1.0f, 1.0f);
-		}
-
-		glm::vec2 ndcPos = crosshair->CalculateCrosshairPosition(rayEnd, window->GetWidth(), window->GetHeight(), projection, view);
-
-		float ndcX = (ndcPos.x / window->GetWidth()) * 2.0f - 1.0f;
-		float ndcY = (ndcPos.y / window->GetHeight()) * 2.0f - 1.0f;
-
-		if (isMainRenderPass)
-			crosshair->DrawCrosshair(glm::vec2(0.0f, 0.5f), crosshairCol);
-
-		renderer->ResetRenderStates();
-
-	}
+	RenderPlayerCrosshairAndMuzzleFlash(isMainRenderPass);
 
 	if (isMainRenderPass)
 	{
@@ -860,6 +857,8 @@ void GameManager::render(bool isMinimapRenderPass, bool isShadowMapRenderPass, b
 #ifdef _DEBUG
 	if (isMainRenderPass)
 	{
+
+
 		renderer->drawShadowMap(shadowMapQuad, &shadowMapQuadShader);
 	}
 #endif

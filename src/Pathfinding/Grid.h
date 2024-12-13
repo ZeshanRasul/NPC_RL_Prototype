@@ -39,7 +39,8 @@ public:
 	Grid() {};
 
 	void initializeGrid();
-	void drawGrid(Shader& gridShader, glm::mat4 viewMat, glm::mat4 projMat, glm::vec3 camPos, bool shadowMap, glm::mat4 lightSpaceMat, GLuint shadowMapTexture);
+	void drawGrid(Shader& gridShader, glm::mat4 viewMat, glm::mat4 projMat, glm::vec3 camPos, bool shadowMap, glm::mat4 lightSpaceMat, GLuint shadowMapTexture,
+		glm::vec3 lightDir, glm::vec3 lightAmbient, glm::vec3 lightDiff, glm::vec3 lightSpec);
 
 	glm::vec3 snapToGrid(const glm::vec3& position) const
 	{
