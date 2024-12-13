@@ -154,7 +154,7 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 	cfg.height = 500.0f;
 
 	float minBounds[3] = { 0.0f, 0.0f, 0.0f };
-	float maxBounds[3] = { 500.0f, 10.0f, 500.0f };
+	float maxBounds[3] = { 500.0f, 1.0f, 500.0f };
 
 	//cfg.cs = 0.3f;                      // Cell size
 	//cfg.ch = 0.2f;                      // Cell height
@@ -1002,18 +1002,19 @@ void GameManager::render(bool isMinimapRenderPass, bool isShadowMapRenderPass, b
 	else
 	{
 		gameGrid->drawGrid(gridShader, view, projection, camera->Position, false, lightSpaceMatrix, renderer->GetShadowMapTexture());
-		navMeshShader.use();
-		navMeshShader.setMat4("view", view);
-		navMeshShader.setMat4("projection", projection);
-		glDisable(GL_CULL_FACE);
-		glBindVertexArray(vao);
-		glDrawElements(GL_TRIANGLES, navmeshIndices.size(), GL_UNSIGNED_INT, 0);
 
 		//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 		//glDrawElements(GL_TRIANGLES, navmeshIndices.size(), GL_UNSIGNED_INT, 0);
 
 		//glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	}
+
+	navMeshShader.use();
+	navMeshShader.setMat4("view", view);
+	navMeshShader.setMat4("projection", projection);
+	glDisable(GL_CULL_FACE);
+	glBindVertexArray(vao);
+	glDrawElements(GL_TRIANGLES, navmeshIndices.size(), GL_UNSIGNED_INT, 0);
 
 	if (camSwitchedToAim)
 		camSwitchedToAim = false;
