@@ -15,8 +15,8 @@ class GltfModel {
 public:
 	std::shared_ptr<GltfModel> clone() const;
 
-	bool loadModel(std::string modelFilename, bool isEnemy = false);
 	bool loadModelNoAnim(std::string modelFilename);
+	bool loadModel(std::string modelFilename, bool isEnemy = false);
 	Texture loadTexture(std::string textureFilename, bool flip);
 
 	void draw(Texture tex);
@@ -25,7 +25,6 @@ public:
 	void uploadEnemyVertexBuffers();
 	void uploadVertexBuffersNoAnimations();
 	void uploadIndexBuffer();
-	std::shared_ptr<Mesh> getSkeleton(bool enableSkinning);
 	int getJointMatrixSize();
 	std::vector<glm::mat4> getJointMatrices();
 	int getJointDualQuatsSize();
@@ -40,7 +39,6 @@ public:
 	int getAnimClipsSize() const { return (int)mAnimClips.size(); }
 
 	void resetNodeData();
-	void setSkeletonSplitNode(int nodeNum);
 	std::string getNodeName(int nodeNum);
 	int getNodeCount() const { return mNodeCount; }
 
@@ -53,12 +51,11 @@ private:
 	void createVertexBuffers(bool isEnemy = false);
 	void createIndexBuffer();
 	int getTriangleCount();
-	void getSkeletonPerNode(std::shared_ptr<GltfNode> treeNode, bool enableSkinning);
 
+	void getAnimations();
 	void getJointData();
 	void getWeightData();
 	void getInvBindMatrices();
-	void getAnimations();
 	void getNodes(std::shared_ptr<GltfNode> treeNode);
 	void getNodeData(std::shared_ptr<GltfNode> treeNode, glm::mat4 parentNodeMatrix);
 	void resetNodeData(std::shared_ptr<GltfNode> treeNode, glm::mat4 parentNodeMatrix);
