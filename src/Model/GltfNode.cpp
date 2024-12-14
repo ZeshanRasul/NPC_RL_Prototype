@@ -3,111 +3,111 @@
 #include "GltfNode.h"
 #include "Logger.h"
 
-std::shared_ptr<GltfNode> GltfNode::createRoot(int rootNodeNum)
+std::shared_ptr<GltfNode> GltfNode::CreateRoot(int rootNodeNum)
 {
 	auto mParentNode = std::make_shared<GltfNode>();
-	mParentNode->mNodeNum = rootNodeNum;
+	mParentNode->m_nodeNum = rootNodeNum;
 	return mParentNode;
 }
 
-void GltfNode::addChilds(std::vector<int> childNodes)
+void GltfNode::AddChilds(std::vector<int> childNodes)
 {
 	for (const int childNode : childNodes)
 	{
 		auto child = std::make_shared<GltfNode>();
-		child->mNodeNum = childNode;
+		child->m_nodeNum = childNode;
 
-		mChildNodes.push_back(child);
+		m_childNodes.push_back(child);
 	}
 }
 
-std::vector<std::shared_ptr<GltfNode>> GltfNode::getChilds()
+std::vector<std::shared_ptr<GltfNode>> GltfNode::GetChilds()
 {
-	return mChildNodes;
+	return m_childNodes;
 }
 
-int GltfNode::getNodeNum()
+int GltfNode::GetNodeNum()
 {
-	return mNodeNum;
+	return m_nodeNum;
 }
 
-void GltfNode::setNodeName(std::string name)
+void GltfNode::SetNodeName(std::string name)
 {
-	mNodeName = name;
+	m_nodeName = name;
 }
 
-std::string GltfNode::getNodeName()
+std::string GltfNode::GetNodeName()
 {
-	return mNodeName;
+	return m_nodeName;
 }
 
-void GltfNode::setScale(glm::vec3 scale)
+void GltfNode::SetScale(glm::vec3 scale)
 {
-	mScale = scale;
-	mBlendScale = scale;
+	m_scale = scale;
+	m_blendScale = scale;
 }
 
-void GltfNode::setTranslation(glm::vec3 translation)
+void GltfNode::SetTranslation(glm::vec3 translation)
 {
-	mTranslation = translation;
-	mBlendTranslation = translation;
+	m_translation = translation;
+	m_blendTranslation = translation;
 }
 
-void GltfNode::setRotation(glm::quat rotation)
+void GltfNode::SetRotation(glm::quat rotation)
 {
-	mRotation = rotation;
-	mBlendRotation = rotation;
+	m_rotation = rotation;
+	m_blendRotation = rotation;
 }
 
-void GltfNode::blendScale(glm::vec3 scale, float blendFactor)
-{
-	float factor = std::clamp(blendFactor, 0.0f, 1.0f);
-	mBlendScale = scale * factor + mScale * (1.0f - factor);
-}
-
-void GltfNode::blendTranslation(glm::vec3 translation, float blendFactor)
+void GltfNode::BlendScale(glm::vec3 scale, float blendFactor)
 {
 	float factor = std::clamp(blendFactor, 0.0f, 1.0f);
-	mBlendTranslation = translation * factor + mTranslation * (1.0f - factor);
+	m_blendScale = scale * factor + m_scale * (1.0f - factor);
 }
 
-void GltfNode::blendRotation(glm::quat rotation, float blendFactor)
+void GltfNode::BlendTranslation(glm::vec3 translation, float blendFactor)
 {
 	float factor = std::clamp(blendFactor, 0.0f, 1.0f);
-	mBlendRotation = slerp(mRotation, rotation, factor);
+	m_blendTranslation = translation * factor + m_translation * (1.0f - factor);
 }
 
-void GltfNode::calculateLocalTRSMatrix()
+void GltfNode::BlendRotation(glm::quat rotation, float blendFactor)
 {
-	glm::mat4 sMatrix = scale(glm::mat4(1.0f), mBlendScale);
-	glm::mat4 rMatrix = mat4_cast(mBlendRotation);
-	glm::mat4 tMatrix = translate(glm::mat4(1.0f), mBlendTranslation);
-
-	mLocalTRSMatrix = tMatrix * rMatrix * sMatrix;
+	float factor = std::clamp(blendFactor, 0.0f, 1.0f);
+	m_blendRotation = slerp(m_rotation, rotation, factor);
 }
 
-void GltfNode::calculateNodeMatrix(glm::mat4 parentNodeMatrix)
+void GltfNode::CalculateLocalTrsMatrix()
 {
-	mNodeMatrix = parentNodeMatrix * mLocalTRSMatrix;
+	glm::mat4 sMatrix = scale(glm::mat4(1.0f), m_blendScale);
+	glm::mat4 rMatrix = mat4_cast(m_blendRotation);
+	glm::mat4 tMatrix = translate(glm::mat4(1.0f), m_blendTranslation);
+
+	m_localTrsMatrix = tMatrix * rMatrix * sMatrix;
 }
 
-glm::mat4 GltfNode::getNodeMatrix()
+void GltfNode::CalculateNodeMatrix(glm::mat4 parentNodeMatrix)
 {
-	return mNodeMatrix;
+	m_nodeMatrix = parentNodeMatrix * m_localTrsMatrix;
 }
 
-void GltfNode::printTree()
+glm::mat4 GltfNode::GetNodeMatrix()
+{
+	return m_nodeMatrix;
+}
+
+void GltfNode::PrintTree()
 {
 	Logger::Log(1, "%s: ---- tree ----\n", __FUNCTION__);
-	Logger::Log(1, "%s: parent : %i (%s)\n", __FUNCTION__, mNodeNum, mNodeName.c_str());
-	for (const auto& childNode : mChildNodes)
+	Logger::Log(1, "%s: parent : %i (%s)\n", __FUNCTION__, m_nodeNum, m_nodeName.c_str());
+	for (const auto& childNode : m_childNodes)
 	{
-		printNodes(childNode, 1);
+		PrintNodes(childNode, 1);
 	}
 	Logger::Log(1, "%s: -- end tree --\n", __FUNCTION__);
 }
 
-void GltfNode::printNodes(std::shared_ptr<GltfNode> node, int indent)
+void GltfNode::PrintNodes(std::shared_ptr<GltfNode> node, int indent)
 {
 	std::string indendString = "";
 	for (int i = 0; i < indent; ++i)
@@ -116,10 +116,10 @@ void GltfNode::printNodes(std::shared_ptr<GltfNode> node, int indent)
 	}
 	indendString += "-";
 	Logger::Log(1, "%s: %s child : %i (%s)\n", __FUNCTION__,
-	            indendString.c_str(), node->mNodeNum, node->mNodeName.c_str());
+	            indendString.c_str(), node->m_nodeNum, node->m_nodeName.c_str());
 
-	for (const auto& childNode : node->mChildNodes)
+	for (const auto& childNode : node->m_childNodes)
 	{
-		printNodes(childNode, indent + 1);
+		PrintNodes(childNode, indent + 1);
 	}
 }

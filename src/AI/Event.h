@@ -19,14 +19,14 @@ public:
 	template <typename EventType>
 	void Subscribe(EventCallback callback)
 	{
-		auto& subscribers = subscribers_[std::type_index(typeid(EventType))];
+		auto& subscribers = m_subscribers[std::type_index(typeid(EventType))];
 		subscribers.push_back(callback);
 	}
 
 	void Publish(const Event& event)
 	{
-		auto it = subscribers_.find(std::type_index(typeid(event)));
-		if (it != subscribers_.end())
+		auto it = m_subscribers.find(std::type_index(typeid(event)));
+		if (it != m_subscribers.end())
 		{
 			for (auto& callback : it->second)
 			{
@@ -36,5 +36,5 @@ public:
 	}
 
 private:
-	std::unordered_map<std::type_index, std::vector<EventCallback>> subscribers_;
+	std::unordered_map<std::type_index, std::vector<EventCallback>> m_subscribers;
 };

@@ -1,17 +1,17 @@
 #include "VertexBuffer.h"
 #include "src/Tools/Logger.h"
 
-void VertexBuffer::init()
+void VertexBuffer::Init()
 {
-	glGenVertexArrays(1, &mVAO);
-	glGenBuffers(1, &mVertexVBO);
+	glGenVertexArrays(1, &m_vao);
+	glGenBuffers(1, &m_vertexVbo);
 
-	glBindVertexArray(mVAO);
+	glBindVertexArray(m_vao);
 
-	glBindBuffer(GL_ARRAY_BUFFER, mVertexVBO);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, position));
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, color));
-	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, uv));
+	glBindBuffer(GL_ARRAY_BUFFER, m_vertexVbo);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, m_position));
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, m_color));
+	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, m_uv));
 
 	glEnableVertexAttribArray(0);
 	glEnableVertexAttribArray(1);
@@ -23,42 +23,42 @@ void VertexBuffer::init()
 	Logger::Log(1, "%s: VAO and VBO initialized\n", __FUNCTION__);
 }
 
-void VertexBuffer::cleanup()
+void VertexBuffer::Cleanup()
 {
-	glDeleteBuffers(1, &mVertexVBO);
-	glDeleteVertexArrays(1, &mVAO);
+	glDeleteBuffers(1, &m_vertexVbo);
+	glDeleteVertexArrays(1, &m_vao);
 }
 
-void VertexBuffer::uploadData(Mesh vertexData)
+void VertexBuffer::UploadData(Mesh vertexData)
 {
-	glBindVertexArray(mVAO);
-	glBindBuffer(GL_ARRAY_BUFFER, mVertexVBO);
+	glBindVertexArray(m_vao);
+	glBindBuffer(GL_ARRAY_BUFFER, m_vertexVbo);
 
-	glBufferData(GL_ARRAY_BUFFER, vertexData.vertices.size() * sizeof(Vertex), &vertexData.vertices.at(0),
+	glBufferData(GL_ARRAY_BUFFER, vertexData.m_vertices.size() * sizeof(Vertex), &vertexData.m_vertices.at(0),
 	             GL_DYNAMIC_DRAW);
 
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
 }
 
-void VertexBuffer::bind()
+void VertexBuffer::Bind()
 {
-	glBindVertexArray(mVAO);
+	glBindVertexArray(m_vao);
 }
 
-void VertexBuffer::unbind()
+void VertexBuffer::Unbind()
 {
 	glBindVertexArray(0);
 }
 
-void VertexBuffer::draw(GLuint mode, unsigned int start, unsigned int num)
+void VertexBuffer::Draw(GLuint mode, unsigned int start, unsigned int num)
 {
 	glDrawArrays(mode, start, num);
 }
 
-void VertexBuffer::bindAndDraw(GLuint mode, unsigned int start, unsigned int num)
+void VertexBuffer::BindAndDraw(GLuint mode, unsigned int start, unsigned int num)
 {
-	bind();
+	Bind();
 	glDrawArrays(mode, start, num);
-	unbind();
+	Unbind();
 }

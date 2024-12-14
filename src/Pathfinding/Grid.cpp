@@ -3,36 +3,12 @@
 #include <unordered_map>
 #include "Logger.h"
 
-void Grid::initializeGrid()
+void Grid::InitializeGrid()
 {
 	std::vector<Cell> row(GRID_SIZE, Cell(false, glm::vec3(0.0f, 1.0f, 0.0f)));
 	grid = std::vector<std::vector<Cell>>(GRID_SIZE, row);
 
-	std::vector<glm::vec3> cellVerts = grid[0][0].GetVertices();
-
-	for (int i = 0; i < GRID_SIZE; ++i)
-	{
-		for (int j = 0; j < GRID_SIZE; ++j)
-		{
-			auto position = glm::vec3(i * CELL_SIZE, 0.0f, j * CELL_SIZE);
-			glm::mat4 model = translate(glm::mat4(1.0f), position);
-			model = scale(model, glm::vec3(CELL_SIZE, 1.0f, CELL_SIZE));
-
-
-			for (glm::vec3 posVerts : cellVerts)
-			{
-				wsVertices.push_back(glm::vec3(model * glm::vec4(posVerts, 1.0f)));
-				indices.push_back(0);
-				indices.push_back(1);
-				indices.push_back(2);
-				indices.push_back(3);
-				indices.push_back(4);
-				indices.push_back(5);
-			}
-		}
-	}
-
-	for (glm::vec3 coverPos : snapCoverPositionsToGrid())
+	for (glm::vec3 coverPos : SnapCoverPositionsToGrid())
 	{
 		int gridX = static_cast<int>(coverPos.x / CELL_SIZE);
 		int gridZ = static_cast<int>(coverPos.z / CELL_SIZE);
@@ -41,116 +17,116 @@ void Grid::initializeGrid()
 		auto neighborPos = glm::vec3(1.0f);
 		if (gridX + 1 <= GRID_SIZE)
 		{
-			neighborPos = snapToGrid(glm::vec3((gridX + 1) * CELL_SIZE, coverPos.y, gridZ * CELL_SIZE));
+			neighborPos = SnapToGrid(glm::vec3((gridX + 1) * CELL_SIZE, coverPos.y, gridZ * CELL_SIZE));
 			grid[gridX + 1][gridZ].SetCover(true);
 			grid[gridX + 1][gridZ].SetColor(glm::vec3(1.0f, 0.4f, 0.0f));
 			auto newCover1 = new Cover{neighborPos, &grid[gridX + 1][gridZ]};
-			newCover1->gridX = gridX + 1;
-			newCover1->gridZ = gridZ;
-			coverLocations.push_back(newCover1);
+			newCover1->m_gridX = gridX + 1;
+			newCover1->m_gridZ = gridZ;
+			m_coverLocations.push_back(newCover1);
 		}
 		if (gridZ + 1 <= GRID_SIZE)
 		{
-			neighborPos = snapToGrid(glm::vec3(gridX * CELL_SIZE, coverPos.y, (gridZ + 1) * CELL_SIZE));
+			neighborPos = SnapToGrid(glm::vec3(gridX * CELL_SIZE, coverPos.y, (gridZ + 1) * CELL_SIZE));
 			grid[gridX][gridZ + 1].SetCover(true);
 			grid[gridX][gridZ + 1].SetColor(glm::vec3(1.0f, 0.4f, 0.0f));
 			auto newCover2 = new Cover{neighborPos, &grid[gridX][gridZ + 1]};
-			newCover2->gridX = gridX;
-			newCover2->gridZ = gridZ + 1;
-			coverLocations.push_back(newCover2);
+			newCover2->m_gridX = gridX;
+			newCover2->m_gridZ = gridZ + 1;
+			m_coverLocations.push_back(newCover2);
 		}
 		if (gridX - 1 >= 0)
 		{
-			neighborPos = snapToGrid(glm::vec3((gridX - 1) * CELL_SIZE, coverPos.y, gridZ * CELL_SIZE));
+			neighborPos = SnapToGrid(glm::vec3((gridX - 1) * CELL_SIZE, coverPos.y, gridZ * CELL_SIZE));
 			grid[gridX - 1][gridZ].SetCover(true);
 			grid[gridX - 1][gridZ].SetColor(glm::vec3(1.0f, 0.4f, 0.0f));
 			auto newCover3 = new Cover{neighborPos, &grid[gridX - 1][gridZ]};
-			newCover3->gridX = gridX - 1;
-			newCover3->gridZ = gridZ;
-			coverLocations.push_back(newCover3);
+			newCover3->m_gridX = gridX - 1;
+			newCover3->m_gridZ = gridZ;
+			m_coverLocations.push_back(newCover3);
 		}
 		if (gridZ - 1 >= 0)
 		{
-			neighborPos = snapToGrid(glm::vec3(gridX * CELL_SIZE, coverPos.y, (gridZ - 1) * CELL_SIZE));
+			neighborPos = SnapToGrid(glm::vec3(gridX * CELL_SIZE, coverPos.y, (gridZ - 1) * CELL_SIZE));
 			grid[gridX][gridZ - 1].SetCover(true);
 			grid[gridX][gridZ - 1].SetColor(glm::vec3(1.0f, 0.4f, 0.0f));
 			auto newCover4 = new Cover{neighborPos, &grid[gridX][gridZ - 1]};
-			newCover4->gridX = gridX;
-			newCover4->gridZ = gridZ - 1;
-			coverLocations.push_back(newCover4);
+			newCover4->m_gridX = gridX;
+			newCover4->m_gridZ = gridZ - 1;
+			m_coverLocations.push_back(newCover4);
 		}
 	}
 
 	size_t uniformMatrixBufferSize = 4 * sizeof(glm::mat4);
-	mGridUniformBuffer.init(uniformMatrixBufferSize);
+	mGridUniformBuffer.Init(uniformMatrixBufferSize);
 	Logger::Log(1, "%s: matrix uniform buffer (size %i bytes) successfully created\n", __FUNCTION__,
 	            uniformMatrixBufferSize);
 	uniformMatrixBufferSize = 1 * sizeof(glm::vec3);
-	mGridColorUniformBuffer.init(uniformMatrixBufferSize);
+	mGridColorUniformBuffer.Init(uniformMatrixBufferSize);
 	Logger::Log(1, "%s: matrix uniform buffer (size %i bytes) successfully created\n", __FUNCTION__,
 	            uniformMatrixBufferSize);
 }
 
-void Grid::drawGrid(Shader& gridShader, glm::mat4 viewMat, glm::mat4 projMat, glm::vec3 camPos, bool shadowMap,
+void Grid::DrawGrid(Shader& gridShader, glm::mat4 viewMat, glm::mat4 projMat, glm::vec3 camPos, bool shadowMap,
                     glm::mat4 lightSpaceMat, GLuint shadowMapTexture,
                     glm::vec3 lightDir, glm::vec3 lightAmbient, glm::vec3 lightDiff, glm::vec3 lightSpec)
 {
 	if (!shadowMap)
 	{
-		gridShader.use();
+		gridShader.Use();
 		if (firstLoad)
 		{
 			grid[0][0].LoadTexture(
 				"C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/Floor/TCom_Scifi_Floor2_4K_albedo.png",
-				&grid[0][0].mTex);
+				&grid[0][0].m_tex);
 			grid[0][0].LoadTexture(
 				"C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/Floor/TCom_Scifi_Floor2_4K_normal.png",
-				&grid[0][0].mNormal);
+				&grid[0][0].m_normal);
 			grid[0][0].LoadTexture(
 				"C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/Floor/TCom_Scifi_Floor2_4K_metallic.png",
-				&grid[0][0].mMetallic);
+				&grid[0][0].m_metallic);
 			grid[0][0].LoadTexture(
 				"C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/Floor/TCom_Scifi_Floor2_4K_roughness.png",
-				&grid[0][0].mRoughness);
+				&grid[0][0].m_roughness);
 			grid[0][0].LoadTexture(
 				"C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/Floor/TCom_Scifi_Floor2_4K_ao.png",
-				&grid[0][0].mAO);
+				&grid[0][0].m_ao);
 			grid[0][0].LoadTexture(
 				"C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/Floor/TCom_Scifi_Floor2_4K_emissive.png",
-				&grid[0][0].mEmissive);
+				&grid[0][0].m_emissive);
 #ifdef DEBUG
 #endif
 			grid[0][0].LoadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/Cell.png",
-			                       &grid[0][0].mDebugOutline);
+			                       &grid[0][0].m_debugOutline);
 
 			firstLoad = false;
 		}
 
-		grid[0][0].mTex.bind();
-		gridShader.setInt("albedoMap", 0);
-		grid[0][0].mNormal.bind(1);
-		gridShader.setInt("normalMap", 1);
-		grid[0][0].mMetallic.bind(2);
-		gridShader.setInt("metallicMap", 2);
-		grid[0][0].mRoughness.bind(3);
-		gridShader.setInt("roughnessMap", 3);
-		grid[0][0].mAO.bind(4);
-		gridShader.setInt("aoMap", 4);
-		grid[0][0].mEmissive.bind(5);
-		gridShader.setInt("emissiveMap", 5);
+		grid[0][0].m_tex.Bind();
+		gridShader.SetInt("albedoMap", 0);
+		grid[0][0].m_normal.Bind(1);
+		gridShader.SetInt("normalMap", 1);
+		grid[0][0].m_metallic.Bind(2);
+		gridShader.SetInt("metallicMap", 2);
+		grid[0][0].m_roughness.Bind(3);
+		gridShader.SetInt("roughnessMap", 3);
+		grid[0][0].m_ao.Bind(4);
+		gridShader.SetInt("aoMap", 4);
+		grid[0][0].m_emissive.Bind(5);
+		gridShader.SetInt("emissiveMap", 5);
 		glActiveTexture(GL_TEXTURE6);
 		glBindTexture(GL_TEXTURE_2D, shadowMapTexture);
-		gridShader.setInt("shadowMap", 6);
+		gridShader.SetInt("shadowMap", 6);
 
 #ifdef DEBUG
-		grid[0][0].mDebugOutline.bind(7);
-		gridShader.setInt("debugOutline", 7);
+		grid[0][0].m_debugOutline.Bind(7);
+		gridShader.SetInt("debugOutline", 7);
 #endif
 	}
-	gridShader.setVec3("dirLight.direction", lightDir);
-	gridShader.setVec3("dirLight.ambient", lightAmbient);
-	gridShader.setVec3("dirLight.diffuse", lightDiff);
-	gridShader.setVec3("dirLight.specular", lightSpec);
+	gridShader.SetVec3("dirLight.direction", lightDir);
+	gridShader.SetVec3("dirLight.ambient", lightAmbient);
+	gridShader.SetVec3("dirLight.diffuse", lightDiff);
+	gridShader.SetVec3("dirLight.specular", lightSpec);
 
 	for (int i = 0; i < GRID_SIZE; ++i)
 	{
@@ -164,12 +140,12 @@ void Grid::drawGrid(Shader& gridShader, glm::mat4 viewMat, glm::mat4 projMat, gl
 			matrixData.push_back(projMat);
 			matrixData.push_back(model);
 			matrixData.push_back(lightSpaceMat);
-			mGridUniformBuffer.uploadUboData(matrixData, 0);
+			mGridUniformBuffer.UploadUboData(matrixData, 0);
 			glm::vec3 cellColor = grid[i][j].GetColor();
 #ifdef DEBUG
 #endif
-			gridShader.setVec3("debugColor", cellColor);
-			gridShader.setVec3("cameraPos", camPos);
+			gridShader.SetVec3("debugColor", cellColor);
+			gridShader.SetVec3("cameraPos", camPos);
 			// Render cell
 			grid[i][j].BindVAO();
 			glDrawArrays(GL_TRIANGLES, 0, 6);
@@ -178,11 +154,11 @@ void Grid::drawGrid(Shader& gridShader, glm::mat4 viewMat, glm::mat4 projMat, gl
 
 	if (!shadowMap)
 	{
-		grid[0][0].mTex.unbind();
-		grid[0][0].mNormal.unbind();
-		grid[0][0].mMetallic.unbind();
-		grid[0][0].mRoughness.unbind();
-		grid[0][0].mAO.unbind();
+		grid[0][0].m_tex.Unbind();
+		grid[0][0].m_normal.Unbind();
+		grid[0][0].m_metallic.Unbind();
+		grid[0][0].m_roughness.Unbind();
+		grid[0][0].m_ao.Unbind();
 	}
 }
 
@@ -205,7 +181,7 @@ float heuristic(const glm::ivec2& a, const glm::ivec2& b)
 	return std::abs(a.x - b.x) + std::abs(a.y - b.y);
 }
 
-std::vector<glm::ivec2> Grid::findPath(const glm::ivec2& start, const glm::ivec2& goal,
+std::vector<glm::ivec2> Grid::FindPath(const glm::ivec2& start, const glm::ivec2& goal,
                                        const std::vector<std::vector<Cell>>& grid, int npcId)
 {
 	std::priority_queue<Node> openSet;

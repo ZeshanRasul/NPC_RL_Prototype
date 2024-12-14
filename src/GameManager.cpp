@@ -37,26 +37,26 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 	m_renderer->SetUpMinimapFBO(width, height);
 	m_renderer->SetUpShadowMapFBO(SHADOW_WIDTH, SHADOW_HEIGHT);
 
-	m_playerShader.loadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/vertex_gpu_dquat_player.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/pbr_fragment.glsl");
-	m_enemyShader.loadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/vertex_gpu_dquat_enemy.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/pbr_fragment_emissive.glsl");
+	m_playerShader.LoadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/vertex_gpu_dquat_player.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/pbr_fragment.glsl");
+	m_enemyShader.LoadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/vertex_gpu_dquat_enemy.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/pbr_fragment_emissive.glsl");
 	
 #ifdef DEBUG
-	m_gridShader.loadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/pbr_grid_debug_vert.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/pbr_grid_debug_frag.glsl");
+	m_gridShader.LoadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/pbr_grid_debug_vert.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/pbr_grid_debug_frag.glsl");
 #else
-	m_gridShader.loadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/pbr_vertex.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/pbr_fragment.glsl");
+	m_gridShader.LoadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/pbr_vertex.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/pbr_fragment.glsl");
 #endif
 
-	m_crosshairShader.loadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/crosshair_vert.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/crosshair_frag.glsl");
-	m_lineShader.loadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/line_vert.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/line_frag.glsl");
-	m_aabbShader.loadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/aabb_vert.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/aabb_frag.glsl");
-	m_cubeShader.loadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/pbr_vertex.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/pbr_fragment_emissive.glsl");
-	m_cubemapShader.loadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/cubemap_vertex.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/cubemap_fragment.glsl");
-	m_minimapShader.loadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/quad_vertex.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/quad_fragment.glsl");
-	m_shadowMapShader.loadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/shadow_map_vertex.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/shadow_map_fragment.glsl");
-	m_playerShadowMapShader.loadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/shadow_map_player_vertex.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/shadow_map_fragment.glsl");
-	m_enemyShadowMapShader.loadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/shadow_map_enemy_vertex.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/shadow_map_fragment.glsl");
-	m_shadowMapQuadShader.loadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/shadow_map_quad_vertex.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/shadow_map_quad_fragment.glsl");
-	m_playerMuzzleFlashShader.loadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/muzzle_flash_vertex.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/muzzle_flash_fragment.glsl");
+	m_crosshairShader.LoadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/crosshair_vert.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/crosshair_frag.glsl");
+	m_lineShader.LoadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/line_vert.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/line_frag.glsl");
+	m_aabbShader.LoadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/aabb_vert.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/aabb_frag.glsl");
+	m_cubeShader.LoadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/pbr_vertex.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/pbr_fragment_emissive.glsl");
+	m_cubemapShader.LoadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/cubemap_vertex.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/cubemap_fragment.glsl");
+	m_minimapShader.LoadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/quad_vertex.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/quad_fragment.glsl");
+	m_shadowMapShader.LoadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/shadow_map_vertex.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/shadow_map_fragment.glsl");
+	m_playerShadowMapShader.LoadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/shadow_map_player_vertex.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/shadow_map_fragment.glsl");
+	m_enemyShadowMapShader.LoadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/shadow_map_enemy_vertex.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/shadow_map_fragment.glsl");
+	m_shadowMapQuadShader.LoadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/shadow_map_quad_vertex.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/shadow_map_quad_fragment.glsl");
+	m_playerMuzzleFlashShader.LoadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/muzzle_flash_vertex.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/muzzle_flash_fragment.glsl");
 
 	m_physicsWorld = new PhysicsWorld();
 
@@ -80,15 +80,15 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 
 	m_gameGrid = new Grid();
 
-	for (glm::vec3 coverPos : m_gameGrid->coverPositions)
+	for (glm::vec3 coverPos : m_gameGrid->GetCoverPositions())
 	{
-		Cube* cover = new Cube(m_gameGrid->snapToGrid(coverPos), glm::vec3((float)m_gameGrid->GetCellSize()), &m_cubeShader, &m_shadowMapShader, false, this, cubeTexFilename);
+		Cube* cover = new Cube(m_gameGrid->SnapToGrid(coverPos), glm::vec3((float)m_gameGrid->GetCellSize()), &m_cubeShader, &m_shadowMapShader, false, this, cubeTexFilename);
 		cover->SetAABBShader(&m_aabbShader);
 		cover->LoadMesh();
 		m_coverSpots.push_back(cover);
 	}
 
-	m_gameGrid->initializeGrid();
+	m_gameGrid->InitializeGrid();
 
 	m_camera = new Camera(glm::vec3(50.0f, 3.0f, 80.0f));
 	m_minimapCamera = new Camera(glm::vec3((m_gameGrid->GetCellSize() * m_gameGrid->GetGridSize()) / 2.0f, 140.0f, (m_gameGrid->GetCellSize() * m_gameGrid->GetGridSize()) / 2.0f), glm::vec3(0.0f, -1.0f, 0.0f), 0.0f, -90.0f, glm::vec3(0.0f, 0.0f, -1.0f));
@@ -125,27 +125,28 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 	m_enemy4MuzzleFlashQuad->LoadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/muzzleflash.png");
 
 
-	m_player = new Player(m_gameGrid->snapToGrid(glm::vec3(90.0f, 0.0f, 25.0f)), glm::vec3(3.0f), &m_playerShader, &m_playerShadowMapShader, true, this);
-	m_player->aabbShader = &m_aabbShader;
+	m_player = new Player(m_gameGrid->SnapToGrid(glm::vec3(90.0f, 0.0f, 25.0f)), glm::vec3(3.0f), &m_playerShader, &m_playerShadowMapShader, true, this);
+	m_player->SetAABBShader(&m_aabbShader);
+	m_player->SetUpAABB();
 
 	std::string texture = "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Models/GLTF/Enemies/Ely/EnemyEly_ely_vanguardsoldier_kerwinatienza_M2_BaseColor.png";
 	std::string texture2 = "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Models/GLTF/Enemies/Ely/ely-vanguardsoldier-kerwinatienza_diffuse_2.png";
 	std::string texture3 = "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Models/GLTF/Enemies/Ely/ely-vanguardsoldier-kerwinatienza_diffuse_3.png";
 	std::string texture4 = "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Models/GLTF/Enemies/Ely/ely-vanguardsoldier-kerwinatienza_diffuse_4.png";
 
-	m_enemy = new Enemy(m_gameGrid->snapToGrid(glm::vec3(33.0f, 0.0f, 23.0f)), glm::vec3(3.0f), &m_enemyShader, &m_enemyShadowMapShader, true, this, m_gameGrid, texture, 0, GetEventManager(), *m_player);
+	m_enemy = new Enemy(m_gameGrid->SnapToGrid(glm::vec3(33.0f, 0.0f, 23.0f)), glm::vec3(3.0f), &m_enemyShader, &m_enemyShadowMapShader, true, this, m_gameGrid, texture, 0, GetEventManager(), *m_player);
 	m_enemy->SetAABBShader(&m_aabbShader);
 	m_enemy->SetUpAABB();
 
-	m_enemy2 = new Enemy(m_gameGrid->snapToGrid(glm::vec3(3.0f, 0.0f, 53.0f)), glm::vec3(3.0f), &m_enemyShader, &m_enemyShadowMapShader, true, this, m_gameGrid, texture2, 1, GetEventManager(), *m_player);
+	m_enemy2 = new Enemy(m_gameGrid->SnapToGrid(glm::vec3(3.0f, 0.0f, 53.0f)), glm::vec3(3.0f), &m_enemyShader, &m_enemyShadowMapShader, true, this, m_gameGrid, texture2, 1, GetEventManager(), *m_player);
 	m_enemy2->SetAABBShader(&m_aabbShader);
 	m_enemy2->SetUpAABB();
 
-	m_enemy3 = new Enemy(m_gameGrid->snapToGrid(glm::vec3(43.0f, 0.0f, 53.0f)), glm::vec3(3.0f), &m_enemyShader, &m_enemyShadowMapShader, true, this, m_gameGrid, texture3, 2, GetEventManager(), *m_player);
+	m_enemy3 = new Enemy(m_gameGrid->SnapToGrid(glm::vec3(43.0f, 0.0f, 53.0f)), glm::vec3(3.0f), &m_enemyShader, &m_enemyShadowMapShader, true, this, m_gameGrid, texture3, 2, GetEventManager(), *m_player);
 	m_enemy3->SetAABBShader(&m_aabbShader);
 	m_enemy3->SetUpAABB();
 
-	m_enemy4 = new Enemy(m_gameGrid->snapToGrid(glm::vec3(11.0f, 0.0f, 23.0f)), glm::vec3(3.0f), &m_enemyShader, &m_enemyShadowMapShader, true, this, m_gameGrid, texture4, 3, GetEventManager(), *m_player);
+	m_enemy4 = new Enemy(m_gameGrid->SnapToGrid(glm::vec3(11.0f, 0.0f, 23.0f)), glm::vec3(3.0f), &m_enemyShader, &m_enemyShadowMapShader, true, this, m_gameGrid, texture4, 3, GetEventManager(), *m_player);
 	m_enemy4->SetAABBShader(&m_aabbShader);
 	m_enemy4->SetUpAABB();
 
@@ -212,8 +213,8 @@ void GameManager::SetupCamera(unsigned int width, unsigned int height)
 	if (m_camera->GetMode() == PLAYER_FOLLOW)
 	{
 		m_camera->SetPitch(45.0f);
-		m_camera->FollowTarget(m_player->getPosition() + (m_player->PlayerFront * m_camera->GetPlayerPosOffset()), m_player->PlayerFront, m_camera->GetPlayerCamRearOffset(), m_camera->GetPlayerCamHeightOffset());
-		m_view = m_camera->GetViewMatrixPlayerFollow(m_player->getPosition() + (m_player->PlayerFront * m_camera->GetPlayerPosOffset()), glm::vec3(0.0f, 1.0f, 0.0f));
+		m_camera->FollowTarget(m_player->GetPosition() + (m_player->GetPlayerFront() * m_camera->GetPlayerPosOffset()), m_player->GetPlayerFront(), m_camera->GetPlayerCamRearOffset(), m_camera->GetPlayerCamHeightOffset());
+		m_view = m_camera->GetViewMatrixPlayerFollow(m_player->GetPosition() + (m_player->GetPlayerFront() * m_camera->GetPlayerPosOffset()), glm::vec3(0.0f, 1.0f, 0.0f));
 	}
 	else if (m_camera->GetMode() == ENEMY_FOLLOW)
 	{
@@ -229,7 +230,7 @@ void GameManager::SetupCamera(unsigned int width, unsigned int height)
 	{
 		if (m_firstFlyCamSwitch)
 		{
-			m_camera->FollowTarget(m_player->getPosition(), m_player->PlayerFront, m_camera->GetPlayerCamRearOffset(), m_camera->GetPlayerCamHeightOffset());
+			m_camera->FollowTarget(m_player->GetPosition(), m_player->GetPlayerFront(), m_camera->GetPlayerCamRearOffset(), m_camera->GetPlayerCamHeightOffset());
 			m_firstFlyCamSwitch = false;
 			return;
 		}
@@ -241,13 +242,13 @@ void GameManager::SetupCamera(unsigned int width, unsigned int height)
 		if (m_camera->GetPitch() > 16.0f)
 			m_camera->SetPitch(16.0f);
 
-		m_camera->FollowTarget(m_player->getPosition() + (m_player->PlayerFront * m_camera->GetPlayerPosOffset()) + (m_player->PlayerRight * m_camera->GetPlayerAimRightOffset()), m_player->PlayerAimFront, m_camera->GetPlayerCamRearOffset(), m_camera->GetPlayerCamHeightOffset());
-		glm::vec3 target = m_player->getPosition() + (m_player->PlayerFront * m_camera->GetPlayerPosOffset());
+		m_camera->FollowTarget(m_player->GetPosition() + (m_player->GetPlayerFront() * m_camera->GetPlayerPosOffset()) + (m_player->GetPlayerRight() * m_camera->GetPlayerAimRightOffset()), m_player->GetPlayerAimFront(), m_camera->GetPlayerCamRearOffset(), m_camera->GetPlayerCamHeightOffset());
+		glm::vec3 target = m_player->GetPosition() + (m_player->GetPlayerFront() * m_camera->GetPlayerPosOffset());
 		if (target.y < 0.0f)
 			target.y = 0.0f;
-		m_view = m_camera->GetViewMatrixPlayerFollow(target, m_player->PlayerAimUp);
+		m_view = m_camera->GetViewMatrixPlayerFollow(target, m_player->GetPlayerAimUp());
 	}
-	m_cubemapView = glm::mat4(glm::mat3(m_camera->GetViewMatrixPlayerFollow(m_player->getPosition(), glm::vec3(0.0f, 1.0f, 0.0f))));
+	m_cubemapView = glm::mat4(glm::mat3(m_camera->GetViewMatrixPlayerFollow(m_player->GetPosition(), glm::vec3(0.0f, 1.0f, 0.0f))));
 
 	m_projection = glm::perspective(glm::radians(m_camera->GetZoom()), (float)width / (float)height, 0.1f, 500.0f);
 
@@ -261,7 +262,7 @@ void GameManager::SetupCamera(unsigned int width, unsigned int height)
 
 void GameManager::SetSceneData()
 {
-	m_renderer->setScene(m_view, m_projection, m_cubemapView, dirLight);
+	m_renderer->SetScene(m_view, m_projection, m_cubemapView, dirLight);
 }
 
 void GameManager::SetUpDebugUi()
@@ -273,8 +274,9 @@ void GameManager::SetUpDebugUi()
 
 void GameManager::ShowDebugUi()
 {
+#ifdef DEBUG
 	ShowLightControlWindow(dirLight);
-
+#endif 
 	ShowPerformanceWindow();
 	ShowEnemyStateWindow();
 }
@@ -290,14 +292,14 @@ void GameManager::ShowLightControlWindow(DirLight& light)
 	ImGui::Begin("Directional Light Control");
 
 	ImGui::Text("Light Direction");
-	ImGui::DragFloat3("Direction", (float*)&light.direction, dirLight.direction.x, dirLight.direction.y, dirLight.direction.z);
+	ImGui::DragFloat3("Direction", (float*)&light.m_direction, dirLight.m_direction.x, dirLight.m_direction.y, dirLight.m_direction.z);
 
-	ImGui::ColorEdit4("Ambient", (float*)&light.ambient);
+	ImGui::ColorEdit4("Ambient", (float*)&light.m_ambient);
 
-	ImGui::ColorEdit4("Diffuse", (float*)&light.diffuse);
+	ImGui::ColorEdit4("Diffuse", (float*)&light.m_diffuse);
 	ImGui::ColorEdit4("PBR Color", (float*)&dirLightPBRColour);
 
-	ImGui::ColorEdit4("Specular", (float*)&light.specular);
+	ImGui::ColorEdit4("Specular", (float*)&light.m_specular);
 
 	ImGui::DragFloat("Ortho Left", (float*)&m_orthoLeft);
 	ImGui::DragFloat("Ortho Right", (float*)&m_orthoRight);
@@ -327,18 +329,13 @@ void GameManager::ShowEnemyStateWindow()
 
 	ImGui::Checkbox("Use EDBT", &m_useEdbt);
 
-	ImGui::InputFloat("Muzzle Offset", &m_muzzleOffset);
-
-	ImGui::InputFloat3("Enemy Muzzle Flash Offset", &m_enemyMuzzleFlashOffsets[0]);
-
-
 	ImGui::Text("Player Health: %d", (int)m_player->GetHealth());
 
 	for (Enemy* e : m_enemies)
 	{
 		if (e == nullptr || e->IsDestroyed())
 			continue;
-		ImTextureID texID = (void*)(intptr_t)e->GetTexture().getTexID();
+		ImTextureID texID = (void*)(intptr_t)e->GetTexture().GetTexId();
 		ImGui::Image(texID, ImVec2(100, 100));
 		ImGui::SameLine();
 		ImGui::Text("Enemy %d", e->GetID());
@@ -375,7 +372,7 @@ void GameManager::CreateLightSpaceMatrices()
 	int gridWidth = m_gameGrid->GetCellSize() * m_gameGrid->GetGridSize();
 	glm::vec3 sceneCenter = glm::vec3(gridWidth / 2.0f, 0.0f, gridWidth / 2.0f);
 
-	glm::vec3 lightDir = glm::normalize(dirLight.direction);
+	glm::vec3 lightDir = glm::normalize(dirLight.m_direction);
 
 	float sceneDiagonal = (float)glm::sqrt(gridWidth * gridWidth + gridWidth * gridWidth);
 
@@ -397,7 +394,7 @@ void GameManager::ResetGame()
 {
 	m_camera->SetMode(PLAYER_FOLLOW);
 	m_audioManager->ClearQueue();
-	m_player->setPosition(m_player->initialPos);
+	m_player->SetPosition(m_player->GetInitialPos());
 	m_player->SetYaw(m_player->GetInitialYaw());
 	m_player->SetAnimNum(0);
 	m_player->SetIsDestroyed(false);
@@ -405,7 +402,7 @@ void GameManager::ResetGame()
 	m_player->UpdatePlayerVectors();
 	m_player->UpdatePlayerAimVectors();
 	m_player->SetPlayerState(PlayerState::MOVING);
-	m_player->aabbColor = glm::vec3(0.0f, 0.0f, 1.0f);
+	m_player->SetAabbColor(glm::vec3(0.0f, 0.0f, 1.0f));
 	m_enemy->SetIsDestroyed(false);
 	m_enemy2->SetIsDestroyed(false);
 	m_enemy3->SetIsDestroyed(false);
@@ -512,7 +509,7 @@ void GameManager::RenderPlayerCrosshairAndMuzzleFlash(bool isMainPass)
 		m_renderer->RemoveDepthAndSetBlending();
 
 		glm::vec3 rayO = m_player->GetShootPos();
-		glm::vec3 rayD = glm::normalize(m_player->PlayerAimFront);
+		glm::vec3 rayD = glm::normalize(m_player->GetPlayerAimFront());
 		float dist = m_player->GetShootDistance();
 
 		glm::vec3 rayEnd = rayO + rayD * dist;
@@ -634,14 +631,14 @@ void GameManager::Render(bool isMinimapRenderPass, bool isShadowMapRenderPass, b
 	if (!isShadowMapRenderPass)
 	{
 		m_renderer->ResetViewport(m_screenWidth, m_screenHeight);
-		m_renderer->clear();
+		m_renderer->Clear();
 	}
 
 	if (isMinimapRenderPass)
-		m_renderer->bindMinimapFBO(m_screenWidth, m_screenHeight);
+		m_renderer->BindMinimapFbo(m_screenWidth, m_screenHeight);
 
 	if (isShadowMapRenderPass)
-		m_renderer->bindShadowMapFBO(SHADOW_WIDTH, SHADOW_HEIGHT);
+		m_renderer->BindShadowMapFbo(SHADOW_WIDTH, SHADOW_HEIGHT);
 
 
 
@@ -650,32 +647,32 @@ void GameManager::Render(bool isMinimapRenderPass, bool isShadowMapRenderPass, b
 			continue;
 		if (isMinimapRenderPass)
 		{
-			m_renderer->draw(obj, m_minimapView, m_minimapProjection, m_camera->GetPosition(), false, m_lightSpaceMatrix);
+			m_renderer->Draw(obj, m_minimapView, m_minimapProjection, m_camera->GetPosition(), false, m_lightSpaceMatrix);
 		}
 		else if (isShadowMapRenderPass)
 		{
-			m_renderer->draw(obj, m_lightSpaceView, m_lightSpaceProjection, m_camera->GetPosition(), true, m_lightSpaceMatrix);
+			m_renderer->Draw(obj, m_lightSpaceView, m_lightSpaceProjection, m_camera->GetPosition(), true, m_lightSpaceMatrix);
 		}
 		else
 		{
-			m_renderer->draw(obj, m_view, m_projection, m_camera->GetPosition(), false, m_lightSpaceMatrix);
+			m_renderer->Draw(obj, m_view, m_projection, m_camera->GetPosition(), false, m_lightSpaceMatrix);
 		}
 	}
 
 	if (isMinimapRenderPass)
 	{
-		m_gameGrid->drawGrid(m_gridShader, m_minimapView, m_minimapProjection, m_camera->GetPosition(), false, m_lightSpaceMatrix, m_renderer->GetShadowMapTexture(),
-			dirLight.direction, dirLight.ambient, dirLight.diffuse, dirLight.specular);
+		m_gameGrid->DrawGrid(m_gridShader, m_minimapView, m_minimapProjection, m_camera->GetPosition(), false, m_lightSpaceMatrix, m_renderer->GetShadowMapTexture(),
+			dirLight.m_direction, dirLight.m_ambient, dirLight.m_diffuse, dirLight.m_specular);
 	}
 	else if (isShadowMapRenderPass)
 	{
-		m_gameGrid->drawGrid(m_shadowMapShader, m_lightSpaceView, m_lightSpaceProjection, m_camera->GetPosition(), true, m_lightSpaceMatrix, m_renderer->GetShadowMapTexture(),
-			dirLight.direction, dirLight.ambient, dirLight.diffuse, dirLight.specular);
+		m_gameGrid->DrawGrid(m_shadowMapShader, m_lightSpaceView, m_lightSpaceProjection, m_camera->GetPosition(), true, m_lightSpaceMatrix, m_renderer->GetShadowMapTexture(),
+			dirLight.m_direction, dirLight.m_ambient, dirLight.m_diffuse, dirLight.m_specular);
 	}
 	else
 	{
-		m_gameGrid->drawGrid(m_gridShader, m_view, m_projection, m_camera->GetPosition(), false, m_lightSpaceMatrix, m_renderer->GetShadowMapTexture(),
-			dirLight.direction, dirLight.ambient, dirLight.diffuse, dirLight.specular);
+		m_gameGrid->DrawGrid(m_gridShader, m_view, m_projection, m_camera->GetPosition(), false, m_lightSpaceMatrix, m_renderer->GetShadowMapTexture(),
+			dirLight.m_direction, dirLight.m_ambient, dirLight.m_diffuse, dirLight.m_specular);
 	}
 
 	if (m_camSwitchedToAim)
@@ -683,29 +680,29 @@ void GameManager::Render(bool isMinimapRenderPass, bool isShadowMapRenderPass, b
 
 	RenderEnemyLineAndMuzzleFlash(isMainRenderPass, isMinimapRenderPass, isShadowMapRenderPass);
 
-	m_renderer->drawCubemap(m_cubemap);
+	m_renderer->DrawCubemap(m_cubemap);
 
 	RenderPlayerCrosshairAndMuzzleFlash(isMainRenderPass);
 
 	if (isMainRenderPass)
 	{
-		m_renderer->drawMinimap(m_minimapQuad, &m_minimapShader);
+		m_renderer->DrawMinimap(m_minimapQuad, &m_minimapShader);
 	}
 
 #ifdef _DEBUG
 	if (isMainRenderPass)
 	{
-		m_renderer->drawShadowMap(m_shadowMapQuad, &m_shadowMapQuadShader);
+		m_renderer->DrawShadowMap(m_shadowMapQuad, &m_shadowMapQuadShader);
 	}
 #endif
 
 	if (isMinimapRenderPass)
 	{
-		m_renderer->unbindMinimapFBO();
+		m_renderer->UnbindMinimapFbo();
 	}
 	else if (isShadowMapRenderPass)
 	{
-		m_renderer->unbindShadowMapFBO();
+		m_renderer->UnbindShadowMapFbo();
 	}
 
 }

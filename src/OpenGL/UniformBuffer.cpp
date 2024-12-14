@@ -4,44 +4,44 @@
 #include "UniformBuffer.h"
 #include "src/Tools/Logger.h"
 
-void UniformBuffer::init(size_t bufferSize)
+void UniformBuffer::Init(size_t bufferSize)
 {
-	mBufferSize = bufferSize;
+	m_bufferSize = bufferSize;
 
-	glGenBuffers(1, &mUboBuffer);
+	glGenBuffers(1, &m_uboBuffer);
 
-	glBindBuffer(GL_UNIFORM_BUFFER, mUboBuffer);
-	glBufferData(GL_UNIFORM_BUFFER, mBufferSize, nullptr, GL_STATIC_DRAW);
+	glBindBuffer(GL_UNIFORM_BUFFER, m_uboBuffer);
+	glBufferData(GL_UNIFORM_BUFFER, m_bufferSize, nullptr, GL_STATIC_DRAW);
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 }
 
-void UniformBuffer::uploadUboData(std::vector<glm::mat4> bufferData, int bindingPoint)
+void UniformBuffer::UploadUboData(std::vector<glm::mat4> bufferData, int bindingPoint)
 {
 	if (bufferData.size() == 0)
 	{
 		return;
 	}
 	size_t bufferSize = bufferData.size() * sizeof(glm::mat4);
-	glBindBuffer(GL_UNIFORM_BUFFER, mUboBuffer);
+	glBindBuffer(GL_UNIFORM_BUFFER, m_uboBuffer);
 	glBufferSubData(GL_UNIFORM_BUFFER, 0, bufferSize, bufferData.data());
-	glBindBufferRange(GL_UNIFORM_BUFFER, bindingPoint, mUboBuffer, 0, bufferSize);
+	glBindBufferRange(GL_UNIFORM_BUFFER, bindingPoint, m_uboBuffer, 0, bufferSize);
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 }
 
-void UniformBuffer::uploadColorUboData(std::vector<glm::vec3> bufferData, int bindingPoint)
+void UniformBuffer::UploadColorUboData(std::vector<glm::vec3> bufferData, int bindingPoint)
 {
 	if (bufferData.size() == 0)
 	{
 		return;
 	}
 	size_t bufferSize = bufferData.size() * sizeof(glm::vec3);
-	glBindBuffer(GL_UNIFORM_BUFFER, mUboBuffer);
+	glBindBuffer(GL_UNIFORM_BUFFER, m_uboBuffer);
 	glBufferSubData(GL_UNIFORM_BUFFER, 0, bufferSize, bufferData.data());
-	glBindBufferRange(GL_UNIFORM_BUFFER, bindingPoint, mUboBuffer, 0, bufferSize);
+	glBindBufferRange(GL_UNIFORM_BUFFER, bindingPoint, m_uboBuffer, 0, bufferSize);
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 }
 
-void UniformBuffer::cleanup()
+void UniformBuffer::Cleanup()
 {
-	glDeleteBuffers(1, &mUboBuffer);
+	glDeleteBuffers(1, &m_uboBuffer);
 }

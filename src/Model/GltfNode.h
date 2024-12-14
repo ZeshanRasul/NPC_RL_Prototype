@@ -9,45 +9,45 @@
 class GltfNode
 {
 public:
-	static std::shared_ptr<GltfNode> createRoot(int rootNodeNum);
-	void addChilds(std::vector<int> childNodes);
-	std::vector<std::shared_ptr<GltfNode>> getChilds();
-	int getNodeNum();
+	static std::shared_ptr<GltfNode> CreateRoot(int rootNodeNum);
+	void AddChilds(std::vector<int> childNodes);
+	std::vector<std::shared_ptr<GltfNode>> GetChilds();
+	int GetNodeNum();
 
-	void setNodeName(std::string name);
-	std::string getNodeName();
+	void SetNodeName(std::string name);
+	std::string GetNodeName();
 
-	void setScale(glm::vec3 scale);
-	void setTranslation(glm::vec3 translation);
-	void setRotation(glm::quat rotation);
+	void SetScale(glm::vec3 scale);
+	void SetTranslation(glm::vec3 translation);
+	void SetRotation(glm::quat rotation);
 
-	void blendScale(glm::vec3 scale, float blendFactor);
-	void blendTranslation(glm::vec3 translation, float blendFactor);
-	void blendRotation(glm::quat rotation, float blendFactor);
+	void BlendScale(glm::vec3 scale, float blendFactor);
+	void BlendTranslation(glm::vec3 translation, float blendFactor);
+	void BlendRotation(glm::quat rotation, float blendFactor);
 
-	void calculateLocalTRSMatrix();
-	void calculateNodeMatrix(glm::mat4 parentNodeMatrix);
-	glm::mat4 getNodeMatrix();
+	void CalculateLocalTrsMatrix();
+	void CalculateNodeMatrix(glm::mat4 parentNodeMatrix);
+	glm::mat4 GetNodeMatrix();
 
-	void printTree();
+	void PrintTree();
 
 private:
-	void printNodes(std::shared_ptr<GltfNode> startNode, int indent);
+	void PrintNodes(std::shared_ptr<GltfNode> startNode, int indent);
 
-	int mNodeNum = 0;
-	std::string mNodeName;
+	int m_nodeNum = 0;
+	std::string m_nodeName;
 
-	std::vector<std::shared_ptr<GltfNode>> mChildNodes{};
+	std::vector<std::shared_ptr<GltfNode>> m_childNodes{};
 
-	glm::vec3 mBlendScale = glm::vec3(1.0f);
-	glm::vec3 mBlendTranslation = glm::vec3(0.0f);
-	glm::quat mBlendRotation = glm::quat(1.0f, 0.0f, 0.0f, 0.0f);
+	glm::vec3 m_blendScale = glm::vec3(1.0f);
+	glm::vec3 m_blendTranslation = glm::vec3(0.0f);
+	glm::quat m_blendRotation = glm::quat(1.0f, 0.0f, 0.0f, 0.0f);
 
-	glm::vec3 mScale = glm::vec3(1.0f);
-	glm::vec3 mTranslation = glm::vec3(0.0f);
-	glm::quat mRotation = glm::quat(1.0f, 0.0f, 0.0f, 0.0f);
+	glm::vec3 m_scale = glm::vec3(1.0f);
+	glm::vec3 m_translation = glm::vec3(0.0f);
+	glm::quat m_rotation = glm::quat(1.0f, 0.0f, 0.0f, 0.0f);
 
-	glm::mat4 mLocalTRSMatrix = glm::mat4(1.0f);
-	glm::mat4 mNodeMatrix = glm::mat4(1.0f);
-	glm::mat4 mInverseBindMatrix = glm::mat4(1.0f);
+	glm::mat4 m_localTrsMatrix = glm::mat4(1.0f);
+	glm::mat4 m_nodeMatrix = glm::mat4(1.0f);
+	glm::mat4 m_inverseBindMatrix = glm::mat4(1.0f);
 };

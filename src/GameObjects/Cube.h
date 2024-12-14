@@ -16,18 +16,18 @@ public:
 			&m_tex);
 		LoadTexture(
 			"C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/Wall/TCom_SciFiPanels09_4K_normal.png",
-			&mNormal);
+			&m_normal);
 		LoadTexture(
 			"C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/Wall/TCom_SciFiPanels09_4K_metallic.png",
-			&mMetallic);
+			&m_metallic);
 		LoadTexture(
 			"C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/Wall/TCom_SciFiPanels09_4K_roughness.png",
-			&mRoughness);
+			&m_roughness);
 		LoadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/Wall/TCom_SciFiPanels09_4K_ao.png",
-		            &mAO);
+		            &m_ao);
 		LoadTexture(
 			"C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/Wall/TCom_SciFiPanels09_4K_emissive.png",
-			&mEmissive);
+			&m_emissive);
 
 		bulletHitAC = new AudioComponent(this);
 
@@ -64,17 +64,17 @@ public:
 	void OnHit() override
 	{
 		Logger::Log(1, "Cover was hit!\n", __FUNCTION__);
-		setAABBColor(glm::vec3(1.0f, 0.0f, 1.0f));
+		SetAabbColor(glm::vec3(1.0f, 0.0f, 1.0f));
 		/*m_takeDamageAc->PlayEvent("event:/PlayerTakeDamage");*/
 		bulletHitAC->PlayEvent("event:/Metal_hit");
 	};
 
 	void OnMiss() override
 	{
-		setAABBColor(glm::vec3(1.0f, 1.0f, 1.0f));
+		SetAabbColor(glm::vec3(1.0f, 1.0f, 1.0f));
 	};
 
-	void updateAABB()
+	void UpdateAabb()
 	{
 		glm::mat4 modelMatrix = translate(glm::mat4(1.0f), m_position) *
 			rotate(glm::mat4(1.0f), glm::radians(m_yaw), glm::vec3(0.0f, 1.0f, 0.0f)) *
@@ -86,7 +86,7 @@ public:
 
 	AABB* GetAABB() const { return aabb; }
 
-	void setAABBColor(glm::vec3 color) { aabbColor = color; }
+	void SetAabbColor(glm::vec3 color) { aabbColor = color; }
 
 	void SetAABBShader(Shader* shdr) { aabbShader = shdr; }
 
@@ -98,26 +98,8 @@ public:
 	{
 	};
 
-	std::vector<glm::vec3> GetPositionVertices()
-	{
-		for (int i = 0; i < 192; i = i + 8)
-		{
-			glm::mat4 modelMatrix = translate(glm::mat4(1.0f), m_position) *
-				rotate(glm::mat4(1.0f), glm::radians(m_yaw), glm::vec3(0.0f, 1.0f, 0.0f)) *
-				glm::scale(glm::mat4(1.0f), m_scale);
-
-			posVertices.push_back(
-				glm::vec3(modelMatrix * glm::vec4(vertices[i], vertices[i + 1], vertices[i + 2], 1.0f)));
-		}
-		return posVertices;
-	}
-
-	GLuint* GetIndices() { return indices; }
-
 private:
-	std::vector<glm::vec3> posVertices;
-
-	float vertices[192] = {
+	float m_vertices[192] = {
 		// Positions           // Normals          // Texture Coords
 		// Back face (z = -0.5)
 		-0.5f, -0.5f, -0.5f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, // 0 Back-bottom-left
@@ -156,7 +138,7 @@ private:
 		-0.5f, 0.5f, 0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f // 23 Top-front-left
 	};
 
-	GLuint indices[36] = {
+	GLuint m_indices[36] = {
 		// Back face
 		0, 1, 2, 2, 3, 0,
 
@@ -176,15 +158,15 @@ private:
 		20, 21, 22, 22, 23, 20
 	};
 
-	GLuint mVAO;
-	GLuint mVBO;
-	GLuint mEBO;
+	GLuint m_vao;
+	GLuint m_vbo;
+	GLuint m_ebo;
 
-	Texture mNormal{};
-	Texture mMetallic{};
-	Texture mRoughness{};
-	Texture mAO{};
-	Texture mEmissive{};
+	Texture m_normal{};
+	Texture m_metallic{};
+	Texture m_roughness{};
+	Texture m_ao{};
+	Texture m_emissive{};
 
 	AABB* aabb;
 	Shader* aabbShader;

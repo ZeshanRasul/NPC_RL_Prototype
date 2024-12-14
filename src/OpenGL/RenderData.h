@@ -7,65 +7,65 @@
 
 struct Vertex
 {
-	glm::vec3 position;
-	glm::vec3 color;
-	glm::vec2 uv;
+	glm::vec3 m_position;
+	glm::vec3 m_color;
+	glm::vec2 m_uv;
 };
 
 struct Mesh
 {
-	std::vector<Vertex> vertices;
+	std::vector<Vertex> m_vertices;
 };
 
 struct Material
 {
-	glm::vec3 ambient;
-	glm::vec3 diffuse;
-	glm::vec3 specular;
-	float shininess;
+	glm::vec3 m_ambient;
+	glm::vec3 m_diffuse;
+	glm::vec3 m_specular;
+	float m_shininess;
 };
 
 struct DirLight
 {
-	glm::vec3 direction;
+	glm::vec3 m_direction;
 
-	glm::vec3 ambient;
-	glm::vec3 diffuse;
-	glm::vec3 specular;
+	glm::vec3 m_ambient;
+	glm::vec3 m_diffuse;
+	glm::vec3 m_specular;
 };
 
 struct PointLight
 {
-	glm::vec3 position;
+	glm::vec3 m_position;
 
-	float constant;
-	float linear;
-	float quadratic;
+	float m_constant;
+	float m_linear;
+	float m_quadratic;
 
-	glm::vec3 ambient;
-	glm::vec3 diffuse;
-	glm::vec3 specular;
+	glm::vec3 m_ambient;
+	glm::vec3 m_diffuse;
+	glm::vec3 m_specular;
 };
 
 struct SpotLight
 {
-	glm::vec3 position;
-	glm::vec3 direction;
-	float cutoff;
-	float outerCutoff;
+	glm::vec3 m_position;
+	glm::vec3 m_direction;
+	float m_cutoff;
+	float m_outerCutoff;
 
-	glm::vec3 ambient;
-	glm::vec3 diffuse;
-	glm::vec3 specular;
+	glm::vec3 m_ambient;
+	glm::vec3 m_diffuse;
+	glm::vec3 m_specular;
 };
 
 struct RenderData
 {
-	GLFWwindow* rdWindow = nullptr;
+	GLFWwindow* m_rdWindow = nullptr;
 
-	int rdWidth = 0;
-	int rdHeight = 0;
+	int m_rdWidth = 0;
+	int m_rdHeight = 0;
 
-	unsigned int rdGltfTriangleCount = 0;
-	size_t animClipsSize = 0;
+	unsigned int m_rdGltfTriangleCount = 0;
+	size_t m_animClipsSize = 0;
 };

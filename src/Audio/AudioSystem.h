@@ -50,16 +50,13 @@ protected:
 	FMOD::Studio::EventInstance* GetEventInstance(unsigned int id);
 
 private:
-	// Tracks the next ID to use for event instances
-	static unsigned int sNextID;
+	static unsigned int s_nextID;
 
-	class GameManager* mGameManager;
-	std::unordered_map<std::string, FMOD::Studio::Bank*> mBanks;
-	// Map of event name to EventDescription
-	std::unordered_map<std::string, FMOD::Studio::EventDescription*> mEvents;
-	// Map of event id to EventInstance
-	std::unordered_map<unsigned int, FMOD::Studio::EventInstance*> mEventInstances;
-	std::unordered_map<std::string, FMOD::Studio::Bus*> mBuses;
-	FMOD::Studio::System* mSystem;
-	FMOD::System* mLowLevelSystem;
+	class GameManager* m_gameManager;
+	std::unordered_map<std::string, FMOD::Studio::Bank*> m_banks;
+	std::unordered_map<std::string, FMOD::Studio::EventDescription*> m_events;
+	std::unordered_map<unsigned int, FMOD::Studio::EventInstance*> m_eventInstances;
+	std::unordered_map<std::string, FMOD::Studio::Bus*> m_buses;
+	FMOD::Studio::System* m_system;
+	FMOD::System* m_lowLevelSystem;
 };

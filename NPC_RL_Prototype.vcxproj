@@ -239,7 +239,6 @@
     <ClCompile Include="src\GameObjects\Ground.cpp" />
     <ClCompile Include="src\GameObjects\Line.cpp" />
     <ClCompile Include="src\GameObjects\Player.cpp" />
-    <ClCompile Include="src\GameObjects\Waypoint.cpp" />
     <ClCompile Include="src\glad.c" />
     <ClCompile Include="src\InputManager.cpp" />
     <ClCompile Include="src\main.cpp" />
@@ -248,7 +247,6 @@
     <ClCompile Include="src\Model\GltfModel.cpp" />
     <ClCompile Include="src\Model\GltfNode.cpp" />
     <ClCompile Include="src\OpenGL\Cubemap.cpp" />
-    <ClCompile Include="src\OpenGL\Framebuffer.cpp" />
     <ClCompile Include="src\OpenGL\Renderer.cpp" />
     <ClCompile Include="src\OpenGL\Shader.cpp" />
     <ClCompile Include="src\OpenGL\ShaderStorageBuffer.cpp" />
@@ -310,14 +308,12 @@
     <ClInclude Include="src\GameObjects\Line.h" />
     <ClInclude Include="src\GameObjects\Quad.h" />
     <ClInclude Include="src\GameObjects\Player.h" />
-    <ClInclude Include="src\GameObjects\Waypoint.h" />
     <ClInclude Include="src\InputManager.h" />
     <ClInclude Include="src\Model\GltfAnimationChannel.h" />
     <ClInclude Include="src\Model\GltfAnimationClip.h" />
     <ClInclude Include="src\Model\GltfModel.h" />
     <ClInclude Include="src\Model\GltfNode.h" />
     <ClInclude Include="src\OpenGL\Cubemap.h" />
-    <ClInclude Include="src\OpenGL\Framebuffer.h" />
     <ClInclude Include="src\OpenGL\RenderData.h" />
     <ClInclude Include="src\OpenGL\Renderer.h" />
     <ClInclude Include="src\OpenGL\Shader.h" />

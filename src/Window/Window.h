@@ -11,7 +11,7 @@ public:
 	bool Init(unsigned int width, unsigned int height, std::string title);
 	void MainLoop();
 	bool IsOpen() const { return !glfwWindowShouldClose(m_window); };
-	void Clear() { m_renderer->clear(); }
+	void Clear() { m_renderer->Clear(); }
 
 	GLFWwindow* GetWindow() { return m_window; }
 	Renderer* GetRenderer() { return m_renderer; }

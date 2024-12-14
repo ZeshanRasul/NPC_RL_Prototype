@@ -19,7 +19,6 @@
 #include "src/Camera.h"
 #include "GameObjects/Player.h"
 #include "GameObjects/Enemy.h"
-#include "GameObjects/Waypoint.h"
 #include "GameObjects/Crosshair.h"
 #include "GameObjects/Line.h"
 #include "GameObjects/Cube.h"

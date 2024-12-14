@@ -36,7 +36,7 @@ bool Window::Init(unsigned int width, unsigned int height, std::string title)
 
 	m_renderer = new Renderer(m_window);
 
-	if (!m_renderer->init(width, height)) {
+	if (!m_renderer->Init(width, height)) {
 		glfwTerminate();
 		Logger::Log(1, "%s error: Could not init OpenGL\n", __FUNCTION__);
 		return false;

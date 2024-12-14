@@ -3,13 +3,13 @@
 
 Renderer::Renderer(GLFWwindow* window)
 {
-	mRenderData.rdWindow = window;
+	m_renderData.m_rdWindow = window;
 }
 
-bool Renderer::init(unsigned int width, unsigned int height)
+bool Renderer::Init(unsigned int width, unsigned int height)
 {
-	mRenderData.rdWidth = width;
-	mRenderData.rdHeight = height;
+	m_renderData.m_rdWidth = width;
+	m_renderData.m_rdHeight = height;
 
 	// Load all OpenGL function pointers with GLAD
 	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
@@ -39,21 +39,21 @@ bool Renderer::init(unsigned int width, unsigned int height)
 
 void Renderer::SetUpMinimapFBO(unsigned int width, unsigned int height)
 {
-	glGenFramebuffers(1, &minimapFBO);
-	glBindFramebuffer(GL_FRAMEBUFFER, minimapFBO);
+	glGenFramebuffers(1, &m_minimapFbo);
+	glBindFramebuffer(GL_FRAMEBUFFER, m_minimapFbo);
 
-	glGenTextures(1, &minimapColorTex);
-	glBindTexture(GL_TEXTURE_2D, minimapColorTex);
+	glGenTextures(1, &m_minimapColorTex);
+	glBindTexture(GL_TEXTURE_2D, m_minimapColorTex);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, nullptr);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, minimapColorTex, 0);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_minimapColorTex, 0);
 
-	glGenRenderbuffers(1, &minimapRBO);
-	glBindRenderbuffer(GL_RENDERBUFFER, minimapRBO);
+	glGenRenderbuffers(1, &m_minimapRbo);
+	glBindRenderbuffer(GL_RENDERBUFFER, m_minimapRbo);
 	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, width, height);
-	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, minimapRBO);
+	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, m_minimapRbo);
 
 	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
 	{
@@ -67,11 +67,11 @@ void Renderer::SetUpMinimapFBO(unsigned int width, unsigned int height)
 
 void Renderer::SetUpShadowMapFBO(unsigned int width, unsigned int height)
 {
-	glGenFramebuffers(1, &shadowMapFBO);
+	glGenFramebuffers(1, &m_shadowMapFbo);
 
 	// create depth texture
-	glGenTextures(1, &shadowMapTex);
-	glBindTexture(GL_TEXTURE_2D, shadowMapTex);
+	glGenTextures(1, &m_shadowMapTex);
+	glBindTexture(GL_TEXTURE_2D, m_shadowMapTex);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, width, height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
@@ -81,22 +81,22 @@ void Renderer::SetUpShadowMapFBO(unsigned int width, unsigned int height)
 	glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);
 
 	// attach depth texture as FBO's depth buffer
-	glBindFramebuffer(GL_FRAMEBUFFER, shadowMapFBO);
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, shadowMapTex, 0);
+	glBindFramebuffer(GL_FRAMEBUFFER, m_shadowMapFbo);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, m_shadowMapTex, 0);
 	glDrawBuffer(GL_NONE);
 	glReadBuffer(GL_NONE);
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
-void Renderer::setScene(glm::mat4 viewMat, glm::mat4 proj, glm::mat4 cmapView, DirLight light)
+void Renderer::SetScene(glm::mat4 viewMat, glm::mat4 proj, glm::mat4 cmapView, DirLight light)
 {
-	view = viewMat;
-	projection = proj;
-	cubemapView = cmapView;
-	sun = light;
+	m_view = viewMat;
+	m_projection = proj;
+	m_cubemapView = cmapView;
+	m_sun = light;
 }
 
-void Renderer::draw(GameObject* gameObj, glm::mat4 viewMat, glm::mat4 proj, glm::vec3 camPos, bool shadowMap,
+void Renderer::Draw(GameObject* gameObj, glm::mat4 viewMat, glm::mat4 proj, glm::vec3 camPos, bool shadowMap,
                     glm::mat4 lightSpaceMat)
 {
 	Shader* shader;
@@ -111,69 +111,69 @@ void Renderer::draw(GameObject* gameObj, glm::mat4 viewMat, glm::mat4 proj, glm:
 		shader = gameObj->GetShader();
 	}
 
-	shader->use();
-	shader->setVec3("dirLight.direction", sun.direction);
-	shader->setVec3("dirLight.ambient", sun.ambient);
-	shader->setVec3("dirLight.diffuse", sun.diffuse);
-	shader->setVec3("dirLight.specular", sun.specular);
-	shader->setVec3("lightPos", sun.direction);
-	shader->setVec3("cameraPos", camPos);
-	gameObj->Draw(viewMat, proj, shadowMap, lightSpaceMat, shadowMapTex);
+	shader->Use();
+	shader->SetVec3("dirLight.direction", m_sun.m_direction);
+	shader->SetVec3("dirLight.m_ambient", m_sun.m_ambient);
+	shader->SetVec3("dirLight.diffuse", m_sun.m_diffuse);
+	shader->SetVec3("dirLight.specular", m_sun.m_specular);
+	shader->SetVec3("lightPos", m_sun.m_direction);
+	shader->SetVec3("cameraPos", camPos);
+	gameObj->Draw(viewMat, proj, shadowMap, lightSpaceMat, m_shadowMapTex);
 }
 
-void Renderer::drawCubemap(Cubemap* cubemap)
+void Renderer::DrawCubemap(Cubemap* cubemap)
 {
-	cubemap->GetShader()->use();
-	cubemap->GetShader()->setMat4("view", cubemapView);
-	cubemap->GetShader()->setMat4("projection", projection);
+	cubemap->GetShader()->Use();
+	cubemap->GetShader()->SetMat4("view", m_cubemapView);
+	cubemap->GetShader()->SetMat4("projection", m_projection);
 
 	cubemap->Draw();
 }
 
-void Renderer::drawMinimap(Quad* minimapQuad, Shader* minimapShader)
+void Renderer::DrawMinimap(Quad* minimapQuad, Shader* minimapShader)
 {
 	glDisable(GL_DEPTH_TEST);
-	glBindTexture(GL_TEXTURE_2D, minimapColorTex);
-	minimapShader->use();
-	minimapShader->setInt("minimapTex", 0);
+	glBindTexture(GL_TEXTURE_2D, m_minimapColorTex);
+	minimapShader->Use();
+	minimapShader->SetInt("minimapTex", 0);
 
 	minimapQuad->Draw();
 	glEnable(GL_DEPTH_TEST);
 }
 
-void Renderer::drawShadowMap(Quad* shadowMapQuad, Shader* shadowMapShader)
+void Renderer::DrawShadowMap(Quad* shadowMapQuad, Shader* shadowMapShader)
 {
 	glDisable(GL_DEPTH_TEST);
 	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, shadowMapTex);
-	shadowMapShader->use();
-	shadowMapShader->setInt("shadowMap", 0);
+	glBindTexture(GL_TEXTURE_2D, m_shadowMapTex);
+	shadowMapShader->Use();
+	shadowMapShader->SetInt("shadowMap", 0);
 	auto ndcOffset = glm::vec2(0.0f, 0.5f);
-	shadowMapShader->setVec2("ndcOffset", ndcOffset.x, ndcOffset.y);
+	shadowMapShader->SetVec2("ndcOffset", ndcOffset.x, ndcOffset.y);
 	shadowMapQuad->Draw();
 	glEnable(GL_DEPTH_TEST);
 }
 
-void Renderer::bindMinimapFBO(unsigned int width, unsigned int height)
+void Renderer::BindMinimapFbo(unsigned int width, unsigned int height)
 {
-	glBindFramebuffer(GL_FRAMEBUFFER, minimapFBO);
+	glBindFramebuffer(GL_FRAMEBUFFER, m_minimapFbo);
 	glViewport(0, 0, width, height);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
-void Renderer::unbindMinimapFBO()
+void Renderer::UnbindMinimapFbo()
 {
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
-void Renderer::bindShadowMapFBO(unsigned int width, unsigned int height)
+void Renderer::BindShadowMapFbo(unsigned int width, unsigned int height)
 {
-	glBindFramebuffer(GL_FRAMEBUFFER, shadowMapFBO);
+	glBindFramebuffer(GL_FRAMEBUFFER, m_shadowMapFbo);
 	glViewport(0, 0, width, height);
 	glClear(GL_DEPTH_BUFFER_BIT);
 }
 
-void Renderer::unbindShadowMapFBO()
+void Renderer::UnbindShadowMapFbo()
 {
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
@@ -196,12 +196,12 @@ void Renderer::ResetViewport(unsigned int width, unsigned int height)
 	glViewport(0, 0, width, height);
 }
 
-void Renderer::clear()
+void Renderer::Clear()
 {
 	glClearColor(0.2f, 0.3f, 0.1f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
-void Renderer::cleanup()
+void Renderer::Cleanup()
 {
 }

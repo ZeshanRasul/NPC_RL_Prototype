@@ -45,12 +45,12 @@ public:
 	};
 
 private:
-	float vertices[6] = {
+	float m_vertices[6] = {
 		0.0f, 0.0f, 0.0f, // Origin
 		1.0f, 1.0f, 1.0f // End
 	};
 
-	GLuint mVAO;
-	GLuint mVBO;
-	GLuint mEBO;
+	GLuint m_vao;
+	GLuint m_vbo;
+	GLuint m_ebo;
 };

@@ -19,6 +19,6 @@ public:
 	void StopAllEvents();
 
 private:
-	std::vector<SoundEvent> mEvents2D;
-	std::vector<SoundEvent> mEvents3D;
+	std::vector<SoundEvent> m_events2D;
+	std::vector<SoundEvent> m_events3D;
 };

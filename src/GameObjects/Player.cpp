@@ -13,48 +13,40 @@ void Player::DrawObject(glm::mat4 viewMat, glm::mat4 proj, bool shadowMap, glm::
 	matrixData.push_back(proj);
 	matrixData.push_back(modelMat);
 	matrixData.push_back(lightSpaceMat);
-	m_uniformBuffer.uploadUboData(matrixData, 0);
+	m_uniformBuffer.UploadUboData(matrixData, 0);
 
-	mPlayerDualQuatSSBuffer.uploadSsboData(m_model->getJointDualQuats(), 2);
+	m_playerDualQuatSsBuffer.UploadSsboData(m_model->GetJointDualQuats(), 2);
 
-	if (uploadVertexBuffer)
+	if (m_uploadVertexBuffer)
 	{
-		m_model->uploadVertexBuffers();
-		aabb = new AABB();
-		aabb->CalculateAABB(m_model->getVertices());
-		aabb->SetShader(aabbShader);
-		aabb->SetUpMesh();
-		aabb->SetOwner(this);
-		aabb->SetIsPlayer(true);
-		updateAABB();
+		m_model->UploadVertexBuffers();
 		GameManager* gameMgr = GetGameManager();
 		gameMgr->GetPhysicsWorld()->AddCollider(GetAABB());
-		uploadVertexBuffer = false;
+		m_uploadVertexBuffer = false;
 	}
 
-	updateAABB();
 	if (shadowMap)
 	{
-		m_shadowShader->use();
-		m_model->draw(m_tex);
+		m_shadowShader->Use();
+		m_model->Draw(m_tex);
 	}
 	else
 	{
-		m_shader->setVec3("cameraPos", m_gameManager->GetCamera()->GetPosition().x, m_gameManager->GetCamera()->GetPosition().y, m_gameManager->GetCamera()->GetPosition().z);
-		m_tex.bind();
-		m_shader->setInt("albedoMap", 0);
-		mNormal.bind(1);
-		m_shader->setInt("normalMap", 1);
-		mMetallic.bind(2);
-		m_shader->setInt("metallicMap", 2);
-		mRoughness.bind(3);
-		m_shader->setInt("roughnessMap", 3);
-		mAO.bind(4);
-		m_shader->setInt("aoMap", 4);
+		m_shader->SetVec3("cameraPos", m_gameManager->GetCamera()->GetPosition().x, m_gameManager->GetCamera()->GetPosition().y, m_gameManager->GetCamera()->GetPosition().z);
+		m_tex.Bind();
+		m_shader->SetInt("albedoMap", 0);
+		m_normal.Bind(1);
+		m_shader->SetInt("normalMap", 1);
+		m_metallic.Bind(2);
+		m_shader->SetInt("metallicMap", 2);
+		m_roughness.Bind(3);
+		m_shader->SetInt("roughnessMap", 3);
+		m_ao.Bind(4);
+		m_shader->SetInt("aoMap", 4);
 		glActiveTexture(GL_TEXTURE5);
 		glBindTexture(GL_TEXTURE_2D, shadowMapTexture);
-		m_shader->setInt("shadowMap", 5);
-		m_model->draw(m_tex);
+		m_shader->SetInt("shadowMap", 5);
+		m_model->Draw(m_tex);
 
 #ifdef _DEBUG
 		m_aabb->Render(viewMat, proj, modelMat, m_aabbColor);
@@ -64,69 +56,69 @@ void Player::DrawObject(glm::mat4 viewMat, glm::mat4 proj, bool shadowMap, glm::
 
 void Player::Update(float dt)
 {
-	//   UpdateAABB();
+	UpdateAabb();
 	ComputeAudioWorldTransform();
 	UpdateComponents(dt);
 
-	if (playerShootAudioCooldown > 0.0f)
+	if (m_playerShootAudioCooldown > 0.0f)
 	{
-		playerShootAudioCooldown -= dt;
+		m_playerShootAudioCooldown -= dt;
 	}
 
 
-	if (playGameStartAudioTimer > 0.0f)
+	if (m_playGameStartAudioTimer > 0.0f)
 	{
-		playGameStartAudioTimer -= dt;
+		m_playGameStartAudioTimer -= dt;
 	}
 
-	if (playGameStartAudio && playGameStartAudioTimer < 0.0f)
+	if (m_playGameStartAudio && m_playGameStartAudioTimer < 0.0f)
 	{
 		std::random_device rd;
 		std::mt19937 gen{rd()};
 		std::uniform_int_distribution<> distrib(1, 2);
 		int randomIndex = distrib(gen);
 		if (randomIndex == 1)
-			takeDamageAC->PlayEvent("event:/Player2_Game Start");
+			m_takeDamageAc->PlayEvent("event:/Player2_Game Start");
 		else
-			takeDamageAC->PlayEvent("event:/Player2_Game Start2");
-		playGameStartAudio = false;
+			m_takeDamageAc->PlayEvent("event:/Player2_Game Start2");
+		m_playGameStartAudio = false;
 	}
 
-	if (destAnim != 0 && mVelocity == 0.0f)
+	if (m_destAnim != 0 && m_velocity == 0.0f)
 	{
-		SetSourceAnimNum(destAnim);
+		SetSourceAnimNum(m_destAnim);
 		SetDestAnimNum(0);
-		resetBlend = true;
+		m_resetBlend = true;
 		//		m_blendFactor = 0.0f;
-		blendAnim = true;
-		prevDirection = STATIONARY;
+		m_blendAnim = true;
+		SetPrevDirection(STATIONARY);
 	}
 
-	if (resetBlend)
+	if (m_resetBlend)
 	{
-		blendAnim = true;
-		blendFactor = 0.0f;
-		resetBlend = false;
+		m_blendAnim = true;
+		m_blendFactor = 0.0f;
+		m_resetBlend = false;
 	}
 
-	if (blendAnim)
+	if (m_blendAnim)
 	{
-		blendFactor += (1.0f - blendFactor) * blendSpeed * dt;
+		m_blendFactor += (1.0f - m_blendFactor) * m_blendSpeed * dt;
 
-		if (blendFactor > 1.0f)
-			blendFactor = 1.0f;
+		if (m_blendFactor > 1.0f)
+			m_blendFactor = 1.0f;
 
-		SetAnimation(GetSourceAnimNum(), GetDestAnimNum(), 1.0f, blendFactor, false);
-		if (blendFactor >= 1.0f)
+		SetAnimation(GetSourceAnimNum(), GetDestAnimNum(), 1.0f, m_blendFactor, false);
+		if (m_blendFactor >= 1.0f)
 		{
-			blendAnim = false;
-			blendFactor = 0.0f;
+			m_blendAnim = false;
+			m_blendFactor = 0.0f;
 			//SetSourceAnimNum(GetDestAnimNum());
 		}
 	}
 	else
 	{
-		blendFactor = 0.0f;
+		m_blendFactor = 0.0f;
 		SetAnimation(GetSourceAnimNum(), 1.0f, 1.0f, false);
 	}
 }
@@ -157,85 +149,85 @@ void Player::UpdatePlayerVectors()
 	front.x = cos(glm::radians(m_yaw - 90.0f));
 	front.y = 0.0f;
 	front.z = sin(glm::radians(m_yaw - 90.0f));
-	PlayerFront = normalize(front);
-	PlayerRight = normalize(cross(PlayerFront, glm::vec3(0.0f, 1.0f, 0.0f)));
-	PlayerUp = normalize(cross(PlayerRight, PlayerFront));
+	SetPlayerFront(normalize(front));
+	SetPlayerRight(normalize(cross(GetPlayerFront(), glm::vec3(0.0f, 1.0f, 0.0f))));
+	m_playerUp = normalize(cross(GetPlayerRight(), GetPlayerFront()));
 }
 
 void Player::UpdatePlayerAimVectors()
 {
 	glm::vec3 front;
-	front.x = glm::cos(glm::radians(m_yaw - 90.0f)) * glm::cos(glm::radians(aimPitch));
-	front.y = glm::sin(glm::radians(aimPitch));
-	front.z = glm::sin(glm::radians(m_yaw - 90.0f)) * glm::cos(glm::radians(aimPitch));
+	front.x = glm::cos(glm::radians(m_yaw - 90.0f)) * glm::cos(glm::radians(GetAimPitch()));
+	front.y = glm::sin(glm::radians(GetAimPitch()));
+	front.z = glm::sin(glm::radians(m_yaw - 90.0f)) * glm::cos(glm::radians(GetAimPitch()));
 
-	PlayerAimFront = normalize(front);
-	PlayerAimRight = normalize(cross(PlayerAimFront, glm::vec3(0.0f, 1.0f, 0.0f)));
-	PlayerAimUp = normalize(cross(PlayerAimRight, PlayerAimFront));
+	SetPlayerAimFront(normalize(front));
+	m_playerAimRight = normalize(cross(GetPlayerAimFront(), glm::vec3(0.0f, 1.0f, 0.0f)));
+	SetPlayerAimUp(normalize(cross(m_playerAimRight, GetPlayerAimFront())));
 }
 
 void Player::PlayerProcessKeyboard(CameraMovement direction, float deltaTime)
 {
-	mVelocity = MovementSpeed * deltaTime;
+	m_velocity = m_movementSpeed * deltaTime;
 
 	if (direction == FORWARD)
 	{
-		m_position += PlayerFront * mVelocity;
+		m_position += GetPlayerFront() * m_velocity;
 		m_recomputeWorldTransform = true;
 		ComputeAudioWorldTransform();
 		UpdateComponents(deltaTime);
-		if (destAnim != 2 && prevDirection != direction)
+		if (m_destAnim != 2 && GetPrevDirection() != direction)
 		{
-			SetSourceAnimNum(destAnim);
+			SetSourceAnimNum(m_destAnim);
 			SetDestAnimNum(2);
-			blendAnim = true;
-			resetBlend = true;
+			m_blendAnim = true;
+			m_resetBlend = true;
 		}
 	}
 	if (direction == BACKWARD)
 	{
-		m_position -= PlayerFront * mVelocity;
+		m_position -= GetPlayerFront() * m_velocity;
 		m_recomputeWorldTransform = true;
 		ComputeAudioWorldTransform();
 		UpdateComponents(deltaTime);
-		if (destAnim != 2 && prevDirection != direction)
+		if (m_destAnim != 2 && GetPrevDirection() != direction)
 		{
-			SetSourceAnimNum(destAnim);
+			SetSourceAnimNum(m_destAnim);
 			SetDestAnimNum(2);
-			blendAnim = true;
-			resetBlend = true;
+			m_blendAnim = true;
+			m_resetBlend = true;
 		}
 	}
 	if (direction == LEFT)
 	{
-		m_position -= PlayerRight * mVelocity;
+		m_position -= GetPlayerRight() * m_velocity;
 		m_recomputeWorldTransform = true;
 		ComputeAudioWorldTransform();
 		UpdateComponents(deltaTime);
-		if (destAnim != 4 && prevDirection != direction)
+		if (m_destAnim != 4 && GetPrevDirection() != direction)
 		{
-			SetSourceAnimNum(destAnim);
+			SetSourceAnimNum(m_destAnim);
 			SetDestAnimNum(4);
-			blendAnim = true;
-			resetBlend = true;
+			m_blendAnim = true;
+			m_resetBlend = true;
 		}
 	}
 	if (direction == RIGHT)
 	{
-		m_position += PlayerRight * mVelocity;
+		m_position += GetPlayerRight() * m_velocity;
 		m_recomputeWorldTransform = true;
 		ComputeAudioWorldTransform();
 		UpdateComponents(deltaTime);
-		if (destAnim != 5 && prevDirection != direction)
+		if (m_destAnim != 5 && GetPrevDirection() != direction)
 		{
-			SetSourceAnimNum(destAnim);
+			SetSourceAnimNum(m_destAnim);
 			SetDestAnimNum(5);
-			blendAnim = true;
-			resetBlend = true;
+			m_blendAnim = true;
+			m_resetBlend = true;
 		}
 	}
 
-	prevDirection = direction;
+	SetPrevDirection(direction);
 }
 
 void Player::PlayerProcessMouseMovement(float xOffset)
@@ -258,21 +250,21 @@ void Player::PlayerProcessMouseMovement(float xOffset)
 
 void Player::SetAnimation(int animNum, float speedDivider, float blendFactor, bool playAnimBackwards)
 {
-	m_model->playAnimation(animNum, speedDivider, blendFactor, playAnimBackwards);
+	m_model->PlayAnimation(animNum, speedDivider, blendFactor, playAnimBackwards);
 }
 
 void Player::SetAnimation(int srcAnimNum, int destAnimNum, float speedDivider, float blendFactor,
                           bool playAnimBackwards)
 {
-	m_model->playAnimation(srcAnimNum, destAnimNum, speedDivider, blendFactor, playAnimBackwards);
+	m_model->PlayAnimation(srcAnimNum, destAnimNum, speedDivider, blendFactor, playAnimBackwards);
 }
 
 void Player::SetPlayerState(PlayerState newState)
 {
-	mPlayerState = newState;
-	if (mPlayerState == MOVING)
+	m_playerState = newState;
+	if (m_playerState == MOVING)
 		UpdatePlayerVectors();
-	else if (mPlayerState == AIMING)
+	else if (m_playerState == AIMING)
 	{
 		UpdatePlayerAimVectors();
 		GameManager* gmeMgr = GetGameManager();
@@ -288,7 +280,7 @@ void Player::Shoot()
 	if (GetPlayerState() != SHOOTING)
 		return;
 
-	if (playerShootAudioCooldown < 0.0f)
+	if (m_playerShootAudioCooldown < 0.0f)
 	{
 		std::random_device rd;
 		std::mt19937 gen{rd()};
@@ -297,18 +289,18 @@ void Player::Shoot()
 		int randomIndex = distrib(gen);
 
 		if (randomIndex == 1)
-			shootAC->PlayEvent("event:/Player2_Firing Weapon");
+			m_shootAc->PlayEvent("event:/Player2_Firing Weapon");
 		else
-			shootAC->PlayEvent("event:/Player2_Firing Weapon2");
-		playerShootAudioCooldown = 2.0f;
+			m_shootAc->PlayEvent("event:/Player2_Firing Weapon2");
+		m_playerShootAudioCooldown = 2.0f;
 	}
 	//std::string clipName = "event:/player2_Firing Weapon";
 	//Speak(clipName, 1.0f, 0.5f);
 
 
 	SetDestAnimNum(3);
-	blendFactor = 0.0f;
-	blendAnim = true;
+	m_blendFactor = 0.0f;
+	m_blendAnim = true;
 	UpdatePlayerVectors();
 	UpdatePlayerAimVectors();
 
@@ -318,10 +310,10 @@ void Player::Shoot()
 
 	auto clipCoords = glm::vec4(0.0f, 0.5f, 1.0f, 1.0f);
 
-	glm::vec4 cameraCoords = inverse(projection) * clipCoords;
+	glm::vec4 cameraCoords = inverse(m_projection) * clipCoords;
 	cameraCoords /= cameraCoords.w;
 
-	glm::vec4 worldCoords = inverse(view) * cameraCoords;
+	glm::vec4 worldCoords = inverse(m_view) * cameraCoords;
 	glm::vec3 rayEnd = glm::vec3(worldCoords) / worldCoords.w;
 
 	rayD = normalize(rayEnd - rayO);
@@ -332,7 +324,7 @@ void Player::Shoot()
 	//gmeMgr->GetPhysicsWorld()->RayEnemyIntersect(rayO, rayD, hitPoint);
 
 	bool hit = false;
-	hit = gmeMgr->GetPhysicsWorld()->RayIntersect(rayO, rayD, hitPoint, aabb);
+	hit = gmeMgr->GetPhysicsWorld()->RayIntersect(rayO, rayD, hitPoint, m_aabb);
 
 	if (hit)
 	{
@@ -346,10 +338,21 @@ void Player::Shoot()
 	UpdatePlayerAimVectors();
 }
 
+void Player::SetUpAABB()
+{
+	m_aabb = new AABB();
+	m_aabb->CalculateAABB(m_model->GetVertices());
+	m_aabb->SetShader(m_aabbShader);
+	m_aabb->SetUpMesh();
+	m_aabb->SetOwner(this);
+	m_aabb->SetIsPlayer(true);
+	UpdateAabb();
+}
+
 void Player::OnHit()
 {
 	Logger::Log(1, "Player Hit!");
-	setAABBColor(glm::vec3(1.0f, 0.0f, 1.0f));
+	SetAabbColor(glm::vec3(1.0f, 0.0f, 1.0f));
 	TakeDamage(0.4f);
 
 	std::random_device rd;
@@ -357,18 +360,18 @@ void Player::OnHit()
 	std::uniform_int_distribution<> distrib(1, 3);
 	int randomIndex = distrib(gen);
 	std::string clipName = "event:/player2_Taking Damage" + std::to_string(randomIndex);
-	takeDamageAC->PlayEvent(clipName);
+	m_takeDamageAc->PlayEvent(clipName);
 }
 
 void Player::OnDeath()
 {
 	Logger::Log(1, "Player Died!");
 	m_isDestroyed = true;
-	deathAC->PlayEvent("event:/Player2_Death");
+	m_deathAc->PlayEvent("event:/Player2_Death");
 }
 
 void Player::ResetGame()
 {
 	m_gameManager->ResetGame();
-	playGameStartAudio = true;
+	m_playGameStartAudio = true;
 }

@@ -1,36 +1,36 @@
 #include "GltfAnimationClip.h"
 
-GltfAnimationClip::GltfAnimationClip(std::string name) : mClipName(name)
+GltfAnimationClip::GltfAnimationClip(std::string name) : m_clipName(name)
 {
 }
 
-void GltfAnimationClip::addChannel(std::shared_ptr<tinygltf::Model> model,
+void GltfAnimationClip::AddChannel(std::shared_ptr<tinygltf::Model> model,
                                    tinygltf::Animation anim, tinygltf::AnimationChannel channel)
 {
 	auto chan = std::make_shared<GltfAnimationChannel>();
-	chan->loadChannelData(model, anim, channel);
-	mAnimationChannels.push_back(chan);
+	chan->LoadChannelData(model, anim, channel);
+	m_animationChannels.push_back(chan);
 }
 
-void GltfAnimationClip::setAnimationFrame(std::vector<std::shared_ptr<GltfNode>> nodes, std::vector<bool> additiveMask,
+void GltfAnimationClip::SetAnimationFrame(std::vector<std::shared_ptr<GltfNode>> nodes, std::vector<bool> additiveMask,
                                           float time)
 {
-	for (auto& channel : mAnimationChannels)
+	for (auto& channel : m_animationChannels)
 	{
-		int targetNode = channel->getTargetNode();
+		int targetNode = channel->GetTargetNode();
 		/* do not change if masked out */
 		if (additiveMask.at(targetNode))
 		{
-			switch (channel->getTargetPath())
+			switch (channel->GetTargetPath())
 			{
 			case ETargetPath::ROTATION:
-				nodes.at(targetNode)->setRotation(channel->getRotation(time));
+				nodes.at(targetNode)->SetRotation(channel->GetRotation(time));
 				break;
 			case ETargetPath::TRANSLATION:
-				nodes.at(targetNode)->setTranslation(channel->getTranslation(time));
+				nodes.at(targetNode)->SetTranslation(channel->GetTranslation(time));
 				break;
 			case ETargetPath::SCALE:
-				nodes.at(targetNode)->setScale(channel->getScaling(time));
+				nodes.at(targetNode)->SetScale(channel->GetScaling(time));
 				break;
 			}
 		}
@@ -40,30 +40,30 @@ void GltfAnimationClip::setAnimationFrame(std::vector<std::shared_ptr<GltfNode>>
 	{
 		if (node)
 		{
-			node->calculateLocalTRSMatrix();
+			node->CalculateLocalTrsMatrix();
 		}
 	}
 }
 
-void GltfAnimationClip::blendAnimationFrame(std::vector<std::shared_ptr<GltfNode>> nodes,
+void GltfAnimationClip::BlendAnimationFrame(std::vector<std::shared_ptr<GltfNode>> nodes,
                                             std::vector<bool> additiveMask,
                                             float time, float blendFactor)
 {
-	for (auto& channel : mAnimationChannels)
+	for (auto& channel : m_animationChannels)
 	{
-		int targetNode = channel->getTargetNode();
+		int targetNode = channel->GetTargetNode();
 		if (additiveMask.at(targetNode))
 		{
-			switch (channel->getTargetPath())
+			switch (channel->GetTargetPath())
 			{
 			case ETargetPath::ROTATION:
-				nodes.at(targetNode)->blendRotation(channel->getRotation(time), blendFactor);
+				nodes.at(targetNode)->BlendRotation(channel->GetRotation(time), blendFactor);
 				break;
 			case ETargetPath::TRANSLATION:
-				nodes.at(targetNode)->blendTranslation(channel->getTranslation(time), blendFactor);
+				nodes.at(targetNode)->BlendTranslation(channel->GetTranslation(time), blendFactor);
 				break;
 			case ETargetPath::SCALE:
-				nodes.at(targetNode)->blendScale(channel->getScaling(time), blendFactor);
+				nodes.at(targetNode)->BlendScale(channel->GetScaling(time), blendFactor);
 				break;
 			}
 		}
@@ -73,17 +73,17 @@ void GltfAnimationClip::blendAnimationFrame(std::vector<std::shared_ptr<GltfNode
 	{
 		if (node)
 		{
-			node->calculateLocalTRSMatrix();
+			node->CalculateLocalTrsMatrix();
 		}
 	}
 }
 
-float GltfAnimationClip::getClipEndTime()
+float GltfAnimationClip::GetClipEndTime()
 {
-	return mAnimationChannels.at(0)->getMaxTime();
+	return m_animationChannels.at(0)->GetMaxTime();
 }
 
-std::string GltfAnimationClip::getClipName()
+std::string GltfAnimationClip::GetClipName()
 {
-	return mClipName;
+	return m_clipName;
 }

@@ -25,26 +25,26 @@ Enemy::Enemy(glm::vec3 pos, glm::vec3 scale, Shader* sdr, Shader* shadowMapShade
 	std::string modelFilename =
 		"C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Models/GLTF/Enemies/Ely/EnemyEly.gltf";
 
-	if (!m_model->loadModel(modelFilename, true))
+	if (!m_model->LoadModel(modelFilename, true))
 	{
 		Logger::Log(1, "%s: loading glTF m_model '%s' failed\n", __FUNCTION__, modelFilename.c_str());
 	}
 
-	if (!m_tex.loadTexture(texFilename, false))
+	if (!m_tex.LoadTexture(texFilename, false))
 	{
 		Logger::Log(1, "%s: texture loading failed\n", __FUNCTION__);
 	}
 	Logger::Log(1, "%s: glTF m_model texture '%s' successfully loaded\n", __FUNCTION__, texFilename.c_str());
 
-	m_normal.loadTexture(
+	m_normal.LoadTexture(
 		"C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Models/GLTF/Enemies/Ely/EnemyEly_ely_vanguardsoldier_kerwinatienza_M2_Normal.png");
-	m_metallic.loadTexture(
+	m_metallic.LoadTexture(
 		"C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Models/GLTF/Enemies/Ely/EnemyEly_ely_vanguardsoldier_kerwinatienza_M2_Metallic.png");
-	m_roughness.loadTexture(
+	m_roughness.LoadTexture(
 		"C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Models/GLTF/Enemies/Ely/EnemyEly_ely_vanguardsoldier_kerwinatienza_M2_Roughness.png");
-	m_ao.loadTexture(
+	m_ao.LoadTexture(
 		"C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Models/GLTF/Enemies/Ely/EnemyEly_ely_vanguardsoldier_kerwinatienza_M2_AO.png");
-	m_emissive.loadTexture(
+	m_emissive.LoadTexture(
 		"C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Models/GLTF/Enemies/Ely/EnemyEly_ely_vanguardsoldier_kerwinatienza_M2_Emissive.png");
 
 
@@ -76,16 +76,16 @@ void Enemy::SetUpModel()
 {
 	if (m_uploadVertexBuffer)
 	{
-		m_model->uploadEnemyVertexBuffers();
+		m_model->UploadEnemyVertexBuffers();
 		m_uploadVertexBuffer = false;
 	}
 
-	m_model->uploadIndexBuffer();
-	Logger::Log(1, "%s: glTF m_model '%s' successfully loaded\n", __FUNCTION__, m_model->filename.c_str());
+	m_model->UploadIndexBuffer();
+	Logger::Log(1, "%s: glTF m_model '%s' successfully loaded\n", __FUNCTION__, m_model->GetFilename().c_str());
 
-	size_t enemyModelJointDualQuatBufferSize = m_model->getJointDualQuatsSize() *
+	size_t enemyModelJointDualQuatBufferSize = m_model->GetJointDualQuatsSize() *
 		sizeof(glm::mat2x4);
-	m_enemyDualQuatSsBuffer.init(enemyModelJointDualQuatBufferSize);
+	m_enemyDualQuatSsBuffer.Init(enemyModelJointDualQuatBufferSize);
 	Logger::Log(1, "%s: glTF joint dual quaternions shader storage buffer (size %i bytes) successfully created\n",
 	            __FUNCTION__, enemyModelJointDualQuatBufferSize);
 }
@@ -102,36 +102,36 @@ void Enemy::DrawObject(glm::mat4 viewMat, glm::mat4 proj, bool shadowMap, glm::m
 	matrixData.push_back(proj);
 	matrixData.push_back(modelMat);
 	matrixData.push_back(lightSpaceMat);
-	m_uniformBuffer.uploadUboData(matrixData, 0);
+	m_uniformBuffer.UploadUboData(matrixData, 0);
 
 	if (shadowMap)
 	{
-		m_shadowShader->use();
-		m_enemyDualQuatSsBuffer.uploadSsboData(m_model->getJointDualQuats(), 2);
-		m_model->draw(m_tex);
+		m_shadowShader->Use();
+		m_enemyDualQuatSsBuffer.UploadSsboData(m_model->GetJointDualQuats(), 2);
+		m_model->Draw(m_tex);
 	}
 	else
 	{
-		GetShader()->use();
-		m_shader->setVec3("cameraPos", m_gameManager->GetCamera()->GetPosition().x, m_gameManager->GetCamera()->GetPosition().y, m_gameManager->GetCamera()->GetPosition().z);
-		m_enemyDualQuatSsBuffer.uploadSsboData(m_model->getJointDualQuats(), 2);
+		GetShader()->Use();
+		m_shader->SetVec3("cameraPos", m_gameManager->GetCamera()->GetPosition().x, m_gameManager->GetCamera()->GetPosition().y, m_gameManager->GetCamera()->GetPosition().z);
+		m_enemyDualQuatSsBuffer.UploadSsboData(m_model->GetJointDualQuats(), 2);
 
-		m_tex.bind();
-		m_shader->setInt("albedoMap", 0);
-		m_normal.bind(1);
-		m_shader->setInt("normalMap", 1);
-		m_metallic.bind(2);
-		m_shader->setInt("metallicMap", 2);
-		m_roughness.bind(3);
-		m_shader->setInt("roughnessMap", 3);
-		m_ao.bind(4);
-		m_shader->setInt("aoMap", 4);
-		m_emissive.bind(5);
-		m_shader->setInt("emissiveMap", 5);
+		m_tex.Bind();
+		m_shader->SetInt("albedoMap", 0);
+		m_normal.Bind(1);
+		m_shader->SetInt("normalMap", 1);
+		m_metallic.Bind(2);
+		m_shader->SetInt("metallicMap", 2);
+		m_roughness.Bind(3);
+		m_shader->SetInt("roughnessMap", 3);
+		m_ao.Bind(4);
+		m_shader->SetInt("aoMap", 4);
+		m_emissive.Bind(5);
+		m_shader->SetInt("emissiveMap", 5);
 		glActiveTexture(GL_TEXTURE6);
 		glBindTexture(GL_TEXTURE_2D, shadowMapTexture);
-		m_shader->setInt("shadowMap", 6);
-		m_model->draw(m_tex);
+		m_shader->SetInt("shadowMap", 6);
+		m_model->Draw(m_tex);
 #ifdef _DEBUG
 		m_aabb->Render(viewMat, proj, modelMat, m_aabbColor);
 #endif
@@ -147,7 +147,7 @@ void Enemy::Update(bool shouldUseEDBT)
 #ifdef TRACY_ENABLE
 			ZoneScopedN("EDBT Update");
 #endif
-			float playerEnemyDistance = distance(GetPosition(), m_player.getPosition());
+			float playerEnemyDistance = distance(GetPosition(), m_player.GetPosition());
 			if (playerEnemyDistance < 35.0f && !IsPlayerDetected())
 			{
 				DetectPlayer();
@@ -214,7 +214,7 @@ void Enemy::OnEvent(const Event& event)
 {
 	if (auto e = dynamic_cast<const PlayerDetectedEvent*>(&event))
 	{
-		if (e->npcID != m_id)
+		if (e->m_npcId != m_id)
 		{
 			m_isPlayerDetected = true;
 			Logger::Log(1, "Player detected by enemy %d\n", m_id);
@@ -222,7 +222,7 @@ void Enemy::OnEvent(const Event& event)
 	}
 	else if (auto e = dynamic_cast<const NPCDamagedEvent*>(&event))
 	{
-		if (e->npcID != m_id)
+		if (e->m_npcId != m_id)
 		{
 			if (m_isInCover)
 			{
@@ -261,7 +261,7 @@ void Enemy::OnEvent(const Event& event)
 	}
 	else if (auto e = dynamic_cast<const NPCTakingCoverEvent*>(&event))
 	{
-		if (e->npcID != m_id)
+		if (e->m_npcId != m_id)
 		{
 			if (m_isInCover)
 			{
@@ -398,12 +398,12 @@ void Enemy::MoveEnemy(const std::vector<glm::ivec2>& path, float deltaTime, floa
 
 		if (m_isTakingCover)
 		{
-			if (distance(GetPosition(), m_selectedCover->worldPosition) < m_grid->GetCellSize() / 4.0f)
+			if (distance(GetPosition(), m_selectedCover->m_worldPosition) < m_grid->GetCellSize() / 4.0f)
 			{
 				m_reachedCover = true;
 				m_isTakingCover = false;
 				m_isInCover = true;
-				m_grid->OccupyCell(m_selectedCover->gridX, m_selectedCover->gridZ, m_id);
+				m_grid->OccupyCell(m_selectedCover->m_gridX, m_selectedCover->m_gridZ, m_id);
 
 				if (!m_resetBlend && m_destAnim != 2)
 				{
@@ -417,7 +417,7 @@ void Enemy::MoveEnemy(const std::vector<glm::ivec2>& path, float deltaTime, floa
 			else
 			{
 				SetPosition(
-					GetPosition() + (normalize(m_selectedCover->worldPosition - GetPosition()) * 2.0f) * m_speed *
+					GetPosition() + (normalize(m_selectedCover->m_worldPosition - GetPosition()) * 2.0f) * m_speed *
 					deltaTime);
 			}
 		}
@@ -526,12 +526,12 @@ void Enemy::MoveEnemy(const std::vector<glm::ivec2>& path, float deltaTime, floa
 
 void Enemy::SetAnimation(int animNum, float speedDivider, float blendFactor, bool playBackwards)
 {
-	m_model->playAnimation(animNum, speedDivider, blendFactor, playBackwards);
+	m_model->PlayAnimation(animNum, speedDivider, blendFactor, playBackwards);
 }
 
 void Enemy::SetAnimation(int srcAnimNum, int destAnimNum, float speedDivider, float blendFactor, bool playBackwards)
 {
-	m_model->playAnimation(srcAnimNum, destAnimNum, speedDivider, blendFactor, playBackwards);
+	m_model->PlayAnimation(srcAnimNum, destAnimNum, speedDivider, blendFactor, playBackwards);
 }
 
 void Enemy::Shoot()
@@ -559,10 +559,10 @@ void Enemy::Shoot()
 	}
 
 	m_enemyShootPos = GetPosition() + glm::vec3(0.0f, 2.5f, 0.0f);
-	m_enemyShootDir = (m_player.getPosition() - GetPosition()) + accuracyOffset;
+	m_enemyShootDir = (m_player.GetPosition() - GetPosition()) + accuracyOffset;
 	auto hitPoint = glm::vec3(0.0f);
 
-	glm::vec3 playerDir = normalize(m_player.getPosition() - GetPosition());
+	glm::vec3 playerDir = normalize(m_player.GetPosition() - GetPosition());
 
 	m_yaw = glm::degrees(glm::atan(playerDir.z, playerDir.x));
 	UpdateEnemyVectors();
@@ -623,7 +623,7 @@ void Enemy::Shoot()
 void Enemy::SetUpAABB()
 {
 	m_aabb = new AABB();
-	m_aabb->CalculateAABB(m_model->getVertices());
+	m_aabb->CalculateAABB(m_model->GetVertices());
 	m_aabb->SetShader(m_aabbShader);
 	UpdateAABB();
 	m_aabb->SetUpMesh();
@@ -747,14 +747,14 @@ void Enemy::ScoreCoverLocations(Player& player)
 	{
 		float score = 0.0f;
 
-		//float distanceToPlayer = distance(cover->worldPosition, player.getPosition());
+		//float distanceToPlayer = distance(cover->m_worldPosition, player.GetPosition());
 		//score += distanceToPlayer * 0.1f;
 
-		float distanceToEnemy = distance(cover->worldPosition, GetPosition());
+		float distanceToEnemy = distance(cover->m_worldPosition, GetPosition());
 		score += (1.0f / (distanceToEnemy * distanceToEnemy + 1.0f)) * 2.0f;
 
-		glm::vec3 rayOrigin = cover->worldPosition + glm::vec3(0.0f, 2.5f, 0.0f);
-		glm::vec3 rayDirection = normalize(player.getPosition() - rayOrigin);
+		glm::vec3 rayOrigin = cover->m_worldPosition + glm::vec3(0.0f, 2.5f, 0.0f);
+		glm::vec3 rayDirection = normalize(player.GetPosition() - rayOrigin);
 		auto hitPoint = glm::vec3(0.0f);
 
 		bool visibleToPlayer = m_gameManager->GetPhysicsWorld()->CheckPlayerVisibility(
@@ -764,7 +764,7 @@ void Enemy::ScoreCoverLocations(Player& player)
 			score += 20.0f;
 		}
 
-		if (m_grid->GetGrid()[cover->gridX][cover->gridZ].IsOccupied())
+		if (m_grid->GetGrid()[cover->m_gridX][cover->m_gridZ].IsOccupied())
 			continue;
 
 		if (score > bestScore)
@@ -1031,7 +1031,7 @@ void Enemy::EnemyDecision(State& currentState, int enemyId, std::vector<Action>&
 	State nextState = currentState;
 	int numAttacking = static_cast<int>(std::count(squadActions.begin(), squadActions.end(), ATTACK));
 	bool isSuppressionFire = numAttacking > 0;
-	float playerDistance = distance(GetPosition(), m_player.getPosition());
+	float playerDistance = distance(GetPosition(), m_player.GetPosition());
 
 	if (!IsPlayerDetected() && (playerDistance < 35.0f) && IsPlayerVisible())
 	{
@@ -1041,9 +1041,9 @@ void Enemy::EnemyDecision(State& currentState, int enemyId, std::vector<Action>&
 	if (chosenAction == ADVANCE)
 	{
 		m_state = "ADVANCE";
-		m_currentPath = m_grid->findPath(
+		m_currentPath = m_grid->FindPath(
 			glm::ivec2(GetPosition().x / m_grid->GetCellSize(), GetPosition().z / m_grid->GetCellSize()),
-			glm::ivec2(m_player.getPosition().x / m_grid->GetCellSize(), m_player.getPosition().z / m_grid->GetCellSize()),
+			glm::ivec2(m_player.GetPosition().x / m_grid->GetCellSize(), m_player.GetPosition().z / m_grid->GetCellSize()),
 			m_grid->GetGrid(),
 			enemyId
 		);
@@ -1053,7 +1053,7 @@ void Enemy::EnemyDecision(State& currentState, int enemyId, std::vector<Action>&
 		MoveEnemy(m_currentPath, deltaTime, 1.0f, false);
 
 		nextState.playerDetected = IsPlayerDetected();
-		nextState.distanceToPlayer = distance(GetPosition(), m_player.getPosition());
+		nextState.distanceToPlayer = distance(GetPosition(), m_player.GetPosition());
 		nextState.playerVisible = IsPlayerVisible();
 		nextState.health = GetHealth();
 		nextState.isSuppressionFire = isSuppressionFire;
@@ -1062,18 +1062,18 @@ void Enemy::EnemyDecision(State& currentState, int enemyId, std::vector<Action>&
 	{
 		m_state = "RETREAT";
 
-		if (!m_selectedCover || m_grid->GetGrid()[m_selectedCover->gridX][m_selectedCover->gridZ].IsOccupied())
+		if (!m_selectedCover || m_grid->GetGrid()[m_selectedCover->m_gridX][m_selectedCover->m_gridZ].IsOccupied())
 		{
 			ScoreCoverLocations(m_player);
 		}
 
-		glm::vec3 snappedCurrentPos = m_grid->snapToGrid(GetPosition());
-		glm::vec3 snappedCoverPos = m_grid->snapToGrid(m_selectedCover->worldPosition);
+		glm::vec3 snappedCurrentPos = m_grid->SnapToGrid(GetPosition());
+		glm::vec3 snappedCoverPos = m_grid->SnapToGrid(m_selectedCover->m_worldPosition);
 
 
-		m_currentPath = m_grid->findPath(
+		m_currentPath = m_grid->FindPath(
 			glm::ivec2(GetPosition().x / m_grid->GetCellSize(), GetPosition().z / m_grid->GetCellSize()),
-			glm::ivec2(m_selectedCover->gridX, m_selectedCover->gridZ),
+			glm::ivec2(m_selectedCover->m_gridX, m_selectedCover->m_gridZ),
 			m_grid->GetGrid(),
 			m_id
 		);
@@ -1083,7 +1083,7 @@ void Enemy::EnemyDecision(State& currentState, int enemyId, std::vector<Action>&
 		MoveEnemy(m_currentPath, m_dt, 1.0f, false);
 
 		nextState.playerDetected = IsPlayerDetected();
-		nextState.distanceToPlayer = distance(GetPosition(), m_player.getPosition());
+		nextState.distanceToPlayer = distance(GetPosition(), m_player.GetPosition());
 		nextState.playerVisible = IsPlayerVisible();
 		nextState.health = GetHealth();
 		nextState.isSuppressionFire = isSuppressionFire;
@@ -1100,7 +1100,7 @@ void Enemy::EnemyDecision(State& currentState, int enemyId, std::vector<Action>&
 		Shoot();
 
 		nextState.playerDetected = IsPlayerDetected();
-		nextState.distanceToPlayer = distance(GetPosition(), m_player.getPosition());
+		nextState.distanceToPlayer = distance(GetPosition(), m_player.GetPosition());
 		nextState.playerVisible = IsPlayerVisible();
 		nextState.health = GetHealth();
 		nextState.isSuppressionFire = isSuppressionFire;
@@ -1111,7 +1111,7 @@ void Enemy::EnemyDecision(State& currentState, int enemyId, std::vector<Action>&
 
 		if (m_reachedDestination == false)
 		{
-			m_currentPath = m_grid->findPath(
+			m_currentPath = m_grid->FindPath(
 				glm::ivec2(static_cast<int>(GetPosition().x / m_grid->GetCellSize()),
 				           static_cast<int>(GetPosition().z / m_grid->GetCellSize())),
 				glm::ivec2(m_currentWaypoint.x / m_grid->GetCellSize(), m_currentWaypoint.z / m_grid->GetCellSize()),
@@ -1127,7 +1127,7 @@ void Enemy::EnemyDecision(State& currentState, int enemyId, std::vector<Action>&
 		{
 			m_currentWaypoint = SelectRandomWaypoint(m_currentWaypoint, m_waypointPositions);
 
-			m_currentPath = m_grid->findPath(
+			m_currentPath = m_grid->FindPath(
 				glm::ivec2(GetPosition().x / m_grid->GetCellSize(), GetPosition().z / m_grid->GetCellSize()),
 				glm::ivec2(m_currentWaypoint.x / m_grid->GetCellSize(), m_currentWaypoint.z / m_grid->GetCellSize()),
 				m_grid->GetGrid(),
@@ -1142,7 +1142,7 @@ void Enemy::EnemyDecision(State& currentState, int enemyId, std::vector<Action>&
 		}
 
 		nextState.playerDetected = IsPlayerDetected();
-		nextState.distanceToPlayer = distance(GetPosition(), m_player.getPosition());
+		nextState.distanceToPlayer = distance(GetPosition(), m_player.GetPosition());
 		nextState.playerVisible = IsPlayerVisible();
 		nextState.health = GetHealth();
 		nextState.isSuppressionFire = isSuppressionFire;
@@ -1253,7 +1253,7 @@ void Enemy::EnemyDecisionPrecomputedQ(State& currentState, int enemyId, std::vec
 
 	int numAttacking = static_cast<int>(std::count(squadActions.begin(), squadActions.end(), ATTACK));
 	bool isSuppressionFire = numAttacking > 0;
-	float playerDistance = distance(GetPosition(), m_player.getPosition());
+	float playerDistance = distance(GetPosition(), m_player.GetPosition());
 	if (!IsPlayerDetected() && (playerDistance < 35.0f) && IsPlayerVisible())
 	{
 		DetectPlayer();
@@ -1262,9 +1262,9 @@ void Enemy::EnemyDecisionPrecomputedQ(State& currentState, int enemyId, std::vec
 	if (m_chosenAction == ADVANCE)
 	{
 		m_state = "ADVANCE";
-		m_currentPath = m_grid->findPath(
+		m_currentPath = m_grid->FindPath(
 			glm::ivec2(GetPosition().x / m_grid->GetCellSize(), GetPosition().z / m_grid->GetCellSize()),
-			glm::ivec2(m_player.getPosition().x / m_grid->GetCellSize(), m_player.getPosition().z / m_grid->GetCellSize()),
+			glm::ivec2(m_player.GetPosition().x / m_grid->GetCellSize(), m_player.GetPosition().z / m_grid->GetCellSize()),
 			m_grid->GetGrid(),
 			enemyId
 		);
@@ -1274,7 +1274,7 @@ void Enemy::EnemyDecisionPrecomputedQ(State& currentState, int enemyId, std::vec
 		//for (glm::ivec2& cell : m_currentPath)
 		//{
 		//	if (m_grid->GetGrid()[cell.x][cell.y].IsOccupied())
-		//		m_currentPath = m_grid->findPath(
+		//		m_currentPath = m_grid->FindPath(
 		//			glm::ivec2(GetPosition().x / m_grid->GetCellSize(), GetPosition().z / m_grid->GetCellSize()),
 		//			glm::ivec2(m_player.GetPosition().x / m_grid->GetCellSize(), m_player.GetPosition().z / m_grid->GetCellSize()),
 		//			m_grid->GetGrid(),
@@ -1285,7 +1285,7 @@ void Enemy::EnemyDecisionPrecomputedQ(State& currentState, int enemyId, std::vec
 		MoveEnemy(m_currentPath, deltaTime, 1.0f, false);
 
 		currentState.playerDetected = IsPlayerDetected();
-		currentState.distanceToPlayer = distance(GetPosition(), m_player.getPosition());
+		currentState.distanceToPlayer = distance(GetPosition(), m_player.GetPosition());
 		currentState.playerVisible = IsPlayerVisible();
 		currentState.health = GetHealth();
 		currentState.isSuppressionFire = isSuppressionFire;
@@ -1294,19 +1294,19 @@ void Enemy::EnemyDecisionPrecomputedQ(State& currentState, int enemyId, std::vec
 	{
 		m_state = "RETREAT";
 
-		if (!m_selectedCover || m_grid->GetGrid()[m_selectedCover->gridX][m_selectedCover->gridZ].IsOccupied())
+		if (!m_selectedCover || m_grid->GetGrid()[m_selectedCover->m_gridX][m_selectedCover->m_gridZ].IsOccupied())
 		{
 			ScoreCoverLocations(m_player);
 		}
 
-		glm::vec3 snappedCurrentPos = m_grid->snapToGrid(GetPosition());
-		glm::vec3 snappedCoverPos = m_grid->snapToGrid(m_selectedCover->worldPosition);
+		glm::vec3 snappedCurrentPos = m_grid->SnapToGrid(GetPosition());
+		glm::vec3 snappedCoverPos = m_grid->SnapToGrid(m_selectedCover->m_worldPosition);
 
 
-		m_currentPath = m_grid->findPath(
+		m_currentPath = m_grid->FindPath(
 			glm::ivec2(GetPosition().x / m_grid->GetCellSize(), GetPosition().z / m_grid->GetCellSize()),
-			glm::ivec2(m_selectedCover->worldPosition.x / m_grid->GetCellSize(),
-			           m_selectedCover->worldPosition.z / m_grid->GetCellSize()),
+			glm::ivec2(m_selectedCover->m_worldPosition.x / m_grid->GetCellSize(),
+			           m_selectedCover->m_worldPosition.z / m_grid->GetCellSize()),
 			m_grid->GetGrid(),
 			m_id
 		);
@@ -1316,9 +1316,9 @@ void Enemy::EnemyDecisionPrecomputedQ(State& currentState, int enemyId, std::vec
 		//for (glm::ivec2& cell : m_currentPath)
 		//{
 		//	if (m_grid->GetGrid()[cell.x][cell.y].IsOccupied())
-		//		m_currentPath = m_grid->findPath(
+		//		m_currentPath = m_grid->FindPath(
 		//			glm::ivec2(GetPosition().x / m_grid->GetCellSize(), GetPosition().z / m_grid->GetCellSize()),
-		//			glm::ivec2(m_selectedCover->worldPosition.x / m_grid->GetCellSize(), m_selectedCover->worldPosition.z / m_grid->GetCellSize()),
+		//			glm::ivec2(m_selectedCover->m_worldPosition.x / m_grid->GetCellSize(), m_selectedCover->m_worldPosition.z / m_grid->GetCellSize()),
 		//			m_grid->GetGrid(),
 		//			enemyId
 		//		);
@@ -1326,7 +1326,7 @@ void Enemy::EnemyDecisionPrecomputedQ(State& currentState, int enemyId, std::vec
 
 		MoveEnemy(m_currentPath, m_dt, 1.0f, false);
 		currentState.playerDetected = IsPlayerDetected();
-		currentState.distanceToPlayer = distance(GetPosition(), m_player.getPosition());
+		currentState.distanceToPlayer = distance(GetPosition(), m_player.GetPosition());
 		currentState.playerVisible = IsPlayerVisible();
 		currentState.health = GetHealth();
 		currentState.isSuppressionFire = isSuppressionFire;
@@ -1343,7 +1343,7 @@ void Enemy::EnemyDecisionPrecomputedQ(State& currentState, int enemyId, std::vec
 		Shoot();
 
 		currentState.playerDetected = IsPlayerDetected();
-		currentState.distanceToPlayer = distance(GetPosition(), m_player.getPosition());
+		currentState.distanceToPlayer = distance(GetPosition(), m_player.GetPosition());
 		currentState.playerVisible = IsPlayerVisible();
 		currentState.health = GetHealth();
 		currentState.isSuppressionFire = isSuppressionFire;
@@ -1354,7 +1354,7 @@ void Enemy::EnemyDecisionPrecomputedQ(State& currentState, int enemyId, std::vec
 
 		if (m_reachedDestination == false)
 		{
-			m_currentPath = m_grid->findPath(
+			m_currentPath = m_grid->FindPath(
 				glm::ivec2(static_cast<int>(GetPosition().x / m_grid->GetCellSize()),
 				           static_cast<int>(GetPosition().z / m_grid->GetCellSize())),
 				glm::ivec2(m_currentWaypoint.x / m_grid->GetCellSize(), m_currentWaypoint.z / m_grid->GetCellSize()),
@@ -1367,7 +1367,7 @@ void Enemy::EnemyDecisionPrecomputedQ(State& currentState, int enemyId, std::vec
 			//for (glm::ivec2& cell : m_currentPath)
 			//{
 			//	if (m_grid->GetGrid()[cell.x][cell.y].IsOccupied())
-			//		m_currentPath = m_grid->findPath(
+			//		m_currentPath = m_grid->FindPath(
 			//			glm::ivec2(GetPosition().x / m_grid->GetCellSize(), GetPosition().z / m_grid->GetCellSize()),
 			//			glm::ivec2(m_currentWaypoint.x / m_grid->GetCellSize(), m_currentWaypoint.z / m_grid->GetCellSize()),
 			//			m_grid->GetGrid(),
@@ -1381,7 +1381,7 @@ void Enemy::EnemyDecisionPrecomputedQ(State& currentState, int enemyId, std::vec
 		{
 			m_currentWaypoint = SelectRandomWaypoint(m_currentWaypoint, m_waypointPositions);
 
-			m_currentPath = m_grid->findPath(
+			m_currentPath = m_grid->FindPath(
 				glm::ivec2(GetPosition().x / m_grid->GetCellSize(), GetPosition().z / m_grid->GetCellSize()),
 				glm::ivec2(m_currentWaypoint.x / m_grid->GetCellSize(), m_currentWaypoint.z / m_grid->GetCellSize()),
 				m_grid->GetGrid(),
@@ -1395,7 +1395,7 @@ void Enemy::EnemyDecisionPrecomputedQ(State& currentState, int enemyId, std::vec
 			/*		for (glm::ivec2& cell : m_currentPath)
 					{
 						if (m_grid->GetGrid()[cell.x][cell.y].IsOccupied())
-							m_currentPath = m_grid->findPath(
+							m_currentPath = m_grid->FindPath(
 								glm::ivec2(GetPosition().x / m_grid->GetCellSize(), GetPosition().z / m_grid->GetCellSize()),
 								glm::ivec2(m_currentWaypoint.x / m_grid->GetCellSize(), m_currentWaypoint.z / m_grid->GetCellSize()),
 								m_grid->GetGrid(),
@@ -1409,7 +1409,7 @@ void Enemy::EnemyDecisionPrecomputedQ(State& currentState, int enemyId, std::vec
 
 
 		currentState.playerDetected = IsPlayerDetected();
-		currentState.distanceToPlayer = distance(GetPosition(), m_player.getPosition());
+		currentState.distanceToPlayer = distance(GetPosition(), m_player.GetPosition());
 		currentState.playerVisible = IsPlayerVisible();
 		currentState.health = GetHealth();
 		currentState.isSuppressionFire = isSuppressionFire;
@@ -1698,7 +1698,7 @@ bool Enemy::IsPlayerDetected()
 bool Enemy::IsPlayerVisible()
 {
 	glm::vec3 tempEnemyShootPos = GetPosition() + glm::vec3(0.0f, 2.5f, 0.0f);
-	glm::vec3 tempEnemyShootDir = normalize(m_player.getPosition() - GetPosition());
+	glm::vec3 tempEnemyShootDir = normalize(m_player.GetPosition() - GetPosition());
 	auto hitPoint = glm::vec3(0.0f);
 
 
@@ -1720,10 +1720,10 @@ bool Enemy::IsHealthBelowThreshold()
 
 bool Enemy::IsPlayerInRange()
 {
-	float playerEnemyDistance = distance(GetPosition(), m_player.getPosition());
+	float playerEnemyDistance = distance(GetPosition(), m_player.GetPosition());
 
 	glm::vec3 tempEnemyShootPos = GetPosition() + glm::vec3(0.0f, 2.5f, 0.0f);
-	glm::vec3 tempEnemyShootDir = normalize(m_player.getPosition() - GetPosition());
+	glm::vec3 tempEnemyShootDir = normalize(m_player.GetPosition() - GetPosition());
 	auto hitPoint = glm::vec3(0.0f);
 
 	if (playerEnemyDistance < 35.0f && !IsPlayerDetected())
@@ -1875,9 +1875,9 @@ NodeStatus Enemy::AttackChasePlayer()
 {
 	m_state = "Chasing Player";
 
-	m_currentPath = m_grid->findPath(
+	m_currentPath = m_grid->FindPath(
 		glm::ivec2(GetPosition().x / m_grid->GetCellSize(), GetPosition().z / m_grid->GetCellSize()),
-		glm::ivec2(m_player.getPosition().x / m_grid->GetCellSize(), m_player.getPosition().z / m_grid->GetCellSize()),
+		glm::ivec2(m_player.GetPosition().x / m_grid->GetCellSize(), m_player.GetPosition().z / m_grid->GetCellSize()),
 		m_grid->GetGrid(),
 		m_id
 	);
@@ -1889,7 +1889,7 @@ NodeStatus Enemy::AttackChasePlayer()
 	//for (glm::ivec2& cell : m_currentPath)
 	//{
 	//	if (cell.x >= 0 && cell.x < m_grid->GetGridSize() && cell.y >= 0 && cell.y < m_grid->GetGridSize() && m_grid->GetGrid()[cell.x][cell.y].IsOccupied())
-	//		m_currentPath = m_grid->findPath(
+	//		m_currentPath = m_grid->FindPath(
 	//			glm::ivec2(GetPosition().x / m_grid->GetCellSize(), GetPosition().z / m_grid->GetCellSize()),
 	//			glm::ivec2(m_player.GetPosition().x / m_grid->GetCellSize(), m_player.GetPosition().z / m_grid->GetCellSize()),
 	//			m_grid->GetGrid(),
@@ -1981,19 +1981,19 @@ NodeStatus Enemy::TakeCover()
 
 	m_isTakingCover = true;
 
-	//if (m_grid->GetGrid()[m_selectedCover->gridX][m_selectedCover->gridZ].IsOccupied())
+	//if (m_grid->GetGrid()[m_selectedCover->m_gridX][m_selectedCover->m_gridZ].IsOccupied())
 	//{
 	//	ScoreCoverLocations(m_player);
 	//}
 
-	glm::vec3 snappedCurrentPos = m_grid->snapToGrid(GetPosition());
-	glm::vec3 snappedCoverPos = m_grid->snapToGrid(m_selectedCover->worldPosition);
+	glm::vec3 snappedCurrentPos = m_grid->SnapToGrid(GetPosition());
+	glm::vec3 snappedCoverPos = m_grid->SnapToGrid(m_selectedCover->m_worldPosition);
 
 
-	m_currentPath = m_grid->findPath(
+	m_currentPath = m_grid->FindPath(
 		glm::ivec2(GetPosition().x / m_grid->GetCellSize(), GetPosition().z / m_grid->GetCellSize()),
-		glm::ivec2(m_selectedCover->worldPosition.x / m_grid->GetCellSize(),
-		           m_selectedCover->worldPosition.z / m_grid->GetCellSize()),
+		glm::ivec2(m_selectedCover->m_worldPosition.x / m_grid->GetCellSize(),
+		           m_selectedCover->m_worldPosition.z / m_grid->GetCellSize()),
 		m_grid->GetGrid(),
 		m_id
 	);
@@ -2003,9 +2003,9 @@ NodeStatus Enemy::TakeCover()
 	//for (glm::ivec2& cell : m_currentPath)
 	//{
 	//	if (m_grid->GetGrid()[cell.x][cell.y].IsOccupied())
-	//		m_currentPath = m_grid->findPath(
+	//		m_currentPath = m_grid->FindPath(
 	//			glm::ivec2(GetPosition().x / m_grid->GetCellSize(), GetPosition().z / m_grid->GetCellSize()),
-	//			glm::ivec2(m_selectedCover->worldPosition.x / m_grid->GetCellSize(), m_selectedCover->worldPosition.z / m_grid->GetCellSize()),
+	//			glm::ivec2(m_selectedCover->m_worldPosition.x / m_grid->GetCellSize(), m_selectedCover->m_worldPosition.z / m_grid->GetCellSize()),
 	//			m_grid->GetGrid(),
 	//			m_id
 	//		);
@@ -2058,7 +2058,7 @@ NodeStatus Enemy::Patrol()
 
 	if (m_reachedDestination == false)
 	{
-		m_currentPath = m_grid->findPath(
+		m_currentPath = m_grid->FindPath(
 			glm::ivec2(static_cast<int>(GetPosition().x / m_grid->GetCellSize()),
 			           static_cast<int>(GetPosition().z / m_grid->GetCellSize())),
 			glm::ivec2(m_currentWaypoint.x / m_grid->GetCellSize(), m_currentWaypoint.z / m_grid->GetCellSize()),
@@ -2071,7 +2071,7 @@ NodeStatus Enemy::Patrol()
 		//for (glm::ivec2& cell : m_currentPath)
 		//{
 		//	if (m_grid->GetGrid()[cell.x][cell.y].IsOccupied())
-		//		m_currentPath = m_grid->findPath(
+		//		m_currentPath = m_grid->FindPath(
 		//			glm::ivec2(GetPosition().x / m_grid->GetCellSize(), GetPosition().z / m_grid->GetCellSize()),
 		//			glm::ivec2(m_currentWaypoint.x / m_grid->GetCellSize(), m_currentWaypoint.z / m_grid->GetCellSize()),
 		//			m_grid->GetGrid(),
@@ -2086,7 +2086,7 @@ NodeStatus Enemy::Patrol()
 	{
 		m_currentWaypoint = SelectRandomWaypoint(m_currentWaypoint, m_waypointPositions);
 
-		m_currentPath = m_grid->findPath(
+		m_currentPath = m_grid->FindPath(
 			glm::ivec2(GetPosition().x / m_grid->GetCellSize(), GetPosition().z / m_grid->GetCellSize()),
 			glm::ivec2(m_currentWaypoint.x / m_grid->GetCellSize(), m_currentWaypoint.z / m_grid->GetCellSize()),
 			m_grid->GetGrid(),
@@ -2100,7 +2100,7 @@ NodeStatus Enemy::Patrol()
 		//for (glm::ivec2& cell : m_currentPath)
 		//{
 		//	if (m_grid->GetGrid()[cell.x][cell.y].IsOccupied())
-		//		m_currentPath = m_grid->findPath(
+		//		m_currentPath = m_grid->FindPath(
 		//			glm::ivec2(GetPosition().x / m_grid->GetCellSize(), GetPosition().z / m_grid->GetCellSize()),
 		//			glm::ivec2(m_currentWaypoint.x / m_grid->GetCellSize(), m_currentWaypoint.z / m_grid->GetCellSize()),
 		//			m_grid->GetGrid(),
@@ -2163,7 +2163,7 @@ NodeStatus Enemy::InCoverAction()
 	m_state = "In Cover";
 
 	glm::vec3 rayOrigin = GetPosition() + glm::vec3(0.0f, 2.5f, 0.0f);
-	glm::vec3 rayDirection = normalize(m_player.getPosition() - rayOrigin);
+	glm::vec3 rayDirection = normalize(m_player.GetPosition() - rayOrigin);
 	auto hitPoint = glm::vec3(0.0f);
 
 	bool visibleToPlayer = m_gameManager->GetPhysicsWorld()->CheckPlayerVisibility(

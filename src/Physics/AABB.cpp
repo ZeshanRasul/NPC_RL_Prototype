@@ -60,12 +60,12 @@ void AABB::SetUpMesh()
 
 void AABB::Render(glm::mat4 viewMat, glm::mat4 proj, glm::mat4 model, glm::vec3 aabbColor)
 {
-	m_shader->use();
+	m_shader->Use();
 
-	m_shader->setMat4("projection", proj);
-	m_shader->setMat4("view", viewMat);
-	m_shader->setMat4("m_model", model);
-	m_shader->setVec3("color", aabbColor);
+	m_shader->SetMat4("projection", proj);
+	m_shader->SetMat4("view", viewMat);
+	m_shader->SetMat4("m_model", model);
+	m_shader->SetVec3("color", aabbColor);
 
 	glBindVertexArray(m_vao);
 	glDrawArrays(GL_LINES, 0, static_cast<GLsizei>(m_lineVertices.size()));

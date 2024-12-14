@@ -36,23 +36,23 @@ void InputManager::HandleMouseMovement(double xPosIn, double yPosIn)
 
 	if (m_camera->GetMode() == PLAYER_FOLLOW)
 	{
-		m_player->PlayerYaw = m_camera->GetYaw();
-		m_player->aimPitch = m_camera->GetPitch();
-		if (m_player->aimPitch > 19.0f)
-			m_player->aimPitch = 19.0f;
-		if (m_player->aimPitch < -19.0f)
-			m_player->aimPitch = -19.0f;
+		m_player->SetPlayerYaw(m_camera->GetYaw());
+		m_player->SetAimPitch(m_camera->GetPitch());
+		if (m_player->GetAimPitch() > 19.0f)
+			m_player->SetAimPitch(19.0f);
+		if (m_player->GetAimPitch() < -19.0f)
+			m_player->SetAimPitch(-19.0f);
 		m_player->UpdatePlayerVectors();
 		m_player->UpdatePlayerAimVectors();
 	}
 	else if (m_camera->GetMode() == PLAYER_AIM)
 	{
-		m_player->PlayerYaw = m_camera->GetYaw();
-		m_player->aimPitch = m_camera->GetPitch();
-		//if (m_player->aimPitch > 19.0f)
-		//    m_player->aimPitch = 19.0f;
-		//if (m_player->aimPitch < -19.0f)
-		//    m_player->aimPitch = -19.0f;
+		m_player->SetPlayerYaw(m_camera->GetYaw());
+		m_player->SetAimPitch(m_camera->GetPitch());
+		//if (m_player->m_aimPitch > 19.0f)
+		//    m_player->m_aimPitch = 19.0f;
+		//if (m_player->m_aimPitch < -19.0f)
+		//    m_player->m_aimPitch = -19.0f;
 		m_player->UpdatePlayerVectors();
 		m_player->UpdatePlayerAimVectors();
 	}
@@ -188,7 +188,7 @@ void InputManager::HandlePlayerMovement(GLFWwindow* window, Player& player, Came
 	{
 		if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
 		{
-			player.PlayerYaw = camera.GetYaw();
+			player.SetPlayerYaw(camera.GetYaw());
 			player.UpdatePlayerVectors();
 			player.UpdatePlayerAimVectors();
 			player.PlayerProcessKeyboard(FORWARD, deltaTime);
@@ -199,19 +199,19 @@ void InputManager::HandlePlayerMovement(GLFWwindow* window, Player& player, Came
 			player.PlayerProcessKeyboard(LEFT, deltaTime);
 		else if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
 			player.PlayerProcessKeyboard(RIGHT, deltaTime);
-		else if (glfwGetKey(window, GLFW_KEY_W) == GLFW_RELEASE && player.prevDirection == FORWARD)
+		else if (glfwGetKey(window, GLFW_KEY_W) == GLFW_RELEASE && player.GetPrevDirection() == FORWARD)
 		{
 			player.SetVelocity(0.0f);
 		}
-		else if (glfwGetKey(window, GLFW_KEY_A) == GLFW_RELEASE && player.prevDirection == BACKWARD)
+		else if (glfwGetKey(window, GLFW_KEY_A) == GLFW_RELEASE && player.GetPrevDirection() == BACKWARD)
 		{
 			player.SetVelocity(0.0f);
 		}
-		else if (glfwGetKey(window, GLFW_KEY_D) == GLFW_RELEASE && player.prevDirection == LEFT)
+		else if (glfwGetKey(window, GLFW_KEY_D) == GLFW_RELEASE && player.GetPrevDirection() == LEFT)
 		{
 			player.SetVelocity(0.0f);
 		}
-		else if (glfwGetKey(window, GLFW_KEY_D) == GLFW_RELEASE && player.prevDirection == RIGHT)
+		else if (glfwGetKey(window, GLFW_KEY_D) == GLFW_RELEASE && player.GetPrevDirection() == RIGHT)
 		{
 			player.SetVelocity(0.0f);
 		}

@@ -12,7 +12,7 @@ void Ground::DrawObject(glm::mat4 viewMat, glm::mat4 proj, bool shadowMap, glm::
 	matrixData.push_back(proj);
 	matrixData.push_back(modelMat);
 	matrixData.push_back(lightSpaceMat);
-	m_uniformBuffer.uploadUboData(matrixData, 0);
+	m_uniformBuffer.UploadUboData(matrixData, 0);
 
 
 	// TODO: Update for GLTF

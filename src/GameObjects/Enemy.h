@@ -64,7 +64,7 @@ public:
 
 	~Enemy()
 	{
-		m_model->cleanup();
+		m_model->Cleanup();
 	}
 
 	void SetUpModel();
@@ -238,10 +238,10 @@ private:
 	Grid* m_grid;
 
 	std::vector<glm::vec3> m_waypointPositions = {
-	m_grid->snapToGrid(glm::vec3(0.0f, 0.0f, 0.0f)),
-	m_grid->snapToGrid(glm::vec3(0.0f, 0.0f, 70.0f)),
-	m_grid->snapToGrid(glm::vec3(40.0f, 0.0f, 0.0f)),
-	m_grid->snapToGrid(glm::vec3(40.0f, 0.0f, 70.0f))
+	m_grid->SnapToGrid(glm::vec3(0.0f, 0.0f, 0.0f)),
+	m_grid->SnapToGrid(glm::vec3(0.0f, 0.0f, 70.0f)),
+	m_grid->SnapToGrid(glm::vec3(40.0f, 0.0f, 0.0f)),
+	m_grid->SnapToGrid(glm::vec3(40.0f, 0.0f, 70.0f))
 	};
 
 	float m_health = 100.0f;

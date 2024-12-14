@@ -21,7 +21,7 @@ public:
 		  m_gameManager(gameMgr)
 	{
 		size_t uniformMatrixBufferSize = 4 * sizeof(glm::mat4);
-		m_uniformBuffer.init(uniformMatrixBufferSize);
+		m_uniformBuffer.Init(uniformMatrixBufferSize);
 		Logger::Log(1, "%s: matrix uniform buffer (size %i bytes) successfully created\n", __FUNCTION__,
 		            uniformMatrixBufferSize);
 	}
@@ -37,11 +37,11 @@ public:
 	{
 		if (shadowMap)
 		{
-			m_shadowShader->use();
+			m_shadowShader->Use();
 		}
 		else
 		{
-			m_shader->use();
+			m_shader->Use();
 		}
 
 		DrawObject(viewMat, proj, shadowMap, lightSpaceMat, shadowMapTexture);

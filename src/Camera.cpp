@@ -55,12 +55,14 @@ void Camera::ProcessKeyboard(CameraMovement direction, float deltaTime)
 void Camera::ProcessMouseMovement(float xOffset, float yOffset, GLboolean constrainPitch)
 {
 	xOffset *= GetMouseSensitivity();
-	yOffset *= GetMouseSensitivity();
 
 	SetYaw(GetYaw() + xOffset);
 
 	if (GetMode() != PLAYER_FOLLOW)
+	{
+		yOffset *= GetMouseSensitivity();
 		SetPitch(GetPitch() + yOffset);
+	}
 
 	if (constrainPitch)
 	{
@@ -75,8 +77,8 @@ void Camera::ProcessMouseMovement(float xOffset, float yOffset, GLboolean constr
 		{
 			if (GetPitch() > 9.0f)
 				SetPitch(9.0f);
-			if (GetPitch() < -20.0f)
-				SetPitch(-20.0f);
+			if (GetPitch() < -16.0)
+				SetPitch(-16.0f);
 		}
 	}
 

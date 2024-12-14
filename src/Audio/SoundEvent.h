@@ -27,6 +27,6 @@ protected:
 	SoundEvent(class AudioSystem* system, unsigned int id);
 
 private:
-	class AudioSystem* mSystem;
-	unsigned int mID;
+	class AudioSystem* m_system;
+	unsigned int m_id;
 };

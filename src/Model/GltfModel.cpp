@@ -9,16 +9,16 @@
 #include "GltfModel.h"
 #include "Logger.h"
 
-bool GltfModel::loadModelNoAnim(std::string modelFilename)
+bool GltfModel::LoadModelNoAnim(std::string modelFilename)
 {
-	mModel = std::make_shared<tinygltf::Model>();
+	m_model = std::make_shared<tinygltf::Model>();
 
 	tinygltf::TinyGLTF gltfLoader;
 	std::string loaderErrors;
 	std::string loaderWarnings;
 	bool result = false;
 
-	result = gltfLoader.LoadASCIIFromFile(mModel.get(), &loaderErrors, &loaderWarnings,
+	result = gltfLoader.LoadASCIIFromFile(m_model.get(), &loaderErrors, &loaderWarnings,
 	                                      modelFilename);
 
 	if (!loaderWarnings.empty())
@@ -40,29 +40,29 @@ bool GltfModel::loadModelNoAnim(std::string modelFilename)
 		return false;
 	}
 
-	glGenVertexArrays(1, &mVAO);
-	glBindVertexArray(mVAO);
+	glGenVertexArrays(1, &m_vao);
+	glBindVertexArray(m_vao);
 
-	createVertexBuffers();
-	createIndexBuffer();
+	CreateVertexBuffers();
+	CreateIndexBuffer();
 
 	glBindVertexArray(0);
 
 	return true;
 }
 
-bool GltfModel::loadModel(std::string modelFilename, bool isEnemy)
+bool GltfModel::LoadModel(std::string modelFilename, bool isEnemy)
 {
-	mModel = std::make_shared<tinygltf::Model>();
+	m_model = std::make_shared<tinygltf::Model>();
 
-	filename = modelFilename;
+	m_filename = modelFilename;
 
 	tinygltf::TinyGLTF gltfLoader;
 	std::string loaderErrors;
 	std::string loaderWarnings;
 	bool result = false;
 
-	result = gltfLoader.LoadASCIIFromFile(mModel.get(), &loaderErrors, &loaderWarnings,
+	result = gltfLoader.LoadASCIIFromFile(m_model.get(), &loaderErrors, &loaderWarnings,
 	                                      modelFilename);
 
 	if (!loaderWarnings.empty())
@@ -84,77 +84,77 @@ bool GltfModel::loadModel(std::string modelFilename, bool isEnemy)
 		return false;
 	}
 
-	glGenVertexArrays(1, &mVAO);
-	glBindVertexArray(mVAO);
+	glGenVertexArrays(1, &m_vao);
+	glBindVertexArray(m_vao);
 
-	createVertexBuffers(isEnemy);
-	createIndexBuffer();
+	CreateVertexBuffers(isEnemy);
+	CreateIndexBuffer();
 
 	glBindVertexArray(0);
 
-	getJointData();
-	getWeightData();
-	getInvBindMatrices();
+	GetJointData();
+	GetWeightData();
+	GetInvBindMatrices();
 
-	mNodeCount = mModel->nodes.size();
-	int rootNode = mModel->scenes.at(0).nodes.at(0);
-	Logger::Log(1, "%s: model has %i nodes, root node is %i\n", __FUNCTION__, mNodeCount, rootNode);
+	m_nodeCount = (int)m_model->nodes.size();
+	int rootNode = m_model->scenes.at(0).nodes.at(0);
+	Logger::Log(1, "%s: model has %i nodes, root node is %i\n", __FUNCTION__, m_nodeCount, rootNode);
 
-	mNodeList.resize(mNodeCount);
+	m_nodeList.resize(m_nodeCount);
 
-	mRootNode = GltfNode::createRoot(rootNode);
+	m_rootNode = GltfNode::CreateRoot(rootNode);
 
-	mNodeList.at(rootNode) = mRootNode;
+	m_nodeList.at(rootNode) = m_rootNode;
 
-	getNodeData(mRootNode, glm::mat4(1.0f));
-	getNodes(mRootNode);
+	GetNodeData(m_rootNode, glm::mat4(1.0f));
+	GetNodes(m_rootNode);
 
-	mRootNode->printTree();
+	m_rootNode->PrintTree();
 
-	getAnimations();
+	GetAnimations();
 
-	mAdditiveAnimationMask.resize(mNodeCount);
-	mInvertedAdditiveAnimationMask.resize(mNodeCount);
+	m_additiveAnimationMask.resize(m_nodeCount);
+	m_invertedAdditiveAnimationMask.resize(m_nodeCount);
 
-	std::fill(mAdditiveAnimationMask.begin(), mAdditiveAnimationMask.end(), true);
-	mInvertedAdditiveAnimationMask = mAdditiveAnimationMask;
-	mInvertedAdditiveAnimationMask.flip();
+	std::fill(m_additiveAnimationMask.begin(), m_additiveAnimationMask.end(), true);
+	m_invertedAdditiveAnimationMask = m_additiveAnimationMask;
+	m_invertedAdditiveAnimationMask.flip();
 
 	return true;
 }
 
-Texture GltfModel::loadTexture(std::string textureFilename, bool flip)
+Texture GltfModel::LoadTexture(std::string textureFilename, bool flip)
 {
-	if (!mTex.loadTexture(textureFilename, false))
+	if (!m_tex.LoadTexture(textureFilename, false))
 	{
 		Logger::Log(1, "%s: texture loading failed\n", __FUNCTION__);
 	}
 	Logger::Log(1, "%s: glTF model texture '%s' successfully loaded\n", __FUNCTION__,
 	            textureFilename.c_str());
 
-	return mTex;
+	return m_tex;
 }
 
-void GltfModel::createVertexBuffers(bool isEnemy)
+void GltfModel::CreateVertexBuffers(bool isEnemy)
 {
-	const tinygltf::Primitive& primitives = mModel->meshes.at(0).primitives.at(0);
-	mVertexVBO.resize(primitives.attributes.size() + 1);
-	mAttribAccessors.resize(primitives.attributes.size());
+	const tinygltf::Primitive& primitives = m_model->meshes.at(0).primitives.at(0);
+	m_vertexVbo.resize(primitives.attributes.size() + 1);
+	m_attribAccessors.resize(primitives.attributes.size());
 
-	std::vector<glm::vec3> tangents(mVertices.size(), glm::vec3(0.0f));
+	std::vector<glm::vec3> tangents(m_vertices.size(), glm::vec3(0.0f));
 
-	std::vector<glm::vec3> vertPositions(mVertices.size(), glm::vec3(0.0f));
-	std::vector<glm::vec3> normals(mVertices.size(), glm::vec3(0.0f));
-	std::vector<glm::vec2> texCoords(mVertices.size(), glm::vec2(0.0f));
+	std::vector<glm::vec3> vertPositions(m_vertices.size(), glm::vec3(0.0f));
+	std::vector<glm::vec3> normals(m_vertices.size(), glm::vec3(0.0f));
+	std::vector<glm::vec2> texCoords(m_vertices.size(), glm::vec2(0.0f));
 
 	for (const auto& attrib : primitives.attributes)
 	{
 		const std::string attribType = attrib.first;
 		const int accessorNum = attrib.second;
 
-		const tinygltf::Accessor& accessor = mModel->accessors.at(accessorNum);
-		const tinygltf::BufferView& bufferView = mModel->bufferViews.at(accessor.bufferView);
-		const tinygltf::Buffer& buffer = mModel->buffers.at(bufferView.buffer);
+		const tinygltf::Accessor& accessor = m_model->accessors.at(accessorNum);
+		const tinygltf::BufferView& bufferView = m_model->bufferViews.at(accessor.bufferView);
+		const tinygltf::Buffer& buffer = m_model->buffers.at(bufferView.buffer);
 
 		if ((attribType.compare("POSITION") != 0) && (attribType.compare("NORMAL") != 0)
 			&& (attribType.compare("TEXCOORD_0") != 0) && (attribType.compare("JOINTS_0") != 0)
@@ -170,14 +170,14 @@ void GltfModel::createVertexBuffers(bool isEnemy)
 
 		if (attribType.compare("POSITION") == 0)
 		{
-			int numPositionEntries = accessor.count;
+			int numPositionEntries = (int)accessor.count;
 			Logger::Log(1, "%s: loaded %i vertices from glTF file\n", __FUNCTION__,
 			            numPositionEntries);
 		}
 
 		if (attribType.compare("POSITION") == 0)
 		{
-			int numPositionEntries = accessor.count;
+			int numPositionEntries = (int)accessor.count;
 			Logger::Log(1, "%s: loaded %i vertices from glTF file\n", __FUNCTION__,
 			            numPositionEntries);
 
@@ -185,20 +185,20 @@ void GltfModel::createVertexBuffers(bool isEnemy)
 			auto positions = reinterpret_cast<const float*>(
 				buffer.data.data() + bufferView.byteOffset + accessor.byteOffset);
 
-			mVertices.resize(numPositionEntries);
+			m_vertices.resize(numPositionEntries);
 			vertPositions.resize(numPositionEntries);
 			tangents.resize(numPositionEntries);
 			normals.resize(numPositionEntries);
 			texCoords.resize(numPositionEntries);
 			for (int i = 0; i < numPositionEntries; ++i)
 			{
-				mVertices[i] = glm::vec3(positions[i * 3 + 0], positions[i * 3 + 1], positions[i * 3 + 2]);
+				m_vertices[i] = glm::vec3(positions[i * 3 + 0], positions[i * 3 + 1], positions[i * 3 + 2]);
 				vertPositions[i] = glm::vec3(positions[i * 3 + 0], positions[i * 3 + 1], positions[i * 3 + 2]);
 			}
 		}
 		else if (attribType.compare("NORMAL") == 0)
 		{
-			int numNormalEntries = accessor.count;
+			int numNormalEntries = (int)accessor.count;
 			auto normalsData = reinterpret_cast<const float*>(
 				buffer.data.data() + bufferView.byteOffset + accessor.byteOffset);
 			normals.resize(numNormalEntries);
@@ -209,7 +209,7 @@ void GltfModel::createVertexBuffers(bool isEnemy)
 		}
 		else if (attribType.compare("TEXCOORD_0") == 0)
 		{
-			int numTexCoordEntries = accessor.count;
+			int numTexCoordEntries = (int)accessor.count;
 			auto texCoordsData = reinterpret_cast<const float*>(
 				buffer.data.data() + bufferView.byteOffset + accessor.byteOffset);
 			texCoords.resize(numTexCoordEntries);
@@ -218,9 +218,9 @@ void GltfModel::createVertexBuffers(bool isEnemy)
 				texCoords[i] = glm::vec2(texCoordsData[i * 2 + 0], texCoordsData[i * 2 + 1]);
 			}
 
-			const tinygltf::Accessor& indexAccessor = mModel->accessors[primitives.indices];
-			const tinygltf::BufferView& indBufferView = mModel->bufferViews[indexAccessor.bufferView];
-			const tinygltf::Buffer& indbuffer = mModel->buffers[bufferView.buffer];
+			const tinygltf::Accessor& indexAccessor = m_model->accessors[primitives.indices];
+			const tinygltf::BufferView& indBufferView = m_model->bufferViews[indexAccessor.bufferView];
+			const tinygltf::Buffer& indbuffer = m_model->buffers[bufferView.buffer];
 
 			const unsigned char* dataPtr = indbuffer.data.data() + indBufferView.byteOffset + indexAccessor.byteOffset;
 
@@ -287,11 +287,11 @@ void GltfModel::createVertexBuffers(bool isEnemy)
 
 		if (isEnemy)
 		{
-			mAttribAccessors.at(enemyAttributes.at(attribType)) = accessorNum;
+			m_attribAccessors.at(m_enemyAttributes.at(attribType)) = accessorNum;
 		}
 		else
 		{
-			mAttribAccessors.at(attributes.at(attribType)) = accessorNum;
+			m_attribAccessors.at(m_attributes.at(attribType)) = accessorNum;
 		}
 
 		int dataSize = 1;
@@ -335,12 +335,12 @@ void GltfModel::createVertexBuffers(bool isEnemy)
 
 		if (isEnemy)
 		{
-			glGenBuffers(1, &mVertexVBO.at(enemyAttributes.at(attribType)));
-			glBindBuffer(GL_ARRAY_BUFFER, mVertexVBO.at(enemyAttributes.at(attribType)));
+			glGenBuffers(1, &m_vertexVbo.at(m_enemyAttributes.at(attribType)));
+			glBindBuffer(GL_ARRAY_BUFFER, m_vertexVbo.at(m_enemyAttributes.at(attribType)));
 
-			glVertexAttribPointer(enemyAttributes.at(attribType), dataSize, dataType, GL_FALSE,
+			glVertexAttribPointer(m_enemyAttributes.at(attribType), dataSize, dataType, GL_FALSE,
 			                      0, static_cast<void*>(nullptr));
-			glEnableVertexAttribArray(enemyAttributes.at(attribType));
+			glEnableVertexAttribArray(m_enemyAttributes.at(attribType));
 
 			if (attribType == "WEIGHTS_0")
 			{
@@ -350,24 +350,24 @@ void GltfModel::createVertexBuffers(bool isEnemy)
 				glBufferData(GL_ARRAY_BUFFER, tangents.size() * sizeof(glm::vec3), tangents.data(), GL_STATIC_DRAW);
 
 				// Define tangent attribute
-				const GLuint tangentLocation = enemyAttributes["TANGENT"];
+				const GLuint tangentLocation = m_enemyAttributes["TANGENT"];
 				glVertexAttribPointer(tangentLocation, 3, GL_FLOAT, GL_FALSE, 0, static_cast<void*>(nullptr));
 				glEnableVertexAttribArray(tangentLocation);
 
-				// Add to mVertexVBO
-				mVertexVBO.push_back(tangentBuffer);
+				// Add to m_vertexVbo
+				m_vertexVbo.push_back(tangentBuffer);
 			}
 
 			glBindBuffer(GL_ARRAY_BUFFER, 0);
 		}
 		else
 		{
-			glGenBuffers(1, &mVertexVBO.at(attributes.at(attribType)));
-			glBindBuffer(GL_ARRAY_BUFFER, mVertexVBO.at(attributes.at(attribType)));
+			glGenBuffers(1, &m_vertexVbo.at(m_attributes.at(attribType)));
+			glBindBuffer(GL_ARRAY_BUFFER, m_vertexVbo.at(m_attributes.at(attribType)));
 
-			glVertexAttribPointer(attributes.at(attribType), dataSize, dataType, GL_FALSE,
+			glVertexAttribPointer(m_attributes.at(attribType), dataSize, dataType, GL_FALSE,
 			                      0, static_cast<void*>(nullptr));
-			glEnableVertexAttribArray(attributes.at(attribType));
+			glEnableVertexAttribArray(m_attributes.at(attribType));
 
 			if (attribType == "WEIGHTS_0")
 			{
@@ -376,12 +376,12 @@ void GltfModel::createVertexBuffers(bool isEnemy)
 				glBindBuffer(GL_ARRAY_BUFFER, tangentBuffer);
 				glBufferData(GL_ARRAY_BUFFER, tangents.size() * sizeof(glm::vec3), tangents.data(), GL_STATIC_DRAW);
 
-				const GLuint tangentLocation = attributes["TANGENT"];
+				const GLuint tangentLocation = m_attributes["TANGENT"];
 
 				glVertexAttribPointer(tangentLocation, 3, GL_FLOAT, GL_FALSE, 0, static_cast<void*>(nullptr));
 				glEnableVertexAttribArray(tangentLocation);
 
-				mVertexVBO.push_back(tangentBuffer);
+				m_vertexVbo.push_back(tangentBuffer);
 			}
 
 			glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -389,36 +389,36 @@ void GltfModel::createVertexBuffers(bool isEnemy)
 	}
 }
 
-void GltfModel::createIndexBuffer()
+void GltfModel::CreateIndexBuffer()
 {
-	glGenBuffers(1, &mIndexVBO);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mIndexVBO);
+	glGenBuffers(1, &m_indexVbo);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_indexVbo);
 }
 
-void GltfModel::uploadVertexBuffers()
+void GltfModel::UploadVertexBuffers()
 {
 	for (int i = 0; i < 9; ++i)
 	{
-		const tinygltf::Accessor& accessor = mModel->accessors.at(i);
-		const tinygltf::BufferView& bufferView = mModel->bufferViews.at(accessor.bufferView);
-		const tinygltf::Buffer& buffer = mModel->buffers.at(bufferView.buffer);
+		const tinygltf::Accessor& accessor = m_model->accessors.at(i);
+		const tinygltf::BufferView& bufferView = m_model->bufferViews.at(accessor.bufferView);
+		const tinygltf::Buffer& buffer = m_model->buffers.at(bufferView.buffer);
 
-		glBindBuffer(GL_ARRAY_BUFFER, mVertexVBO.at(i));
+		glBindBuffer(GL_ARRAY_BUFFER, m_vertexVbo.at(i));
 		glBufferData(GL_ARRAY_BUFFER, bufferView.byteLength,
 		             &buffer.data.at(0) + bufferView.byteOffset, GL_STATIC_DRAW);
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 	}
 }
 
-void GltfModel::uploadEnemyVertexBuffers()
+void GltfModel::UploadEnemyVertexBuffers()
 {
 	for (int i = 0; i < 7; ++i)
 	{
-		const tinygltf::Accessor& accessor = mModel->accessors.at(i);
-		const tinygltf::BufferView& bufferView = mModel->bufferViews.at(accessor.bufferView);
-		const tinygltf::Buffer& buffer = mModel->buffers.at(bufferView.buffer);
+		const tinygltf::Accessor& accessor = m_model->accessors.at(i);
+		const tinygltf::BufferView& bufferView = m_model->bufferViews.at(accessor.bufferView);
+		const tinygltf::Buffer& buffer = m_model->buffers.at(bufferView.buffer);
 
-		glBindBuffer(GL_ARRAY_BUFFER, mVertexVBO.at(i));
+		glBindBuffer(GL_ARRAY_BUFFER, m_vertexVbo.at(i));
 		glBufferData(GL_ARRAY_BUFFER, bufferView.byteLength,
 		             &buffer.data.at(0) + bufferView.byteOffset, GL_STATIC_DRAW);
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -426,64 +426,64 @@ void GltfModel::uploadEnemyVertexBuffers()
 }
 
 
-void GltfModel::uploadVertexBuffersNoAnimations()
+void GltfModel::UploadVertexBuffersNoAnimations()
 {
 	for (int i = 0; i < 3; ++i)
 	{
-		const tinygltf::Accessor& accessor = mModel->accessors.at(i);
-		const tinygltf::BufferView& bufferView = mModel->bufferViews.at(accessor.bufferView);
-		const tinygltf::Buffer& buffer = mModel->buffers.at(bufferView.buffer);
+		const tinygltf::Accessor& accessor = m_model->accessors.at(i);
+		const tinygltf::BufferView& bufferView = m_model->bufferViews.at(accessor.bufferView);
+		const tinygltf::Buffer& buffer = m_model->buffers.at(bufferView.buffer);
 
-		glBindBuffer(GL_ARRAY_BUFFER, mVertexVBO.at(i));
+		glBindBuffer(GL_ARRAY_BUFFER, m_vertexVbo.at(i));
 		glBufferData(GL_ARRAY_BUFFER, bufferView.byteLength,
 		             &buffer.data.at(0) + bufferView.byteOffset, GL_STATIC_DRAW);
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 	}
 }
 
-void GltfModel::uploadIndexBuffer()
+void GltfModel::UploadIndexBuffer()
 {
 	/* buffer for vertex indices */
-	const tinygltf::Primitive& primitives = mModel->meshes.at(0).primitives.at(0);
-	const tinygltf::Accessor& indexAccessor = mModel->accessors.at(primitives.indices);
-	const tinygltf::BufferView& indexBufferView = mModel->bufferViews.at(indexAccessor.bufferView);
-	const tinygltf::Buffer& indexBuffer = mModel->buffers.at(indexBufferView.buffer);
+	const tinygltf::Primitive& primitives = m_model->meshes.at(0).primitives.at(0);
+	const tinygltf::Accessor& indexAccessor = m_model->accessors.at(primitives.indices);
+	const tinygltf::BufferView& indexBufferView = m_model->bufferViews.at(indexAccessor.bufferView);
+	const tinygltf::Buffer& indexBuffer = m_model->buffers.at(indexBufferView.buffer);
 
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mIndexVBO);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_indexVbo);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, indexBufferView.byteLength,
 	             &indexBuffer.data.at(0) + indexBufferView.byteOffset, GL_STATIC_DRAW);
 }
 
-int GltfModel::getJointMatrixSize()
+int GltfModel::GetJointMatrixSize()
 {
-	return mJointMatrices.size();
+	return (int)m_jointMatrices.size();
 }
 
-std::vector<glm::mat4> GltfModel::getJointMatrices()
+std::vector<glm::mat4> GltfModel::GetJointMatrices()
 {
-	return mJointMatrices;
+	return m_jointMatrices;
 }
 
-int GltfModel::getJointDualQuatsSize()
+int GltfModel::GetJointDualQuatsSize()
 {
-	return mJointDualQuats.size();
+	return (int)m_jointDualQuats.size();
 }
 
-std::vector<glm::mat2x4> GltfModel::getJointDualQuats()
+std::vector<glm::mat2x4> GltfModel::GetJointDualQuats()
 {
-	return mJointDualQuats;
+	return m_jointDualQuats;
 }
 
-int GltfModel::getTriangleCount()
+int GltfModel::GetTriangleCount()
 {
-	const tinygltf::Primitive& primitives = mModel->meshes.at(0).primitives.at(0);
-	const tinygltf::Accessor& indexAccessor = mModel->accessors.at(primitives.indices);
+	const tinygltf::Primitive& primitives = m_model->meshes.at(0).primitives.at(0);
+	const tinygltf::Accessor& indexAccessor = m_model->accessors.at(primitives.indices);
 
 	unsigned int triangles = 0;
 	switch (primitives.mode)
 	{
 	case TINYGLTF_MODE_TRIANGLES:
-		triangles = indexAccessor.count / 3;
+		triangles = (unsigned int)indexAccessor.count / 3;
 		break;
 	default:
 		Logger::Log(1, "%s error: unknown draw mode %i\n", __FUNCTION__, primitives.mode);
@@ -492,39 +492,39 @@ int GltfModel::getTriangleCount()
 	return triangles;
 }
 
-void GltfModel::getAnimations()
+void GltfModel::GetAnimations()
 {
-	for (const auto& anim : mModel->animations)
+	for (const auto& anim : m_model->animations)
 	{
 		Logger::Log(1, "%s: loading animation '%s' with %i channels\n", __FUNCTION__, anim.name.c_str(),
 		            anim.channels.size());
 		auto clip = std::make_shared<GltfAnimationClip>(anim.name);
 		for (const auto& channel : anim.channels)
 		{
-			clip->addChannel(mModel, anim, channel);
+			clip->AddChannel(m_model, anim, channel);
 		}
-		mAnimClips.push_back(clip);
+		m_animClips.push_back(clip);
 	}
 }
 
-void GltfModel::playAnimation(int animNum, float speedDivider, float blendFactor, bool playBackwards)
+void GltfModel::PlayAnimation(int animNum, float speedDivider, float blendFactor, bool playBackwards)
 {
-	double currentTime = std::chrono::duration_cast<std::chrono::milliseconds>(
+	double currentTime = (double)std::chrono::duration_cast<std::chrono::milliseconds>(
 		std::chrono::steady_clock::now().time_since_epoch()).count();
 	if (playBackwards)
 	{
-		blendAnimationFrame(animNum, mAnimClips.at(animNum)->getClipEndTime() -
+		BlendAnimationFrame(animNum, m_animClips.at(animNum)->GetClipEndTime() -
 		                    std::fmod(currentTime / 1000.0 * speedDivider,
-		                              mAnimClips.at(animNum)->getClipEndTime()), blendFactor);
+		                              m_animClips.at(animNum)->GetClipEndTime()), blendFactor);
 	}
 	else
 	{
-		blendAnimationFrame(animNum, std::fmod(currentTime / 1000.0 * speedDivider,
-		                                       mAnimClips.at(animNum)->getClipEndTime()), blendFactor);
+		BlendAnimationFrame(animNum, std::fmod(currentTime / 1000.0 * speedDivider,
+		                                       m_animClips.at(animNum)->GetClipEndTime()), blendFactor);
 	}
 }
 
-void GltfModel::playAnimation(int sourceAnimNumber, int destAnimNumber,
+void GltfModel::PlayAnimation(int sourceAnimNumber, int destAnimNumber,
                               float speedDivider, float blendFactor, bool playBackwards)
 {
 	double currentTime = std::chrono::duration_cast<std::chrono::milliseconds>(
@@ -532,55 +532,55 @@ void GltfModel::playAnimation(int sourceAnimNumber, int destAnimNumber,
 
 	if (playBackwards)
 	{
-		crossBlendAnimationFrame(sourceAnimNumber, destAnimNumber,
-		                         mAnimClips.at(sourceAnimNumber)->getClipEndTime() -
+		CrossBlendAnimationFrame(sourceAnimNumber, destAnimNumber,
+		                         m_animClips.at(sourceAnimNumber)->GetClipEndTime() -
 		                         std::fmod(currentTime / 1000.0 * speedDivider,
-		                                   mAnimClips.at(sourceAnimNumber)->getClipEndTime()), blendFactor);
+		                                   m_animClips.at(sourceAnimNumber)->GetClipEndTime()), blendFactor);
 	}
 	else
 	{
-		crossBlendAnimationFrame(sourceAnimNumber, destAnimNumber,
+		CrossBlendAnimationFrame(sourceAnimNumber, destAnimNumber,
 		                         std::fmod(currentTime / 1000.0 * speedDivider,
-		                                   mAnimClips.at(sourceAnimNumber)->getClipEndTime()), blendFactor);
+		                                   m_animClips.at(sourceAnimNumber)->GetClipEndTime()), blendFactor);
 	}
 }
 
-void GltfModel::blendAnimationFrame(int animNum, float time, float blendFactor)
+void GltfModel::BlendAnimationFrame(int animNum, float time, float blendFactor)
 {
-	mAnimClips.at(animNum)->blendAnimationFrame(mNodeList, mAdditiveAnimationMask, time, blendFactor);
-	updateNodeMatrices(mRootNode, glm::mat4(1.0f));
+	m_animClips.at(animNum)->BlendAnimationFrame(m_nodeList, m_additiveAnimationMask, time, blendFactor);
+	UpdateNodeMatrices(m_rootNode, glm::mat4(1.0f));
 }
 
-void GltfModel::crossBlendAnimationFrame(int sourceAnimNumber, int destAnimNumber, float time,
+void GltfModel::CrossBlendAnimationFrame(int sourceAnimNumber, int destAnimNumber, float time,
                                          float blendFactor)
 {
-	float sourceAnimDuration = mAnimClips.at(sourceAnimNumber)->getClipEndTime();
-	float destAnimDuration = mAnimClips.at(destAnimNumber)->getClipEndTime();
+	float sourceAnimDuration = m_animClips.at(sourceAnimNumber)->GetClipEndTime();
+	float destAnimDuration = m_animClips.at(destAnimNumber)->GetClipEndTime();
 	float scaledTime = time * (destAnimDuration / sourceAnimDuration);
 
-	mAnimClips.at(sourceAnimNumber)->setAnimationFrame(mNodeList, mAdditiveAnimationMask, time);
-	mAnimClips.at(destAnimNumber)->blendAnimationFrame(mNodeList, mAdditiveAnimationMask, scaledTime, blendFactor);
+	m_animClips.at(sourceAnimNumber)->SetAnimationFrame(m_nodeList, m_additiveAnimationMask, time);
+	m_animClips.at(destAnimNumber)->BlendAnimationFrame(m_nodeList, m_additiveAnimationMask, scaledTime, blendFactor);
 
-	mAnimClips.at(destAnimNumber)->setAnimationFrame(mNodeList, mInvertedAdditiveAnimationMask, scaledTime);
-	mAnimClips.at(sourceAnimNumber)->blendAnimationFrame(mNodeList, mInvertedAdditiveAnimationMask, time, blendFactor);
+	m_animClips.at(destAnimNumber)->SetAnimationFrame(m_nodeList, m_invertedAdditiveAnimationMask, scaledTime);
+	m_animClips.at(sourceAnimNumber)->BlendAnimationFrame(m_nodeList, m_invertedAdditiveAnimationMask, time, blendFactor);
 
-	updateNodeMatrices(mRootNode, glm::mat4(1.0f));
+	UpdateNodeMatrices(m_rootNode, glm::mat4(1.0f));
 }
 
-float GltfModel::getAnimationEndTime(int animNum)
+float GltfModel::GetAnimationEndTime(int animNum)
 {
-	return mAnimClips.at(animNum)->getClipEndTime();
+	return m_animClips.at(animNum)->GetClipEndTime();
 }
 
-std::string GltfModel::getClipName(int animNum)
+std::string GltfModel::GetClipName(int animNum)
 {
-	return mAnimClips.at(animNum)->getClipName();
+	return m_animClips.at(animNum)->GetClipName();
 }
 
-void GltfModel::draw(Texture tex)
+void GltfModel::Draw(Texture tex)
 {
-	const tinygltf::Primitive& primitives = mModel->meshes.at(0).primitives.at(0);
-	const tinygltf::Accessor& indexAccessor = mModel->accessors.at(primitives.indices);
+	const tinygltf::Primitive& primitives = m_model->meshes.at(0).primitives.at(0);
+	const tinygltf::Accessor& indexAccessor = m_model->accessors.at(primitives.indices);
 
 	GLuint drawMode = GL_TRIANGLES;
 	switch (primitives.mode)
@@ -593,168 +593,168 @@ void GltfModel::draw(Texture tex)
 		break;
 	}
 
-	tex.bind();
-	glBindVertexArray(mVAO);
+	tex.Bind();
+	glBindVertexArray(m_vao);
 	glDrawElements(drawMode, indexAccessor.count, indexAccessor.componentType, nullptr);
 	glBindVertexArray(0);
-	tex.unbind();
+	tex.Unbind();
 }
 
-void GltfModel::getJointData()
+void GltfModel::GetJointData()
 {
 	std::string jointsAccessorAttrib = "JOINTS_0";
-	int jointsAccessor = mModel->meshes.at(0).primitives.at(0).attributes.at(jointsAccessorAttrib);
+	int jointsAccessor = m_model->meshes.at(0).primitives.at(0).attributes.at(jointsAccessorAttrib);
 	Logger::Log(1, "%s: using accessor %i to get %s\n", __FUNCTION__, jointsAccessor,
 	            jointsAccessorAttrib.c_str());
 
-	const tinygltf::Accessor& accessor = mModel->accessors.at(jointsAccessor);
-	const tinygltf::BufferView& bufferView = mModel->bufferViews.at(accessor.bufferView);
-	const tinygltf::Buffer& buffer = mModel->buffers.at(bufferView.buffer);
+	const tinygltf::Accessor& accessor = m_model->accessors.at(jointsAccessor);
+	const tinygltf::BufferView& bufferView = m_model->bufferViews.at(accessor.bufferView);
+	const tinygltf::Buffer& buffer = m_model->buffers.at(bufferView.buffer);
 
 	int jointVecSize = accessor.count;
 	Logger::Log(1, "%s: %i short vec4 in JOINTS_0\n", __FUNCTION__, jointVecSize);
-	mJointVec.resize(jointVecSize);
+	m_jointVec.resize(jointVecSize);
 
-	std::memcpy(mJointVec.data(), &buffer.data.at(0) + bufferView.byteOffset,
+	std::memcpy(m_jointVec.data(), &buffer.data.at(0) + bufferView.byteOffset,
 	            bufferView.byteLength);
 
-	mNodeToJoint.resize(mModel->nodes.size());
+	m_nodeToJoint.resize(m_model->nodes.size());
 
-	const tinygltf::Skin& skin = mModel->skins.at(0);
+	const tinygltf::Skin& skin = m_model->skins.at(0);
 	for (int i = 0; i < skin.joints.size(); ++i)
 	{
 		int destinationNode = skin.joints.at(i);
-		mNodeToJoint.at(destinationNode) = i;
+		m_nodeToJoint.at(destinationNode) = i;
 		Logger::Log(2, "%s: joint %i affects node %i\n", __FUNCTION__, i, destinationNode);
 	}
 }
 
-void GltfModel::getWeightData()
+void GltfModel::GetWeightData()
 {
 	std::string weightsAccessorAttrib = "WEIGHTS_0";
-	int weightAccessor = mModel->meshes.at(0).primitives.at(0).attributes.at(weightsAccessorAttrib);
+	int weightAccessor = m_model->meshes.at(0).primitives.at(0).attributes.at(weightsAccessorAttrib);
 	Logger::Log(1, "%s: using accessor %i to get %s\n", __FUNCTION__, weightAccessor,
 	            weightsAccessorAttrib.c_str());
 
-	const tinygltf::Accessor& accessor = mModel->accessors.at(weightAccessor);
-	const tinygltf::BufferView& bufferView = mModel->bufferViews.at(accessor.bufferView);
-	const tinygltf::Buffer& buffer = mModel->buffers.at(bufferView.buffer);
+	const tinygltf::Accessor& accessor = m_model->accessors.at(weightAccessor);
+	const tinygltf::BufferView& bufferView = m_model->bufferViews.at(accessor.bufferView);
+	const tinygltf::Buffer& buffer = m_model->buffers.at(bufferView.buffer);
 
 	int weightVecSize = accessor.count;
 	Logger::Log(1, "%s: %i vec4 in WEIGHTS_0\n", __FUNCTION__, weightVecSize);
-	mWeightVec.resize(weightVecSize);
+	m_weightVec.resize(weightVecSize);
 
-	std::memcpy(mWeightVec.data(), &buffer.data.at(0) + bufferView.byteOffset,
+	std::memcpy(m_weightVec.data(), &buffer.data.at(0) + bufferView.byteOffset,
 	            bufferView.byteLength);
 }
 
-void GltfModel::getInvBindMatrices()
+void GltfModel::GetInvBindMatrices()
 {
-	const tinygltf::Skin& skin = mModel->skins.at(0);
+	const tinygltf::Skin& skin = m_model->skins.at(0);
 	int invBindMatAccessor = skin.inverseBindMatrices;
 
-	const tinygltf::Accessor& accessor = mModel->accessors.at(invBindMatAccessor);
-	const tinygltf::BufferView& bufferView = mModel->bufferViews.at(accessor.bufferView);
-	const tinygltf::Buffer& buffer = mModel->buffers.at(bufferView.buffer);
+	const tinygltf::Accessor& accessor = m_model->accessors.at(invBindMatAccessor);
+	const tinygltf::BufferView& bufferView = m_model->bufferViews.at(accessor.bufferView);
+	const tinygltf::Buffer& buffer = m_model->buffers.at(bufferView.buffer);
 
-	mInverseBindMatrices.resize(skin.joints.size());
-	mJointMatrices.resize(skin.joints.size());
-	mJointDualQuats.resize(skin.joints.size());
+	m_inverseBindMatrices.resize(skin.joints.size());
+	m_jointMatrices.resize(skin.joints.size());
+	m_jointDualQuats.resize(skin.joints.size());
 
-	std::memcpy(mInverseBindMatrices.data(), &buffer.data.at(0) + bufferView.byteOffset,
+	std::memcpy(m_inverseBindMatrices.data(), &buffer.data.at(0) + bufferView.byteOffset,
 	            bufferView.byteLength);
 }
 
-void GltfModel::getNodes(std::shared_ptr<GltfNode> treeNode)
+void GltfModel::GetNodes(std::shared_ptr<GltfNode> treeNode)
 {
-	int nodeNum = treeNode->getNodeNum();
-	std::vector<int> childNodes = mModel->nodes.at(nodeNum).children;
+	int nodeNum = treeNode->GetNodeNum();
+	std::vector<int> childNodes = m_model->nodes.at(nodeNum).children;
 
 	/* remove the child node with skin/mesh metadata, confuses skeleton */
 	auto removeIt = std::remove_if(childNodes.begin(), childNodes.end(),
-	                               [&](int num) { return mModel->nodes.at(num).skin != -1; }
+	                               [&](int num) { return m_model->nodes.at(num).skin != -1; }
 	);
 	childNodes.erase(removeIt, childNodes.end());
 
-	treeNode->addChilds(childNodes);
-	glm::mat4 treeNodeMatrix = treeNode->getNodeMatrix();
+	treeNode->AddChilds(childNodes);
+	glm::mat4 treeNodeMatrix = treeNode->GetNodeMatrix();
 
-	for (auto& childNode : treeNode->getChilds())
+	for (auto& childNode : treeNode->GetChilds())
 	{
-		mNodeList.at(childNode->getNodeNum()) = childNode;
-		getNodeData(childNode, treeNodeMatrix);
-		getNodes(childNode);
+		m_nodeList.at(childNode->GetNodeNum()) = childNode;
+		GetNodeData(childNode, treeNodeMatrix);
+		GetNodes(childNode);
 	}
 }
 
-void GltfModel::getNodeData(std::shared_ptr<GltfNode> treeNode, glm::mat4 parentNodeMatrix)
+void GltfModel::GetNodeData(std::shared_ptr<GltfNode> treeNode, glm::mat4 parentNodeMatrix)
 {
-	int nodeNum = treeNode->getNodeNum();
-	const tinygltf::Node& node = mModel->nodes.at(nodeNum);
-	treeNode->setNodeName(node.name);
+	int nodeNum = treeNode->GetNodeNum();
+	const tinygltf::Node& node = m_model->nodes.at(nodeNum);
+	treeNode->SetNodeName(node.name);
 
 	if (node.translation.size())
 	{
-		treeNode->setTranslation(glm::make_vec3(node.translation.data()));
+		treeNode->SetTranslation(glm::make_vec3(node.translation.data()));
 	}
 	if (node.rotation.size())
 	{
-		treeNode->setRotation(glm::make_quat(node.rotation.data()));
+		treeNode->SetRotation(glm::make_quat(node.rotation.data()));
 	}
 	if (node.scale.size())
 	{
-		treeNode->setScale(glm::make_vec3(node.scale.data()));
+		treeNode->SetScale(glm::make_vec3(node.scale.data()));
 	}
 
-	treeNode->calculateLocalTRSMatrix();
-	treeNode->calculateNodeMatrix(parentNodeMatrix);
+	treeNode->CalculateLocalTrsMatrix();
+	treeNode->CalculateNodeMatrix(parentNodeMatrix);
 
-	updateJointMatricesAndQuats(treeNode);
+	UpdateJointMatricesAndQuats(treeNode);
 }
 
-std::string GltfModel::getNodeName(int nodeNum)
+std::string GltfModel::GetNodeName(int nodeNum)
 {
-	if (nodeNum >= 0 && nodeNum < (mNodeList.size()) && mNodeList.at(nodeNum))
+	if (nodeNum >= 0 && nodeNum < (m_nodeList.size()) && m_nodeList.at(nodeNum))
 	{
-		return mNodeList.at(nodeNum)->getNodeName();
+		return m_nodeList.at(nodeNum)->GetNodeName();
 	}
 	return "(Invalid)";
 }
 
-void GltfModel::resetNodeData()
+void GltfModel::ResetNodeData()
 {
-	getNodeData(mRootNode, glm::mat4(1.0f));
-	resetNodeData(mRootNode, glm::mat4(1.0f));
+	GetNodeData(m_rootNode, glm::mat4(1.0f));
+	ResetNodeData(m_rootNode, glm::mat4(1.0f));
 }
 
-void GltfModel::resetNodeData(std::shared_ptr<GltfNode> treeNode, glm::mat4 parentNodeMatrix)
+void GltfModel::ResetNodeData(std::shared_ptr<GltfNode> treeNode, glm::mat4 parentNodeMatrix)
 {
-	glm::mat4 treeNodeMatrix = treeNode->getNodeMatrix();
-	for (auto& childNode : treeNode->getChilds())
+	glm::mat4 treeNodeMatrix = treeNode->GetNodeMatrix();
+	for (auto& childNode : treeNode->GetChilds())
 	{
-		getNodeData(childNode, treeNodeMatrix);
-		resetNodeData(childNode, treeNodeMatrix);
+		GetNodeData(childNode, treeNodeMatrix);
+		ResetNodeData(childNode, treeNodeMatrix);
 	}
 }
 
-void GltfModel::updateNodeMatrices(std::shared_ptr<GltfNode> treeNode, glm::mat4 parentNodeMatrix)
+void GltfModel::UpdateNodeMatrices(std::shared_ptr<GltfNode> treeNode, glm::mat4 parentNodeMatrix)
 {
-	treeNode->calculateNodeMatrix(parentNodeMatrix);
-	updateJointMatricesAndQuats(treeNode);
+	treeNode->CalculateNodeMatrix(parentNodeMatrix);
+	UpdateJointMatricesAndQuats(treeNode);
 
-	glm::mat4 treeNodeMatrix = treeNode->getNodeMatrix();
+	glm::mat4 treeNodeMatrix = treeNode->GetNodeMatrix();
 
-	for (auto& childNode : treeNode->getChilds())
+	for (auto& childNode : treeNode->GetChilds())
 	{
-		updateNodeMatrices(childNode, treeNodeMatrix);
+		UpdateNodeMatrices(childNode, treeNodeMatrix);
 	}
 }
 
-void GltfModel::updateJointMatricesAndQuats(std::shared_ptr<GltfNode> treeNode)
+void GltfModel::UpdateJointMatricesAndQuats(std::shared_ptr<GltfNode> treeNode)
 {
-	int nodeNum = treeNode->getNodeNum();
-	mJointMatrices.at(mNodeToJoint.at(nodeNum)) =
-		treeNode->getNodeMatrix() * mInverseBindMatrices.at(mNodeToJoint.at(nodeNum));
+	int nodeNum = treeNode->GetNodeNum();
+	m_jointMatrices.at(m_nodeToJoint.at(nodeNum)) =
+		treeNode->GetNodeMatrix() * m_inverseBindMatrices.at(m_nodeToJoint.at(nodeNum));
 
 	/* extract components from node matrix */
 	glm::quat orientation;
@@ -765,13 +765,13 @@ void GltfModel::updateJointMatricesAndQuats(std::shared_ptr<GltfNode> treeNode)
 	glm::dualquat dq;
 
 	/* create dual quaternion */
-	if (decompose(mJointMatrices.at(mNodeToJoint.at(nodeNum)), scale, orientation,
+	if (decompose(m_jointMatrices.at(m_nodeToJoint.at(nodeNum)), scale, orientation,
 	              translation, skew, perspective))
 	{
 		dq[0] = orientation;
 		dq[1] = glm::quat(0.0, translation.x, translation.y, translation.z) * orientation * 0.5f;
-		mJointDualQuats.at(mNodeToJoint.at(nodeNum)) = mat2x4_cast(dq);
-		glm::mat2x4 newDq = mJointDualQuats.at(mNodeToJoint.at(nodeNum));
+		m_jointDualQuats.at(m_nodeToJoint.at(nodeNum)) = mat2x4_cast(dq);
+		glm::mat2x4 newDq = m_jointDualQuats.at(m_nodeToJoint.at(nodeNum));
 		newDq;
 	}
 	else
@@ -781,26 +781,26 @@ void GltfModel::updateJointMatricesAndQuats(std::shared_ptr<GltfNode> treeNode)
 	}
 }
 
-void GltfModel::updateAdditiveMask(std::shared_ptr<GltfNode> treeNode, int splitNodeNum)
+void GltfModel::UpdateAdditiveMask(std::shared_ptr<GltfNode> treeNode, int splitNodeNum)
 {
-	if (treeNode->getNodeNum() == splitNodeNum)
+	if (treeNode->GetNodeNum() == splitNodeNum)
 	{
 		return;
 	}
 
-	mAdditiveAnimationMask.at(treeNode->getNodeNum()) = false;
-	for (auto& childNode : treeNode->getChilds())
+	m_additiveAnimationMask.at(treeNode->GetNodeNum()) = false;
+	for (auto& childNode : treeNode->GetChilds())
 	{
-		updateAdditiveMask(childNode, splitNodeNum);
+		UpdateAdditiveMask(childNode, splitNodeNum);
 	}
 }
 
-void GltfModel::cleanup()
+void GltfModel::Cleanup()
 {
-	glDeleteBuffers(mVertexVBO.size(), mVertexVBO.data());
-	glDeleteBuffers(1, &mVAO);
-	glDeleteBuffers(1, &mIndexVBO);
-	mTex.cleanup();
-	mModel.reset();
-	mNodeList.clear();
+	glDeleteBuffers(m_vertexVbo.size(), m_vertexVbo.data());
+	glDeleteBuffers(1, &m_vao);
+	glDeleteBuffers(1, &m_indexVbo);
+	m_tex.Cleanup();
+	m_model.reset();
+	m_nodeList.clear();
 }

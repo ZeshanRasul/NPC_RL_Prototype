@@ -23,29 +23,29 @@ enum class EInterpolationType
 class GltfAnimationChannel
 {
 public:
-	void loadChannelData(std::shared_ptr<tinygltf::Model> model, tinygltf::Animation anim,
+	void LoadChannelData(std::shared_ptr<tinygltf::Model> model, tinygltf::Animation anim,
 	                     tinygltf::AnimationChannel channel);
 
-	int getTargetNode();
-	ETargetPath getTargetPath();
+	int GetTargetNode();
+	ETargetPath GetTargetPath();
 
-	glm::vec3 getScaling(float time);
-	glm::vec3 getTranslation(float time);
-	glm::quat getRotation(float time);
-	float getMaxTime();
+	glm::vec3 GetScaling(float time);
+	glm::vec3 GetTranslation(float time);
+	glm::quat GetRotation(float time);
+	float GetMaxTime();
 
 private:
-	int mTargetNode = -1;
-	ETargetPath mTargetPath = ETargetPath::ROTATION;
-	EInterpolationType mInterType = EInterpolationType::LINEAR;
+	int m_targetNode = -1;
+	ETargetPath m_targetPath = ETargetPath::ROTATION;
+	EInterpolationType m_interType = EInterpolationType::LINEAR;
 
-	std::vector<float> mTimings{};
-	std::vector<glm::vec3> mScaling{};
-	std::vector<glm::vec3> mTranslations{};
-	std::vector<glm::quat> mRotations{};
+	std::vector<float> m_timings{};
+	std::vector<glm::vec3> m_scaling{};
+	std::vector<glm::vec3> m_translations{};
+	std::vector<glm::quat> m_rotations{};
 
-	void setTimings(std::vector<float> timinings);
-	void setScalings(std::vector<glm::vec3> scalings);
-	void setTranslations(std::vector<glm::vec3> tranlations);
-	void setRotations(std::vector<glm::quat> rotations);
+	void SetTimings(std::vector<float> timings);
+	void SetScalings(std::vector<glm::vec3> scalings);
+	void SetTranslations(std::vector<glm::vec3> translations);
+	void SetRotations(std::vector<glm::quat> rotations);
 };

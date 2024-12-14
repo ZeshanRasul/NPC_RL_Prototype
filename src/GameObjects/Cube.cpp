@@ -3,10 +3,10 @@
 
 void Cube::LoadMesh()
 {
-	glGenVertexArrays(1, &mVAO);
-	glGenBuffers(1, &mVBO);
-	glGenBuffers(1, &mEBO);
-	glBindVertexArray(mVAO);
+	glGenVertexArrays(1, &m_vao);
+	glGenBuffers(1, &m_vbo);
+	glGenBuffers(1, &m_ebo);
+	glBindVertexArray(m_vao);
 	CreateAndUploadVertexBuffer();
 	glBindVertexArray(0);
 	SetUpAABB();
@@ -14,7 +14,7 @@ void Cube::LoadMesh()
 
 bool Cube::LoadTexture(std::string textureFilename, Texture* tex)
 {
-	if (!tex->loadTexture(textureFilename, false))
+	if (!tex->LoadTexture(textureFilename, false))
 	{
 		Logger::Log(1, "%s: texture loading failed\n", __FUNCTION__);
 		return false;
@@ -35,38 +35,38 @@ void Cube::DrawObject(glm::mat4 viewMat, glm::mat4 proj, bool shadowMap, glm::ma
 	matrixData.push_back(proj);
 	matrixData.push_back(modelMat);
 	matrixData.push_back(lightSpaceMat);
-	m_uniformBuffer.uploadUboData(matrixData, 0);
+	m_uniformBuffer.UploadUboData(matrixData, 0);
 
 	if (shadowMap)
 	{
-		m_shadowShader->use();
-		glBindVertexArray(mVAO);
+		m_shadowShader->Use();
+		glBindVertexArray(m_vao);
 		glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, nullptr);
 		glBindVertexArray(0);
 	}
 	else
 	{
-		m_shader->setVec3("cameraPos", m_gameManager->GetCamera()->GetPosition().x, m_gameManager->GetCamera()->GetPosition().y, m_gameManager->GetCamera()->GetPosition().z);
+		m_shader->SetVec3("cameraPos", m_gameManager->GetCamera()->GetPosition().x, m_gameManager->GetCamera()->GetPosition().y, m_gameManager->GetCamera()->GetPosition().z);
 
-		m_tex.bind();
-		m_shader->setInt("albedoMap", 0);
-		mNormal.bind(1);
-		m_shader->setInt("normalMap", 1);
-		mMetallic.bind(2);
-		m_shader->setInt("metallicMap", 2);
-		mRoughness.bind(3);
-		m_shader->setInt("roughnessMap", 3);
-		mAO.bind(4);
-		m_shader->setInt("aoMap", 4);
-		mEmissive.bind(5);
-		m_shader->setInt("emissiveMap", 5);
+		m_tex.Bind();
+		m_shader->SetInt("albedoMap", 0);
+		m_normal.Bind(1);
+		m_shader->SetInt("normalMap", 1);
+		m_metallic.Bind(2);
+		m_shader->SetInt("metallicMap", 2);
+		m_roughness.Bind(3);
+		m_shader->SetInt("roughnessMap", 3);
+		m_ao.Bind(4);
+		m_shader->SetInt("aoMap", 4);
+		m_emissive.Bind(5);
+		m_shader->SetInt("emissiveMap", 5);
 		glActiveTexture(GL_TEXTURE6);
 		glBindTexture(GL_TEXTURE_2D, shadowMapTexture);
-		m_shader->setInt("shadowMap", 6);
-		glBindVertexArray(mVAO);
+		m_shader->SetInt("shadowMap", 6);
+		glBindVertexArray(m_vao);
 		glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, nullptr);
 		glBindVertexArray(0);
-		m_tex.unbind();
+		m_tex.Unbind();
 
 #ifdef _DEBUG
 		m_aabb->Render(viewMat, proj, modelMat, m_aabbColor);
@@ -76,13 +76,13 @@ void Cube::DrawObject(glm::mat4 viewMat, glm::mat4 proj, bool shadowMap, glm::ma
 
 void Cube::CreateAndUploadVertexBuffer()
 {
-	glBindVertexArray(mVAO);
+	glBindVertexArray(m_vao);
 
-	glBindBuffer(GL_ARRAY_BUFFER, mVBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+	glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(m_vertices), m_vertices, GL_STATIC_DRAW);
 
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mEBO);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_ebo);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(m_indices), m_indices, GL_STATIC_DRAW);
 
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), static_cast<void*>(nullptr));
 	glEnableVertexAttribArray(0);
@@ -101,7 +101,7 @@ void Cube::SetUpAABB()
 	std::vector<glm::vec3> verticesVec;
 	for (int i = 0; i < 192; i = i + 8)
 	{
-		auto vertex = glm::vec3(vertices[i], vertices[i + 1], vertices[i + 2]);
+		auto vertex = glm::vec3(m_vertices[i], m_vertices[i + 1], m_vertices[i + 2]);
 		verticesVec.push_back(vertex);
 	}
 	aabb->CalculateAABB(verticesVec);
@@ -110,6 +110,6 @@ void Cube::SetUpAABB()
 	aabb->SetOwner(this);
 	aabb->SetIsEnemy(false);
 	aabb->SetIsPlayer(false);
-	updateAABB();
+	UpdateAabb();
 	m_gameManager->GetPhysicsWorld()->AddCollider(GetAABB());
 }

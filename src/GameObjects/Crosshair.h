@@ -45,7 +45,7 @@ private:
 	void CreateAndUploadVertexBuffer();
 	void CreateAndUploadIndexBuffer();
 
-	float vertices[20] = {
+	float m_vertices[20] = {
 		// positions          // texture coords
 		-0.03f, 0.03f, 0.0f, 0.0f, 1.0f, // top left
 		0.03f, 0.03f, 0.0f, 1.0f, 1.0f, // top right
@@ -53,14 +53,14 @@ private:
 		-0.03f, -0.03f, 0.0f, 0.0f, 0.0f // bottom left
 	};
 
-	unsigned int indices[6] = {
+	unsigned int m_indices[6] = {
 		0, 1, 2, // First triangle
 		2, 3, 0 // Second triangle
 	};
 
-	GLuint mVAO;
-	GLuint mVBO;
-	GLuint mEBO;
+	GLuint m_vao;
+	GLuint m_vbo;
+	GLuint m_ebo;
 
-	Texture mTexture{};
+	Texture m_texture{};
 };

@@ -8,27 +8,29 @@
 
 class Cell
 {
+	friend class Grid;
+
 public:
 	Cell(bool isObs, glm::vec3 col)
-		: isObstacle(isObs), color(col), isOccupied(false), occupantId(-1), isCover(false)
+		: m_isObstacle(isObs), m_color(col), m_isOccupied(false), m_occupantId(-1), m_isCover(false)
 	{
 		SetUpVAO();
 	}
 
-	Cell() : isObstacle(false), color(glm::vec3(0.0f, 1.0f, 0.0f))
+	Cell() : m_isObstacle(false), m_color(glm::vec3(0.0f, 1.0f, 0.0f))
 	{
 		SetUpVAO();
 	}
 
 	void SetUpVAO()
 	{
-		glGenVertexArrays(1, &cellVAO);
-		glGenBuffers(1, &cellVBO);
+		glGenVertexArrays(1, &m_cellVao);
+		glGenBuffers(1, &m_cellVbo);
 
-		glBindVertexArray(cellVAO);
+		glBindVertexArray(m_cellVao);
 
-		glBindBuffer(GL_ARRAY_BUFFER, cellVBO);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(cellVertices), cellVertices, GL_STATIC_DRAW);
+		glBindBuffer(GL_ARRAY_BUFFER, m_cellVbo);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(m_cellVertices), m_cellVertices, GL_STATIC_DRAW);
 
 		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), static_cast<void*>(nullptr));
 		glEnableVertexAttribArray(0);
@@ -42,7 +44,7 @@ public:
 
 	bool LoadTexture(std::string textureFilename, Texture* tex)
 	{
-		if (!tex->loadTexture(textureFilename, false))
+		if (!tex->LoadTexture(textureFilename, false))
 		{
 			Logger::Log(1, "%s: texture loading failed\n", __FUNCTION__);
 			return false;
@@ -53,89 +55,79 @@ public:
 
 	void BindVAO() const
 	{
-		glBindVertexArray(cellVAO);
+		glBindVertexArray(m_cellVao);
 	}
 
 	bool IsObstacle() const
 	{
-		return isObstacle;
+		return m_isObstacle;
 	}
 
 	void SetObstacle(bool obs)
 	{
-		isObstacle = obs;
+		m_isObstacle = obs;
 	}
 
 	bool IsCover() const
 	{
-		return isCover;
+		return m_isCover;
 	}
 
 	void SetCover(bool cover)
 	{
-		isCover = cover;
+		m_isCover = cover;
 	}
 
 	glm::vec3 GetColor() const
 	{
-		return color;
+		return m_color;
 	}
 
 	void SetColor(glm::vec3 col)
 	{
-		color = col;
+		m_color = col;
 	}
 
 	bool IsOccupied() const
 	{
-		return isOccupied;
+		return m_isOccupied;
 	}
 
 	void SetOccupied(bool occ)
 	{
-		isOccupied = occ;
+		m_isOccupied = occ;
 	}
 
 	bool IsOccupiedBy(int id) const
 	{
-		return occupantId == id;
+		return m_occupantId == id;
 	}
 
 	void SetOccupantId(int id)
 	{
-		occupantId = id;
+		m_occupantId = id;
 	}
 
 	int GetOccupantId() const
 	{
-		return occupantId;
+		return m_occupantId;
 	}
 
-	std::vector<glm::vec3> GetVertices()
-	{
-		for (int i = 0; i < 48; i = i + 8)
-		{
-			cellPosVerts.push_back(glm::vec3(cellVertices[i], cellVertices[i + 1], cellVertices[i + 2]));
-		}
-		return cellPosVerts;
-	}
-
-	Texture mTex{};
-	Texture mNormal{};
-	Texture mMetallic{};
-	Texture mRoughness{};
-	Texture mAO{};
-	Texture mEmissive{};
-	Texture mDebugOutline{};
+protected:
+	Texture m_tex{};
+	Texture m_normal{};
+	Texture m_metallic{};
+	Texture m_roughness{};
+	Texture m_ao{};
+	Texture m_emissive{};
+	Texture m_debugOutline{};
 
 private:
-	GLuint cellVAO = 0;
-	GLuint cellVBO = 0;
-
-	std::vector<glm::vec3> cellPosVerts;
+	GLuint m_cellVao = 0;
+	GLuint m_cellVbo = 0;
 
 	// Vertex data for a cell
-	float cellVertices[48] = {
+	float m_cellVertices[48] = {
 		// positions        //normals        // texture coords
 		0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f,
 		1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f,
@@ -146,9 +138,9 @@ private:
 		0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f
 	};
 
-	bool isObstacle;
-	glm::vec3 color;
-	bool isOccupied;
-	int occupantId;
-	bool isCover;
+	glm::vec3 m_color;
+	bool m_isObstacle;
+	bool m_isOccupied;
+	int m_occupantId;
+	bool m_isCover;
 };

@@ -20,12 +20,12 @@ void AudioComponent::Update(float deltaTime)
 	Component::Update(deltaTime);
 
 	// Remove invalid 2D events
-	auto iter = mEvents2D.begin();
-	while (iter != mEvents2D.end())
+	auto iter = m_events2D.begin();
+	while (iter != m_events2D.end())
 	{
 		if (!iter->IsValid())
 		{
-			iter = mEvents2D.erase(iter);
+			iter = m_events2D.erase(iter);
 		}
 		else
 		{
@@ -34,12 +34,12 @@ void AudioComponent::Update(float deltaTime)
 	}
 
 	// Remove invalid 3D events
-	iter = mEvents3D.begin();
-	while (iter != mEvents3D.end())
+	iter = m_events3D.begin();
+	while (iter != m_events3D.end())
 	{
 		if (!iter->IsValid())
 		{
-			iter = mEvents3D.erase(iter);
+			iter = m_events3D.erase(iter);
 		}
 		else
 		{
@@ -51,8 +51,8 @@ void AudioComponent::Update(float deltaTime)
 void AudioComponent::OnUpdateWorldTransform()
 {
 	// Update 3D events' world transforms
-	glm::mat4 world = mOwner->GetAudioWorldTransform();
-	for (auto& event : mEvents3D)
+	glm::mat4 world = m_owner->GetAudioWorldTransform();
+	for (auto& event : m_events3D)
 	{
 		if (event.IsValid())
 		{
@@ -63,17 +63,17 @@ void AudioComponent::OnUpdateWorldTransform()
 
 SoundEvent AudioComponent::PlayEvent(const std::string& name)
 {
-	SoundEvent e = mOwner->GetGameManager()->GetAudioSystem()->PlayEvent(name);
+	SoundEvent e = m_owner->GetGameManager()->GetAudioSystem()->PlayEvent(name);
 	// Is this 2D or 3D?
 	if (e.Is3D())
 	{
-		mEvents3D.emplace_back(e);
+		m_events3D.emplace_back(e);
 		// Set initial 3D attributes
-		e.Set3DAttributes(mOwner->GetAudioWorldTransform());
+		e.Set3DAttributes(m_owner->GetAudioWorldTransform());
 	}
 	else
 	{
-		mEvents2D.emplace_back(e);
+		m_events2D.emplace_back(e);
 	}
 	return e;
 }
@@ -81,15 +81,15 @@ SoundEvent AudioComponent::PlayEvent(const std::string& name)
 void AudioComponent::StopAllEvents()
 {
 	// Stop all sounds
-	for (auto& e : mEvents2D)
+	for (auto& e : m_events2D)
 	{
 		e.Stop();
 	}
-	for (auto& e : mEvents3D)
+	for (auto& e : m_events3D)
 	{
 		e.Stop();
 	}
 	// Clear events
-	mEvents2D.clear();
-	mEvents3D.clear();
+	m_events2D.clear();
+	m_events3D.clear();
 }
