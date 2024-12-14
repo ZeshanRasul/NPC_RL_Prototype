@@ -680,7 +680,7 @@ void Enemy::TakeDamage(float damage)
 		return;
 	}
 
-	if (!m_resetBlend && m_destAnim != 3)
+	if (!m_resetBlend && m_destAnim != 3 && m_damageTimer <= 0.0f)
 	{
 		SetSourceAnimNum(m_destAnim);
 		SetDestAnimNum(3);
@@ -1158,7 +1158,7 @@ void Enemy::EnemyDecision(State& currentState, int enemyId, std::vector<Action>&
 	squadActions[enemyId] = chosenAction;
 
 	// Print chosen action
-	Logger::Log(1, "Enemy %d Chosen Action: %d with reward: %d", enemyId, chosenAction, reward);
+	Logger::Log(1, "Enemy %d Chosen Action: %d with reward: %d\n", enemyId, chosenAction, reward);
 }
 
 Action Enemy::ChooseActionFromTrainedQTable(const State& state, int enemyId,
@@ -1417,8 +1417,7 @@ void Enemy::EnemyDecisionPrecomputedQ(State& currentState, int enemyId, std::vec
 
 	squadActions[enemyId] = m_chosenAction;
 
-	// Print chosen action
-	Logger::Log(1, "Enemy %d Chosen Action: %d", enemyId, m_chosenAction);
+	Logger::Log(1, "Enemy %d Chosen Action: %d\n", enemyId, m_chosenAction);
 }
 
 void Enemy::HasDealtDamage()
