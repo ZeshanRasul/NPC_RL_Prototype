@@ -34,19 +34,19 @@ void App::run()
 		deltaTime = currentFrame - lastFrame;
 		lastFrame = currentFrame;
 
-		mGameManager->setUpDebugUI();
-		mGameManager->showDebugUI();
+		mGameManager->SetUpDebugUi();
+		mGameManager->ShowDebugUi();
 		mWindow->clear();
 
-		mGameManager->setSceneData();
-		mGameManager->update(deltaTime);
+		mGameManager->SetSceneData();
+		mGameManager->Update(deltaTime);
 		mGameManager->CreateLightSpaceMatrices();
-		mGameManager->setupCamera(width, height);
-		mGameManager->render(false, true, false);
-		mGameManager->render(true, false, false);
-		mGameManager->render(false, false, true);
+		mGameManager->SetupCamera(width, height);
+		mGameManager->Render(false, true, false);
+		mGameManager->Render(true, false, false);
+		mGameManager->Render(false, false, true);
 
-		mGameManager->renderDebugUI();
+		mGameManager->RenderDebugUi();
 		mWindow->mainLoop();
 
 #ifdef TRACY_ENABLE

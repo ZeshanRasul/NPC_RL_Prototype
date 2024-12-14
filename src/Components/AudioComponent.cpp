@@ -63,7 +63,7 @@ void AudioComponent::OnUpdateWorldTransform()
 
 SoundEvent AudioComponent::PlayEvent(const std::string& name)
 {
-	SoundEvent e = mOwner->GetGameManager()->getAudioSystem()->PlayEvent(name);
+	SoundEvent e = mOwner->GetGameManager()->GetAudioSystem()->PlayEvent(name);
 	// Is this 2D or 3D?
 	if (e.Is3D())
 	{

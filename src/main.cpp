@@ -23,7 +23,6 @@
 #include "GameObjects/Waypoint.h"
 #include "GameObjects/Cell.h"
 #include "Pathfinding/Grid.h"
-#include "Primitives.h"
 
 const unsigned int SCREEN_WIDTH = 1920;
 const unsigned int SCREEN_HEIGHT = 1080;

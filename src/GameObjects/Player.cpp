@@ -276,9 +276,9 @@ void Player::SetPlayerState(PlayerState newState)
 	{
 		UpdatePlayerAimVectors();
 		GameManager* gmeMgr = GetGameManager();
-		if (gmeMgr->camSwitchedToAim == false)
+		if (gmeMgr->HasCamSwitchedToAim() == false)
 		{
-			gmeMgr->camSwitchedToAim = true;
+			gmeMgr->SetCamSwitchedToAim(true);
 		}
 	}
 }

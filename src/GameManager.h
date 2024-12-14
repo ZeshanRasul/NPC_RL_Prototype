@@ -4,11 +4,6 @@
 #include <fstream>
 #include <sstream>
 
-#include "Recast.h"
-#include "DetourNavMesh.h"
-#include "DetourNavMeshBuilder.h"
-#include "DetourNavMeshQuery.h"
-
 #include "src/OpenGL/Renderer.h"
 #include "src/OpenGL/RenderData.h"
 #include "src/OpenGL/ShaderStorageBuffer.h"
@@ -117,49 +112,48 @@ public:
 
 	~GameManager() {
 
-		if (training)
+		if (m_training)
 		{
 			for (int enemyID = 0; enemyID < 4; ++enemyID) {
-				SaveQTable(mEnemyStateQTable[enemyID], std::to_string(enemyID) + mEnemyStateFilename);
+				SaveQTable(m_enemyStateQTable[enemyID], std::to_string(enemyID) + m_enemyStateFilename);
 			}
 		}
 
-		delete camera;
-		for (auto it = gameObjects.begin(); it != gameObjects.end(); ) {
+		delete m_camera;
+		for (auto it = m_gameObjects.begin(); it != m_gameObjects.end(); ) {
 			if (*it) {
 				delete* it;
 			}
-			it = gameObjects.erase(it);
+			it = m_gameObjects.erase(it);
 		}
-		delete inputManager;
+		delete m_inputManager;
 	}
 
-	void setupCamera(unsigned int width, unsigned int height);
-	void setSceneData();
-	AudioSystem* getAudioSystem() { return audioSystem; }
+	void SetupCamera(unsigned int width, unsigned int height);
+	void SetSceneData();
+	AudioSystem* GetAudioSystem() { return m_audioSystem; }
 
-	void update(float deltaTime);
+	void Update(float deltaTime);
 
-	void render(bool isMinimapRenderPass, bool isShadowMapRenderPass, bool isMainRenderPass);
+	void Render(bool isMinimapRenderPass, bool isShadowMapRenderPass, bool isMainRenderPass);
 
-	void setUpDebugUI();
-	void showDebugUI();
-	void renderDebugUI();
+	void SetUpDebugUi();
+	void ShowDebugUi();
+	void RenderDebugUi();
 
-	bool camSwitchedToAim = false;
 
-	PhysicsWorld* GetPhysicsWorld() { return physicsWorld; }
-	Camera* GetCamera() { return camera; }
+	PhysicsWorld* GetPhysicsWorld() const { return m_physicsWorld; }
+	Camera* GetCamera() const { return m_camera; }
+	AudioManager* GetAudioManager() const { return m_audioManager; }
 
 	void CheckGameOver();
-
 	void ResetGame();
 
-	bool ShouldUseEDBT() const { return useEDBT; }
+	bool ShouldUseEDBT() const { return m_useEdbt; }
 	void CreateLightSpaceMatrices();
 
 	Enemy* GetEnemyByID(int id) {
-		for (auto& enemy : enemies) {
+		for (auto& enemy : m_enemies) {
 			if (enemy->GetID() == id) {
 				return enemy;
 			}
@@ -167,7 +161,8 @@ public:
 		return nullptr;
 	};
 
-	AudioManager* GetAudioManager() { return mAudioManager; }
+	bool HasCamSwitchedToAim() const { return m_camSwitchedToAim; }
+	void SetCamSwitchedToAim(bool val) { m_camSwitchedToAim = val; }
 
 private:
 	void RenderEnemyLineAndMuzzleFlash(bool isMainPass, bool isMinimapPass, bool isShadowPass);
@@ -178,27 +173,26 @@ private:
 	void ShowPerformanceWindow();
 	void ShowEnemyStateWindow();
 
-	void calculatePerformance(float deltaTime);
+	void CalculatePerformance(float deltaTime);
 
-	EventManager& GetEventManager() { return eventManager; }
+	EventManager& GetEventManager() { return m_eventManager; }
 
-	float speedDivider = 1.0f;
-	float blendFac = 1.0f;
+	bool m_camSwitchedToAim = false;
 
-	bool useEDBT = true;
-	bool loadQTable = false;
-	bool initializeQTable = false;
-	bool training = false;
-	std::string mEnemyStateFilename = "EnemyStateQTable.csv";
-	std::unordered_map<std::pair<State, Action>, float, PairHash> mEnemyStateQTable[4];
-	std::vector<State> enemyStates = {
+	bool m_useEdbt = true;
+	bool m_loadQTable = false;
+	bool m_initializeQTable = false;
+	bool m_training = false;
+	std::string m_enemyStateFilename = "EnemyStateQTable.csv";
+	std::unordered_map<std::pair<State, Action>, float, PairHash> m_enemyStateQTable[4];
+	std::vector<State> m_enemyStates = {
 	{ false, false, 100.0f, 100.0f, false },
 	{ false, false, 100.0f, 100.0f, false },
 	{ false, false, 100.0f, 100.0f, false },
 	{ false, false, 100.0f, 100.0f, false }
 	};
 
-	std::vector<Action> squadActions =
+	std::vector<Action> m_squadActions =
 	{
 		Action::PATROL,
 		Action::PATROL,
@@ -206,152 +200,121 @@ private:
 		Action::PATROL,
 	};
 
-	float decisionTimer = 0.0f;
-	float decisionInterval = 0.5f;
+	float m_decisionTimer = 0.0f;
+	float m_decisionInterval = 0.5f;
 
-	float fps = 0.0f;
-	int numFramesAvg = 100;
-	float fpsSum = 0.0f;
-	int frameCount = 0;
-	float frameTime = 0.0f;
-	float elapsedTime = 0.0f;
-	float avgFPS = 0.0f;
+	float m_fps = 0.0f;
+	int m_numFramesAvg = 0;
+	float m_fpsSum = 0.0f;
+	int m_frameCount = 0;
+	float m_frameTime = 0.0f;
+	float m_elapsedTime = 0.0f;
+	float m_avgFps = 0.0f;
 
-	int screenWidth;
-	int screenHeight;
+	int m_screenWidth;
+	int m_screenHeight;
 	const int SHADOW_WIDTH = 4096;
 	const int SHADOW_HEIGHT = 4096;
 
-	float orthoLeft = -90.0f;
-	float orthoRight = 90.0f;
-	float orthoBottom = -90.0f;
-	float orthoTop = 90.0f;
-	float near_plane = 1.0f;
-	float far_plane = 300.0f;
+	float m_orthoLeft = -90.0f;
+	float m_orthoRight = 90.0f;
+	float m_orthoBottom = -90.0f;
+	float m_orthoTop = 90.0f;
+	float m_nearPlane = 1.0f;
+	float m_farPlane = 300.0f;
 
-	Renderer* renderer;
-	Window* window;
-	Camera* camera;
-	Camera* minimapCamera;
+	Renderer* m_renderer;
+	Window* m_window;
+	Camera* m_camera;
+	Camera* m_minimapCamera;
 
-	EventManager eventManager;
+	EventManager m_eventManager;
+	InputManager* m_inputManager;
+	AudioSystem* m_audioSystem;
+	PhysicsWorld* m_physicsWorld;
+	AudioManager* m_audioManager;
 
-	Player* player;
-	Enemy* enemy;
-	Enemy* enemy2;
-	Enemy* enemy3;
-	Enemy* enemy4;
-	Crosshair* crosshair;
-	Line* line;
-	std::vector<Line*> enemyLines;
+	std::vector<std::string> m_cubemapFaces;
+	Cubemap* m_cubemap;
 
-	std::vector<Cube*> coverSpots;
+	SoundEvent m_musicEvent;
 
-	Quad* minimapQuad;
-	Quad* shadowMapQuad;
-	Quad* playerMuzzleFlashQuad;
-	Quad* enemyMuzzleFlashQuad;
-	Quad* enemy2MuzzleFlashQuad;
-	Quad* enemy3MuzzleFlashQuad;
-	Quad* enemy4MuzzleFlashQuad;
+	Player* m_player;
+	Enemy* m_enemy;
+	Enemy* m_enemy2;
+	Enemy* m_enemy3;
+	Enemy* m_enemy4;
+	Crosshair* m_crosshair;
+	Line* m_playerLine;
+	std::vector<Line*> m_enemyLines;
+	Cell* m_cell;
+	Grid* m_gameGrid;
 
-	InputManager* inputManager;
-	AudioSystem* audioSystem;
-	PhysicsWorld* physicsWorld;
+	std::vector<GameObject*> m_gameObjects;
+	std::vector<Enemy*> m_enemies;
+	std::vector<Cube*> m_coverSpots;
 
-	std::vector<GameObject*> gameObjects;
-	std::vector<Enemy*> enemies;
+	Quad* m_minimapQuad;
+	Quad* m_shadowMapQuad;
+	Quad* m_playerMuzzleFlashQuad;
+	Quad* m_enemyMuzzleFlashQuad;
+	Quad* m_enemy2MuzzleFlashQuad;
+	Quad* m_enemy3MuzzleFlashQuad;
+	Quad* m_enemy4MuzzleFlashQuad;
 
-	Shader playerShader{};
-	Shader enemyShader{};
-	Shader gridShader{};
-	Shader gridDebugShader{};
-	Shader crosshairShader{};
-	Shader lineShader{};
-	Shader aabbShader{};
-	Shader cubeShader{};
-	Shader cubemapShader{};
-	Shader minimapShader{};
-	Shader shadowMapShader{};
-	Shader playerShadowMapShader{};
-	Shader enemyShadowMapShader{};
-	Shader shadowMapQuadShader{};
-	Shader playerMuzzleFlashShader{};
+	Shader m_playerShader{};
+	Shader m_enemyShader{};
+	Shader m_gridShader{};
+	Shader m_gridDebugShader{};
+	Shader m_crosshairShader{};
+	Shader m_lineShader{};
+	Shader m_aabbShader{};
+	Shader m_cubeShader{};
+	Shader m_cubemapShader{};
+	Shader m_minimapShader{};
+	Shader m_shadowMapShader{};
+	Shader m_playerShadowMapShader{};
+	Shader m_enemyShadowMapShader{};
+	Shader m_shadowMapQuadShader{};
+	Shader m_playerMuzzleFlashShader{};
 
-	ShaderStorageBuffer mPlayerSSBuffer{};
-	ShaderStorageBuffer mEnemySSBuffer{};
-	ShaderStorageBuffer mPlayerDualQuatSSBuffer{};
-	ShaderStorageBuffer mEnemyDualQuatSSBuffer{};
+	ShaderStorageBuffer m_playerSsBuffer{};
+	ShaderStorageBuffer m_enemySsBuffer{};
+	ShaderStorageBuffer m_playerDualQuatSsBuffer{};
+	ShaderStorageBuffer m_enemyDualQuatSsBuffer{};
 
-	size_t mPlayerJointMatrixSize;
-	size_t mEnemyJointMatrixSize;
-	std::vector<glm::mat2x4> playerJointDualQuatsVec;
+	size_t m_playerJointMatrixSize;
+	size_t m_enemyJointMatrixSize;
+	std::vector<glm::mat2x4> m_jointDualQuatsVec;
 
-	float playerAnimBlendFactor = 1.0f;
-	bool playerCrossBlend = false;
-	int playerCrossBlendSourceClip = 0;
-	int playerCrossBlendDestClip = 8;
-	float playerAnimCrossBlendFactor = 0.0f;
-	bool playerAdditiveBlend = false;
-	int playerSkeletonSplitNode = 0;
-	std::string playerSkeletonSplitNodeName = "None";
+	bool m_renderPlayerMuzzleFlash = false;
+	float m_playerMuzzleFlashStartTime = 0.0f;
+	float m_playerMuzzleTimeSinceStart = 0.0f;
+	float m_playerMuzzleFlashDuration = 0.1f;
+	float m_playerMuzzleAlpha = 0.0f;
+	glm::vec3 m_playerMuzzleTint = { 1.0f, 1.0f, 1.0f };
+	float m_playerMuzzleFlashScale = 1.0f;
+	glm::mat4 m_playerMuzzleModel = glm::mat4(1.0f);
 
-	float enemyAnimBlendFactor = 1.0f;
-	bool enemyCrossBlend = false;
-	int enemyCrossBlendSourceClip = 1;
-	int enemyCrossBlendDestClip = 7;
-	float enemyAnimCrossBlendFactor = 0.0f;
-	bool enemyAdditiveBlend = false;
-	int enemySkeletonSplitNode = 0;
-	std::string enemySkeletonSplitNodeName = "None";
+	std::vector<bool> m_renderEnemyMuzzleFlash = { false, false, false, false };
+	std::vector<float> m_enemyMuzzleFlashStartTimes = { 0.0f, 0.0f, 0.0f, 0.0f };
+	std::vector<float> m_enemyMuzzleTimesSinceStart = { 0.0f, 0.0f, 0.0f, 0.0f };
+	std::vector<float> m_enemyMuzzleFlashDurations = { 0.1f, 0.1f, 0.1f, 0.1f };
+	std::vector<float> m_enemyMuzzleAlphas = { 0.0f, 0.0f, 0.0f, 0.0f };
+	std::vector<glm::vec3> m_enemyMuzzleFlashTints = { {1.0f, 1.0f, 1.0f}, {1.0f, 1.0f, 1.0f}, {1.0f, 1.0f, 1.0f}, {1.0f, 1.0f, 1.0f} };
+	std::vector<float> m_enemyMuzzleFlashScales = { 1.0f, 1.0f, 1.0f, 1.0f };
+	std::vector<glm::mat4> m_enemyMuzzleModelMatrices = { glm::mat4(1.0f), glm::mat4(1.0f), glm::mat4(1.0f), glm::mat4(1.0f) };
+	glm::vec3 m_enemyMuzzleFlashOffsets = glm::vec3(0.0f);
+	float m_muzzleOffset = 2.4f;
 
+	glm::mat4 m_view = glm::mat4(1.0f);
+	glm::mat4 m_projection = glm::mat4(1.0f);
+	glm::mat4 m_cubemapView = glm::mat4(1.0f);
+	glm::mat4 m_minimapView = glm::mat4(1.0f);
+	glm::mat4 m_minimapProjection = glm::mat4(1.0f);
+	glm::mat4 m_lightSpaceView = glm::mat4(1.0f);
+	glm::mat4 m_lightSpaceProjection = glm::mat4(1.0f);
+	glm::mat4 m_lightSpaceMatrix = glm::mat4(1.0f);
 
-	bool renderPlayerMuzzleFlash = false;
-	float playerMuzzleFlashStartTime = 0.0f;
-	float playerMuzzleTimeSinceStart = 0.0f;
-	float playerMuzzleFlashDuration = 0.1f;
-	float playerMuzzleAlpha = 0.0f;
-	glm::vec3 playerMuzzleTint = { 1.0f, 1.0f, 1.0f };
-	float playerMuzzleFlashScale = 1.0f;
-	glm::mat4 playerMuzzleModel = glm::mat4(1.0f);
-
-	std::vector<bool> renderEnemyMuzzleFlash = { false, false, false, false };
-	std::vector<float> enemyMuzzleFlashStartTime = { 0.0f, 0.0f, 0.0f, 0.0f };
-	std::vector<float> enemyMuzzleTimeSinceStart = { 0.0f, 0.0f, 0.0f, 0.0f };
-	std::vector<float> enemyMuzzleFlashDuration = { 0.1f, 0.1f, 0.1f, 0.1f };
-	std::vector<float> enemyMuzzleAlpha = { 0.0f, 0.0f, 0.0f, 0.0f };
-	std::vector<glm::vec3> enemyMuzzleFlashTint = { {1.0f, 1.0f, 1.0f}, {1.0f, 1.0f, 1.0f}, {1.0f, 1.0f, 1.0f}, {1.0f, 1.0f, 1.0f} };
-	std::vector<float> enemyMuzzleFlashScale = { 1.0f, 1.0f, 1.0f, 1.0f };
-	std::vector<glm::mat4> enemyMuzzleModel = { glm::mat4(1.0f), glm::mat4(1.0f), glm::mat4(1.0f), glm::mat4(1.0f) };
-	glm::vec3 enemyMuzzleFlashOffset = glm::vec3(0.0f);
-	float muzzleOffset = 2.4f;
-
-	glm::mat4 view = glm::mat4(1.0f);
-	glm::mat4 projection = glm::mat4(1.0f);
-	glm::mat4 cubemapView = glm::mat4(1.0f);
-	glm::mat4 minimapView = glm::mat4(1.0f);
-	glm::mat4 minimapProjection = glm::mat4(1.0f);
-	glm::mat4 lightSpaceView = glm::mat4(1.0f);
-	glm::mat4 lightSpaceProjection = glm::mat4(1.0f);
-	glm::mat4 lightSpaceMatrix = glm::mat4(1.0f);
-
-
-	Cell* cell;
-	Grid* gameGrid;
-
-	std::vector<std::string> cubemapFaces;
-	Cubemap* cubemap;
-
-	Waypoint* waypoint1;
-	Waypoint* waypoint2;
-	Waypoint* waypoint3;
-	Waypoint* waypoint4;
-
-	int currentStateIndex = 0;
-
-	SoundEvent mMusicEvent;
-
-	bool firstFlyCamSwitch = true;
-
-	AudioManager* mAudioManager;
+	bool m_firstFlyCamSwitch = true;
 };

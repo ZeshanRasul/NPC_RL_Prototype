@@ -46,9 +46,9 @@ bool Window::init(unsigned int width, unsigned int height, std::string title)
 
 	glfwSetInputMode(mWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
-	glfwSetCursorPosCallback(mWindow, InputManager::mouse_callback);
+	glfwSetCursorPosCallback(mWindow, InputManager::MouseCallback);
 
-	glfwSetScrollCallback(mWindow, InputManager::scroll_callback);
+	glfwSetScrollCallback(mWindow, InputManager::ScrollCallback);
 
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();

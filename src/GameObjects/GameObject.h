@@ -5,7 +5,6 @@
 #include <glm/gtc/type_ptr.hpp>
 
 #include "src/OpenGL/Shader.h"
-#include "../Primitives.h"
 #include "Model/GltfModel.h"
 #include "RenderData.h"
 #include "UniformBuffer.h"

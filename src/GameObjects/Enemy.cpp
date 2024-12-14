@@ -138,7 +138,7 @@ void Enemy::DrawObject(glm::mat4 viewMat, glm::mat4 proj, bool shadowMap, glm::m
 	}
 }
 
-void Enemy::Update(bool shouldUseEDBT, float speedDivider, float blendFac)
+void Enemy::Update(bool shouldUseEDBT)
 {
 	if (!m_isDead || !m_isDestroyed)
 	{
@@ -243,7 +243,7 @@ void Enemy::OnEvent(const Event& event)
 		std::uniform_int_distribution<> distrib(1, 3);
 		int randomIndex = distrib(gen);
 		std::uniform_real_distribution<> distribReal(2.0, 3.0);
-		float randomFloat = distribReal(gen);
+		float randomFloat = (float)distribReal(gen);
 
 		int enemyAudioIndex;
 		if (m_id == 3)
@@ -379,7 +379,7 @@ void Enemy::MoveEnemy(const std::vector<glm::ivec2>& path, float deltaTime, floa
 			std::uniform_int_distribution<> distrib(1, 2);
 			int randomIndex = distrib(gen);
 			std::uniform_real_distribution<> distribReal(2.0, 3.0);
-			float randomFloat = distribReal(gen);
+			float randomFloat = (float)distribReal(gen);
 
 			int enemyAudioIndex;
 			if (m_id == 3)
@@ -595,7 +595,7 @@ void Enemy::Shoot()
 		std::uniform_int_distribution<> distrib(1, 3);
 		int randomIndex = distrib(gen);
 		std::uniform_real_distribution<> distribReal(2.0, 3.0);
-		float randomFloat = distribReal(gen);
+		float randomFloat = (float)distribReal(gen);
 
 		int enemyAudioIndex;
 		if (m_id == 3)
@@ -650,7 +650,7 @@ void Enemy::OnHit()
 	std::uniform_int_distribution<> distrib(1, 3);
 	int randomIndex = distrib(gen);
 	std::uniform_real_distribution<> distribReal(2.0, 3.0);
-	float randomFloat = distribReal(gen);
+	float randomFloat = (float)distribReal(gen);
 
 	int enemyAudioIndex;
 	if (m_id == 3)
@@ -710,7 +710,7 @@ void Enemy::OnDeath()
 	std::uniform_int_distribution<> distrib(1, 3);
 	int randomIndex = distrib(gen);
 	std::uniform_real_distribution<> distribReal(2.0, 3.0);
-	float randomFloat = distribReal(gen);
+	float randomFloat = (float)distribReal(gen);
 
 	int enemyAudioIndex;
 	if (m_id == 3)
@@ -792,7 +792,7 @@ glm::vec3 Enemy::SelectRandomWaypoint(const glm::vec3& currentWaypoint, const st
 	// Select a random way point from the available way points
 	std::random_device rd;
 	std::mt19937 gen{rd()};
-	std::uniform_int_distribution<> distrib(0, availableWaypoints.size() - 1);
+	std::uniform_int_distribution<> distrib(0, (int)availableWaypoints.size() - 1);
 	int randomIndex = distrib(gen);
 	return availableWaypoints[randomIndex];
 }
@@ -1428,7 +1428,7 @@ void Enemy::HasDealtDamage()
 	std::uniform_int_distribution<> distrib(1, 2);
 	int randomIndex = distrib(gen);
 	std::uniform_real_distribution<> distribReal(2.0, 3.0);
-	float randomFloat = distribReal(gen);
+	float randomFloat = (float)distribReal(gen);
 
 	int enemyAudioIndex;
 	if (m_id == 3)
@@ -1656,7 +1656,7 @@ void Enemy::DetectPlayer()
 	std::uniform_int_distribution<> distrib(1, 3);
 	int randomIndex = distrib(gen);
 	std::uniform_real_distribution<> distribReal(2.0, 3.0);
-	float randomFloat = distribReal(gen);
+	float randomFloat = (float)distribReal(gen);
 
 	int enemyAudioIndex;
 	if (m_id == 3)
@@ -1822,7 +1822,7 @@ NodeStatus Enemy::AttackShoot()
 			std::uniform_int_distribution<> distrib(1, 3);
 			int randomIndex = distrib(gen);
 			std::uniform_real_distribution<> distribReal(2.0, 3.0);
-			float randomFloat = distribReal(gen);
+			float randomFloat = (float)distribReal(gen);
 
 			int enemyAudioIndex;
 			if (m_id == 3)
@@ -1910,7 +1910,7 @@ NodeStatus Enemy::AttackChasePlayer()
 			std::uniform_int_distribution<> distrib(1, 3);
 			int randomIndex = distrib(gen);
 			std::uniform_real_distribution<> distribReal(2.0, 3.0);
-			float randomFloat = distribReal(gen);
+			float randomFloat = (float)distribReal(gen);
 
 			int enemyAudioIndex;
 			if (m_id == 3)
@@ -1959,7 +1959,7 @@ NodeStatus Enemy::TakeCover()
 		std::uniform_int_distribution<> distrib(1, 4);
 		int randomIndex = distrib(gen);
 		std::uniform_real_distribution<> distribReal(2.0, 3.0);
-		float randomFloat = distribReal(gen);
+		float randomFloat = (float)distribReal(gen);
 
 		int enemyAudioIndex;
 		if (m_id == 3)
@@ -2031,7 +2031,7 @@ NodeStatus Enemy::EnterInCoverState()
 	std::uniform_int_distribution<> distrib(1, 2);
 	int randomIndex = distrib(gen);
 	std::uniform_real_distribution<> distribReal(2.0, 3.0);
-	float randomFloat = distribReal(gen);
+	float randomFloat = (float)distribReal(gen);
 
 	int enemyAudioIndex;
 	if (m_id == 3)
@@ -2130,7 +2130,7 @@ NodeStatus Enemy::InCoverAction()
 			std::uniform_int_distribution<> distrib(1, 2);
 			int randomIndex = distrib(gen);
 			std::uniform_real_distribution<> distribReal(0.0f, 2.0f);
-			float randomFloat = distribReal(gen);
+			float randomFloat = (float)distribReal(gen);
 
 			int enemyAudioIndex;
 			if (m_id == 3)
