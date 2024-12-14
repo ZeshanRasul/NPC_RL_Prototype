@@ -9,14 +9,14 @@
 // TODO: Move these to Renderer
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 
-bool Window::init(unsigned int width, unsigned int height, std::string title)
+bool Window::Init(unsigned int width, unsigned int height, std::string title)
 {
-	mWidth = width;
-	mHeight = height;
+	m_width = width;
+	m_height = height;
 
 	if (!glfwInit())
 	{
-		Logger::log(1, "%s: glfwInit() error\n", __FUNCTION__);;
+		Logger::Log(1, "%s: glfwInit() error\n", __FUNCTION__);;
 		return false;
 	}
 
@@ -24,31 +24,31 @@ bool Window::init(unsigned int width, unsigned int height, std::string title)
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-	mWindow = glfwCreateWindow(width, height, title.c_str(), NULL, NULL);
+	m_window = glfwCreateWindow(width, height, title.c_str(), NULL, NULL);
 
-	if (!mWindow) {
+	if (!m_window) {
 		glfwTerminate();
-		Logger::log(1, "%s error: Could not create window\n", __FUNCTION__);
+		Logger::Log(1, "%s error: Could not create window\n", __FUNCTION__);
 		return false;
 	}
 
-	glfwMakeContextCurrent(mWindow);
+	glfwMakeContextCurrent(m_window);
 
-	mRenderer = new Renderer(mWindow);
+	m_renderer = new Renderer(m_window);
 
-	if (!mRenderer->init(width, height)) {
+	if (!m_renderer->init(width, height)) {
 		glfwTerminate();
-		Logger::log(1, "%s error: Could not init OpenGL\n", __FUNCTION__);
+		Logger::Log(1, "%s error: Could not init OpenGL\n", __FUNCTION__);
 		return false;
 	}
 
-	glfwSetFramebufferSizeCallback(mWindow, framebuffer_size_callback);
+	glfwSetFramebufferSizeCallback(m_window, framebuffer_size_callback);
 
-	glfwSetInputMode(mWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+	glfwSetInputMode(m_window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
-	glfwSetCursorPosCallback(mWindow, InputManager::MouseCallback);
+	glfwSetCursorPosCallback(m_window, InputManager::MouseCallback);
 
-	glfwSetScrollCallback(mWindow, InputManager::ScrollCallback);
+	glfwSetScrollCallback(m_window, InputManager::ScrollCallback);
 
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
@@ -57,30 +57,30 @@ bool Window::init(unsigned int width, unsigned int height, std::string title)
 	io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
 
 	// Setup Platform/Renderer backends
-	ImGui_ImplGlfw_InitForOpenGL(mWindow, true);          // Second param install_callback=true will install GLFW callbacks and chain to existing ones.
+	ImGui_ImplGlfw_InitForOpenGL(m_window, true);          // Second param install_callback=true will install GLFW callbacks and chain to existing ones.
 	ImGui_ImplOpenGL3_Init();
 
 	return true;
 }
 
-void Window::mainLoop()
+void Window::MainLoop()
 {
-	glfwSwapBuffers(mWindow);
+	glfwSwapBuffers(m_window);
 	glfwPollEvents();
 }
 
-void Window::setInputManager(InputManager* inputManager)
+void Window::SetInputManager(InputManager* inputManager)
 {
-	glfwSetWindowUserPointer(mWindow, inputManager);
+	glfwSetWindowUserPointer(m_window, inputManager);
 }
 
-void Window::cleanup()
+void Window::Cleanup()
 {
 	ImGui_ImplOpenGL3_Shutdown();
 	ImGui_ImplGlfw_Shutdown();
 	ImGui::DestroyContext();
 
-	glfwDestroyWindow(mWindow);
+	glfwDestroyWindow(m_window);
 	glfwTerminate();
 
 }

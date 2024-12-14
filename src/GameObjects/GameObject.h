@@ -22,7 +22,7 @@ public:
 	{
 		size_t uniformMatrixBufferSize = 4 * sizeof(glm::mat4);
 		m_uniformBuffer.init(uniformMatrixBufferSize);
-		Logger::log(1, "%s: matrix uniform buffer (size %i bytes) successfully created\n", __FUNCTION__,
+		Logger::Log(1, "%s: matrix uniform buffer (size %i bytes) successfully created\n", __FUNCTION__,
 		            uniformMatrixBufferSize);
 	}
 

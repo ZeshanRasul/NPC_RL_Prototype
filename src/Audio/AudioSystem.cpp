@@ -31,7 +31,7 @@ bool AudioSystem::Initialize()
 	result = FMOD::Studio::System::create(&mSystem);
 	if (result != FMOD_OK)
 	{
-		Logger::log(1, "%s error: Failed to create FMOD system - %s\n", __FUNCTION__, FMOD_ErrorString(result));
+		Logger::Log(1, "%s error: Failed to create FMOD system - %s\n", __FUNCTION__, FMOD_ErrorString(result));
 		return false;
 	}
 
@@ -44,7 +44,7 @@ bool AudioSystem::Initialize()
 	);
 	if (result != FMOD_OK)
 	{
-		Logger::log(1, "%s error: Failed to initialize FMOD system - %s\n", __FUNCTION__, FMOD_ErrorString(result));
+		Logger::Log(1, "%s error: Failed to initialize FMOD system - %s\n", __FUNCTION__, FMOD_ErrorString(result));
 		return false;
 	}
 

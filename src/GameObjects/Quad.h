@@ -47,10 +47,10 @@ public:
 	{
 		if (!tex.loadTexture(textureFilename, false))
 		{
-			Logger::log(1, "%s: texture loading failed\n", __FUNCTION__);
+			Logger::Log(1, "%s: texture loading failed\n", __FUNCTION__);
 			return false;
 		}
-		Logger::log(1, "%s: Quad texture successfully loaded\n", __FUNCTION__, textureFilename);
+		Logger::Log(1, "%s: Quad texture successfully loaded\n", __FUNCTION__, textureFilename);
 		return true;
 	}
 

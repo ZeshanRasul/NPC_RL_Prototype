@@ -29,15 +29,15 @@ void InputManager::HandleMouseMovement(double xPosIn, double yPosIn)
 	m_lastX = xPos;
 	m_lastY = yPos;
 
-	if (m_camera->Mode == PLAYER_FOLLOW || m_camera->Mode == PLAYER_AIM)
+	if (m_camera->GetMode() == PLAYER_FOLLOW || m_camera->GetMode() == PLAYER_AIM)
 		m_player->PlayerProcessMouseMovement(xOffset);
-	else if (m_camera->Mode == ENEMY_FOLLOW)
+	else if (m_camera->GetMode() == ENEMY_FOLLOW)
 		m_enemy->EnemyProcessMouseMovement(xOffset, yOffset, true);
 
-	if (m_camera->Mode == PLAYER_FOLLOW)
+	if (m_camera->GetMode() == PLAYER_FOLLOW)
 	{
-		m_player->PlayerYaw = m_camera->Yaw;
-		m_player->aimPitch = m_camera->Pitch;
+		m_player->PlayerYaw = m_camera->GetYaw();
+		m_player->aimPitch = m_camera->GetPitch();
 		if (m_player->aimPitch > 19.0f)
 			m_player->aimPitch = 19.0f;
 		if (m_player->aimPitch < -19.0f)
@@ -45,10 +45,10 @@ void InputManager::HandleMouseMovement(double xPosIn, double yPosIn)
 		m_player->UpdatePlayerVectors();
 		m_player->UpdatePlayerAimVectors();
 	}
-	else if (m_camera->Mode == PLAYER_AIM)
+	else if (m_camera->GetMode() == PLAYER_AIM)
 	{
-		m_player->PlayerYaw = m_camera->Yaw;
-		m_player->aimPitch = m_camera->Pitch;
+		m_player->PlayerYaw = m_camera->GetYaw();
+		m_player->aimPitch = m_camera->GetPitch();
 		//if (m_player->aimPitch > 19.0f)
 		//    m_player->aimPitch = 19.0f;
 		//if (m_player->aimPitch < -19.0f)
@@ -56,7 +56,7 @@ void InputManager::HandleMouseMovement(double xPosIn, double yPosIn)
 		m_player->UpdatePlayerVectors();
 		m_player->UpdatePlayerAimVectors();
 	}
-	else if (m_camera->Mode == ENEMY_FOLLOW)
+	else if (m_camera->GetMode() == ENEMY_FOLLOW)
 	{
 		m_enemy->UpdateEnemyCameraVectors();
 	}
@@ -99,12 +99,12 @@ void InputManager::ProcessInput(GLFWwindow* window, float deltaTime)
 	if (!m_tabBeenPressed && tabKeyCurrentlyPressed)
 	{
 		if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS)
-			m_camera->Mode = static_cast<CameraMode>((m_camera->Mode + 1) % MODE_COUNT);
+			m_camera->SetMode(static_cast<CameraMode>((m_camera->GetMode() + 1) % MODE_COUNT));
 	}
 
 	m_tabBeenPressed = tabKeyCurrentlyPressed;
 
-	if (m_controlCamera && m_camera->Mode == FLY)
+	if (m_controlCamera && m_camera->GetMode() == FLY)
 	{
 		if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
 			m_camera->ProcessKeyboard(FORWARD, deltaTime);
@@ -117,19 +117,19 @@ void InputManager::ProcessInput(GLFWwindow* window, float deltaTime)
 	}
 	bool shiftKeyCurrentlyPressed = glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS;
 
-	if (shiftKeyCurrentlyPressed && !m_shiftKeyPressed && (m_camera->Mode == PLAYER_FOLLOW || m_camera->Mode == PLAYER_AIM))
+	if (shiftKeyCurrentlyPressed && !m_shiftKeyPressed && (m_camera->GetMode() == PLAYER_FOLLOW || m_camera->GetMode() == PLAYER_AIM))
 	{
 		if (m_player->GetPlayerState() == MOVING)
 		{
 			m_player->SetPlayerState(AIMING);
 			m_player->UpdatePlayerAimVectors();
-			m_camera->Mode = PLAYER_AIM;
+			m_camera->SetMode(PLAYER_AIM);
 		}
 		else if (m_player->GetPlayerState() == AIMING)
 		{
 			m_player->SetPlayerState(MOVING);
 			m_player->UpdatePlayerVectors();
-			m_camera->Mode = PLAYER_FOLLOW;
+			m_camera->SetMode(PLAYER_FOLLOW);
 		}
 	}
 
@@ -137,7 +137,7 @@ void InputManager::ProcessInput(GLFWwindow* window, float deltaTime)
 
 	bool leftClickCurrentlyPressed = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_1) == GLFW_PRESS;
 
-	if (leftClickCurrentlyPressed && !m_leftClickPressed && m_camera->Mode == PLAYER_AIM)
+	if (leftClickCurrentlyPressed && !m_leftClickPressed && m_camera->GetMode() == PLAYER_AIM)
 	{
 		if (m_player->GetPlayerState() == AIMING)
 		{
@@ -184,11 +184,11 @@ void InputManager::SetContext(Camera* cam, Player* plyr, Enemy* enmy, unsigned i
 
 void InputManager::HandlePlayerMovement(GLFWwindow* window, Player& player, Camera& camera, float deltaTime)
 {
-	if (camera.Mode == PLAYER_FOLLOW || camera.Mode == PLAYER_AIM)
+	if (camera.GetMode() == PLAYER_FOLLOW || camera.GetMode() == PLAYER_AIM)
 	{
 		if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
 		{
-			player.PlayerYaw = camera.Yaw;
+			player.PlayerYaw = camera.GetYaw();
 			player.UpdatePlayerVectors();
 			player.UpdatePlayerAimVectors();
 			player.PlayerProcessKeyboard(FORWARD, deltaTime);

@@ -8,35 +8,35 @@ PhysicsWorld::PhysicsWorld()
 {
 }
 
-void PhysicsWorld::addCollider(AABB* collider)
+void PhysicsWorld::AddCollider(AABB* collider)
 {
-	colliders.push_back(collider);
+	m_colliders.push_back(collider);
 }
 
-void PhysicsWorld::addEnemyCollider(AABB* collider)
+void PhysicsWorld::AddEnemyCollider(AABB* collider)
 {
-	enemyColliders.push_back(collider);
+	m_enemyColliders.push_back(collider);
 }
 
-void PhysicsWorld::removeCollider(AABB* collider)
+void PhysicsWorld::RemoveCollider(AABB* collider)
 {
-	auto it = std::remove(colliders.begin(), colliders.end(), collider);
-	if (it != colliders.end())
+	auto it = std::remove(m_colliders.begin(), m_colliders.end(), collider);
+	if (it != m_colliders.end())
 	{
-		colliders.erase(it, colliders.end());
+		m_colliders.erase(it, m_colliders.end());
 	}
 }
 
-void PhysicsWorld::removeEnemyCollider(AABB* collider)
+void PhysicsWorld::RemoveEnemyCollider(AABB* collider)
 {
-	auto it = std::remove(enemyColliders.begin(), enemyColliders.end(), collider);
-	if (it != enemyColliders.end())
+	auto it = std::remove(m_enemyColliders.begin(), m_enemyColliders.end(), collider);
+	if (it != m_enemyColliders.end())
 	{
-		enemyColliders.erase(it, enemyColliders.end());
+		m_enemyColliders.erase(it, m_enemyColliders.end());
 	}
 }
 
-bool PhysicsWorld::rayIntersect(const glm::vec3& rayOrigin, const glm::vec3& rayDirection, glm::vec3& hitPoint,
+bool PhysicsWorld::RayIntersect(const glm::vec3& rayOrigin, const glm::vec3& rayDirection, glm::vec3& hitPoint,
                                 AABB* selfAABB)
 {
 	bool hit = false;
@@ -45,10 +45,10 @@ bool PhysicsWorld::rayIntersect(const glm::vec3& rayOrigin, const glm::vec3& ray
 	AABB* closestAABB = nullptr;
 	std::vector<AABB*> missedAABBs = {};
 
-	for (AABB* collider : colliders)
+	for (AABB* collider : m_colliders)
 	{
 		glm::vec3 tempHitPoint;
-		if (rayAABBIntersect(rayOrigin, rayDirection, collider, tempHitPoint))
+		if (RayAABBIntersect(rayOrigin, rayDirection, collider, tempHitPoint))
 		{
 			float distance = length(tempHitPoint - rayOrigin);
 			if (distance < closestDistance && collider != selfAABB)
@@ -65,21 +65,21 @@ bool PhysicsWorld::rayIntersect(const glm::vec3& rayOrigin, const glm::vec3& ray
 		}
 	}
 
-	if (hit && closestAABB && !closestAABB->owner->IsDestroyed())
-		closestAABB->owner->OnHit();
+	if (hit && closestAABB && !closestAABB->GetOwner()->IsDestroyed())
+		closestAABB->GetOwner()->OnHit();
 	else if (size(missedAABBs) > 0)
 	{
 		for (AABB* missedAABB : missedAABBs)
 		{
-			if (missedAABB->owner != nullptr && !missedAABB->owner->IsDestroyed())
-				missedAABB->owner->OnMiss();
+			if (missedAABB->GetOwner() != nullptr && !missedAABB->GetOwner()->IsDestroyed())
+				missedAABB->GetOwner()->OnMiss();
 		}
 	}
 
 	return hit;
 }
 
-bool PhysicsWorld::rayEnemyIntersect(const glm::vec3& rayOrigin, const glm::vec3& rayDirection, glm::vec3& hitPoint)
+bool PhysicsWorld::RayEnemyIntersect(const glm::vec3& rayOrigin, const glm::vec3& rayDirection, glm::vec3& hitPoint)
 {
 	bool hit = false;
 	float closestDistance = std::numeric_limits<float>::max();
@@ -87,13 +87,13 @@ bool PhysicsWorld::rayEnemyIntersect(const glm::vec3& rayOrigin, const glm::vec3
 	AABB* closestAABB = nullptr;
 	AABB* missedAABB = nullptr;
 
-	for (AABB* collider : colliders)
+	for (AABB* collider : m_colliders)
 	{
 		glm::vec3 tempHitPoint;
-		if (rayAABBIntersect(rayOrigin, rayDirection, collider, tempHitPoint) && !collider->isPlayer)
+		if (RayAABBIntersect(rayOrigin, rayDirection, collider, tempHitPoint) && !collider->GetIsPlayer())
 		{
 			float distance = length(tempHitPoint - rayOrigin);
-			if (distance < closestDistance && !collider->isPlayer)
+			if (distance < closestDistance && !collider->GetIsPlayer())
 			{
 				closestDistance = distance;
 				hitPoint = tempHitPoint;
@@ -107,35 +107,35 @@ bool PhysicsWorld::rayEnemyIntersect(const glm::vec3& rayOrigin, const glm::vec3
 		}
 	}
 
-	if (hit && closestAABB && !closestAABB->isPlayer && !closestAABB->owner->IsDestroyed())
-		closestAABB->owner->OnHit();
-	else if (missedAABB && !missedAABB->isPlayer && !missedAABB->owner->IsDestroyed())
+	if (hit && closestAABB && !closestAABB->GetIsPlayer() && !closestAABB->GetOwner()->IsDestroyed())
+		closestAABB->GetOwner()->OnHit();
+	else if (missedAABB && !missedAABB->GetIsPlayer() && !missedAABB->GetOwner()->IsDestroyed())
 	{
 		hit = false;
-		missedAABB->owner->OnMiss();
+		missedAABB->GetOwner()->OnMiss();
 	}
 
 	return hit;
 }
 
-bool PhysicsWorld::rayEnemyCrosshairIntersect(const glm::vec3& rayOrigin, const glm::vec3& rayDirection,
+bool PhysicsWorld::RayEnemyCrosshairIntersect(const glm::vec3& rayOrigin, const glm::vec3& rayDirection,
                                               glm::vec3& hitPoint)
 {
 	bool hit = false;
 	float closestDistance = std::numeric_limits<float>::max();
 
 
-	for (AABB* collider : colliders)
+	for (AABB* collider : m_colliders)
 	{
 		glm::vec3 tempHitPoint;
-		if (rayAABBIntersect(rayOrigin, rayDirection, collider, tempHitPoint) && !collider->isPlayer)
+		if (RayAABBIntersect(rayOrigin, rayDirection, collider, tempHitPoint) && !collider->GetIsPlayer())
 		{
 			float distance = length(tempHitPoint - rayOrigin);
 			if (distance < closestDistance)
 			{
 				closestDistance = distance;
 				hitPoint = tempHitPoint;
-				if (collider->isEnemy && !collider->owner->IsDestroyed())
+				if (collider->GetIsEnemy() && !collider->GetOwner()->IsDestroyed())
 				{
 					hit = true;
 				}
@@ -152,7 +152,7 @@ bool PhysicsWorld::rayEnemyCrosshairIntersect(const glm::vec3& rayOrigin, const 
 }
 
 
-bool PhysicsWorld::rayPlayerIntersect(const glm::vec3& rayOrigin, const glm::vec3& rayDirection, glm::vec3& hitPoint,
+bool PhysicsWorld::RayPlayerIntersect(const glm::vec3& rayOrigin, const glm::vec3& rayDirection, glm::vec3& hitPoint,
                                       AABB* selfAABB)
 {
 	bool hit = false;
@@ -161,13 +161,13 @@ bool PhysicsWorld::rayPlayerIntersect(const glm::vec3& rayOrigin, const glm::vec
 	AABB* closestAABB = nullptr;
 	AABB* missedAABB = nullptr;
 
-	for (AABB* collider : colliders)
+	for (AABB* collider : m_colliders)
 	{
 		glm::vec3 tempHitPoint;
-		if (rayAABBIntersect(rayOrigin, rayDirection, collider, tempHitPoint))
+		if (RayAABBIntersect(rayOrigin, rayDirection, collider, tempHitPoint))
 		{
 			float distance = length(tempHitPoint - rayOrigin);
-			if (distance < closestDistance && !collider->isEnemy && collider != selfAABB)
+			if (distance < closestDistance && !collider->GetIsEnemy() && collider != selfAABB)
 			{
 				closestDistance = distance;
 				hitPoint = tempHitPoint;
@@ -181,29 +181,29 @@ bool PhysicsWorld::rayPlayerIntersect(const glm::vec3& rayOrigin, const glm::vec
 		}
 	}
 
-	if (hit && closestAABB && !closestAABB->isEnemy && !closestAABB->owner->IsDestroyed())
+	if (hit && closestAABB && !closestAABB->GetIsEnemy() && !closestAABB->GetOwner()->IsDestroyed())
 	{
-		closestAABB->owner->OnHit();
-		if (closestAABB->isPlayer)
+		closestAABB->GetOwner()->OnHit();
+		if (closestAABB->GetIsPlayer())
 		{
-			selfAABB->owner->HasDealtDamage();
-			if (closestAABB->owner->IsDestroyed() && closestAABB->isPlayer)
+			selfAABB->GetOwner()->HasDealtDamage();
+			if (closestAABB->GetOwner()->IsDestroyed() && closestAABB->GetIsPlayer())
 			{
-				selfAABB->owner->HasKilledPlayer();
+				selfAABB->GetOwner()->HasKilledPlayer();
 			}
 		}
 	}
-	else if (!hit && missedAABB && !missedAABB->isEnemy && !missedAABB->owner->IsDestroyed())
+	else if (!hit && missedAABB && !missedAABB->GetIsEnemy() && !missedAABB->GetOwner()->IsDestroyed())
 	{
 		hit = false;
-		missedAABB->owner->OnMiss();
+		missedAABB->GetOwner()->OnMiss();
 	}
 
 
 	return hit;
 }
 
-bool PhysicsWorld::checkPlayerVisibility(const glm::vec3& rayOrigin, const glm::vec3& rayDirection, glm::vec3& hitPoint,
+bool PhysicsWorld::CheckPlayerVisibility(const glm::vec3& rayOrigin, const glm::vec3& rayDirection, glm::vec3& hitPoint,
                                          AABB* selfAABB)
 {
 	bool hit = false;
@@ -212,10 +212,10 @@ bool PhysicsWorld::checkPlayerVisibility(const glm::vec3& rayOrigin, const glm::
 	AABB* closestAABB = nullptr;
 	std::vector<AABB*> missedAABBs = {};
 
-	for (AABB* collider : colliders)
+	for (AABB* collider : m_colliders)
 	{
 		glm::vec3 tempHitPoint;
-		if (rayAABBIntersect(rayOrigin, rayDirection, collider, tempHitPoint))
+		if (RayAABBIntersect(rayOrigin, rayDirection, collider, tempHitPoint))
 		{
 			float distance = length(tempHitPoint - rayOrigin);
 			if (distance < closestDistance && collider != selfAABB)
@@ -232,11 +232,11 @@ bool PhysicsWorld::checkPlayerVisibility(const glm::vec3& rayOrigin, const glm::
 		}
 	}
 
-	if (hit && closestAABB->isPlayer)
+	if (hit && closestAABB->GetIsPlayer())
 	{
 		return true;
 	}
-	if (hit && !closestAABB->isPlayer)
+	if (hit && !closestAABB->GetIsPlayer())
 	{
 		return false;
 	}
@@ -244,12 +244,12 @@ bool PhysicsWorld::checkPlayerVisibility(const glm::vec3& rayOrigin, const glm::
 	return false;
 }
 
-bool PhysicsWorld::rayAABBIntersect(const glm::vec3& rayOrigin, const glm::vec3& rayDirection, AABB* aabb,
+bool PhysicsWorld::RayAABBIntersect(const glm::vec3& rayOrigin, const glm::vec3& rayDirection, AABB* aabb,
                                     glm::vec3& hitPoint)
 {
 	// Use the transformed AABB for the intersection test
-	glm::vec3 min = aabb->transformedMin;
-	glm::vec3 max = aabb->transformedMax;
+	glm::vec3 min = aabb->GetTransformedMin();
+	glm::vec3 max = aabb->GetTransformedMax();
 
 	// Initialize tMin and tMax to infinite intervals
 	float tMin = 0.0f;

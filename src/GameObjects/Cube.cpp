@@ -16,10 +16,10 @@ bool Cube::LoadTexture(std::string textureFilename, Texture* tex)
 {
 	if (!tex->loadTexture(textureFilename, false))
 	{
-		Logger::log(1, "%s: texture loading failed\n", __FUNCTION__);
+		Logger::Log(1, "%s: texture loading failed\n", __FUNCTION__);
 		return false;
 	}
-	Logger::log(1, "%s: Cube texture successfully loaded\n", __FUNCTION__, textureFilename);
+	Logger::Log(1, "%s: Cube texture successfully loaded\n", __FUNCTION__, textureFilename);
 	return true;
 }
 
@@ -46,7 +46,7 @@ void Cube::DrawObject(glm::mat4 viewMat, glm::mat4 proj, bool shadowMap, glm::ma
 	}
 	else
 	{
-		m_shader->setVec3("cameraPos", m_gameManager->GetCamera()->Position);
+		m_shader->setVec3("cameraPos", m_gameManager->GetCamera()->GetPosition().x, m_gameManager->GetCamera()->GetPosition().y, m_gameManager->GetCamera()->GetPosition().z);
 
 		m_tex.bind();
 		m_shader->setInt("albedoMap", 0);
@@ -69,7 +69,7 @@ void Cube::DrawObject(glm::mat4 viewMat, glm::mat4 proj, bool shadowMap, glm::ma
 		m_tex.unbind();
 
 #ifdef _DEBUG
-		m_aabb->render(viewMat, proj, modelMat, m_aabbColor);
+		m_aabb->Render(viewMat, proj, modelMat, m_aabbColor);
 #endif
 	}
 }
@@ -104,12 +104,12 @@ void Cube::SetUpAABB()
 		auto vertex = glm::vec3(vertices[i], vertices[i + 1], vertices[i + 2]);
 		verticesVec.push_back(vertex);
 	}
-	aabb->calculateAABB(verticesVec);
-	aabb->setShader(aabbShader);
-	aabb->setUpMesh();
-	aabb->owner = this;
-	aabb->isEnemy = false;
-	aabb->isPlayer = false;
+	aabb->CalculateAABB(verticesVec);
+	aabb->SetShader(aabbShader);
+	aabb->SetUpMesh();
+	aabb->SetOwner(this);
+	aabb->SetIsEnemy(false);
+	aabb->SetIsPlayer(false);
 	updateAABB();
-	m_gameManager->GetPhysicsWorld()->addCollider(GetAABB());
+	m_gameManager->GetPhysicsWorld()->AddCollider(GetAABB());
 }

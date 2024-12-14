@@ -21,14 +21,14 @@ void Player::DrawObject(glm::mat4 viewMat, glm::mat4 proj, bool shadowMap, glm::
 	{
 		m_model->uploadVertexBuffers();
 		aabb = new AABB();
-		aabb->calculateAABB(m_model->getVertices());
-		aabb->setShader(aabbShader);
-		aabb->setUpMesh();
-		aabb->owner = this;
-		aabb->isPlayer = true;
+		aabb->CalculateAABB(m_model->getVertices());
+		aabb->SetShader(aabbShader);
+		aabb->SetUpMesh();
+		aabb->SetOwner(this);
+		aabb->SetIsPlayer(true);
 		updateAABB();
 		GameManager* gameMgr = GetGameManager();
-		gameMgr->GetPhysicsWorld()->addCollider(GetAABB());
+		gameMgr->GetPhysicsWorld()->AddCollider(GetAABB());
 		uploadVertexBuffer = false;
 	}
 
@@ -40,7 +40,7 @@ void Player::DrawObject(glm::mat4 viewMat, glm::mat4 proj, bool shadowMap, glm::
 	}
 	else
 	{
-		m_shader->setVec3("cameraPos", m_gameManager->GetCamera()->Position);
+		m_shader->setVec3("cameraPos", m_gameManager->GetCamera()->GetPosition().x, m_gameManager->GetCamera()->GetPosition().y, m_gameManager->GetCamera()->GetPosition().z);
 		m_tex.bind();
 		m_shader->setInt("albedoMap", 0);
 		mNormal.bind(1);
@@ -57,7 +57,7 @@ void Player::DrawObject(glm::mat4 viewMat, glm::mat4 proj, bool shadowMap, glm::
 		m_model->draw(m_tex);
 
 #ifdef _DEBUG
-		m_aabb->render(viewMat, proj, modelMat, m_aabbColor);
+		m_aabb->Render(viewMat, proj, modelMat, m_aabbColor);
 #endif
 	}
 }
@@ -329,10 +329,10 @@ void Player::Shoot()
 	auto hitPoint = glm::vec3(0.0f);
 
 	GameManager* gmeMgr = GetGameManager();
-	//gmeMgr->GetPhysicsWorld()->rayEnemyIntersect(rayO, rayD, hitPoint);
+	//gmeMgr->GetPhysicsWorld()->RayEnemyIntersect(rayO, rayD, hitPoint);
 
 	bool hit = false;
-	hit = gmeMgr->GetPhysicsWorld()->rayIntersect(rayO, rayD, hitPoint, aabb);
+	hit = gmeMgr->GetPhysicsWorld()->RayIntersect(rayO, rayD, hitPoint, aabb);
 
 	if (hit)
 	{
@@ -346,61 +346,9 @@ void Player::Shoot()
 	UpdatePlayerAimVectors();
 }
 
-void Player::renderAABB(glm::mat4 proj, glm::mat4 viewMat, glm::mat4 model, Shader* aabbSdr)
-{
-	glm::vec3 min = aabb->transformedMin;
-	glm::vec3 max = aabb->transformedMax;
-
-	std::vector<glm::vec3> lineVertices = {
-		{min.x, min.y, min.z}, {max.x, min.y, min.z},
-		{max.x, min.y, min.z}, {max.x, max.y, min.z},
-		{max.x, max.y, min.z}, {min.x, max.y, min.z},
-		{min.x, max.y, min.z}, {min.x, min.y, min.z},
-
-		{min.x, min.y, max.z}, {max.x, min.y, max.z},
-		{max.x, min.y, max.z}, {max.x, max.y, max.z},
-		{max.x, max.y, max.z}, {min.x, max.y, max.z},
-		{min.x, max.y, max.z}, {min.x, min.y, max.z},
-
-		{min.x, min.y, min.z}, {min.x, min.y, max.z},
-		{max.x, min.y, min.z}, {max.x, min.y, max.z},
-		{max.x, max.y, min.z}, {max.x, max.y, max.z},
-		{min.x, max.y, min.z}, {min.x, max.y, max.z}
-	};
-
-	GLuint VAO, VBO;
-	glGenVertexArrays(1, &VAO);
-	glGenBuffers(1, &VBO);
-
-	glBindVertexArray(VAO);
-
-	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	glBufferData(GL_ARRAY_BUFFER, lineVertices.size() * sizeof(glm::vec3), lineVertices.data(), GL_STATIC_DRAW);
-
-	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), static_cast<void*>(nullptr));
-
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	glBindVertexArray(0);
-
-	aabbShader->use();
-
-	aabbShader->setMat4("projection", proj);
-	aabbShader->setMat4("view", viewMat);
-	aabbShader->setMat4("m_model", model);
-	aabbShader->setVec3("color", aabbColor);
-
-	glBindVertexArray(VAO);
-	glDrawArrays(GL_LINES, 0, static_cast<GLsizei>(lineVertices.size()));
-	glBindVertexArray(0);
-
-	glDeleteVertexArrays(1, &VAO);
-	glDeleteBuffers(1, &VBO);
-}
-
 void Player::OnHit()
 {
-	Logger::log(1, "Player Hit!");
+	Logger::Log(1, "Player Hit!");
 	setAABBColor(glm::vec3(1.0f, 0.0f, 1.0f));
 	TakeDamage(0.4f);
 
@@ -414,7 +362,7 @@ void Player::OnHit()
 
 void Player::OnDeath()
 {
-	Logger::log(1, "Player Died!");
+	Logger::Log(1, "Player Died!");
 	m_isDestroyed = true;
 	deathAC->PlayEvent("event:/Player2_Death");
 }

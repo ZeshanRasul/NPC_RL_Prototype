@@ -83,11 +83,11 @@ void Grid::initializeGrid()
 
 	size_t uniformMatrixBufferSize = 4 * sizeof(glm::mat4);
 	mGridUniformBuffer.init(uniformMatrixBufferSize);
-	Logger::log(1, "%s: matrix uniform buffer (size %i bytes) successfully created\n", __FUNCTION__,
+	Logger::Log(1, "%s: matrix uniform buffer (size %i bytes) successfully created\n", __FUNCTION__,
 	            uniformMatrixBufferSize);
 	uniformMatrixBufferSize = 1 * sizeof(glm::vec3);
 	mGridColorUniformBuffer.init(uniformMatrixBufferSize);
-	Logger::log(1, "%s: matrix uniform buffer (size %i bytes) successfully created\n", __FUNCTION__,
+	Logger::Log(1, "%s: matrix uniform buffer (size %i bytes) successfully created\n", __FUNCTION__,
 	            uniformMatrixBufferSize);
 }
 

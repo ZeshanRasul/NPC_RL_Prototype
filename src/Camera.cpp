@@ -3,29 +3,29 @@
 
 Camera::Camera(glm::vec3 position, glm::vec3 up, float yaw, float pitch, glm::vec3 front)
 	:
-	Front(glm::vec3(-1.0f, 0.0f, 0.0f)),
-	MovementSpeed(SPEED),
-	MouseSensitivity(SENSITIVITY),
-	Zoom(ZOOM)
+	m_front(glm::vec3(-1.0f, 0.0f, 0.0f)),
+	m_movementSpeed(SPEED),
+	m_mouseSensitivity(SENSITIVITY),
+	m_zoom(ZOOM)
 {
-	Position = position;
-	WorldUp = up;
-	Yaw = yaw;
-	Pitch = pitch;
+	SetPosition(position);
+	SetWorldUp(up);
+	SetYaw(yaw);
+	SetPitch(pitch);
 	UpdateCameraVectors();
 }
 
 Camera::Camera(float posX, float posY, float posZ, float upX, float upY, float upZ, float yaw, float pitch)
 	:
-	Front(glm::vec3(-1.0f, 0.0f, 0.0f)),
-	MovementSpeed(SPEED),
-	MouseSensitivity(SENSITIVITY),
-	Zoom(ZOOM)
+	m_front(glm::vec3(-1.0f, 0.0f, 0.0f)),
+	m_movementSpeed(SPEED),
+	m_mouseSensitivity(SENSITIVITY),
+	m_zoom(ZOOM)
 {
-	Position = glm::vec3(posX, posY, posZ);
-	WorldUp = glm::vec3(upX, upY, upZ);
-	Yaw = yaw;
-	Pitch = pitch;
+	SetPosition(glm::vec3(posX, posY, posZ));
+	SetWorldUp(glm::vec3(upX, upY, upZ));
+	SetYaw(yaw);
+	SetPitch(pitch);
 	UpdateCameraVectors();
 
 }
@@ -34,49 +34,49 @@ void Camera::FollowTarget(const glm::vec3& targetPosition, const glm::vec3& targ
 {
 	glm::vec3 offset = -targetFront * distanceBehind;
 	offset.y += heightOffset;
-	Position = targetPosition + offset;
+	SetPosition(targetPosition + offset);
 	UpdateCameraVectors();
 }
 
 void Camera::ProcessKeyboard(CameraMovement direction, float deltaTime)
 {
-	float velocity = MovementSpeed * deltaTime;
+	float velocity = GetMovementSpeed() * deltaTime;
 
 	if (direction == FORWARD)
-		Position += Front * velocity;
+		SetPosition(GetPosition() + GetFront() * velocity);
 	if (direction == BACKWARD)
-		Position -= Front * velocity;
+		SetPosition(GetPosition() - GetFront() * velocity);
 	if (direction == LEFT)
-		Position -= Right * velocity;
+		SetPosition(GetPosition() - GetRight() * velocity);
 	if (direction == RIGHT)
-		Position += Right * velocity;
+		SetPosition(GetPosition() + GetRight() * velocity);
 }
 
 void Camera::ProcessMouseMovement(float xOffset, float yOffset, GLboolean constrainPitch)
 {
-	xOffset *= MouseSensitivity;
-	yOffset *= MouseSensitivity;
+	xOffset *= GetMouseSensitivity();
+	yOffset *= GetMouseSensitivity();
 
-	Yaw += xOffset;
+	SetYaw(GetYaw() + xOffset);
 
-	if (Mode != PLAYER_FOLLOW)
-		Pitch += yOffset;
+	if (GetMode() != PLAYER_FOLLOW)
+		SetPitch(GetPitch() + yOffset);
 
 	if (constrainPitch)
 	{
-		if (Mode == FLY)
+		if (GetMode() == FLY)
 		{
-			if (Pitch > 89.0f)
-				Pitch = 89.0f;
-			if (Pitch < -89.0f)
-				Pitch = -89.0f;
+			if (GetPitch() > 89.0f)
+				SetPitch(89.0f);
+			if (GetPitch() < -89.0f)
+				SetPitch(-89.0f);
 		}
-		else if (Mode == PLAYER_AIM || Mode == PLAYER_FOLLOW)
+		else if (GetMode() == PLAYER_AIM || GetMode() == PLAYER_FOLLOW)
 		{
-			if (Pitch > 9.0f)
-				Pitch = 9.0f;
-			if (Pitch < -20.0f)
-				Pitch = -20.0f;
+			if (GetPitch() > 9.0f)
+				SetPitch(9.0f);
+			if (GetPitch() < -20.0f)
+				SetPitch(-20.0f);
 		}
 	}
 
@@ -85,17 +85,17 @@ void Camera::ProcessMouseMovement(float xOffset, float yOffset, GLboolean constr
 
 void Camera::ProcessMouseScroll(float yOffset)
 {
-	if (Mode == FLY)
+	if (GetMode() == FLY)
 	{
-		Zoom -= (float)yOffset;
-		if (Zoom < 1.0f)
-			Zoom = 1.0f;
-		if (Zoom > 45.0f)
-			Zoom = 45.0f;
+		SetZoom(GetZoom() - (float)yOffset);
+		if (GetZoom() < 1.0f)
+			SetZoom(1.0f);
+		if (GetZoom() > 45.0f)
+			SetZoom(45.0f);
 	}
-	else if (Mode == PLAYER_FOLLOW || Mode == ENEMY_FOLLOW)
+	else if (GetMode() == PLAYER_FOLLOW || GetMode() == ENEMY_FOLLOW)
 	{
-		Offset -= (float)yOffset;
+		SetOffset(GetOffset() - (float)yOffset);
 	}
 
 }
@@ -103,11 +103,11 @@ void Camera::ProcessMouseScroll(float yOffset)
 void Camera::UpdateCameraVectors()
 {
 	glm::vec3 front;
-	front.x = glm::cos(glm::radians(Yaw)) * glm::cos(glm::radians(Pitch));
-	front.y = glm::sin(glm::radians(Pitch));
-	front.z = glm::sin(glm::radians(Yaw)) * glm::cos(glm::radians(Pitch));
+	front.x = glm::cos(glm::radians(GetYaw())) * glm::cos(glm::radians(GetPitch()));
+	front.y = glm::sin(glm::radians(GetPitch()));
+	front.z = glm::sin(glm::radians(GetYaw())) * glm::cos(glm::radians(GetPitch()));
 
-	Front = glm::normalize(front);
-	Right = glm::normalize(glm::cross(Front, WorldUp));
-	Up = glm::normalize(glm::cross(Right, Front));
+	SetFront(glm::normalize(front));
+	SetRight(glm::normalize(glm::cross(GetFront(), GetWorldUp())));
+	SetUp(glm::normalize(glm::cross(GetRight(), GetFront())));
 }

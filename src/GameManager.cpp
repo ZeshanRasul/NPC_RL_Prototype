@@ -23,7 +23,7 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 
 	if (!m_audioSystem->Initialize())
 	{
-		Logger::log(1, "%s error: AudioSystem init error\n", __FUNCTION__);
+		Logger::Log(1, "%s error: AudioSystem init error\n", __FUNCTION__);
 		m_audioSystem->Shutdown();
 		delete m_audioSystem;
 		m_audioSystem = nullptr;
@@ -31,9 +31,9 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 
 	m_audioManager = new AudioManager(this);
 
-	window->setInputManager(m_inputManager);
+	window->SetInputManager(m_inputManager);
 
-	m_renderer = window->getRenderer();
+	m_renderer = window->GetRenderer();
 	m_renderer->SetUpMinimapFBO(width, height);
 	m_renderer->SetUpShadowMapFBO(SHADOW_WIDTH, SHADOW_HEIGHT);
 
@@ -187,9 +187,9 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 		for (auto& enem : m_enemies)
 		{
 			int enemyID = enem->GetID();
-			Logger::log(1, "%s Initializing Q Table for Enemy %d\n", __FUNCTION__, enemyID);
+			Logger::Log(1, "%s Initializing Q Table for Enemy %d\n", __FUNCTION__, enemyID);
 			InitializeQTable(m_enemyStateQTable[enemyID]);
-			Logger::log(1, "%s Initialized Q Table for Enemy %d\n", __FUNCTION__, enemyID);
+			Logger::Log(1, "%s Initialized Q Table for Enemy %d\n", __FUNCTION__, enemyID);
 		}
 	}
 	else if (m_loadQTable)
@@ -197,9 +197,9 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 		for (auto& enem : m_enemies)
 		{
 			int enemyID = enem->GetID();
-			Logger::log(1, "%s Loading Q Table for Enemy %d\n", __FUNCTION__, enemyID);
+			Logger::Log(1, "%s Loading Q Table for Enemy %d\n", __FUNCTION__, enemyID);
 			LoadQTable(m_enemyStateQTable[enemyID], std::to_string(enemyID) + m_enemyStateFilename);
-			Logger::log(1, "%s Loaded Q Table for Enemy %d\n", __FUNCTION__, enemyID);
+			Logger::Log(1, "%s Loaded Q Table for Enemy %d\n", __FUNCTION__, enemyID);
 		}
 	}
 
@@ -208,51 +208,51 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 
 void GameManager::SetupCamera(unsigned int width, unsigned int height)
 {
-	m_camera->Zoom = 45.0f;
-	if (m_camera->Mode == PLAYER_FOLLOW)
+	m_camera->SetZoom(45.0f);
+	if (m_camera->GetMode() == PLAYER_FOLLOW)
 	{
-		m_camera->Pitch = 45.0f;
-		m_camera->FollowTarget(m_player->getPosition() + (m_player->PlayerFront * m_camera->playerPosOffset), m_player->PlayerFront, m_camera->playerCamRearOffset, m_camera->playerCamHeightOffset);
-		m_view = m_camera->GetViewMatrixPlayerFollow(m_player->getPosition() + (m_player->PlayerFront * m_camera->playerPosOffset), glm::vec3(0.0f, 1.0f, 0.0f));
+		m_camera->SetPitch(45.0f);
+		m_camera->FollowTarget(m_player->getPosition() + (m_player->PlayerFront * m_camera->GetPlayerPosOffset()), m_player->PlayerFront, m_camera->GetPlayerCamRearOffset(), m_camera->GetPlayerCamHeightOffset());
+		m_view = m_camera->GetViewMatrixPlayerFollow(m_player->getPosition() + (m_player->PlayerFront * m_camera->GetPlayerPosOffset()), glm::vec3(0.0f, 1.0f, 0.0f));
 	}
-	else if (m_camera->Mode == ENEMY_FOLLOW)
+	else if (m_camera->GetMode() == ENEMY_FOLLOW)
 	{
 		if (m_enemy->IsDestroyed())
 		{
-			m_camera->Mode = FLY;
+			m_camera->SetMode(FLY);
 			return;
 		}
-		m_camera->FollowTarget(m_enemy->GetPosition(), m_enemy->GetEnemyFront(), m_camera->enemyCamRearOffset, m_camera->enemyCamHeightOffset);
+		m_camera->FollowTarget(m_enemy->GetPosition(), m_enemy->GetEnemyFront(), m_camera->GetEnemyCamRearOffset(), m_camera->GetEnemyCamHeightOffset());
 		m_view = m_camera->GetViewMatrixEnemyFollow(m_enemy->GetPosition(), glm::vec3(0.0f, 1.0f, 0.0f));
 	}
-	else if (m_camera->Mode == FLY)
+	else if (m_camera->GetMode() == FLY)
 	{
 		if (m_firstFlyCamSwitch)
 		{
-			m_camera->FollowTarget(m_player->getPosition(), m_player->PlayerFront, m_camera->playerCamRearOffset, m_camera->playerCamHeightOffset);
+			m_camera->FollowTarget(m_player->getPosition(), m_player->PlayerFront, m_camera->GetPlayerCamRearOffset(), m_camera->GetPlayerCamHeightOffset());
 			m_firstFlyCamSwitch = false;
 			return;
 		}
 		m_view = m_camera->GetViewMatrix();
 	}
-	else if (m_camera->Mode == PLAYER_AIM)
+	else if (m_camera->GetMode() == PLAYER_AIM)
 	{
-		m_camera->Zoom = 40.0f;
-		if (m_camera->Pitch > 16.0f)
-			m_camera->Pitch = 16.0f;
+		m_camera->SetZoom(40.0f);
+		if (m_camera->GetPitch() > 16.0f)
+			m_camera->SetPitch(16.0f);
 
-		m_camera->FollowTarget(m_player->getPosition() + (m_player->PlayerFront * m_camera->playerPosOffset) + (m_player->PlayerRight * m_camera->playerAimRightOffset), m_player->PlayerAimFront, m_camera->playerCamRearOffset, m_camera->playerCamHeightOffset);
-		glm::vec3 target = m_player->getPosition() + (m_player->PlayerFront * m_camera->playerPosOffset);
+		m_camera->FollowTarget(m_player->getPosition() + (m_player->PlayerFront * m_camera->GetPlayerPosOffset()) + (m_player->PlayerRight * m_camera->GetPlayerAimRightOffset()), m_player->PlayerAimFront, m_camera->GetPlayerCamRearOffset(), m_camera->GetPlayerCamHeightOffset());
+		glm::vec3 target = m_player->getPosition() + (m_player->PlayerFront * m_camera->GetPlayerPosOffset());
 		if (target.y < 0.0f)
 			target.y = 0.0f;
 		m_view = m_camera->GetViewMatrixPlayerFollow(target, m_player->PlayerAimUp);
 	}
 	m_cubemapView = glm::mat4(glm::mat3(m_camera->GetViewMatrixPlayerFollow(m_player->getPosition(), glm::vec3(0.0f, 1.0f, 0.0f))));
 
-	m_projection = glm::perspective(glm::radians(m_camera->Zoom), (float)width / (float)height, 0.1f, 500.0f);
+	m_projection = glm::perspective(glm::radians(m_camera->GetZoom()), (float)width / (float)height, 0.1f, 500.0f);
 
 	m_minimapView = m_minimapCamera->GetViewMatrix();
-	m_minimapProjection = glm::perspective(glm::radians(m_camera->Zoom), (float)width / (float)height, 0.1f, 500.0f);
+	m_minimapProjection = glm::perspective(glm::radians(m_camera->GetZoom()), (float)width / (float)height, 0.1f, 500.0f);
 
 	m_player->SetCameraMatrices(m_view, m_projection);
 
@@ -274,20 +274,6 @@ void GameManager::SetUpDebugUi()
 void GameManager::ShowDebugUi()
 {
 	ShowLightControlWindow(dirLight);
-	ShowCameraControlWindow(*m_camera);
-
-	ImGui::Begin("Player");
-
-	ImGui::InputFloat3("Position", &m_player->getPosition()[0]);
-	ImGui::InputFloat("Yaw", &m_player->PlayerYaw);
-	ImGui::InputFloat3("Player Front", &m_player->PlayerFront[0]);
-	ImGui::InputFloat3("Player Aim Front", &m_player->PlayerAimFront[0]);
-	ImGui::InputFloat("Player Aim Pitch", &m_player->aimPitch);
-	ImGui::InputFloat("Player Rear Offset", &m_camera->playerCamRearOffset);
-	ImGui::InputFloat("Player Height Offset", &m_camera->playerCamHeightOffset);
-	ImGui::InputFloat("Player Pos Offset", &m_camera->playerPosOffset);
-	ImGui::InputFloat("Player Aim Right Offset", &m_camera->playerAimRightOffset);
-	ImGui::End();
 
 	ShowPerformanceWindow();
 	ShowEnemyStateWindow();
@@ -442,8 +428,8 @@ void GameManager::ResetGame()
 	for (Enemy* emy : m_enemies)
 	{
 		emy->ResetState();
-		m_physicsWorld->addCollider(emy->GetAABB());
-		m_physicsWorld->addEnemyCollider(emy->GetAABB());
+		m_physicsWorld->AddCollider(emy->GetAABB());
+		m_physicsWorld->AddEnemyCollider(emy->GetAABB());
 		emy->SetHealth(100.0f);
 	}
 
@@ -581,7 +567,7 @@ void GameManager::RenderPlayerCrosshairAndMuzzleFlash(bool isMainPass)
 		glm::vec3 crosshairHitpoint;
 		glm::vec3 crosshairCol;
 
-		if (m_physicsWorld->rayEnemyCrosshairIntersect(rayO, glm::normalize(rayEnd - rayO), crosshairHitpoint))
+		if (m_physicsWorld->RayEnemyCrosshairIntersect(rayO, glm::normalize(rayEnd - rayO), crosshairHitpoint))
 		{
 			crosshairCol = glm::vec3(1.0f, 0.0f, 0.0f);
 		}
@@ -602,40 +588,9 @@ void GameManager::RenderPlayerCrosshairAndMuzzleFlash(bool isMainPass)
 	}
 }
 
-void GameManager::ShowCameraControlWindow(Camera& cam)
-{
-	ImGui::Begin("Camera Control");
-
-	std::string modeText = "";
-
-	if (cam.Mode == FLY)
-	{
-		modeText = "Flycam";
-
-
-		cam.UpdateCameraVectors();
-	}
-	else if (cam.Mode == PLAYER_FOLLOW)
-		modeText = "Player Follow";
-	else if (cam.Mode == ENEMY_FOLLOW)
-		modeText = "Enemy Follow";
-	else if (cam.Mode == PLAYER_AIM)
-		modeText = "Player Aim"
-		;
-	ImGui::Text(modeText.c_str());
-
-	ImGui::InputFloat3("Position", (float*)&cam.Position);
-
-	ImGui::InputFloat("Pitch", (float*)&cam.Pitch);
-	ImGui::InputFloat("Yaw", (float*)&cam.Yaw);
-	ImGui::InputFloat("Zoom", (float*)&cam.Zoom);
-
-	ImGui::End();
-}
-
 void GameManager::Update(float deltaTime)
 {
-	m_inputManager->ProcessInput(m_window->getWindow(), deltaTime);
+	m_inputManager->ProcessInput(m_window->GetWindow(), deltaTime);
 	m_player->UpdatePlayerVectors();
 	m_player->UpdatePlayerAimVectors();
 
@@ -695,31 +650,31 @@ void GameManager::Render(bool isMinimapRenderPass, bool isShadowMapRenderPass, b
 			continue;
 		if (isMinimapRenderPass)
 		{
-			m_renderer->draw(obj, m_minimapView, m_minimapProjection, m_camera->Position, false, m_lightSpaceMatrix);
+			m_renderer->draw(obj, m_minimapView, m_minimapProjection, m_camera->GetPosition(), false, m_lightSpaceMatrix);
 		}
 		else if (isShadowMapRenderPass)
 		{
-			m_renderer->draw(obj, m_lightSpaceView, m_lightSpaceProjection, m_camera->Position, true, m_lightSpaceMatrix);
+			m_renderer->draw(obj, m_lightSpaceView, m_lightSpaceProjection, m_camera->GetPosition(), true, m_lightSpaceMatrix);
 		}
 		else
 		{
-			m_renderer->draw(obj, m_view, m_projection, m_camera->Position, false, m_lightSpaceMatrix);
+			m_renderer->draw(obj, m_view, m_projection, m_camera->GetPosition(), false, m_lightSpaceMatrix);
 		}
 	}
 
 	if (isMinimapRenderPass)
 	{
-		m_gameGrid->drawGrid(m_gridShader, m_minimapView, m_minimapProjection, m_camera->Position, false, m_lightSpaceMatrix, m_renderer->GetShadowMapTexture(),
+		m_gameGrid->drawGrid(m_gridShader, m_minimapView, m_minimapProjection, m_camera->GetPosition(), false, m_lightSpaceMatrix, m_renderer->GetShadowMapTexture(),
 			dirLight.direction, dirLight.ambient, dirLight.diffuse, dirLight.specular);
 	}
 	else if (isShadowMapRenderPass)
 	{
-		m_gameGrid->drawGrid(m_shadowMapShader, m_lightSpaceView, m_lightSpaceProjection, m_camera->Position, true, m_lightSpaceMatrix, m_renderer->GetShadowMapTexture(),
+		m_gameGrid->drawGrid(m_shadowMapShader, m_lightSpaceView, m_lightSpaceProjection, m_camera->GetPosition(), true, m_lightSpaceMatrix, m_renderer->GetShadowMapTexture(),
 			dirLight.direction, dirLight.ambient, dirLight.diffuse, dirLight.specular);
 	}
 	else
 	{
-		m_gameGrid->drawGrid(m_gridShader, m_view, m_projection, m_camera->Position, false, m_lightSpaceMatrix, m_renderer->GetShadowMapTexture(),
+		m_gameGrid->drawGrid(m_gridShader, m_view, m_projection, m_camera->GetPosition(), false, m_lightSpaceMatrix, m_renderer->GetShadowMapTexture(),
 			dirLight.direction, dirLight.ambient, dirLight.diffuse, dirLight.specular);
 	}
 

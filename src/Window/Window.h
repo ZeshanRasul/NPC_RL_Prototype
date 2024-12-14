@@ -8,25 +8,25 @@
 
 class Window {
 public:
-	bool init(unsigned int width, unsigned int height, std::string title);
-	void mainLoop();
-	bool isOpen() const { return !glfwWindowShouldClose(mWindow); };
-	void clear() { mRenderer->clear(); }
+	bool Init(unsigned int width, unsigned int height, std::string title);
+	void MainLoop();
+	bool IsOpen() const { return !glfwWindowShouldClose(m_window); };
+	void Clear() { m_renderer->clear(); }
 
-	GLFWwindow* getWindow() { return mWindow; }
-	Renderer* getRenderer() { return mRenderer; }
+	GLFWwindow* GetWindow() { return m_window; }
+	Renderer* GetRenderer() { return m_renderer; }
 
-	void setInputManager(InputManager* inputManager);
+	void SetInputManager(InputManager* inputManager);
 
-	unsigned int GetWidth() const { return mWidth; }
-	unsigned int GetHeight() const { return mHeight; }
+	unsigned int GetWidth() const { return m_width; }
+	unsigned int GetHeight() const { return m_height; }
 
-	void cleanup();
+	void Cleanup();
 
 private:
-	GLFWwindow* mWindow;
-	unsigned int mWidth;
-	unsigned int mHeight;
+	GLFWwindow* m_window;
+	unsigned int m_width;
+	unsigned int m_height;
 
-	Renderer* mRenderer;
+	Renderer* m_renderer;
 };

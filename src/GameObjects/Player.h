@@ -38,7 +38,7 @@ public:
 
 		if (!m_model->loadModel(modelFilename))
 		{
-			Logger::log(1, "%s: loading glTF m_model '%s' failed\n", __FUNCTION__, modelFilename.c_str());
+			Logger::Log(1, "%s: loading glTF m_model '%s' failed\n", __FUNCTION__, modelFilename.c_str());
 		}
 
 		m_tex = m_model->loadTexture(modelTextureFilename, false);
@@ -53,12 +53,12 @@ public:
 			"C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Models/GLTF/SwatPlayer/Swat_Ch15_body_AO.png");
 
 		m_model->uploadIndexBuffer();
-		Logger::log(1, "%s: glTF m_model '%s' succesfully loaded\n", __FUNCTION__, modelFilename.c_str());
+		Logger::Log(1, "%s: glTF m_model '%s' succesfully loaded\n", __FUNCTION__, modelFilename.c_str());
 
 		size_t playerModelJointDualQuatBufferSize = m_model->getJointDualQuatsSize() *
 			sizeof(glm::mat2x4);
 		mPlayerDualQuatSSBuffer.init(playerModelJointDualQuatBufferSize);
-		Logger::log(1, "%s: glTF joint dual quaternions shader storage buffer (size %i bytes) successfully created\n",
+		Logger::Log(1, "%s: glTF joint dual quaternions shader storage buffer (size %i bytes) successfully created\n",
 		            __FUNCTION__, playerModelJointDualQuatBufferSize);
 
 		takeDamageAC = new AudioComponent(this);
@@ -139,7 +139,7 @@ public:
 		glm::mat4 modelMatrix = translate(glm::mat4(1.0f), m_position) *
 			rotate(glm::mat4(1.0f), glm::radians(-m_yaw + 180.0f), glm::vec3(0.0f, 1.0f, 0.0f)) *
 			glm::scale(glm::mat4(1.0f), m_scale);
-		aabb->update(modelMatrix);
+		aabb->Update(modelMatrix);
 	}
 
 	AABB* GetAABB() const { return aabb; }

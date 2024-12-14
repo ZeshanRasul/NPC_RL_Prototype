@@ -14,20 +14,20 @@ bool Renderer::init(unsigned int width, unsigned int height)
 	// Load all OpenGL function pointers with GLAD
 	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
 	{
-		Logger::log(1, "%s error: failed to initialize GLAD\n", __FUNCTION__);
+		Logger::Log(1, "%s error: failed to initialize GLAD\n", __FUNCTION__);
 		return false;
 	}
 
 	if (!GLAD_GL_VERSION_4_6)
 	{
-		Logger::log(1, "%s error: failed to get at least OpenGL 3.3\n", __FUNCTION__);
+		Logger::Log(1, "%s error: failed to get at least OpenGL 3.3\n", __FUNCTION__);
 		return false;
 	}
 
 	GLint majorVersion, minorVersion;
 	glGetIntegerv(GL_MAJOR_VERSION, &majorVersion);
 	glGetIntegerv(GL_MINOR_VERSION, &minorVersion);
-	Logger::log(1, "%s: OpenGL %d.%d initializeed\n", __FUNCTION__, majorVersion, minorVersion);
+	Logger::Log(1, "%s: OpenGL %d.%d initializeed\n", __FUNCTION__, majorVersion, minorVersion);
 
 	glViewport(0, 0, width, height);
 
@@ -57,7 +57,7 @@ void Renderer::SetUpMinimapFBO(unsigned int width, unsigned int height)
 
 	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
 	{
-		Logger::log(1, "%s error: framebuffer is not complete\n", __FUNCTION__);
+		Logger::Log(1, "%s error: framebuffer is not complete\n", __FUNCTION__);
 	}
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);

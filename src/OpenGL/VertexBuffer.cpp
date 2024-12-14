@@ -20,7 +20,7 @@ void VertexBuffer::init()
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
 
-	Logger::log(1, "%s: VAO and VBO initialized\n", __FUNCTION__);
+	Logger::Log(1, "%s: VAO and VBO initialized\n", __FUNCTION__);
 }
 
 void VertexBuffer::cleanup()

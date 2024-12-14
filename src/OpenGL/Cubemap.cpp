@@ -29,7 +29,7 @@ GLuint Cubemap::LoadCubemap(std::vector<std::string> faces)
 		}
 		else
 		{
-			Logger::log(1, "%s: Cubemap texture failed to load at path: %s", __FUNCTION__, faces[i].c_str());
+			Logger::Log(1, "%s: Cubemap texture failed to load at path: %s", __FUNCTION__, faces[i].c_str());
 			stbi_image_free(data);
 		}
 	}

@@ -17,7 +17,7 @@ bool Texture::loadTexture(std::string textureFilename, bool flipImage)
 
 	if (!textureData)
 	{
-		Logger::log(1, "%s error: could not load file '%s'\n", __FUNCTION__, mTextureName.c_str());
+		Logger::Log(1, "%s error: could not load file '%s'\n", __FUNCTION__, mTextureName.c_str());
 		stbi_image_free(textureData);
 		return false;
 	}
@@ -45,7 +45,7 @@ bool Texture::loadTexture(std::string textureFilename, bool flipImage)
 
 	stbi_image_free(textureData);
 
-	Logger::log(1, "%s: texture '%s' loaded (%dx%d, %d channels)\n", __FUNCTION__, mTextureName.c_str(), mTexWidth,
+	Logger::Log(1, "%s: texture '%s' loaded (%dx%d, %d channels)\n", __FUNCTION__, mTextureName.c_str(), mTexWidth,
 	            mTexHeight, mNumberOfChannels);
 	return true;
 }

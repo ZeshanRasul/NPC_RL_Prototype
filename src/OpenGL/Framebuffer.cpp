@@ -22,7 +22,7 @@ bool Framebuffer::init(unsigned int width, unsigned int height)
 	glBindTexture(GL_TEXTURE_2D, 0);
 
 	glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, mColorTex, 0);
-	Logger::log(1, "%s: added color buffer\n", __FUNCTION__);
+	Logger::Log(1, "%s: added color buffer\n", __FUNCTION__);
 
 	/* render buffer as depth buffer */
 	glGenRenderbuffers(1, &mDepthBuffer);
@@ -31,7 +31,7 @@ bool Framebuffer::init(unsigned int width, unsigned int height)
 	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, mDepthBuffer);
 	glBindRenderbuffer(GL_RENDERBUFFER, 0);
 
-	Logger::log(1, "%s: added depth renderbuffer\n", __FUNCTION__);
+	Logger::Log(1, "%s: added depth renderbuffer\n", __FUNCTION__);
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 	return checkComplete();
@@ -48,7 +48,7 @@ void Framebuffer::cleanup()
 
 bool Framebuffer::resize(unsigned int newWidth, unsigned int newHeight)
 {
-	Logger::log(1, "%s: resizing framebuffer from %dx%d to %dx%d\n", __FUNCTION__, mBufferWidth, mBufferHeight,
+	Logger::Log(1, "%s: resizing framebuffer from %dx%d to %dx%d\n", __FUNCTION__, mBufferWidth, mBufferHeight,
 	            newWidth, newHeight);
 	mBufferWidth = newWidth;
 	mBufferHeight = newHeight;
@@ -87,11 +87,11 @@ bool Framebuffer::checkComplete()
 	GLenum result = glCheckFramebufferStatus(GL_FRAMEBUFFER);
 	if (result != GL_FRAMEBUFFER_COMPLETE)
 	{
-		Logger::log(1, "%s error: framebuffer is NOT complete\n", __FUNCTION__);
+		Logger::Log(1, "%s error: framebuffer is NOT complete\n", __FUNCTION__);
 		return false;
 	}
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-	Logger::log(1, "%s: framebuffer is complete\n", __FUNCTION__);
+	Logger::Log(1, "%s: framebuffer is complete\n", __FUNCTION__);
 	return true;
 }

@@ -23,19 +23,19 @@ bool GltfModel::loadModelNoAnim(std::string modelFilename)
 
 	if (!loaderWarnings.empty())
 	{
-		Logger::log(1, "%s: warnings while loading glTF model:\n%s\n", __FUNCTION__,
+		Logger::Log(1, "%s: warnings while loading glTF model:\n%s\n", __FUNCTION__,
 		            loaderWarnings.c_str());
 	}
 
 	if (!loaderErrors.empty())
 	{
-		Logger::log(1, "%s: errors while loading glTF model:\n%s\n", __FUNCTION__,
+		Logger::Log(1, "%s: errors while loading glTF model:\n%s\n", __FUNCTION__,
 		            loaderErrors.c_str());
 	}
 
 	if (!result)
 	{
-		Logger::log(1, "%s error: could not load file '%s'\n", __FUNCTION__,
+		Logger::Log(1, "%s error: could not load file '%s'\n", __FUNCTION__,
 		            modelFilename.c_str());
 		return false;
 	}
@@ -67,19 +67,19 @@ bool GltfModel::loadModel(std::string modelFilename, bool isEnemy)
 
 	if (!loaderWarnings.empty())
 	{
-		Logger::log(1, "%s: warnings while loading glTF model:\n%s\n", __FUNCTION__,
+		Logger::Log(1, "%s: warnings while loading glTF model:\n%s\n", __FUNCTION__,
 		            loaderWarnings.c_str());
 	}
 
 	if (!loaderErrors.empty())
 	{
-		Logger::log(1, "%s: errors while loading glTF model:\n%s\n", __FUNCTION__,
+		Logger::Log(1, "%s: errors while loading glTF model:\n%s\n", __FUNCTION__,
 		            loaderErrors.c_str());
 	}
 
 	if (!result)
 	{
-		Logger::log(1, "%s error: could not load file '%s'\n", __FUNCTION__,
+		Logger::Log(1, "%s error: could not load file '%s'\n", __FUNCTION__,
 		            modelFilename.c_str());
 		return false;
 	}
@@ -98,7 +98,7 @@ bool GltfModel::loadModel(std::string modelFilename, bool isEnemy)
 
 	mNodeCount = mModel->nodes.size();
 	int rootNode = mModel->scenes.at(0).nodes.at(0);
-	Logger::log(1, "%s: model has %i nodes, root node is %i\n", __FUNCTION__, mNodeCount, rootNode);
+	Logger::Log(1, "%s: model has %i nodes, root node is %i\n", __FUNCTION__, mNodeCount, rootNode);
 
 	mNodeList.resize(mNodeCount);
 
@@ -127,9 +127,9 @@ Texture GltfModel::loadTexture(std::string textureFilename, bool flip)
 {
 	if (!mTex.loadTexture(textureFilename, false))
 	{
-		Logger::log(1, "%s: texture loading failed\n", __FUNCTION__);
+		Logger::Log(1, "%s: texture loading failed\n", __FUNCTION__);
 	}
-	Logger::log(1, "%s: glTF model texture '%s' successfully loaded\n", __FUNCTION__,
+	Logger::Log(1, "%s: glTF model texture '%s' successfully loaded\n", __FUNCTION__,
 	            textureFilename.c_str());
 
 	return mTex;
@@ -161,24 +161,24 @@ void GltfModel::createVertexBuffers(bool isEnemy)
 			&& (attribType.compare("WEIGHTS_0") != 0) && (attribType.compare("COLOR_0") != 0)
 			&& (attribType.compare("COLOR_1") != 0 && (attribType.compare("TEXCOORD_1") != 0)))
 		{
-			Logger::log(1, "%s: skipping attribute type %s\n", __FUNCTION__, attribType.c_str());
+			Logger::Log(1, "%s: skipping attribute type %s\n", __FUNCTION__, attribType.c_str());
 			continue;
 		}
 
-		Logger::log(1, "%s: data for %s uses accessor %i\n", __FUNCTION__, attribType.c_str(),
+		Logger::Log(1, "%s: data for %s uses accessor %i\n", __FUNCTION__, attribType.c_str(),
 		            accessorNum);
 
 		if (attribType.compare("POSITION") == 0)
 		{
 			int numPositionEntries = accessor.count;
-			Logger::log(1, "%s: loaded %i vertices from glTF file\n", __FUNCTION__,
+			Logger::Log(1, "%s: loaded %i vertices from glTF file\n", __FUNCTION__,
 			            numPositionEntries);
 		}
 
 		if (attribType.compare("POSITION") == 0)
 		{
 			int numPositionEntries = accessor.count;
-			Logger::log(1, "%s: loaded %i vertices from glTF file\n", __FUNCTION__,
+			Logger::Log(1, "%s: loaded %i vertices from glTF file\n", __FUNCTION__,
 			            numPositionEntries);
 
 			// Extract vertices
@@ -310,7 +310,7 @@ void GltfModel::createVertexBuffers(bool isEnemy)
 			dataSize = 4;
 			break;
 		default:
-			Logger::log(1, "%s error: accessor %i uses data size %i\n", __FUNCTION__,
+			Logger::Log(1, "%s error: accessor %i uses data size %i\n", __FUNCTION__,
 			            accessorNum, accessor.type);
 			break;
 		}
@@ -328,7 +328,7 @@ void GltfModel::createVertexBuffers(bool isEnemy)
 			dataType = GL_UNSIGNED_BYTE;
 			break;
 		default:
-			Logger::log(1, "%s error: accessor %i uses unknown data type %i\n", __FUNCTION__,
+			Logger::Log(1, "%s error: accessor %i uses unknown data type %i\n", __FUNCTION__,
 			            accessorNum, accessor.componentType);
 			break;
 		}
@@ -486,7 +486,7 @@ int GltfModel::getTriangleCount()
 		triangles = indexAccessor.count / 3;
 		break;
 	default:
-		Logger::log(1, "%s error: unknown draw mode %i\n", __FUNCTION__, primitives.mode);
+		Logger::Log(1, "%s error: unknown draw mode %i\n", __FUNCTION__, primitives.mode);
 		break;
 	}
 	return triangles;
@@ -496,7 +496,7 @@ void GltfModel::getAnimations()
 {
 	for (const auto& anim : mModel->animations)
 	{
-		Logger::log(1, "%s: loading animation '%s' with %i channels\n", __FUNCTION__, anim.name.c_str(),
+		Logger::Log(1, "%s: loading animation '%s' with %i channels\n", __FUNCTION__, anim.name.c_str(),
 		            anim.channels.size());
 		auto clip = std::make_shared<GltfAnimationClip>(anim.name);
 		for (const auto& channel : anim.channels)
@@ -589,7 +589,7 @@ void GltfModel::draw(Texture tex)
 		drawMode = GL_TRIANGLES;
 		break;
 	default:
-		Logger::log(1, "%s error: unknown draw mode %i\n", __FUNCTION__, primitives.mode);
+		Logger::Log(1, "%s error: unknown draw mode %i\n", __FUNCTION__, primitives.mode);
 		break;
 	}
 
@@ -604,7 +604,7 @@ void GltfModel::getJointData()
 {
 	std::string jointsAccessorAttrib = "JOINTS_0";
 	int jointsAccessor = mModel->meshes.at(0).primitives.at(0).attributes.at(jointsAccessorAttrib);
-	Logger::log(1, "%s: using accessor %i to get %s\n", __FUNCTION__, jointsAccessor,
+	Logger::Log(1, "%s: using accessor %i to get %s\n", __FUNCTION__, jointsAccessor,
 	            jointsAccessorAttrib.c_str());
 
 	const tinygltf::Accessor& accessor = mModel->accessors.at(jointsAccessor);
@@ -612,7 +612,7 @@ void GltfModel::getJointData()
 	const tinygltf::Buffer& buffer = mModel->buffers.at(bufferView.buffer);
 
 	int jointVecSize = accessor.count;
-	Logger::log(1, "%s: %i short vec4 in JOINTS_0\n", __FUNCTION__, jointVecSize);
+	Logger::Log(1, "%s: %i short vec4 in JOINTS_0\n", __FUNCTION__, jointVecSize);
 	mJointVec.resize(jointVecSize);
 
 	std::memcpy(mJointVec.data(), &buffer.data.at(0) + bufferView.byteOffset,
@@ -625,7 +625,7 @@ void GltfModel::getJointData()
 	{
 		int destinationNode = skin.joints.at(i);
 		mNodeToJoint.at(destinationNode) = i;
-		Logger::log(2, "%s: joint %i affects node %i\n", __FUNCTION__, i, destinationNode);
+		Logger::Log(2, "%s: joint %i affects node %i\n", __FUNCTION__, i, destinationNode);
 	}
 }
 
@@ -633,7 +633,7 @@ void GltfModel::getWeightData()
 {
 	std::string weightsAccessorAttrib = "WEIGHTS_0";
 	int weightAccessor = mModel->meshes.at(0).primitives.at(0).attributes.at(weightsAccessorAttrib);
-	Logger::log(1, "%s: using accessor %i to get %s\n", __FUNCTION__, weightAccessor,
+	Logger::Log(1, "%s: using accessor %i to get %s\n", __FUNCTION__, weightAccessor,
 	            weightsAccessorAttrib.c_str());
 
 	const tinygltf::Accessor& accessor = mModel->accessors.at(weightAccessor);
@@ -641,7 +641,7 @@ void GltfModel::getWeightData()
 	const tinygltf::Buffer& buffer = mModel->buffers.at(bufferView.buffer);
 
 	int weightVecSize = accessor.count;
-	Logger::log(1, "%s: %i vec4 in WEIGHTS_0\n", __FUNCTION__, weightVecSize);
+	Logger::Log(1, "%s: %i vec4 in WEIGHTS_0\n", __FUNCTION__, weightVecSize);
 	mWeightVec.resize(weightVecSize);
 
 	std::memcpy(mWeightVec.data(), &buffer.data.at(0) + bufferView.byteOffset,
@@ -776,7 +776,7 @@ void GltfModel::updateJointMatricesAndQuats(std::shared_ptr<GltfNode> treeNode)
 	}
 	else
 	{
-		Logger::log(1, "%s error: could not decompose matrix for node %i\n", __FUNCTION__,
+		Logger::Log(1, "%s error: could not decompose matrix for node %i\n", __FUNCTION__,
 		            nodeNum);
 	}
 }

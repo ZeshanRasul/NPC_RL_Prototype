@@ -167,8 +167,7 @@ public:
 private:
 	void RenderEnemyLineAndMuzzleFlash(bool isMainPass, bool isMinimapPass, bool isShadowPass);
 	void RenderPlayerCrosshairAndMuzzleFlash(bool isMainPass);
-	
-	void ShowCameraControlWindow(Camera& cam);
+
 	void ShowLightControlWindow(DirLight& light);
 	void ShowPerformanceWindow();
 	void ShowEnemyStateWindow();

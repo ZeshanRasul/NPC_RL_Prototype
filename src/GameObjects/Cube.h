@@ -63,7 +63,7 @@ public:
 
 	void OnHit() override
 	{
-		Logger::log(1, "Cover was hit!\n", __FUNCTION__);
+		Logger::Log(1, "Cover was hit!\n", __FUNCTION__);
 		setAABBColor(glm::vec3(1.0f, 0.0f, 1.0f));
 		/*m_takeDamageAc->PlayEvent("event:/PlayerTakeDamage");*/
 		bulletHitAC->PlayEvent("event:/Metal_hit");
@@ -79,7 +79,7 @@ public:
 		glm::mat4 modelMatrix = translate(glm::mat4(1.0f), m_position) *
 			rotate(glm::mat4(1.0f), glm::radians(m_yaw), glm::vec3(0.0f, 1.0f, 0.0f)) *
 			glm::scale(glm::mat4(1.0f), m_scale);
-		aabb->update(modelMatrix);
+		aabb->Update(modelMatrix);
 	};
 
 	void SetUpAABB();

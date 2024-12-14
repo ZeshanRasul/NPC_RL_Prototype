@@ -18,14 +18,14 @@ public:
 
 		if (!m_model->loadModelNoAnim(modelFilename))
 		{
-			Logger::log(1, "%s: loading glTF m_model '%s' failed\n", __FUNCTION__, modelFilename.c_str());
+			Logger::Log(1, "%s: loading glTF m_model '%s' failed\n", __FUNCTION__, modelFilename.c_str());
 		}
 
 		m_model->loadTexture(modelTextureFilename, false);
 
 		m_model->uploadIndexBuffer();
 		m_model->uploadVertexBuffersNoAnimations();
-		Logger::log(1, "%s: glTF m_model '%s' succesfully loaded\n", __FUNCTION__, modelFilename.c_str());
+		Logger::Log(1, "%s: glTF m_model '%s' succesfully loaded\n", __FUNCTION__, modelFilename.c_str());
 
 
 		ComputeAudioWorldTransform();

@@ -31,7 +31,7 @@ int main()
 {
     App app(SCREEN_WIDTH, SCREEN_HEIGHT);
 
-    app.run();
+    app.Run();
 
     return 0;
 }

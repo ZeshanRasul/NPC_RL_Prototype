@@ -27,14 +27,14 @@ Enemy::Enemy(glm::vec3 pos, glm::vec3 scale, Shader* sdr, Shader* shadowMapShade
 
 	if (!m_model->loadModel(modelFilename, true))
 	{
-		Logger::log(1, "%s: loading glTF m_model '%s' failed\n", __FUNCTION__, modelFilename.c_str());
+		Logger::Log(1, "%s: loading glTF m_model '%s' failed\n", __FUNCTION__, modelFilename.c_str());
 	}
 
 	if (!m_tex.loadTexture(texFilename, false))
 	{
-		Logger::log(1, "%s: texture loading failed\n", __FUNCTION__);
+		Logger::Log(1, "%s: texture loading failed\n", __FUNCTION__);
 	}
-	Logger::log(1, "%s: glTF m_model texture '%s' successfully loaded\n", __FUNCTION__, texFilename.c_str());
+	Logger::Log(1, "%s: glTF m_model texture '%s' successfully loaded\n", __FUNCTION__, texFilename.c_str());
 
 	m_normal.loadTexture(
 		"C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Models/GLTF/Enemies/Ely/EnemyEly_ely_vanguardsoldier_kerwinatienza_M2_Normal.png");
@@ -81,12 +81,12 @@ void Enemy::SetUpModel()
 	}
 
 	m_model->uploadIndexBuffer();
-	Logger::log(1, "%s: glTF m_model '%s' successfully loaded\n", __FUNCTION__, m_model->filename.c_str());
+	Logger::Log(1, "%s: glTF m_model '%s' successfully loaded\n", __FUNCTION__, m_model->filename.c_str());
 
 	size_t enemyModelJointDualQuatBufferSize = m_model->getJointDualQuatsSize() *
 		sizeof(glm::mat2x4);
 	m_enemyDualQuatSsBuffer.init(enemyModelJointDualQuatBufferSize);
-	Logger::log(1, "%s: glTF joint dual quaternions shader storage buffer (size %i bytes) successfully created\n",
+	Logger::Log(1, "%s: glTF joint dual quaternions shader storage buffer (size %i bytes) successfully created\n",
 	            __FUNCTION__, enemyModelJointDualQuatBufferSize);
 }
 
@@ -113,7 +113,7 @@ void Enemy::DrawObject(glm::mat4 viewMat, glm::mat4 proj, bool shadowMap, glm::m
 	else
 	{
 		GetShader()->use();
-		m_shader->setVec3("cameraPos", m_gameManager->GetCamera()->Position);
+		m_shader->setVec3("cameraPos", m_gameManager->GetCamera()->GetPosition().x, m_gameManager->GetCamera()->GetPosition().y, m_gameManager->GetCamera()->GetPosition().z);
 		m_enemyDualQuatSsBuffer.uploadSsboData(m_model->getJointDualQuats(), 2);
 
 		m_tex.bind();
@@ -133,7 +133,7 @@ void Enemy::DrawObject(glm::mat4 viewMat, glm::mat4 proj, bool shadowMap, glm::m
 		m_shader->setInt("shadowMap", 6);
 		m_model->draw(m_tex);
 #ifdef _DEBUG
-		m_aabb->render(viewMat, proj, modelMat, m_aabbColor);
+		m_aabb->Render(viewMat, proj, modelMat, m_aabbColor);
 #endif
 	}
 }
@@ -178,8 +178,8 @@ void Enemy::Update(bool shouldUseEDBT)
 
 		if (m_isDestroyed)
 		{
-			GetGameManager()->GetPhysicsWorld()->removeCollider(GetAABB());
-			GetGameManager()->GetPhysicsWorld()->removeEnemyCollider(GetAABB());
+			GetGameManager()->GetPhysicsWorld()->RemoveCollider(GetAABB());
+			GetGameManager()->GetPhysicsWorld()->RemoveEnemyCollider(GetAABB());
 		}
 
 		if (m_resetBlend)
@@ -217,7 +217,7 @@ void Enemy::OnEvent(const Event& event)
 		if (e->npcID != m_id)
 		{
 			m_isPlayerDetected = true;
-			Logger::log(1, "Player detected by enemy %d\n", m_id);
+			Logger::Log(1, "Player detected by enemy %d\n", m_id);
 		}
 	}
 	else if (auto e = dynamic_cast<const NPCDamagedEvent*>(&event))
@@ -368,7 +368,7 @@ void Enemy::MoveEnemy(const std::vector<glm::ivec2>& path, float deltaTime, floa
 
 	if (m_pathIndex >= path.size())
 	{
-		Logger::log(1, "%s success: Agent has reached its destination.\n", __FUNCTION__);
+		Logger::Log(1, "%s success: Agent has reached its destination.\n", __FUNCTION__);
 		m_grid->VacateCell(path[m_pathIndex - 1].x, path[m_pathIndex - 1].y, m_id);
 
 		if (IsPatrolling() || m_state == "Patrol" || m_state == "PATROL")
@@ -568,7 +568,7 @@ void Enemy::Shoot()
 	UpdateEnemyVectors();
 
 	bool hit = false;
-	hit = GetGameManager()->GetPhysicsWorld()->rayPlayerIntersect(m_enemyShootPos, m_enemyShootDir, m_enemyHitPoint, m_aabb);
+	hit = GetGameManager()->GetPhysicsWorld()->RayPlayerIntersect(m_enemyShootPos, m_enemyShootDir, m_enemyHitPoint, m_aabb);
 
 	if (hit)
 	{
@@ -623,14 +623,14 @@ void Enemy::Shoot()
 void Enemy::SetUpAABB()
 {
 	m_aabb = new AABB();
-	m_aabb->calculateAABB(m_model->getVertices());
-	m_aabb->setShader(m_aabbShader);
+	m_aabb->CalculateAABB(m_model->getVertices());
+	m_aabb->SetShader(m_aabbShader);
 	UpdateAABB();
-	m_aabb->setUpMesh();
-	m_aabb->owner = this;
-	m_aabb->isEnemy = true;
-	m_gameManager->GetPhysicsWorld()->addCollider(GetAABB());
-	m_gameManager->GetPhysicsWorld()->addEnemyCollider(GetAABB());
+	m_aabb->SetUpMesh();
+	m_aabb->SetOwner(this);
+	m_aabb->SetIsEnemy(true);
+	m_gameManager->GetPhysicsWorld()->AddCollider(GetAABB());
+	m_gameManager->GetPhysicsWorld()->AddEnemyCollider(GetAABB());
 }
 
 void Enemy::Speak(const std::string& clipName, float priority, float cooldown)
@@ -640,7 +640,7 @@ void Enemy::Speak(const std::string& clipName, float priority, float cooldown)
 
 void Enemy::OnHit()
 {
-	Logger::log(1, "Enemy was hit!\n", __FUNCTION__);
+	Logger::Log(1, "Enemy was hit!\n", __FUNCTION__);
 	SetAABBColor(glm::vec3(1.0f, 0.0f, 1.0f));
 	TakeDamage(20.0f);
 	m_isTakingDamage = true;
@@ -694,7 +694,7 @@ void Enemy::TakeDamage(float damage)
 
 void Enemy::OnDeath()
 {
-	Logger::log(1, "%s Enemy Died!\n", __FUNCTION__);
+	Logger::Log(1, "%s Enemy Died!\n", __FUNCTION__);
 	m_isDying = true;
 	m_dyingTimer = 0.2f;
 	if (!m_hasDied && !m_resetBlend && m_destAnim != 0)
@@ -734,7 +734,7 @@ void Enemy::UpdateAABB()
 	glm::mat4 modelMatrix = translate(glm::mat4(1.0f), m_position) *
 		rotate(glm::mat4(1.0f), glm::radians(m_yaw + 90.0f), glm::vec3(0.0f, 1.0f, 0.0f)) *
 		glm::scale(glm::mat4(1.0f), m_aabbScale);
-	m_aabb->update(modelMatrix);
+	m_aabb->Update(modelMatrix);
 };
 
 void Enemy::ScoreCoverLocations(Player& player)
@@ -757,7 +757,7 @@ void Enemy::ScoreCoverLocations(Player& player)
 		glm::vec3 rayDirection = normalize(player.getPosition() - rayOrigin);
 		auto hitPoint = glm::vec3(0.0f);
 
-		bool visibleToPlayer = m_gameManager->GetPhysicsWorld()->checkPlayerVisibility(
+		bool visibleToPlayer = m_gameManager->GetPhysicsWorld()->CheckPlayerVisibility(
 			rayOrigin, rayDirection, hitPoint, m_aabb);
 		if (!visibleToPlayer)
 		{
@@ -1158,7 +1158,7 @@ void Enemy::EnemyDecision(State& currentState, int enemyId, std::vector<Action>&
 	squadActions[enemyId] = chosenAction;
 
 	// Print chosen action
-	Logger::log(1, "Enemy %d Chosen Action: %d with reward: %d", enemyId, chosenAction, reward);
+	Logger::Log(1, "Enemy %d Chosen Action: %d with reward: %d", enemyId, chosenAction, reward);
 }
 
 Action Enemy::ChooseActionFromTrainedQTable(const State& state, int enemyId,
@@ -1418,7 +1418,7 @@ void Enemy::EnemyDecisionPrecomputedQ(State& currentState, int enemyId, std::vec
 	squadActions[enemyId] = m_chosenAction;
 
 	// Print chosen action
-	Logger::log(1, "Enemy %d Chosen Action: %d", enemyId, m_chosenAction);
+	Logger::Log(1, "Enemy %d Chosen Action: %d", enemyId, m_chosenAction);
 }
 
 void Enemy::HasDealtDamage()
@@ -1702,7 +1702,7 @@ bool Enemy::IsPlayerVisible()
 	auto hitPoint = glm::vec3(0.0f);
 
 
-	m_isPlayerVisible = m_gameManager->GetPhysicsWorld()->checkPlayerVisibility(
+	m_isPlayerVisible = m_gameManager->GetPhysicsWorld()->CheckPlayerVisibility(
 		tempEnemyShootPos, tempEnemyShootDir, hitPoint, m_aabb);
 
 	return m_isPlayerVisible;
@@ -2166,7 +2166,7 @@ NodeStatus Enemy::InCoverAction()
 	glm::vec3 rayDirection = normalize(m_player.getPosition() - rayOrigin);
 	auto hitPoint = glm::vec3(0.0f);
 
-	bool visibleToPlayer = m_gameManager->GetPhysicsWorld()->checkPlayerVisibility(
+	bool visibleToPlayer = m_gameManager->GetPhysicsWorld()->CheckPlayerVisibility(
 		rayOrigin, rayDirection, hitPoint, m_aabb);
 
 	if (visibleToPlayer)

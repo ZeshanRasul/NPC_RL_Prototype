@@ -8,18 +8,18 @@ public:
 	App(unsigned int screenWidth, unsigned int screenHeight);
 	~App();
 
-	void run();
+	void Run();
 
-	Window& getWindow() { return *mWindow; }
+	Window& GetWindow() { return *m_window; }
 
 private:
-	Window* mWindow = nullptr;
-	GameManager* mGameManager = nullptr;
+	Window* m_window = nullptr;
+	GameManager* m_gameManager = nullptr;
 
-	unsigned int width;
-	unsigned int height;
+	unsigned int m_width;
+	unsigned int m_height;
 
-	float deltaTime = 0.0f;
-	float lastFrame = 0.0f;
-	float currentFrame = 0.0f;
+	float m_deltaTime = 0.0f;
+	float m_lastFrame = 0.0f;
+	float m_currentFrame = 0.0f;
 };
