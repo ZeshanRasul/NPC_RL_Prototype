@@ -9,9 +9,13 @@ public:
 	virtual ~Component();
 
 	virtual void Update(float deltaTime);
-	virtual void OnUpdateWorldTransform() { }
+
+	virtual void OnUpdateWorldTransform()
+	{
+	}
 
 	int GetUpdateOrder() const { return mUpdateOrder; }
+
 protected:
 	class GameObject* mOwner;
 	// Update order of component

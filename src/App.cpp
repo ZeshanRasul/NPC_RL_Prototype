@@ -28,7 +28,7 @@ App::~App()
 void App::run()
 {
 	while (mWindow->isOpen()) {
-		mGameManager->RemoveDestroyedGameObjects();
+		mGameManager->CheckGameOver();
 
 		currentFrame = (float)glfwGetTime();
 		deltaTime = currentFrame - lastFrame;

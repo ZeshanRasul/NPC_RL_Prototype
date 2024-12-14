@@ -5,24 +5,28 @@
 #include <glm/glm.hpp>
 #include <vector>
 
-struct Vertex {
+struct Vertex
+{
 	glm::vec3 position;
 	glm::vec3 color;
 	glm::vec2 uv;
 };
 
-struct Mesh {
+struct Mesh
+{
 	std::vector<Vertex> vertices;
 };
 
-struct Material {
+struct Material
+{
 	glm::vec3 ambient;
 	glm::vec3 diffuse;
 	glm::vec3 specular;
 	float shininess;
 };
 
-struct DirLight {
+struct DirLight
+{
 	glm::vec3 direction;
 
 	glm::vec3 ambient;
@@ -30,7 +34,8 @@ struct DirLight {
 	glm::vec3 specular;
 };
 
-struct PointLight {
+struct PointLight
+{
 	glm::vec3 position;
 
 	float constant;
@@ -42,7 +47,8 @@ struct PointLight {
 	glm::vec3 specular;
 };
 
-struct SpotLight {
+struct SpotLight
+{
 	glm::vec3 position;
 	glm::vec3 direction;
 	float cutoff;
@@ -53,7 +59,8 @@ struct SpotLight {
 	glm::vec3 specular;
 };
 
-struct RenderData {
+struct RenderData
+{
 	GLFWwindow* rdWindow = nullptr;
 
 	int rdWidth = 0;

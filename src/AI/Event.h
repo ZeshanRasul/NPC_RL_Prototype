@@ -16,7 +16,7 @@ class EventManager
 public:
 	using EventCallback = std::function<void(const Event&)>;
 
-	template<typename EventType>
+	template <typename EventType>
 	void Subscribe(EventCallback callback)
 	{
 		auto& subscribers = subscribers_[std::type_index(typeid(EventType))];

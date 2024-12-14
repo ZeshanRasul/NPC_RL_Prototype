@@ -7,7 +7,9 @@ class ConditionNode : public BTNode
 public:
 	using ConditionFunc = std::function<bool()>;
 
-	ConditionNode(ConditionFunc func) : conditionFunc_(func) {}
+	ConditionNode(ConditionFunc func) : conditionFunc_(func)
+	{
+	}
 
 	NodeStatus Tick() override
 	{

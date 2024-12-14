@@ -1,21 +1,28 @@
 #include "GltfAnimationClip.h"
 
-GltfAnimationClip::GltfAnimationClip(std::string name) : mClipName(name) {}
+GltfAnimationClip::GltfAnimationClip(std::string name) : mClipName(name)
+{
+}
 
 void GltfAnimationClip::addChannel(std::shared_ptr<tinygltf::Model> model,
-	tinygltf::Animation anim, tinygltf::AnimationChannel channel) {
-	std::shared_ptr<GltfAnimationChannel> chan = std::make_shared<GltfAnimationChannel>();
+                                   tinygltf::Animation anim, tinygltf::AnimationChannel channel)
+{
+	auto chan = std::make_shared<GltfAnimationChannel>();
 	chan->loadChannelData(model, anim, channel);
 	mAnimationChannels.push_back(chan);
 }
 
 void GltfAnimationClip::setAnimationFrame(std::vector<std::shared_ptr<GltfNode>> nodes, std::vector<bool> additiveMask,
-	float time) {
-	for (auto& channel : mAnimationChannels) {
+                                          float time)
+{
+	for (auto& channel : mAnimationChannels)
+	{
 		int targetNode = channel->getTargetNode();
 		/* do not change if masked out */
-		if (additiveMask.at(targetNode)) {
-			switch (channel->getTargetPath()) {
+		if (additiveMask.at(targetNode))
+		{
+			switch (channel->getTargetPath())
+			{
 			case ETargetPath::ROTATION:
 				nodes.at(targetNode)->setRotation(channel->getRotation(time));
 				break;
@@ -29,19 +36,26 @@ void GltfAnimationClip::setAnimationFrame(std::vector<std::shared_ptr<GltfNode>>
 		}
 	}
 	/* update all nodes in a single run */
-	for (auto& node : nodes) {
-		if (node) {
+	for (auto& node : nodes)
+	{
+		if (node)
+		{
 			node->calculateLocalTRSMatrix();
 		}
 	}
 }
 
-void GltfAnimationClip::blendAnimationFrame(std::vector<std::shared_ptr<GltfNode>> nodes, std::vector<bool> additiveMask,
-	float time, float blendFactor) {
-	for (auto& channel : mAnimationChannels) {
+void GltfAnimationClip::blendAnimationFrame(std::vector<std::shared_ptr<GltfNode>> nodes,
+                                            std::vector<bool> additiveMask,
+                                            float time, float blendFactor)
+{
+	for (auto& channel : mAnimationChannels)
+	{
 		int targetNode = channel->getTargetNode();
-		if (additiveMask.at(targetNode)) {
-			switch (channel->getTargetPath()) {
+		if (additiveMask.at(targetNode))
+		{
+			switch (channel->getTargetPath())
+			{
 			case ETargetPath::ROTATION:
 				nodes.at(targetNode)->blendRotation(channel->getRotation(time), blendFactor);
 				break;
@@ -55,17 +69,21 @@ void GltfAnimationClip::blendAnimationFrame(std::vector<std::shared_ptr<GltfNode
 		}
 	}
 	/* update all nodes in a single run */
-	for (auto& node : nodes) {
-		if (node) {
+	for (auto& node : nodes)
+	{
+		if (node)
+		{
 			node->calculateLocalTRSMatrix();
 		}
 	}
 }
 
-float GltfAnimationClip::getClipEndTime() {
-	return mAnimationChannels.at(0)->getMaxTime();;
+float GltfAnimationClip::getClipEndTime()
+{
+	return mAnimationChannels.at(0)->getMaxTime();
 }
 
-std::string GltfAnimationClip::getClipName() {
+std::string GltfAnimationClip::getClipName()
+{
 	return mClipName;
 }

@@ -1,7 +1,8 @@
 #include "VertexBuffer.h"
 #include "src/Tools/Logger.h"
 
-void VertexBuffer::init() {
+void VertexBuffer::init()
+{
 	glGenVertexArrays(1, &mVAO);
 	glGenBuffers(1, &mVertexVBO);
 
@@ -22,34 +23,41 @@ void VertexBuffer::init() {
 	Logger::log(1, "%s: VAO and VBO initialized\n", __FUNCTION__);
 }
 
-void VertexBuffer::cleanup() {
+void VertexBuffer::cleanup()
+{
 	glDeleteBuffers(1, &mVertexVBO);
 	glDeleteVertexArrays(1, &mVAO);
 }
 
-void VertexBuffer::uploadData(Mesh vertexData) {
+void VertexBuffer::uploadData(Mesh vertexData)
+{
 	glBindVertexArray(mVAO);
 	glBindBuffer(GL_ARRAY_BUFFER, mVertexVBO);
 
-	glBufferData(GL_ARRAY_BUFFER, vertexData.vertices.size() * sizeof(Vertex), &vertexData.vertices.at(0), GL_DYNAMIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, vertexData.vertices.size() * sizeof(Vertex), &vertexData.vertices.at(0),
+	             GL_DYNAMIC_DRAW);
 
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
 }
 
-void VertexBuffer::bind() {
+void VertexBuffer::bind()
+{
 	glBindVertexArray(mVAO);
 }
 
-void VertexBuffer::unbind() {
+void VertexBuffer::unbind()
+{
 	glBindVertexArray(0);
 }
 
-void VertexBuffer::draw(GLuint mode, unsigned int start, unsigned int num) {
+void VertexBuffer::draw(GLuint mode, unsigned int start, unsigned int num)
+{
 	glDrawArrays(mode, start, num);
 }
 
-void VertexBuffer::bindAndDraw(GLuint mode, unsigned int start, unsigned int num) {
+void VertexBuffer::bindAndDraw(GLuint mode, unsigned int start, unsigned int num)
+{
 	bind();
 	glDrawArrays(mode, start, num);
 	unbind();

@@ -11,44 +11,55 @@
 #include "Physics/AABB.h"
 #include "Components/AudioComponent.h"
 
-enum PlayerState {
+enum PlayerState
+{
 	MOVING,
 	AIMING,
 	SHOOTING,
 	PLAYER_STATE_COUNT
 };
 
-class Player : public GameObject {
+class Player : public GameObject
+{
 public:
-	Player(glm::vec3 pos, glm::vec3 scale, Shader* shdr, Shader* shadowMapShader, bool applySkinning, GameManager* gameMgr, float yaw = -90.0f)
+	Player(glm::vec3 pos, glm::vec3 scale, Shader* shdr, Shader* shadowMapShader, bool applySkinning,
+	       GameManager* gameMgr, float yaw = -90.0f)
 		: GameObject(pos, scale, yaw, shdr, shadowMapShader, applySkinning, gameMgr)
 	{
 		initialPos = pos;
 		initialYaw = yaw;
 
-		model = std::make_shared<GltfModel>();
+		m_model = std::make_shared<GltfModel>();
 
-		std::string modelFilename = "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Models/GLTF/SwatPlayer/Swat.gltf";
-		std::string modelTextureFilename = "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Models/GLTF/SwatPlayer/Swat_Ch15_body_BaseColor.png";
+		std::string modelFilename =
+			"C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Models/GLTF/SwatPlayer/Swat.gltf";
+		std::string modelTextureFilename =
+			"C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Models/GLTF/SwatPlayer/Swat_Ch15_body_BaseColor.png";
 
-		if (!model->loadModel(modelFilename)) {
-			Logger::log(1, "%s: loading glTF model '%s' failed\n", __FUNCTION__, modelFilename.c_str());
+		if (!m_model->loadModel(modelFilename))
+		{
+			Logger::log(1, "%s: loading glTF m_model '%s' failed\n", __FUNCTION__, modelFilename.c_str());
 		}
 
-		mTex = model->loadTexture(modelTextureFilename, false);
+		m_tex = m_model->loadTexture(modelTextureFilename, false);
 
-		mNormal.loadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Models/GLTF/SwatPlayer/Swat_Ch15_body_Normal.png");
-		mMetallic.loadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Models/GLTF/SwatPlayer/Swat_Ch15_body_Metallic.png");
-		mRoughness.loadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Models/GLTF/SwatPlayer/Swat_Ch15_body_Roughness.png");
-		mAO.loadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Models/GLTF/SwatPlayer/Swat_Ch15_body_AO.png");
+		mNormal.loadTexture(
+			"C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Models/GLTF/SwatPlayer/Swat_Ch15_body_Normal.png");
+		mMetallic.loadTexture(
+			"C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Models/GLTF/SwatPlayer/Swat_Ch15_body_Metallic.png");
+		mRoughness.loadTexture(
+			"C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Models/GLTF/SwatPlayer/Swat_Ch15_body_Roughness.png");
+		mAO.loadTexture(
+			"C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Models/GLTF/SwatPlayer/Swat_Ch15_body_AO.png");
 
-		model->uploadIndexBuffer();
-		Logger::log(1, "%s: glTF model '%s' succesfully loaded\n", __FUNCTION__, modelFilename.c_str());
+		m_model->uploadIndexBuffer();
+		Logger::log(1, "%s: glTF m_model '%s' succesfully loaded\n", __FUNCTION__, modelFilename.c_str());
 
-		size_t playerModelJointDualQuatBufferSize = model->getJointDualQuatsSize() *
+		size_t playerModelJointDualQuatBufferSize = m_model->getJointDualQuatsSize() *
 			sizeof(glm::mat2x4);
 		mPlayerDualQuatSSBuffer.init(playerModelJointDualQuatBufferSize);
-		Logger::log(1, "%s: glTF joint dual quaternions shader storage buffer (size %i bytes) successfully created\n", __FUNCTION__, playerModelJointDualQuatBufferSize);
+		Logger::log(1, "%s: glTF joint dual quaternions shader storage buffer (size %i bytes) successfully created\n",
+		            __FUNCTION__, playerModelJointDualQuatBufferSize);
 
 		takeDamageAC = new AudioComponent(this);
 		deathAC = new AudioComponent(this);
@@ -64,27 +75,31 @@ public:
 
 	~Player()
 	{
-		model->cleanup();
+		m_model->cleanup();
 	}
 
-	void drawObject(glm::mat4 viewMat, glm::mat4 proj, bool shadowMap, glm::mat4 lightSpaceMat, GLuint shadowMapTexture, glm::vec3 camPos) override;
+	void DrawObject(glm::mat4 viewMat, glm::mat4 proj, bool shadowMap, glm::mat4 lightSpaceMat, GLuint shadowMapTexture,
+	                glm::vec3 camPos) override;
 
 	void Update(float dt);
 
-	glm::vec3 getPosition() {
-		return position;
+	glm::vec3 getPosition()
+	{
+		return m_position;
 	}
 
-	void setPosition(glm::vec3 newPos) {
-		position = newPos;
-		mRecomputeWorldTransform = true;
+	void setPosition(glm::vec3 newPos)
+	{
+		m_position = newPos;
+		m_recomputeWorldTransform = true;
 	}
 
 	float GetInitialYaw() const { return initialYaw; }
 
-	void SetYaw(float newYaw) {
-		yaw = newYaw;
-		mRecomputeWorldTransform = true;
+	void SetYaw(float newYaw)
+	{
+		m_yaw = newYaw;
+		m_recomputeWorldTransform = true;
 	};
 
 	void ComputeAudioWorldTransform() override;
@@ -103,21 +118,27 @@ public:
 	PlayerState GetPlayerState() const { return mPlayerState; }
 	void SetPlayerState(PlayerState newState);
 
-	glm::vec3 GetShootPos() { return getPosition() + glm::vec3(0.0f, 4.5f, 0.0f) + (4.5f * PlayerAimFront) + (-0.5f * PlayerAimRight); }
+	glm::vec3 GetShootPos()
+	{
+		return getPosition() + glm::vec3(0.0f, 4.5f, 0.0f) + (4.5f * PlayerAimFront) + (-0.5f * PlayerAimRight);
+	}
+
 	float GetShootDistance() const { return shootDistance; }
 	glm::vec3 GetPlayerHitPoint() const { return playerShootHitPoint; }
 
 	void Shoot();
 
-	void SetCameraMatrices(glm::mat4 viewMat, glm::mat4 proj) {
+	void SetCameraMatrices(glm::mat4 viewMat, glm::mat4 proj)
+	{
 		view = viewMat;
 		projection = proj;
 	}
 
-	void updateAABB() {
-		glm::mat4 modelMatrix = glm::translate(glm::mat4(1.0f), position) *
-			glm::rotate(glm::mat4(1.0f), glm::radians(-yaw + 180.0f), glm::vec3(0.0f, 1.0f, 0.0f)) *
-			glm::scale(glm::mat4(1.0f), scale);
+	void updateAABB()
+	{
+		glm::mat4 modelMatrix = translate(glm::mat4(1.0f), m_position) *
+			rotate(glm::mat4(1.0f), glm::radians(-m_yaw + 180.0f), glm::vec3(0.0f, 1.0f, 0.0f)) *
+			glm::scale(glm::mat4(1.0f), m_scale);
 		aabb->update(modelMatrix);
 	}
 
@@ -126,7 +147,9 @@ public:
 	void setAABBColor(glm::vec3 color) { aabbColor = color; }
 
 	void OnHit() override;
-	void OnMiss() override {
+
+	void OnMiss() override
+	{
 		std::cout << "Player was missed!" << std::endl;
 		setAABBColor(glm::vec3(1.0f, 1.0f, 1.0f));
 	};
@@ -139,10 +162,12 @@ public:
 	float GetHealth() const { return health; }
 	void SetHealth(float newHealth) { health = newHealth; }
 
-	void TakeDamage(float damage) {
-		/*takeDamageAC->PlayEvent("event:/PlayerTakeDamage");*/
+	void TakeDamage(float damage)
+	{
+		/*m_takeDamageAc->PlayEvent("event:/PlayerTakeDamage");*/
 		SetHealth(GetHealth() - damage);
-		if (GetHealth() <= 0.0f) {
+		if (GetHealth() <= 0.0f)
+		{
 			OnDeath();
 		}
 	}
@@ -152,7 +177,9 @@ public:
 	int GetDestAnimNum() const { return destAnim; }
 	void SetAnimNum(int newAnimNum) { animNum = newAnimNum; }
 	void SetSourceAnimNum(int newSrcAnim) { sourceAnim = newSrcAnim; }
-	void SetDestAnimNum(int newDestAnim) {
+
+	void SetDestAnimNum(int newDestAnim)
+	{
 		destAnim = newDestAnim;
 		destAnimSet = true;
 	}
@@ -163,12 +190,16 @@ public:
 
 	void ResetGame();
 
-	void HasDealtDamage() override {};
-	void HasKilledPlayer() override {};
+	void HasDealtDamage() override
+	{
+	};
+
+	void HasKilledPlayer() override
+	{
+	};
 
 	CameraMovement prevDirection;
 
-public:
 	float PlayerYaw;
 	glm::vec3 PlayerFront;
 	glm::vec3 PlayerRight;

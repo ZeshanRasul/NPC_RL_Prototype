@@ -37,7 +37,7 @@
 
 class GameManager {
 private:
-	void SaveQTable(const std::unordered_map<std::pair<NashState, NashAction>, float, PairHash>& qTable, const std::string& filename) {
+	void SaveQTable(const std::unordered_map<std::pair<State, Action>, float, PairHash>& qTable, const std::string& filename) {
 		std::ofstream outFile(filename, std::ios::app);
 		if (!outFile) {
 			std::cerr << "Error opening file for writing: " << filename << std::endl;
@@ -45,8 +45,8 @@ private:
 		}
 
 		for (const auto& entry : qTable) {
-			const NashState& state = entry.first.first;
-			const NashAction& action = entry.first.second;
+			const State& state = entry.first.first;
+			const Action& action = entry.first.second;
 			float value = entry.second;
 
 			// Save state, action, and Q-value as comma-separated values
@@ -57,7 +57,7 @@ private:
 		outFile.close();
 	}
 
-	void LoadQTable(std::unordered_map<std::pair<NashState, NashAction>, float, PairHash>& qTable, const std::string& filename) {
+	void LoadQTable(std::unordered_map<std::pair<State, Action>, float, PairHash>& qTable, const std::string& filename) {
 		std::ifstream inFile(filename);
 		if (!inFile) {
 			std::cerr << "Error opening file for reading: " << filename << std::endl;
@@ -67,8 +67,8 @@ private:
 		std::string line;
 		while (getline(inFile, line)) {
 			std::istringstream iss(line);
-			NashState state;
-			NashAction action;
+			State state;
+			Action action;
 			float value;
 			char comma;
 
@@ -87,7 +87,7 @@ private:
 		inFile.close();
 	}
 
-	void InitializeQTable(std::unordered_map<std::pair<NashState, NashAction>, float, PairHash>& qTable) {
+	void InitializeQTable(std::unordered_map<std::pair<State, Action>, float, PairHash>& qTable) {
 		std::random_device rd;
 		std::mt19937 gen(rd());
 		std::uniform_real_distribution<float> dist(-0.1f, 0.1f);
@@ -100,8 +100,8 @@ private:
 				for (float distanceToPlayer : distances) {
 					for (float health : healthLevels) {
 						for (bool isSuppressionFire : {true, false}) {
-							NashState state = { playerDetected, playerVisible, distanceToPlayer, health, isSuppressionFire };
-							for (auto action : { NashAction::ATTACK, NashAction::ADVANCE, NashAction::RETREAT, NashAction::PATROL }) {
+							State state = { playerDetected, playerVisible, distanceToPlayer, health, isSuppressionFire };
+							for (auto action : { Action::ATTACK, Action::ADVANCE, Action::RETREAT, Action::PATROL }) {
 								qTable[{state, action}] = dist(gen);  // Assign random initial Q-value
 							}
 						}
@@ -151,7 +151,7 @@ public:
 	PhysicsWorld* GetPhysicsWorld() { return physicsWorld; }
 	Camera* GetCamera() { return camera; }
 
-	void RemoveDestroyedGameObjects();
+	void CheckGameOver();
 
 	void ResetGame();
 
@@ -175,7 +175,6 @@ private:
 	
 	void ShowCameraControlWindow(Camera& cam);
 	void ShowLightControlWindow(DirLight& light);
-	void ShowAnimationControlWindow();
 	void ShowPerformanceWindow();
 	void ShowEnemyStateWindow();
 
@@ -191,20 +190,20 @@ private:
 	bool initializeQTable = false;
 	bool training = false;
 	std::string mEnemyStateFilename = "EnemyStateQTable.csv";
-	std::unordered_map<std::pair<NashState, NashAction>, float, PairHash> mEnemyStateQTable[4];
-	std::vector<NashState> enemyStates = {
+	std::unordered_map<std::pair<State, Action>, float, PairHash> mEnemyStateQTable[4];
+	std::vector<State> enemyStates = {
 	{ false, false, 100.0f, 100.0f, false },
 	{ false, false, 100.0f, 100.0f, false },
 	{ false, false, 100.0f, 100.0f, false },
 	{ false, false, 100.0f, 100.0f, false }
 	};
 
-	std::vector<NashAction> squadActions =
+	std::vector<Action> squadActions =
 	{
-		NashAction::PATROL,
-		NashAction::PATROL,
-		NashAction::PATROL,
-		NashAction::PATROL,
+		Action::PATROL,
+		Action::PATROL,
+		Action::PATROL,
+		Action::PATROL,
 	};
 
 	float decisionTimer = 0.0f;

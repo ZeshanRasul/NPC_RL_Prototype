@@ -6,21 +6,25 @@
 #include <glm/glm.hpp>
 #include <glm/gtx/quaternion.hpp>
 
-enum class ETargetPath {
+enum class ETargetPath
+{
 	ROTATION,
 	TRANSLATION,
 	SCALE
 };
 
-enum class EInterpolationType {
+enum class EInterpolationType
+{
 	STEP,
 	LINEAR,
 	CUBICSPLINE
 };
 
-class GltfAnimationChannel {
+class GltfAnimationChannel
+{
 public:
-	void loadChannelData(std::shared_ptr<tinygltf::Model> model, tinygltf::Animation anim, tinygltf::AnimationChannel channel);
+	void loadChannelData(std::shared_ptr<tinygltf::Model> model, tinygltf::Animation anim,
+	                     tinygltf::AnimationChannel channel);
 
 	int getTargetNode();
 	ETargetPath getTargetPath();

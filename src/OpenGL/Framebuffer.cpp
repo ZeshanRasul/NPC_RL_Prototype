@@ -1,7 +1,8 @@
 #include "Framebuffer.h"
 #include "src/Tools/Logger.h"
 
-bool Framebuffer::init(unsigned int width, unsigned int height) {
+bool Framebuffer::init(unsigned int width, unsigned int height)
+{
 	mBufferWidth = width;
 	mBufferHeight = height;
 
@@ -12,7 +13,7 @@ bool Framebuffer::init(unsigned int width, unsigned int height) {
 	/* color texture */
 	glGenTextures(1, &mColorTex);
 	glBindTexture(GL_TEXTURE_2D, mColorTex);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
 
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
@@ -36,7 +37,8 @@ bool Framebuffer::init(unsigned int width, unsigned int height) {
 	return checkComplete();
 }
 
-void Framebuffer::cleanup() {
+void Framebuffer::cleanup()
+{
 	unbind();
 
 	glDeleteTextures(1, &mColorTex);
@@ -44,8 +46,10 @@ void Framebuffer::cleanup() {
 	glDeleteFramebuffers(1, &mBuffer);
 }
 
-bool Framebuffer::resize(unsigned int newWidth, unsigned int newHeight) {
-	Logger::log(1, "%s: resizing framebuffer from %dx%d to %dx%d\n", __FUNCTION__, mBufferWidth, mBufferHeight, newWidth, newHeight);
+bool Framebuffer::resize(unsigned int newWidth, unsigned int newHeight)
+{
+	Logger::log(1, "%s: resizing framebuffer from %dx%d to %dx%d\n", __FUNCTION__, mBufferWidth, mBufferHeight,
+	            newWidth, newHeight);
 	mBufferWidth = newWidth;
 	mBufferHeight = newHeight;
 
@@ -57,27 +61,32 @@ bool Framebuffer::resize(unsigned int newWidth, unsigned int newHeight) {
 	return init(newWidth, newHeight);
 }
 
-void Framebuffer::bind() {
+void Framebuffer::bind()
+{
 	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, mBuffer);
 }
 
-void Framebuffer::unbind() {
+void Framebuffer::unbind()
+{
 	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
 }
 
-void Framebuffer::drawToScreen() {
+void Framebuffer::drawToScreen()
+{
 	glBindFramebuffer(GL_READ_FRAMEBUFFER, mBuffer);
 	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
 	glBlitFramebuffer(0, 0, mBufferWidth, mBufferHeight, 0, 0, mBufferWidth, mBufferHeight,
-		GL_COLOR_BUFFER_BIT, GL_NEAREST);
+	                  GL_COLOR_BUFFER_BIT, GL_NEAREST);
 	glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
 }
 
-bool Framebuffer::checkComplete() {
+bool Framebuffer::checkComplete()
+{
 	glBindFramebuffer(GL_FRAMEBUFFER, mBuffer);
 
 	GLenum result = glCheckFramebufferStatus(GL_FRAMEBUFFER);
-	if (result != GL_FRAMEBUFFER_COMPLETE) {
+	if (result != GL_FRAMEBUFFER_COMPLETE)
+	{
 		Logger::log(1, "%s error: framebuffer is NOT complete\n", __FUNCTION__);
 		return false;
 	}

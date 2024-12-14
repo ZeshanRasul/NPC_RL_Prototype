@@ -18,7 +18,8 @@ bool Renderer::init(unsigned int width, unsigned int height)
 		return false;
 	}
 
-	if (!GLAD_GL_VERSION_4_6) {
+	if (!GLAD_GL_VERSION_4_6)
+	{
 		Logger::log(1, "%s error: failed to get at least OpenGL 3.3\n", __FUNCTION__);
 		return false;
 	}
@@ -71,12 +72,12 @@ void Renderer::SetUpShadowMapFBO(unsigned int width, unsigned int height)
 	// create depth texture
 	glGenTextures(1, &shadowMapTex);
 	glBindTexture(GL_TEXTURE_2D, shadowMapTex);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, width, height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, width, height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
-	float borderColor[] = { 1.0, 1.0, 1.0, 1.0 };
+	float borderColor[] = {1.0, 1.0, 1.0, 1.0};
 	glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);
 
 	// attach depth texture as FBO's depth buffer
@@ -95,7 +96,8 @@ void Renderer::setScene(glm::mat4 viewMat, glm::mat4 proj, glm::mat4 cmapView, D
 	sun = light;
 }
 
-void Renderer::draw(GameObject* gameObj, glm::mat4 viewMat, glm::mat4 proj, glm::vec3 camPos, bool shadowMap, glm::mat4 lightSpaceMat)
+void Renderer::draw(GameObject* gameObj, glm::mat4 viewMat, glm::mat4 proj, glm::vec3 camPos, bool shadowMap,
+                    glm::mat4 lightSpaceMat)
 {
 	Shader* shader;
 	if (shadowMap)
@@ -126,7 +128,6 @@ void Renderer::drawCubemap(Cubemap* cubemap)
 	cubemap->GetShader()->setMat4("projection", projection);
 
 	cubemap->Draw();
-
 }
 
 void Renderer::drawMinimap(Quad* minimapQuad, Shader* minimapShader)
@@ -147,7 +148,7 @@ void Renderer::drawShadowMap(Quad* shadowMapQuad, Shader* shadowMapShader)
 	glBindTexture(GL_TEXTURE_2D, shadowMapTex);
 	shadowMapShader->use();
 	shadowMapShader->setInt("shadowMap", 0);
-	glm::vec2 ndcOffset = glm::vec2(0.0f, 0.5f);
+	auto ndcOffset = glm::vec2(0.0f, 0.5f);
 	shadowMapShader->setVec2("ndcOffset", ndcOffset.x, ndcOffset.y);
 	shadowMapQuad->Draw();
 	glEnable(GL_DEPTH_TEST);

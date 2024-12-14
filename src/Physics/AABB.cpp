@@ -3,15 +3,21 @@
 #include <glm/gtc/matrix_transform.hpp>
 
 AABB::AABB()
-	: mMin(std::numeric_limits<float>::max()), mMax(std::numeric_limits<float>::lowest()) {}
+	: mMin(std::numeric_limits<float>::max()), mMax(std::numeric_limits<float>::lowest())
+{
+}
 
 AABB::AABB(const glm::vec3& min, const glm::vec3& max)
-	: mMin(min), mMax(max) {}
+	: mMin(min), mMax(max)
+{
+}
 
-void AABB::calculateAABB(const std::vector<glm::vec3>& vertices) {
-	for (const auto& vertex : vertices) {
-		mMin = glm::min(mMin, vertex);
-		mMax = glm::max(mMax, vertex);
+void AABB::calculateAABB(const std::vector<glm::vec3>& vertices)
+{
+	for (const auto& vertex : vertices)
+	{
+		mMin = min(mMin, vertex);
+		mMax = max(mMax, vertex);
 	}
 }
 
@@ -46,7 +52,7 @@ void AABB::setUpMesh()
 	glBufferData(GL_ARRAY_BUFFER, lineVertices.size() * sizeof(glm::vec3), lineVertices.data(), GL_DYNAMIC_DRAW);
 
 	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), (void*)0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), static_cast<void*>(nullptr));
 
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
@@ -58,15 +64,16 @@ void AABB::render(glm::mat4 viewMat, glm::mat4 proj, glm::mat4 model, glm::vec3 
 
 	shader->setMat4("projection", proj);
 	shader->setMat4("view", viewMat);
-	shader->setMat4("model", model);
+	shader->setMat4("m_model", model);
 	shader->setVec3("color", aabbColor);
 
 	glBindVertexArray(VAO);
-	glDrawArrays(GL_LINES, 0, (GLsizei)lineVertices.size());
+	glDrawArrays(GL_LINES, 0, static_cast<GLsizei>(lineVertices.size()));
 	glBindVertexArray(0);
 }
 
-void AABB::update(const glm::mat4& modelMatrix) {
+void AABB::update(const glm::mat4& modelMatrix)
+{
 	std::vector<glm::vec3> corners = {
 		mMin,
 		{mMin.x, mMin.y, mMax.z},
@@ -81,11 +88,12 @@ void AABB::update(const glm::mat4& modelMatrix) {
 	transformedMin = glm::vec3(std::numeric_limits<float>::max());
 	transformedMax = glm::vec3(std::numeric_limits<float>::lowest());
 
-	for (const auto& corner : corners) {
-		glm::vec3 transformed = glm::vec3(modelMatrix * glm::vec4(corner, 1.0f));
+	for (const auto& corner : corners)
+	{
+		auto transformed = glm::vec3(modelMatrix * glm::vec4(corner, 1.0f));
 
-		transformedMin = glm::min(transformedMin, transformed);
-		transformedMax = glm::max(transformedMax, transformed);
+		transformedMin = min(transformedMin, transformed);
+		transformedMax = max(transformedMax, transformed);
 	}
 
 	glm::vec3 min = transformedMin;
@@ -115,5 +123,4 @@ void AABB::update(const glm::mat4& modelMatrix) {
 
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
-
 }

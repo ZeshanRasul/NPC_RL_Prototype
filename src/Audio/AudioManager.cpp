@@ -7,7 +7,7 @@ void AudioManager::SubmitAudioRequest(int enemyId, const std::string& eventName,
 
 	if (isHighPriority || (enemyCooldowns[enemyId] <= 0.0f && globalCooldownTimer <= 0.0f))
 	{
-		AudioRequest request{ enemyId, eventName, priority, cooldown };
+		AudioRequest request{enemyId, eventName, priority, cooldown};
 		audioQueue.push(request);
 	}
 }
@@ -52,5 +52,4 @@ void AudioManager::ProcessNextAudioRequest()
 
 	globalCooldownTimer = globalCooldown;
 	enemyCooldowns[request.enemyId] = request.cooldown;
-
 }

@@ -11,7 +11,8 @@
 #include "Model/GltfNode.h"
 #include "Model/GltfAnimationClip.h"
 
-class GltfModel {
+class GltfModel
+{
 public:
 	std::shared_ptr<GltfModel> clone() const;
 
@@ -36,7 +37,7 @@ public:
 	void crossBlendAnimationFrame(int sourceAnimNumber, int destAnimNumber, float time, float blendFactor);
 	float getAnimationEndTime(int animNum);
 	std::string getClipName(int animNum);
-	int getAnimClipsSize() const { return (int)mAnimClips.size(); }
+	int getAnimClipsSize() const { return static_cast<int>(mAnimClips.size()); }
 
 	void resetNodeData();
 	std::string getNodeName(int nodeNum);
@@ -92,10 +93,16 @@ private:
 	std::vector<GLuint> mVertexVBO{};
 	GLuint mIndexVBO = 0;
 	std::map<std::string, GLint> attributes =
-	{ {"POSITION", 0}, {"NORMAL", 1}, {"TEXCOORD_0", 2}, { "TEXCOORD_1", 3 }, { "COLOR_0", 4 }, { "COLOR_1", 5 }, { "JOINTS_0", 6 }, { "WEIGHTS_0", 7 }, {"TANGENT", 8} };
+	{
+		{"POSITION", 0}, {"NORMAL", 1}, {"TEXCOORD_0", 2}, {"TEXCOORD_1", 3}, {"COLOR_0", 4}, {"COLOR_1", 5},
+		{"JOINTS_0", 6}, {"WEIGHTS_0", 7}, {"TANGENT", 8}
+	};
 
 	std::map<std::string, GLint> enemyAttributes =
-	{ {"POSITION", 0}, {"NORMAL", 1}, {"TEXCOORD_0", 2}, { "TEXCOORD_1", 3 }, { "JOINTS_0", 4 }, { "WEIGHTS_0", 5 }, { "TANGENT", 6 } };
+	{
+		{"POSITION", 0}, {"NORMAL", 1}, {"TEXCOORD_0", 2}, {"TEXCOORD_1", 3}, {"JOINTS_0", 4}, {"WEIGHTS_0", 5},
+		{"TANGENT", 6}
+	};
 
 
 	Texture mTex{};

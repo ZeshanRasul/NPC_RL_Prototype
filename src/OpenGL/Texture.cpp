@@ -3,17 +3,20 @@
 #include "Texture.h"
 #include "src/Tools/Logger.h"
 
-void Texture::cleanup() {
+void Texture::cleanup()
+{
 	glDeleteTextures(1, &mTexture);
 }
 
-bool Texture::loadTexture(std::string textureFilename, bool flipImage) {
+bool Texture::loadTexture(std::string textureFilename, bool flipImage)
+{
 	mTextureName = textureFilename;
 
 	stbi_set_flip_vertically_on_load(flipImage);
 	unsigned char* textureData = stbi_load(textureFilename.c_str(), &mTexWidth, &mTexHeight, &mNumberOfChannels, 0);
 
-	if (!textureData) {
+	if (!textureData)
+	{
 		Logger::log(1, "%s error: could not load file '%s'\n", __FUNCTION__, mTextureName.c_str());
 		stbi_image_free(textureData);
 		return false;
@@ -42,15 +45,18 @@ bool Texture::loadTexture(std::string textureFilename, bool flipImage) {
 
 	stbi_image_free(textureData);
 
-	Logger::log(1, "%s: texture '%s' loaded (%dx%d, %d channels)\n", __FUNCTION__, mTextureName.c_str(), mTexWidth, mTexHeight, mNumberOfChannels);
+	Logger::log(1, "%s: texture '%s' loaded (%dx%d, %d channels)\n", __FUNCTION__, mTextureName.c_str(), mTexWidth,
+	            mTexHeight, mNumberOfChannels);
 	return true;
 }
 
-void Texture::bind(int texIndex) {
+void Texture::bind(int texIndex)
+{
 	glActiveTexture(GL_TEXTURE0 + texIndex);
 	glBindTexture(GL_TEXTURE_2D, mTexture);
 }
 
-void Texture::unbind() {
+void Texture::unbind()
+{
 	glBindTexture(GL_TEXTURE_2D, 0);
 }

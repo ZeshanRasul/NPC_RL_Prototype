@@ -8,7 +8,8 @@
 
 #include <GLFW/glfw3.h>
 
-class Renderer {
+class Renderer
+{
 public:
 	Renderer(GLFWwindow* window);
 
@@ -17,7 +18,8 @@ public:
 	void SetUpShadowMapFBO(unsigned int width, unsigned int height);
 
 	void setScene(glm::mat4 viewMat, glm::mat4 proj, glm::mat4 cmapView, DirLight light);
-	void draw(GameObject* gameObj, glm::mat4 viewMat, glm::mat4 proj, glm::vec3 camPos, bool shadowMap, glm::mat4 lightSpaceMat);
+	void draw(GameObject* gameObj, glm::mat4 viewMat, glm::mat4 proj, glm::vec3 camPos, bool shadowMap,
+	          glm::mat4 lightSpaceMat);
 	void drawCubemap(Cubemap* cubemap);
 	void drawMinimap(Quad* minimapQuad, Shader* minimapShader);
 	void drawShadowMap(Quad* shadowMapQuad, Shader* shadowMapShader);

@@ -3,7 +3,8 @@
 #include <glm/glm.hpp>
 #include <glad/glad.h>
 
-class UniformBuffer {
+class UniformBuffer
+{
 public:
 	void init(size_t bufferSize);
 	void uploadUboData(std::vector<glm::mat4> bufferData, int bindingPoint);

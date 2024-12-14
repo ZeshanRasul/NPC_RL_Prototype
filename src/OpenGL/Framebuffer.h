@@ -2,7 +2,8 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
-class Framebuffer {
+class Framebuffer
+{
 public:
 	bool init(unsigned int width, unsigned int height);
 	bool resize(unsigned int newWidth, unsigned int newHeight);

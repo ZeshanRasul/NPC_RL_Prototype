@@ -4,18 +4,21 @@
 #include "UniformBuffer.h"
 #include "src/Tools/Logger.h"
 
-void UniformBuffer::init(size_t bufferSize) {
+void UniformBuffer::init(size_t bufferSize)
+{
 	mBufferSize = bufferSize;
 
 	glGenBuffers(1, &mUboBuffer);
 
 	glBindBuffer(GL_UNIFORM_BUFFER, mUboBuffer);
-	glBufferData(GL_UNIFORM_BUFFER, mBufferSize, NULL, GL_STATIC_DRAW);
+	glBufferData(GL_UNIFORM_BUFFER, mBufferSize, nullptr, GL_STATIC_DRAW);
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 }
 
-void UniformBuffer::uploadUboData(std::vector<glm::mat4> bufferData, int bindingPoint) {
-	if (bufferData.size() == 0) {
+void UniformBuffer::uploadUboData(std::vector<glm::mat4> bufferData, int bindingPoint)
+{
+	if (bufferData.size() == 0)
+	{
 		return;
 	}
 	size_t bufferSize = bufferData.size() * sizeof(glm::mat4);
@@ -25,8 +28,10 @@ void UniformBuffer::uploadUboData(std::vector<glm::mat4> bufferData, int binding
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 }
 
-void UniformBuffer::uploadColorUboData(std::vector<glm::vec3> bufferData, int bindingPoint) {
-	if (bufferData.size() == 0) {
+void UniformBuffer::uploadColorUboData(std::vector<glm::vec3> bufferData, int bindingPoint)
+{
+	if (bufferData.size() == 0)
+	{
 		return;
 	}
 	size_t bufferSize = bufferData.size() * sizeof(glm::vec3);
@@ -36,6 +41,7 @@ void UniformBuffer::uploadColorUboData(std::vector<glm::vec3> bufferData, int bi
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 }
 
-void UniformBuffer::cleanup() {
+void UniformBuffer::cleanup()
+{
 	glDeleteBuffers(1, &mUboBuffer);
 }

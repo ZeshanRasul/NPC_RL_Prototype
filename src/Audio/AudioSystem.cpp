@@ -8,9 +8,9 @@
 unsigned int AudioSystem::sNextID = 0;
 
 AudioSystem::AudioSystem(GameManager* game)
-	:mGameManager(game)
-	, mSystem(nullptr)
-	, mLowLevelSystem(nullptr)
+	: mGameManager(game)
+	  , mSystem(nullptr)
+	  , mLowLevelSystem(nullptr)
 {
 }
 
@@ -72,7 +72,7 @@ void AudioSystem::Shutdown()
 void AudioSystem::LoadBank(const std::string& name)
 {
 	// Prevent double-loading
-	if (mBanks.find(name) != mBanks.end())
+	if (mBanks.contains(name))
 	{
 		return;
 	}
@@ -85,7 +85,7 @@ void AudioSystem::LoadBank(const std::string& name)
 		&bank // Save pointer to bank
 	);
 
-	const int maxPathLength = 512;
+	constexpr int maxPathLength = 512;
 	if (result == FMOD_OK)
 	{
 		// Add bank to map
@@ -274,7 +274,7 @@ namespace
 void AudioSystem::SetListener(const glm::mat4& viewMatrix)
 {
 	// Invert the view matrix to get the correct vectors
-	glm::mat4 invView = glm::inverse(viewMatrix);
+	glm::mat4 invView = inverse(viewMatrix);
 	FMOD_3D_ATTRIBUTES listener;
 	// Set position, forward, up
 	listener.position = VecToFMOD(glm::vec3(viewMatrix[3]));
@@ -283,7 +283,7 @@ void AudioSystem::SetListener(const glm::mat4& viewMatrix)
 	// In the inverted view, second row is up
 	listener.up = VecToFMOD(glm::vec3(viewMatrix[0][1], viewMatrix[1][1], viewMatrix[2][1]));
 	// Set velocity to zero (fix if using Doppler effect)
-	listener.velocity = { 0.0f, 0.0f, 0.0f };
+	listener.velocity = {0.0f, 0.0f, 0.0f};
 	// Send to FMOD
 	mSystem->setListenerAttributes(0, &listener);
 }

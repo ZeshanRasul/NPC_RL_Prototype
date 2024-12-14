@@ -3,7 +3,8 @@
 #include <glm/glm.hpp>
 #include <glad/glad.h>
 
-class ShaderStorageBuffer {
+class ShaderStorageBuffer
+{
 public:
 	void init(size_t bufferSize);
 	void uploadSsboData(std::vector<glm::mat4> bufferData, int bindingPoint) const;

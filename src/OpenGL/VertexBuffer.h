@@ -6,7 +6,8 @@
 
 #include "src/OpenGL/RenderData.h"
 
-class VertexBuffer {
+class VertexBuffer
+{
 public:
 	void init();
 	void uploadData(Mesh vertexData);

@@ -75,7 +75,7 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 
 	cell = new Cell();
 	cell->SetUpVAO();
-	//    cell->LoadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/Ground.png", cell->mTex);
+	//    cell->LoadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/Ground.png", cell->m_tex);
 	std::string cubeTexFilename = "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/Cover.png";
 
 	gameGrid = new Grid();
@@ -159,10 +159,6 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 
 	inputManager->setContext(camera, player, enemy, width, height);
 
-	/* reset skeleton split */
-	playerSkeletonSplitNode = player->model->getNodeCount() - 1;
-	enemySkeletonSplitNode = enemy->model->getNodeCount() - 1;
-
 	std::srand(static_cast<unsigned int>(std::time(nullptr)));
 
 	gameObjects.push_back(player);
@@ -223,13 +219,13 @@ void GameManager::setupCamera(unsigned int width, unsigned int height)
 	}
 	else if (camera->Mode == ENEMY_FOLLOW)
 	{
-		if (enemy->isDestroyed)
+		if (enemy->IsDestroyed())
 		{
 			camera->Mode = FLY;
 			return;
 		}
-		camera->FollowTarget(enemy->getPosition(), enemy->GetEnemyFront(), camera->enemyCamRearOffset, camera->enemyCamHeightOffset);
-		view = camera->GetViewMatrixEnemyFollow(enemy->getPosition(), glm::vec3(0.0f, 1.0f, 0.0f));
+		camera->FollowTarget(enemy->GetPosition(), enemy->GetEnemyFront(), camera->enemyCamRearOffset, camera->enemyCamHeightOffset);
+		view = camera->GetViewMatrixEnemyFollow(enemy->GetPosition(), glm::vec3(0.0f, 1.0f, 0.0f));
 	}
 	else if (camera->Mode == FLY)
 	{
@@ -294,7 +290,6 @@ void GameManager::showDebugUI()
 	ImGui::InputFloat("Player Pos Offset", &camera->playerPosOffset);
 	ImGui::InputFloat("Player Aim Right Offset", &camera->playerAimRightOffset);
 	ImGui::End();
-	ShowAnimationControlWindow();
 
 	ShowPerformanceWindow();
 	ShowEnemyStateWindow();
@@ -330,68 +325,6 @@ void GameManager::ShowLightControlWindow(DirLight& light)
 	ImGui::End();
 }
 
-void GameManager::ShowAnimationControlWindow()
-{
-	ImGui::Begin("Player Animation Control");
-
-	ImGui::Checkbox("Blending Type: ", &playerCrossBlend);
-	ImGui::SameLine();
-	if (playerCrossBlend)
-	{
-		ImGui::Text("Cross");
-	}
-	else
-	{
-		ImGui::Text("Single");
-	}
-
-	if (playerCrossBlend)
-		ImGui::BeginDisabled();
-
-	ImGui::Text("Player Blend Factor");
-	ImGui::SameLine();
-	ImGui::SliderFloat("##PlayerBlendFactor", &playerAnimBlendFactor, 0.0f, 1.0f);
-
-	if (playerCrossBlend)
-		ImGui::EndDisabled();
-
-	if (!playerCrossBlend)
-		ImGui::BeginDisabled();
-
-	ImGui::Text("Source Clip   ");
-	ImGui::SameLine();
-	ImGui::SliderInt("##SourceClip", &playerCrossBlendSourceClip, 0, player->model->getAnimClipsSize() - 1);
-
-
-	ImGui::Text("Dest Clip   ");
-	ImGui::SameLine();
-	ImGui::SliderInt("##DestClip", &playerCrossBlendDestClip, 0, player->model->getAnimClipsSize() - 1);
-
-	ImGui::Text("Cross Blend ");
-	ImGui::SameLine();
-	ImGui::SliderFloat("##CrossBlendFactor", &playerAnimCrossBlendFactor, 0.0f, 1.0f);
-
-	ImGui::Checkbox("Additive Blending", &playerAdditiveBlend);
-
-	if (!playerAdditiveBlend) {
-		ImGui::BeginDisabled();
-	}
-	ImGui::Text("Split Node  ");
-	ImGui::SameLine();
-	ImGui::SliderInt("##SplitNode", &playerSkeletonSplitNode, 0, player->model->getNodeCount() - 1);
-	ImGui::Text("Split Node Name: %s", playerSkeletonSplitNodeName.c_str());
-
-	if (!playerAdditiveBlend) {
-		ImGui::EndDisabled();
-	}
-
-	if (!playerCrossBlend)
-		ImGui::EndDisabled();
-
-	ImGui::End();
-
-}
-
 void GameManager::ShowPerformanceWindow()
 {
 	ImGui::Begin("Performance");
@@ -421,9 +354,9 @@ void GameManager::ShowEnemyStateWindow()
 
 	for (Enemy* e : enemies)
 	{
-		if (e == nullptr || e->isDestroyed)
+		if (e == nullptr || e->IsDestroyed())
 			continue;
-		ImTextureID texID = (void*)(intptr_t)e->mTex.getTexID();
+		ImTextureID texID = (void*)(intptr_t)e->GetTexture().getTexID();
 		ImGui::Image(texID, ImVec2(100, 100));
 		ImGui::SameLine();
 		ImGui::Text("Enemy %d", e->GetID());
@@ -457,61 +390,24 @@ void GameManager::calculatePerformance(float deltaTime)
 
 void GameManager::CreateLightSpaceMatrices()
 {
-	float gridWidth = gameGrid->GetCellSize() * gameGrid->GetGridSize();
+	int gridWidth = gameGrid->GetCellSize() * gameGrid->GetGridSize();
 	glm::vec3 sceneCenter = glm::vec3(gridWidth / 2.0f, 0.0f, gridWidth / 2.0f);
 
 	glm::vec3 lightDir = glm::normalize(dirLight.direction);
 
 	float sceneDiagonal = glm::sqrt(gridWidth * gridWidth + gridWidth * gridWidth);
 
-	//orthoLeft = -gridWidth * 2.0f;
-	//orthoRight = gridWidth * 2.0f;
-	//orthoBottom = -gridWidth * 2.0f;
-	//orthoTop = gridWidth * 2.0f;
-//	near_plane = 1.0f;
-//	far_plane = 150.0f;
 	lightSpaceProjection = glm::ortho(orthoLeft, orthoRight, orthoBottom, orthoTop, near_plane, far_plane);
 
 	glm::vec3 lightPos = sceneCenter - lightDir * sceneDiagonal;
-	//lightPos.y += 50.0f;
 
 	lightSpaceView = glm::lookAt(lightPos, sceneCenter, glm::vec3(0.0f, -1.0f, 0.0f));
 	lightSpaceMatrix = lightSpaceProjection * lightSpaceView;
 }
 
-void GameManager::RemoveDestroyedGameObjects()
+void GameManager::CheckGameOver()
 {
-	//for (auto it = gameObjects.begin(); it != gameObjects.end(); ) {
-	//    if ((*it)->isDestroyed) {
-	//        if ((*it)->isEnemy)
-	//        {
-				//for (auto it2 = enemies.begin(); it2 != enemies.end(); )
-				//{
-				//	if ((*it2) == (*it))
-				//	{
-				//		delete* it2;
-				//		*it2 = nullptr;
-				//		it2 = enemies.erase(it2);
-				//	}
-				//	else
-				//	{
-				//		++it2;
-				//	}
-				//}
-	//        }
-	//        else
-	//        {
-	//            delete* it; 
-	//            *it = nullptr;
-	//        }
-	//        it = gameObjects.erase(it); 
-	//    }
-	//    else {
-	//        ++it;
-	//    }
-	//}
-
-	if ((enemy->isDestroyed && enemy2->isDestroyed && enemy3->isDestroyed && enemy4->isDestroyed) || player->isDestroyed)
+	if ((enemy->IsDestroyed() && enemy2->IsDestroyed() && enemy3->IsDestroyed() && enemy4->IsDestroyed()) || player->IsDestroyed())
 		ResetGame();
 }
 
@@ -522,38 +418,30 @@ void GameManager::ResetGame()
 	player->setPosition(player->initialPos);
 	player->SetYaw(player->GetInitialYaw());
 	player->SetAnimNum(0);
-	player->isDestroyed = false;
+	player->SetIsDestroyed(false);
 	player->SetHealth(100.0f);
 	player->UpdatePlayerVectors();
 	player->UpdatePlayerAimVectors();
 	player->SetPlayerState(PlayerState::MOVING);
 	player->aabbColor = glm::vec3(0.0f, 0.0f, 1.0f);
-	enemy->isDestroyed = false;
-	enemy2->isDestroyed = false;
-	enemy3->isDestroyed = false;
-	enemy4->isDestroyed = false;
-	enemy->isDead_ = false;
-	enemy2->isDead_ = false;
-	enemy3->isDead_ = false;
-	enemy4->isDead_ = false;
-	enemy->setPosition(enemy->getInitialPosition());
-	enemy2->setPosition(enemy2->getInitialPosition());
-	enemy3->setPosition(enemy3->getInitialPosition());
-	enemy4->setPosition(enemy4->getInitialPosition());
+	enemy->SetIsDestroyed(false);
+	enemy2->SetIsDestroyed(false);
+	enemy3->SetIsDestroyed(false);
+	enemy4->SetIsDestroyed(false);
+	enemy->SetIsDead(false);
+	enemy2->SetIsDead(false);
+	enemy3->SetIsDead(false);
+	enemy4->SetIsDead(false);
+	enemy->SetPosition(enemy->GetInitialPosition());
+	enemy2->SetPosition(enemy2->GetInitialPosition());
+	enemy3->SetPosition(enemy3->GetInitialPosition());
+	enemy4->SetPosition(enemy4->GetInitialPosition());
 	enemyStates = {
 		{ false, false, 100.0f, 100.0f, false },
 		{ false, false, 100.0f, 100.0f, false },
 		{ false, false, 100.0f, 100.0f, false },
 		{ false, false, 100.0f, 100.0f, false }
 	};
-	//enemies.push_back(enemy);
-	//enemies.push_back(enemy2);
-	//enemies.push_back(enemy3);
-	//enemies.push_back(enemy4);
-	//gameObjects.push_back(enemy);
-	//gameObjects.push_back(enemy2);
-	//gameObjects.push_back(enemy3);
-	//gameObjects.push_back(enemy4);
 
 	for (Enemy* emy : enemies)
 	{
@@ -569,7 +457,7 @@ void GameManager::RenderEnemyLineAndMuzzleFlash(bool isMainPass, bool isMinimapP
 {
 	for (auto& enem : enemies)
 	{
-		if (!enem->isDestroyed)
+		if (!enem->IsDestroyed())
 		{
 			glm::vec3 enemyRayEnd = glm::vec3(0.0f);
 
@@ -577,7 +465,7 @@ void GameManager::RenderEnemyLineAndMuzzleFlash(bool isMainPass, bool isMinimapP
 
 			if (enem->GetEnemyHasShot())
 			{
-				float enemyMuzzleCurrentTime = glfwGetTime();
+				float enemyMuzzleCurrentTime = (float)glfwGetTime();
 
 				if (renderEnemyMuzzleFlash.at(enemyID) && enemyMuzzleFlashStartTime.at(enemyID) + enemyMuzzleFlashDuration.at(enemyID) > enemyMuzzleCurrentTime)
 				{
@@ -598,7 +486,7 @@ void GameManager::RenderEnemyLineAndMuzzleFlash(bool isMainPass, bool isMinimapP
 					enemyMuzzleModel.at(enemyID) = glm::mat4(1.0f);
 
 					enemyMuzzleModel.at(enemyID) = glm::translate(enemyMuzzleModel.at(enemyID), enem->GetEnemyShootPos(muzzleOffset));
-					enemyMuzzleModel.at(enemyID) = glm::rotate(enemyMuzzleModel.at(enemyID), enem->yaw, glm::vec3(0.0f, 1.0f, 0.0f));
+					enemyMuzzleModel.at(enemyID) = glm::rotate(enemyMuzzleModel.at(enemyID), enem->GetYaw(), glm::vec3(0.0f, 1.0f, 0.0f));
 					enemyMuzzleModel.at(enemyID) = glm::scale(enemyMuzzleModel.at(enemyID), glm::vec3(enemyMuzzleFlashScale.at(enemyID), enemyMuzzleFlashScale.at(enemyID), 1.0f));
 					enemyMuzzleFlashQuad->Draw3D(enemyMuzzleFlashTint.at(enemyID), enemyMuzzleAlpha.at(enemyID), projection, view, enemyMuzzleModel.at(enemyID));
 				}
@@ -649,13 +537,12 @@ void GameManager::RenderPlayerCrosshairAndMuzzleFlash(bool isMainPass)
 
 		glm::vec3 lineColor = glm::vec3(1.0f, 0.0f, 0.0f);
 
-		glm::vec3 hitPoint;
 
 		if (player->GetPlayerState() == SHOOTING)
 		{
 			lineColor = glm::vec3(0.0f, 1.0f, 0.0f);
 
-			float currentTime = glfwGetTime();
+			float currentTime = (float)glfwGetTime();
 
 			if (renderPlayerMuzzleFlash && playerMuzzleFlashStartTime + playerMuzzleFlashDuration > currentTime)
 			{
@@ -678,7 +565,7 @@ void GameManager::RenderPlayerCrosshairAndMuzzleFlash(bool isMainPass)
 				playerMuzzleModel = glm::mat4(1.0f);
 
 				playerMuzzleModel = glm::translate(playerMuzzleModel, player->GetShootPos());
-				playerMuzzleModel = glm::rotate(playerMuzzleModel, (-player->yaw + 180.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+				playerMuzzleModel = glm::rotate(playerMuzzleModel, (-player->GetYaw() + 180.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 				playerMuzzleModel = glm::scale(playerMuzzleModel, glm::vec3(playerMuzzleFlashScale, playerMuzzleFlashScale, 1.0f));
 				playerMuzzleFlashQuad->Draw3D(playerMuzzleTint, playerMuzzleAlpha, projection, view, playerMuzzleModel);
 			}
@@ -761,7 +648,7 @@ void GameManager::update(float deltaTime)
 	int enemyID = 0;
 	for (Enemy* e : enemies)
 	{
-		if (e == nullptr || e->isDestroyed)
+		if (e == nullptr || e->IsDestroyed())
 			continue;
 
 		e->SetDeltaTime(deltaTime);
@@ -808,7 +695,7 @@ void GameManager::render(bool isMinimapRenderPass, bool isShadowMapRenderPass, b
 
 
 	for (auto obj : gameObjects) {
-		if (obj->isDestroyed)
+		if (obj->IsDestroyed())
 			continue;
 		if (isMinimapRenderPass)
 		{

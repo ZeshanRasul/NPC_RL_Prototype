@@ -11,7 +11,8 @@ void Crosshair::LoadMesh()
 
 bool Crosshair::LoadTexture(std::string textureFilename)
 {
-	if (!mTexture.loadTexture(textureFilename, false)) {
+	if (!mTexture.loadTexture(textureFilename, false))
+	{
 		Logger::log(1, "%s: texture loading failed\n", __FUNCTION__);
 		return false;
 	}
@@ -19,26 +20,26 @@ bool Crosshair::LoadTexture(std::string textureFilename)
 	return true;
 }
 
-void Crosshair::drawObject(glm::mat4 viewMat, glm::mat4 proj, bool shadowMap, glm::mat4 lightSpaceMat, GLuint shadowMapTexture, glm::vec3 camPos)
+void Crosshair::DrawObject(glm::mat4 viewMat, glm::mat4 proj, bool shadowMap, glm::mat4 lightSpaceMat,
+                           GLuint shadowMapTexture, glm::vec3 camPos)
 {
-	shader->use();
-	shader->setMat4("view", viewMat);
-	shader->setMat4("projection", proj);
+	m_shader->use();
+	m_shader->setMat4("view", viewMat);
+	m_shader->setMat4("projection", proj);
 
 	mTexture.bind();
 	glBindVertexArray(mVAO);
-	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
 	glBindVertexArray(0);
 	mTexture.unbind();
-
 }
 
 glm::vec2 Crosshair::CalculateCrosshairPosition(glm::vec3 rayEnd, int screenWidth, int screenHeight,
-	glm::mat4 proj, glm::mat4 view)
+                                                glm::mat4 proj, glm::mat4 view)
 {
 	glm::vec4 clipSpacePos = proj * view * glm::vec4(rayEnd, 1.0f);
 	glm::vec3 ndcSpacePos = glm::vec3(clipSpacePos) / clipSpacePos.w;
-	glm::vec2 screenSpacePos = glm::vec2(0.0f);
+	auto screenSpacePos = glm::vec2(0.0f);
 	screenSpacePos.x = screenWidth * (1.0f - (ndcSpacePos.x + 1.0f) / 2.0f);
 	screenSpacePos.y = screenHeight * (1.0f - (ndcSpacePos.y + 1.0f) / 2.0f);
 
@@ -49,18 +50,20 @@ void Crosshair::DrawCrosshair(glm::vec2 ndcPos, glm::vec3 color)
 {
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	shader->use();
-	shader->setVec2("ndcPos", ndcPos.x, ndcPos.y);
-	shader->setVec3("color", color);
+	m_shader->use();
+	m_shader->setVec2("ndcPos", ndcPos.x, ndcPos.y);
+	m_shader->setVec3("color", color);
 	mTexture.bind();
 	glBindVertexArray(mVAO);
-	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
 	glBindVertexArray(0);
 	mTexture.unbind();
 	glDisable(GL_BLEND);
 }
 
-void Crosshair::ComputeAudioWorldTransform() {}
+void Crosshair::ComputeAudioWorldTransform()
+{
+}
 
 void Crosshair::CreateAndUploadVertexBuffer()
 {
@@ -68,8 +71,8 @@ void Crosshair::CreateAndUploadVertexBuffer()
 	glBindBuffer(GL_ARRAY_BUFFER, mVBO);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
-	// position attribute
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+	// m_position attribute
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), static_cast<void*>(nullptr));
 	glEnableVertexAttribArray(0);
 
 	// texture coord attribute

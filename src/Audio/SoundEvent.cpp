@@ -5,14 +5,14 @@
 #include "AudioSystem.h"
 
 SoundEvent::SoundEvent(class AudioSystem* system, unsigned int id)
-	:mSystem(system)
-	, mID(id)
+	: mSystem(system)
+	  , mID(id)
 {
 }
 
 SoundEvent::SoundEvent()
-	:mSystem(nullptr)
-	, mID(0)
+	: mSystem(nullptr)
+	  , mID(0)
 {
 }
 
@@ -35,9 +35,7 @@ void SoundEvent::Stop(bool allowFadeOut /* true */)
 	auto event = mSystem ? mSystem->GetEventInstance(mID) : nullptr;
 	if (event)
 	{
-		FMOD_STUDIO_STOP_MODE mode = allowFadeOut ?
-			FMOD_STUDIO_STOP_ALLOWFADEOUT :
-			FMOD_STUDIO_STOP_IMMEDIATE;
+		FMOD_STUDIO_STOP_MODE mode = allowFadeOut ? FMOD_STUDIO_STOP_ALLOWFADEOUT : FMOD_STUDIO_STOP_IMMEDIATE;
 		event->stop(mode);
 	}
 }
@@ -164,7 +162,7 @@ void SoundEvent::Set3DAttributes(const glm::mat4& worldTrans)
 		// Third row is up
 		attr.up = VecToFMOD(glm::vec3(worldTrans[0][2], worldTrans[1][2], worldTrans[2][2]));
 		// Set velocity to zero (fix if using Doppler effect)
-		attr.velocity = { 0.0f, 0.0f, 0.0f };
+		attr.velocity = {0.0f, 0.0f, 0.0f};
 		event->set3DAttributes(&attr);
 	}
 }

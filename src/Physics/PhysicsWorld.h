@@ -4,7 +4,8 @@
 #include "AABB.h"
 #include <glm/glm.hpp>
 
-class PhysicsWorld {
+class PhysicsWorld
+{
 public:
 	PhysicsWorld();
 
@@ -16,8 +17,10 @@ public:
 	bool rayIntersect(const glm::vec3& rayOrigin, const glm::vec3& rayDirection, glm::vec3& hitPoint, AABB* selfAABB);
 	bool rayEnemyIntersect(const glm::vec3& rayOrigin, const glm::vec3& rayDirection, glm::vec3& hitPoint);
 	bool rayEnemyCrosshairIntersect(const glm::vec3& rayOrigin, const glm::vec3& rayDirection, glm::vec3& hitPoint);
-	bool rayPlayerIntersect(const glm::vec3& rayOrigin, const glm::vec3& rayDirection, glm::vec3& hitPoint, AABB* selfAABB);
-	bool checkPlayerVisibility(const glm::vec3& rayOrigin, const glm::vec3& rayDirection, glm::vec3& hitPoint, AABB* selfAABB);
+	bool rayPlayerIntersect(const glm::vec3& rayOrigin, const glm::vec3& rayDirection, glm::vec3& hitPoint,
+	                        AABB* selfAABB);
+	bool checkPlayerVisibility(const glm::vec3& rayOrigin, const glm::vec3& rayDirection, glm::vec3& hitPoint,
+	                           AABB* selfAABB);
 
 private:
 	std::vector<AABB*> colliders;
@@ -25,4 +28,3 @@ private:
 
 	bool rayAABBIntersect(const glm::vec3& rayOrigin, const glm::vec3& rayDirection, AABB* aabb, glm::vec3& hitPoint);
 };
-

@@ -6,7 +6,8 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-class Shader {
+class Shader
+{
 public:
 	bool loadShaders(std::string vertexShaderFileName, std::string fragmentShaderFileName);
 	void use() const;

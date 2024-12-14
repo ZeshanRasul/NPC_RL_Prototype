@@ -6,7 +6,7 @@
 #include "Audio/AudioSystem.h"
 
 AudioComponent::AudioComponent(GameObject* owner, int updateOrder)
-	:Component(owner, updateOrder)
+	: Component(owner, updateOrder)
 {
 }
 

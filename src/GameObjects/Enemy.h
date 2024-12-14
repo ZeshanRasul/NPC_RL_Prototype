@@ -14,21 +14,24 @@
 #include "AI/ConditionNode.h"
 #include "AI/ActionNode.h"
 
-enum NashAction {
+enum Action
+{
 	PATROL,
 	RETREAT,
 	ADVANCE,
 	ATTACK
 };
 
-struct NashState {
+struct State
+{
 	bool playerDetected;
 	bool playerVisible;
 	float distanceToPlayer;
 	float health;
 	bool isSuppressionFire;
 
-	bool operator==(const NashState& other) const {
+	bool operator==(const State& other) const
+	{
 		return playerDetected == other.playerDetected &&
 			playerVisible == other.playerVisible &&
 			distanceToPlayer == other.distanceToPlayer &&
@@ -39,112 +42,52 @@ struct NashState {
 
 
 // Custom hash function for State and Action pair
-struct PairHash {
-	std::size_t operator()(const std::pair<NashState, NashAction>& pair) const {
-		const NashState& state = pair.first;
-		NashAction action = pair.second;
+struct PairHash
+{
+	std::size_t operator()(const std::pair<State, Action>& pair) const
+	{
+		const State& state = pair.first;
+		Action action = pair.second;
 		return ((std::hash<bool>()(state.playerDetected) ^ (std::hash<bool>()(state.playerVisible) << 1)) >> 1) ^
-			(std::hash<bool>()(state.isSuppressionFire) << 1) ^ (std::hash<int>()((int)state.health) << 2) ^
+			(std::hash<bool>()(state.isSuppressionFire) << 1) ^ (std::hash<int>()(static_cast<int>(state.health)) << 2)
+			^
 			std::hash<int>()(action);
 	}
 };
 
-class Enemy : public GameObject {
-private:
-
-	const float learningRate = 0.05f;
-	const float discountFactor = 0.95f;
-	float explorationRate;
-	float initialExplorationRate = 0.7f;
-	float minExplorationRate = 0.1f;
-	int targetQTableSize = 1000000;
-
-	float DecayExplorationRate(float initialRate, float minRate, int currentSize, int targetSize);
-
-	Player& player;
-
+class Enemy : public GameObject
+{
 public:
-	Enemy(glm::vec3 pos, glm::vec3 scale, Shader* sdr, Shader* shadowMapShader, bool applySkinning, GameManager* gameMgr, Grid* grd, std::string texFilename, int id, EventManager& eventManager, Player& player, float yaw = 0.0f)
-		: GameObject(pos, scale, yaw, sdr, shadowMapShader, applySkinning, gameMgr), grid_(grd), id_(id), eventManager_(eventManager), health_(100.0f), isPlayerDetected_(false),
-		isPlayerVisible_(false), isPlayerInRange_(false), isTakingDamage_(false), isDead_(false), isInCover_(false), isSeekingCover_(false), isTakingCover_(false), player(player), initialPosition(pos)
-	{
-		isEnemy = true;
-
-		id_ = id;
-
-		model = std::make_shared<GltfModel>();
-
-		std::string modelFilename = "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Models/GLTF/Enemies/Ely/EnemyEly.gltf";
-
-		if (!model->loadModel(modelFilename, true)) {
-			Logger::log(1, "%s: loading glTF model '%s' failed\n", __FUNCTION__, modelFilename.c_str());
-		}
-
-		if (!mTex.loadTexture(texFilename, false)) {
-			Logger::log(1, "%s: texture loading failed\n", __FUNCTION__);
-		}
-		Logger::log(1, "%s: glTF model texture '%s' successfully loaded\n", __FUNCTION__, texFilename.c_str());
-
-		mNormal.loadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Models/GLTF/Enemies/Ely/EnemyEly_ely_vanguardsoldier_kerwinatienza_M2_Normal.png");
-		mMetallic.loadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Models/GLTF/Enemies/Ely/EnemyEly_ely_vanguardsoldier_kerwinatienza_M2_Metallic.png");
-		mRoughness.loadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Models/GLTF/Enemies/Ely/EnemyEly_ely_vanguardsoldier_kerwinatienza_M2_Roughness.png");
-		mAO.loadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Models/GLTF/Enemies/Ely/EnemyEly_ely_vanguardsoldier_kerwinatienza_M2_AO.png");
-		mEmissive.loadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Models/GLTF/Enemies/Ely/EnemyEly_ely_vanguardsoldier_kerwinatienza_M2_Emissive.png");
-
-
-		SetUpModel();
-
-		ComputeAudioWorldTransform();
-
-		UpdateEnemyCameraVectors();
-		UpdateEnemyVectors();
-
-		std::random_device rd;
-		std::mt19937 gen{ rd() };
-		std::uniform_int_distribution<> distrib(0, waypointPositions.size() - 1);
-		int randomIndex = distrib(gen);
-		currentWaypoint = waypointPositions[randomIndex];
-		takeDamageAC = new AudioComponent(this);
-		deathAC = new AudioComponent(this);
-		shootAC = new AudioComponent(this);
-
-		BuildBehaviorTree();
-
-		eventManager_.Subscribe<PlayerDetectedEvent>([this](const Event& e) { OnEvent(e); });
-		eventManager_.Subscribe<NPCDamagedEvent>([this](const Event& e) { OnEvent(e); });
-		eventManager_.Subscribe<NPCDiedEvent>([this](const Event& e) { OnEvent(e); });
-		eventManager_.Subscribe<NPCTakingCoverEvent>([this](const Event& e) { OnEvent(e); });
-	}
+	Enemy(glm::vec3 pos, glm::vec3 scale, Shader* sdr, Shader* shadowMapShader, bool applySkinning,
+		GameManager* gameMgr, Grid* grd, std::string texFilename, int id, EventManager& eventManager, Player& player,
+		float yaw = 0.0f);
 
 	~Enemy()
 	{
-		model->cleanup();
+		m_model->cleanup();
 	}
 
 	void SetUpModel();
 
-	void drawObject(glm::mat4 viewMat, glm::mat4 proj, bool shadowMap, glm::mat4 lightSpaceMat, GLuint shadowMapTexture, glm::vec3 camPos) override;
+	void DrawObject(glm::mat4 viewMat, glm::mat4 proj, bool shadowMap, glm::mat4 lightSpaceMat, GLuint shadowMapTexture,
+		glm::vec3 camPos) override;
 
 	void Update(bool shouldUseEDBT, float speedDivider, float blendFac);
 
 	void OnEvent(const Event& event);
 
-	int GetID() const { return id_; }
+	int GetID() const { return m_id; }
 
-	AudioComponent* GetAudioComponent() const { return takeDamageAC; }
+	AudioComponent* GetAudioComponent() const { return m_takeDamageAc; }
 
-	glm::vec3 getPosition() {
-		return position;
+	glm::vec3 GetPosition()
+	{
+		return m_position;
 	}
 
-	glm::vec3 getInitialPosition() const { return initialPosition; }
+	glm::vec3 GetInitialPosition() const { return m_initialPosition; }
 
-	void setPosition(glm::vec3 newPos) {
-		position = newPos;
-		updateAABB();
-		mRecomputeWorldTransform = true;
-		ComputeAudioWorldTransform();
-	}
+	void SetPosition(glm::vec3 newPos);
 
 	void ComputeAudioWorldTransform() override;
 
@@ -154,221 +97,237 @@ public:
 
 	void EnemyProcessMouseMovement(float xOffset, float yOffset, bool constrainPitch = true);
 
-	void moveEnemy(const std::vector<glm::ivec2>& path, float deltaTime, float blendFactor, bool playAnimBackwards);
+	void MoveEnemy(const std::vector<glm::ivec2>& path, float deltaTime, float blendFactor, bool playAnimBackwards);
 
 	void SetAnimation(int animNum, float speedDivider, float blendFactor, bool playBackwards);
 	void SetAnimation(int srcAnimNum, int destAnimNum, float speedDivider, float blendFactor, bool playBackwards);
 
-	void SetYaw(float newYaw) {
-		yaw = newYaw;
-	}
+	void SetYaw(float newYaw) { m_yaw = newYaw; }
 
 	void Shoot();
 
-	float GetHealth() const { return health_; }
-	void SetHealth(float newHealth) { health_ = newHealth; }
+	float GetHealth() const { return m_health; }
+	void SetHealth(float newHealth) { m_health = newHealth; }
 
 	void TakeDamage(float damage);
-
 	void OnDeath();
+	void SetIsDead(bool newValue) { m_isDead = newValue; }
 
-	void updateAABB() {
-		glm::mat4 modelMatrix = glm::translate(glm::mat4(1.0f), position) *
-			glm::rotate(glm::mat4(1.0f), glm::radians(yaw + 90.0f), glm::vec3(0.0f, 1.0f, 0.0f)) *
-			glm::scale(glm::mat4(1.0f), aabbScale);
-		aabb->update(modelMatrix);
-	};
-
-	void SetAABBShader(Shader* aabbShdr) { aabbShader = aabbShdr; }
+	void SetAABBShader(Shader* aabbShdr) { m_aabbShader = aabbShdr; }
 	void SetUpAABB();
-	AABB* GetAABB() const { return aabb; }
-	void setAABBColor(glm::vec3 color) { aabbColor = color; }
+	AABB* GetAABB() const { return m_aabb; }
+	void SetAABBColor(glm::vec3 color) { m_aabbColor = color; }
+	void UpdateAABB();
 
-	int GetAnimNum() const { return animNum; }
-	int GetSourceAnimNum() const { return sourceAnim; }
-	int GetDestAnimNum() const { return destAnim; }
-	void SetAnimNum(int newAnimNum) { animNum = newAnimNum; }
-	void SetSourceAnimNum(int newSrcAnim) { sourceAnim = newSrcAnim; }
-	void SetDestAnimNum(int newDestAnim) {
-		destAnim = newDestAnim;
-		destAnimSet = true;
+	int GetAnimNum() const { return m_animNum; }
+	int GetSourceAnimNum() const { return m_sourceAnim; }
+	int GetDestAnimNum() const { return m_destAnim; }
+	void SetAnimNum(int newAnimNum) { m_animNum = newAnimNum; }
+	void SetSourceAnimNum(int newSrcAnim) { m_sourceAnim = newSrcAnim; }
+
+	void SetDestAnimNum(int newDestAnim)
+	{
+		m_destAnim = newDestAnim;
+		m_destAnimSet = true;
 	}
 
-	glm::vec3 GetEnemyShootPos(float forwardOffset) { return getPosition() + glm::vec3(0.0f, 4.5f, 0.0f) + (forwardOffset * Front); }
-	glm::vec3 GetEnemyShootDir() const { return enemyShootDir; }
-	glm::vec3 GetEnemyHitPoint() const { return enemyHitPoint; }
-	bool GetEnemyHasShot() const { return enemyHasShot; }
-	bool GetEnemyHasHit() const { return enemyHasHit; }
-	float GetEnemyShootDistance() const { return enemyShootDistance; }
-	float GetEnemyDebugRayRenderTimer() const { return enemyRayDebugRenderTimer; }
+	glm::vec3 GetEnemyShootPos(float forwardOffset)
+	{
+		return GetPosition() + glm::vec3(0.0f, 4.5f, 0.0f) + (forwardOffset * m_front);
+	}
 
-	void SetDeltaTime(float newDt) { dt_ = newDt; }
+	glm::vec3 GetEnemyShootDir() const { return m_enemyShootDir; }
+	glm::vec3 GetEnemyHitPoint() const { return m_enemyHitPoint; }
+	bool GetEnemyHasShot() const { return m_enemyHasShot; }
+	bool GetEnemyHasHit() const { return m_enemyHasHit; }
+	float GetEnemyShootDistance() const { return m_enemyShootDistance; }
+	float GetEnemyDebugRayRenderTimer() const { return m_enemyRayDebugRenderTimer; }
 
-	std::string GetEDBTState() const { return EDBTState; }
+	void SetDeltaTime(float newDt) { m_dt = newDt; }
 
-	glm::vec3 GetEnemyFront() const { return EnemyFront; }
+	std::string GetEDBTState() const { return m_state; }
+
+	glm::vec3 GetEnemyFront() const { return m_enemyFront; }
 
 	void Speak(const std::string& clipName, float priority, float cooldown);
 
 	void OnHit() override;
 
-	void OnMiss() override {
-		aabbColor = glm::vec3(1.0f, 1.0f, 1.0f);
+	void OnMiss() override
+	{
+		m_aabbColor = glm::vec3(1.0f, 1.0f, 1.0f);
 	}
+
+	bool IsDead();
 
 	void ScoreCoverLocations(Player& player);
 
-	glm::vec3 selectRandomWaypoint(const glm::vec3& currentWaypoint, const std::vector<glm::vec3>& allWaypoints);
-
-	Grid* grid_;
-
-	// NASH LEARNING
-
-	const float BUCKET_SIZE = 10.0f;
-	const float TOLERANCE = 10.0f;
-
-	int getDistanceBucket(float distance) {
-		return static_cast<int>(distance / BUCKET_SIZE);
-	}
-
-	float CalculateReward(const NashState& state, NashAction action, int enemyId, const std::vector<NashAction>& squadActions);
-
-	float GetMaxQValue(const NashState& state, int enemyId, std::unordered_map<std::pair<NashState, NashAction>, float, PairHash>* qTable);
-
-	// Choose an action based on epsilon-greedy strategy for a specific enemy
-	NashAction ChooseAction(const NashState& state, int enemyId, std::unordered_map<std::pair<NashState, NashAction>, float, PairHash>* qTable);
-
-	// Update Q-value for a given state-action pair for a specific enemy
-	void UpdateQValue(const NashState& currentState, NashAction action, const NashState& nextState, float reward,
-		int enemyId, std::unordered_map<std::pair<NashState, NashAction>, float, PairHash>* qTable);
+	glm::vec3 SelectRandomWaypoint(const glm::vec3& currentWaypoint, const std::vector<glm::vec3>& allWaypoints);
 
 	// Function to perform enemy decision-making during an attack using Nash Q-learning
-	void EnemyDecision(NashState& currentState, int enemyId, std::vector<NashAction>& squadActions,
-		float deltaTime, std::unordered_map<std::pair<NashState, NashAction>, float, PairHash>* qTable);
+	void EnemyDecision(State& currentState, int enemyId, std::vector<Action>& squadActions,
+		float deltaTime, std::unordered_map<std::pair<State, Action>, float, PairHash>* qTable);
 
-	// USING PRECOMPUTED Q-VALUES
-
-	// Choose an action based on the highest Q-value for a specific enemy
-	NashAction ChooseActionFromTrainedQTable(const NashState& state, int enemyId,
-		std::unordered_map<std::pair<NashState, NashAction>, float, PairHash>* qTable);
-
-	void EnemyDecisionPrecomputedQ(NashState& currentState, int enemyId, std::vector<NashAction>& squadActions,
-		float deltaTime, std::unordered_map<std::pair<NashState, NashAction>, float, PairHash>* qTable);
-
-
-	// USING PRECOMPUTED Q-VALUES
-
-	// NASH LEARNING
-
-	bool isDead_ = false;
-
-	void HasDealtDamage() override;
-	void HasKilledPlayer() override;
+	void EnemyDecisionPrecomputedQ(State& currentState, int enemyId, std::vector<Action>& squadActions,
+		float deltaTime,
+		std::unordered_map<std::pair<State, Action>, float, PairHash>* qTable);
 
 	void ResetState();
 
 private:
-	Texture mNormal{};
-	Texture mMetallic{};
-	Texture mRoughness{};
-	Texture mAO{};
-	Texture mEmissive{};
+	// NASH LEARNING START
+	const float m_learningRate = 0.05f;
+	const float m_discountFactor = 0.95f;
+	float m_explorationRate;
+	float m_initialExplorationRate = 0.7f;
+	float m_minExplorationRate = 0.1f;
+	int m_targetQTableSize = 1000000;
+	Action m_chosenAction;
+	float m_decisionDelayTimer = 0.0f;
 
-	std::vector<glm::vec3> waypointPositions = {
-		grid_->snapToGrid(glm::vec3(0.0f, 0.0f, 0.0f)),
-		grid_->snapToGrid(glm::vec3(0.0f, 0.0f, 70.0f)),
-		grid_->snapToGrid(glm::vec3(40.0f, 0.0f, 0.0f)),
-		grid_->snapToGrid(glm::vec3(40.0f, 0.0f, 70.0f))
+
+	Player& m_player;
+	const float BUCKET_SIZE = 10.0f;
+	const float TOLERANCE = 10.0f;
+
+	float DecayExplorationRate(float initialRate, float minRate, int currentSize, int targetSize);
+
+	int GetDistanceBucket(float distance)
+	{
+		return static_cast<int>(distance / BUCKET_SIZE);
+	}
+
+	float CalculateReward(const State& state, Action action, int enemyId, const std::vector<Action>& squadActions);
+
+	float GetMaxQValue(const State& state, int enemyId,
+		std::unordered_map<std::pair<State, Action>, float, PairHash>* qTable);
+
+	// Choose an action based on epsilon-greedy strategy for a specific enemy
+	Action ChooseAction(const State& state, int enemyId,
+		std::unordered_map<std::pair<State, Action>, float, PairHash>* qTable);
+
+	// Update Q-value for a given state-action pair for a specific enemy
+	void UpdateQValue(const State& currentState, Action action, const State& nextState, float reward,
+		int enemyId, std::unordered_map<std::pair<State, Action>, float, PairHash>* qTable);
+
+
+	// USING PRECOMPUTED Q-VALUES START
+
+	// Choose an action based on the highest Q-value for a specific enemy
+	Action ChooseActionFromTrainedQTable(const State& state, int enemyId,
+		std::unordered_map<std::pair<State, Action>, float, PairHash>* qTable);
+
+	// USING PRECOMPUTED Q-VALUES END
+
+	// NASH LEARNING EMD
+
+	void HasDealtDamage() override;
+	void HasKilledPlayer() override;
+
+	Texture m_normal{};
+	Texture m_metallic{};
+	Texture m_roughness{};
+	Texture m_ao{};
+	Texture m_emissive{};
+
+	glm::vec3 m_initialPosition = glm::vec3(0.0f, 0.0f, 0.0f);
+
+	int m_id;
+	EventManager& m_eventManager;
+	BTNodePtr m_behaviorTree;
+	Grid* m_grid;
+
+	std::vector<glm::vec3> m_waypointPositions = {
+	m_grid->snapToGrid(glm::vec3(0.0f, 0.0f, 0.0f)),
+	m_grid->snapToGrid(glm::vec3(0.0f, 0.0f, 70.0f)),
+	m_grid->snapToGrid(glm::vec3(40.0f, 0.0f, 0.0f)),
+	m_grid->snapToGrid(glm::vec3(40.0f, 0.0f, 70.0f))
 	};
 
-	glm::vec3 initialPosition = glm::vec3(0.0f, 0.0f, 0.0f);
+	float m_health = 100.0f;
+	bool m_isPlayerDetected;
+	bool m_isPlayerVisible;
+	bool m_isPlayerInRange;
+	bool m_isTakingDamage;
+	bool m_hasTakenDamage = false;
+	bool m_isDying = false;
+	bool m_isDead = false;
+	bool m_hasDied = false;
+	bool m_isInCover;
+	bool m_isSeekingCover;
+	bool m_isTakingCover;
+	bool m_isAttacking = false;
+	bool m_hasDealtDamage = false;
+	bool m_hasKilledPlayer = false;
+	bool m_isPatrolling = false;
+	bool m_provideSuppressionFire = false;
+	bool m_allyHasDied = false;
 
-	int id_;
-	EventManager& eventManager_;
-	BTNodePtr behaviorTree_;
+	int m_numDeadAllies = 0;
 
-	float health_ = 100.0f;
-	bool isPlayerDetected_;
-	bool isPlayerVisible_;
-	bool isPlayerInRange_;
-	bool isTakingDamage_;
-	bool hasTakenDamage_ = false;
-	bool isDying_ = false;
-	bool hasDied_ = false;
-	bool isInCover_;
-	bool isSeekingCover_;
-	bool isTakingCover_;
-	bool isAttacking_ = false;
-	bool hasDealtDamage_ = false;
-	bool hasKilledPlayer_ = false;
-	bool isPatrolling_ = false;
-	bool provideSuppressionFire_ = false;
-	bool allyHasDied = false;
+	std::vector<glm::ivec2> m_currentPath;
+	float m_dt = 0.0f;
+	Grid::Cover* m_selectedCover = nullptr;
+	size_t m_pathIndex = 0;
+	size_t m_prevPathIndex = 0;
+	std::vector<glm::ivec2> m_prevPath = {};
 
-	int numDeadAllies = 0;
+	glm::vec3 m_aabbColor = glm::vec3(0.0f, 0.0f, 1.0f);
+	glm::vec3 m_aabbScale = glm::vec3(3.2f, 3.0f, 3.2f);
 
-	std::vector<glm::ivec2> currentPath_;
-	float dt_ = 0.0f;
-	Grid::Cover* selectedCover_ = nullptr;
-	size_t pathIndex_ = 0;
-	size_t prevPathIndex_ = 0;
-	std::vector<glm::ivec2> prevPath_ = {};
+	float m_speed = 7.5f;
+	float m_enemyCameraYaw;
+	float m_enemyCameraPitch = 10.0f;
+	glm::vec3 m_enemyFront;
+	glm::vec3 m_enemyRight;
+	glm::vec3 m_enemyUp;
+	glm::vec3 m_front;
+	glm::vec3 m_right;
+	glm::vec3 m_up;
+	bool m_reachedDestination = false;
+	bool m_reachedPlayer = false;
+	glm::vec3 m_currentWaypoint;
+	std::string m_state = "Patrolling";
 
-	glm::vec3 aabbColor = glm::vec3(0.0f, 0.0f, 1.0f);
-	glm::vec3 aabbScale = glm::vec3(3.2f, 3.0f, 3.2f);
+	bool m_uploadVertexBuffer = true;
+	ShaderStorageBuffer m_enemyDualQuatSsBuffer{};
 
-	float health = 100.0f;
-	float speed = 7.5f;
-	float EnemyCameraYaw;
-	float EnemyCameraPitch = 10.0f;
-	glm::vec3 EnemyFront;
-	glm::vec3 EnemyRight;
-	glm::vec3 EnemyUp;
-	glm::vec3 Front;
-	glm::vec3 Right;
-	glm::vec3 Up;
-	bool reachedDestination = false;
-	bool reachedPlayer = false;
-	glm::vec3 currentWaypoint;
-	std::string EDBTState = "Patrolling";
+	AABB* m_aabb;
+	Shader* m_aabbShader;
 
-	bool uploadVertexBuffer = true;
-	ShaderStorageBuffer mEnemyDualQuatSSBuffer{};
+	AudioComponent* m_takeDamageAc;
+	AudioComponent* m_shootAc;
+	AudioComponent* m_deathAc;
 
-	AABB* aabb;
-	Shader* aabbShader;
+	int m_animNum = 1;
+	int m_sourceAnim = 1;
+	int m_destAnim = 1;
+	bool m_destAnimSet = false;
+	float m_blendSpeed = 5.0f;
+	float m_blendFactor = 0.0f;
+	bool m_blendAnim = false;
+	bool m_resetBlend = false;
 
-	AudioComponent* takeDamageAC;
-	AudioComponent* shootAC;
-	AudioComponent* deathAC;
+	bool m_takingDamage = false;
+	float m_damageTimer = 0.0f;
+	float m_dyingTimer = 0.0f;
+	float m_coverTimer = 0.0f;
+	bool m_reachedCover = false;
+	float m_shootAudioCooldown = 0.0f;
 
-	int animNum = 1;
-	int sourceAnim = 1;
-	int destAnim = 1;
-	bool destAnimSet = false;
-	float blendSpeed = 5.0f;
-	float blendFactor = 0.0f;
-	bool blendAnim = false;
-	bool resetBlend = false;
+	float m_accuracy = 60.0f;
+	glm::vec3 m_enemyShootPos = glm::vec3(0.0f);
+	glm::vec3 m_enemyShootDir = glm::vec3(0.0f);
+	glm::vec3 m_enemyHitPoint = glm::vec3(0.0f);
+	float m_enemyShootDistance = 100000.0f;
+	float m_enemyShootCooldown = 0.0f;
+	float m_enemyRayDebugRenderTimer = 0.3f;
+	bool m_enemyHasShot = false;
+	bool m_enemyHasHit = false;
+	bool m_playerIsVisible = false;
 
-	bool takingDamage = false;
-	float damageTimer = 0.0f;
-	float dyingTimer = 0.0f;
-	bool inCover = false;
-	float coverTimer = 0.0f;
-	bool reachedCover = false;
-	float shootAudioCooldown = 0.0f;
-
-	float accuracy = 60.0f;
-	glm::vec3 enemyShootPos = glm::vec3(0.0f);
-	glm::vec3 enemyShootDir = glm::vec3(0.0f);
-	glm::vec3 enemyHitPoint = glm::vec3(0.0f);
-	float enemyShootDistance = 100000.0f;
-	float enemyShootCooldown = 0.0f;
-	float enemyRayDebugRenderTimer = 0.3f;
-	bool enemyHasShot = false;
-	bool enemyHasHit = false;
-	bool playerIsVisible = false;
+	bool m_startingSuppressionFire = true;
+	bool m_playNotVisibleAudio = true;
 
 	void VacatePreviousCell();
 
@@ -376,7 +335,6 @@ private:
 
 	void DetectPlayer();
 
-	bool IsDead();
 	bool IsHealthZeroOrBelow();
 	bool IsTakingDamage();
 	bool IsPlayerDetected();
@@ -384,13 +342,12 @@ private:
 	bool IsCooldownComplete();
 	bool IsHealthBelowThreshold();
 	bool IsPlayerInRange();
+	bool IsTakingCover();
 	bool IsInCover();
 	bool IsAttacking();
 	bool IsPatrolling();
 	bool ShouldProvideSuppressionFire();
 
-	bool StartingSuppressionFire = true;
-	bool playNotVisibleAudio = true;
 
 	NodeStatus EnterDyingState();
 	NodeStatus EnterTakingDamageState();
@@ -402,7 +359,4 @@ private:
 	NodeStatus Patrol();
 	NodeStatus InCoverAction();
 	NodeStatus Die();
-
-	NashAction chosenAction;
-	float decisionDelayTimer = 0.0f;
 };

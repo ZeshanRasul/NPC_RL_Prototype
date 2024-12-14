@@ -3,7 +3,8 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
-class Texture {
+class Texture
+{
 public:
 	bool loadTexture(std::string textureFilename, bool flipImage = true);
 	void bind(int texIndex = 0);

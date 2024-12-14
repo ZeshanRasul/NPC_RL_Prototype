@@ -6,7 +6,8 @@
 #include <glm/glm.hpp>
 #include <glm/gtx/quaternion.hpp>
 
-class GltfNode {
+class GltfNode
+{
 public:
 	static std::shared_ptr<GltfNode> createRoot(int rootNodeNum);
 	void addChilds(std::vector<int> childNodes);

@@ -9,6 +9,7 @@
 namespace FMOD
 {
 	class System;
+
 	namespace Studio
 	{
 		class Bank;
@@ -43,9 +44,11 @@ public:
 	bool GetBusPaused(const std::string& name) const;
 	void SetBusVolume(const std::string& name, float volume);
 	void SetBusPaused(const std::string& name, bool pause);
+
 protected:
 	friend class SoundEvent;
 	FMOD::Studio::EventInstance* GetEventInstance(unsigned int id);
+
 private:
 	// Tracks the next ID to use for event instances
 	static unsigned int sNextID;

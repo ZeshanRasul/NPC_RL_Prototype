@@ -6,7 +6,8 @@
 #include "GameObjects/GameObject.h"
 #include "Shader.h"
 
-class AABB {
+class AABB
+{
 public:
 	AABB();
 	AABB(const glm::vec3& min, const glm::vec3& max);
@@ -24,8 +25,8 @@ public:
 
 	void update(const glm::mat4& modelMatrix);
 
-	glm::vec3 getTransformedMin()   const { return transformedMin; }
-	glm::vec3 getTransformedMax()   const { return transformedMax; }
+	glm::vec3 getTransformedMin() const { return transformedMin; }
+	glm::vec3 getTransformedMax() const { return transformedMax; }
 
 	glm::vec3 transformedMin = glm::vec3(1.0f);
 	glm::vec3 transformedMax = glm::vec3(1.0f);

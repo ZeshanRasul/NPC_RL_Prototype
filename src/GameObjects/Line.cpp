@@ -8,28 +8,28 @@ void Line::LoadMesh()
 	glBindVertexArray(0);
 }
 
-void Line::DrawLine(glm::mat4 viewMat, glm::mat4 proj, glm::vec3 lineColor, glm::mat4 lightSpaceMat, GLuint shadowMapTexture, bool shadowMap, float lifetime)
+void Line::DrawLine(glm::mat4 viewMat, glm::mat4 proj, glm::vec3 lineColor, glm::mat4 lightSpaceMat,
+                    GLuint shadowMapTexture, bool shadowMap, float lifetime)
 {
 	if (shadowMap)
 	{
-		shadowShader->use();
-		shadowShader->setMat4("view", viewMat);
-		shadowShader->setMat4("projection", proj);
-		shadowShader->setVec3("lineColor", lineColor);
-		shadowShader->setFloat("lifetime", lifetime);
-
+		m_shadowShader->use();
+		m_shadowShader->setMat4("view", viewMat);
+		m_shadowShader->setMat4("projection", proj);
+		m_shadowShader->setVec3("lineColor", lineColor);
+		m_shadowShader->setFloat("lifetime", lifetime);
 	}
 	else
 	{
-		shader->use();
-		shader->setMat4("view", viewMat);
-		shader->setMat4("projection", proj);
-		shader->setVec3("lineColor", lineColor);
-		shader->setMat4("lightSpaceMatrix", lightSpaceMat);
-		shader->setFloat("lifetime", lifetime);
+		m_shader->use();
+		m_shader->setMat4("view", viewMat);
+		m_shader->setMat4("projection", proj);
+		m_shader->setVec3("lineColor", lineColor);
+		m_shader->setMat4("lightSpaceMatrix", lightSpaceMat);
+		m_shader->setFloat("lifetime", lifetime);
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, shadowMapTexture);
-		shader->setInt("shadowMap", 0);
+		m_shader->setInt("shadowMap", 0);
 	}
 
 	glBindVertexArray(mVAO);
@@ -48,8 +48,8 @@ void Line::CreateAndUploadVertexBuffer()
 	glBindBuffer(GL_ARRAY_BUFFER, mVBO);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_DYNAMIC_DRAW);
 
-	// position attribute
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+	// m_position attribute
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), static_cast<void*>(nullptr));
 	glEnableVertexAttribArray(0);
 	glBindVertexArray(0);
 }
