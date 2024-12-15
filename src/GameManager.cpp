@@ -276,9 +276,13 @@ void GameManager::ShowDebugUi()
 {
 #ifdef DEBUG
 	ShowLightControlWindow(dirLight);
-#endif 
 	ShowPerformanceWindow();
-	ShowEnemyStateWindow();
+#endif
+
+	if (!m_useEdbt)
+	{
+		ShowEnemyStateWindow();
+	}
 }
 
 void GameManager::RenderDebugUi()

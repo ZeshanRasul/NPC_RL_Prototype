@@ -177,8 +177,8 @@ private:
 
 	bool m_camSwitchedToAim = false;
 
-	bool m_useEdbt = true;
-	bool m_loadQTable = false;
+	bool m_useEdbt = false;
+	bool m_loadQTable = true;
 	bool m_initializeQTable = false;
 	bool m_training = false;
 	std::string m_enemyStateFilename = "EnemyStateQTable.csv";

@@ -41,7 +41,7 @@ void AudioManager::ProcessNextAudioRequest()
 	m_audioQueue.pop();
 
 	Enemy* enemy = m_gameManager->GetEnemyByID(request.m_enemyId);
-	if (enemy)
+	if (enemy && !enemy->IsDestroyed())
 	{
 		AudioComponent* audioComp = enemy->GetAudioComponent();
 		if (audioComp)

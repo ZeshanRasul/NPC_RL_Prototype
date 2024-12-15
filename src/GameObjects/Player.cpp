@@ -374,4 +374,5 @@ void Player::ResetGame()
 {
 	m_gameManager->ResetGame();
 	m_playGameStartAudio = true;
+	m_playGameStartAudioTimer = 1.0f;
 }
