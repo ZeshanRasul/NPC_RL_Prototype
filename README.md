@@ -35,7 +35,3 @@ Where:
 - $r$ is the **immediate reward received** after taking action $a$.
 - $\gamma$ **(discount factor)** determines the importance of future rewards.
 - $\max_{a'} Q(s', a')$ is the **highest estimated Q-value for the next state** $s'$ over all possible actions $a'$.
-
-## In-Game Screenshot
-
-![screenshot of in game combat](https://i9.ytimg.com/vi_webp/YpY-NPey13U/maxresdefault.webp?v=67606208&sqp=CJyfv78G&rs=AOn4CLBrU1KrCI0zqb2wVBeV3fRjVqnLGA)
