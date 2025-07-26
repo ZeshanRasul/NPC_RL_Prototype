@@ -264,7 +264,7 @@ private:
 	int m_sourceAnim = 0;
 	int m_destAnim = 0;
 	bool m_destAnimSet = false;
-	float m_blendSpeed = 10.0f;
+	float m_blendSpeed = 5.0f;
 	float m_blendFactor = 0.0f;
 	bool m_blendAnim = false;
 	bool m_resetBlend = false;
