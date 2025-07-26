@@ -219,7 +219,7 @@ public:
 	glm::vec3 GetInitialPos() const { return m_initialPos; }
 	void SetInitialPos(glm::vec3 val) { m_initialPos = val; }
 private:
-	CameraMovement m_prevDirection;
+	CameraMovement m_prevDirection = STATIONARY;
 
 	float m_playerYaw;
 	glm::vec3 m_playerFront;
@@ -263,8 +263,8 @@ private:
 	int m_animNum = 0;
 	int m_sourceAnim = 0;
 	int m_destAnim = 0;
-	bool m_destAnimSet = false;
-	float m_blendSpeed = 5.0f;
+	bool m_destAnimSet = true;
+	float m_blendSpeed = 10.0f;
 	float m_blendFactor = 0.0f;
 	bool m_blendAnim = false;
 	bool m_resetBlend = false;

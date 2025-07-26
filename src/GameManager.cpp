@@ -82,10 +82,10 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 
 	for (glm::vec3 coverPos : m_gameGrid->GetCoverPositions())
 	{
-		//Cube* cover = new Cube(m_gameGrid->SnapToGrid(coverPos), glm::vec3((float)m_gameGrid->GetCellSize()), &m_cubeShader, &m_shadowMapShader, false, this, cubeTexFilename);
-		//cover->SetAABBShader(&m_aabbShader);
-		//cover->LoadMesh();
-		//m_coverSpots.push_back(cover);
+		Cube* cover = new Cube(m_gameGrid->SnapToGrid(coverPos), glm::vec3((float)m_gameGrid->GetCellSize()), &m_cubeShader, &m_shadowMapShader, false, this, cubeTexFilename);
+		cover->SetAABBShader(&m_aabbShader);
+		cover->LoadMesh();
+		m_coverSpots.push_back(cover);
 	}
 
 	m_gameGrid->InitializeGrid();
@@ -168,7 +168,7 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 
 	for (Cube* coverSpot : m_coverSpots)
 	{
-	//	m_gameObjects.push_back(coverSpot);
+		m_gameObjects.push_back(coverSpot);
 	}
 
 	m_enemies.push_back(m_enemy);

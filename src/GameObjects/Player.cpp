@@ -84,6 +84,15 @@ void Player::Update(float dt)
 		m_playGameStartAudio = false;
 	}
 
+	if (m_destAnim != 0 && m_velocity == 0.0f)
+	{
+		SetSourceAnimNum(m_destAnim);
+		SetDestAnimNum(0);
+		m_resetBlend = true;
+		m_blendAnim = true;
+		SetPrevDirection(STATIONARY);
+	}
+
 	if (m_resetBlend)
 	{
 		m_blendAnim = true;
@@ -96,29 +105,19 @@ void Player::Update(float dt)
 		m_blendFactor += m_blendSpeed * dt;
 
 		SetAnimation(GetSourceAnimNum(), GetDestAnimNum(), 1.0f, m_blendFactor, false);
-		
-		if (m_blendFactor > 1.0f)
-			m_blendFactor = 1.0f;
+	
 		
 		if (m_blendFactor >= 1.0f)
 		{
 			m_blendAnim = false;
 			m_resetBlend = true;
 			SetSourceAnimNum(GetDestAnimNum());
+			m_resetBlend = true;
 		}
 	}
 	else
 	{
-		m_resetBlend = true;
-	}
-
-	if (m_destAnim != 0 && m_velocity == 0.0f)
-	{
-		SetSourceAnimNum(m_destAnim);
-		SetDestAnimNum(0);
-		m_resetBlend = true;
-		m_blendAnim = true;
-		SetPrevDirection(STATIONARY);
+		SetAnimation(m_destAnim, 1.0f, 1.0f, false);
 	}
 }
 
