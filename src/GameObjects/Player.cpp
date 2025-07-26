@@ -112,14 +112,13 @@ void Player::Update(float dt)
 		if (m_blendFactor >= 1.0f)
 		{
 			m_blendAnim = false;
-			m_blendFactor = 0.0f;
-			//SetSourceAnimNum(GetDestAnimNum());
+			//m_blendFactor = 0.0f;
+			SetSourceAnimNum(GetDestAnimNum());
 		}
 	}
 	else
 	{
-		m_blendFactor = 0.0f;
-		SetAnimation(GetSourceAnimNum(), 1.0f, 1.0f, false);
+		m_resetBlend = true;
 	}
 }
 
@@ -170,19 +169,15 @@ void Player::PlayerProcessKeyboard(CameraMovement direction, float deltaTime)
 {
 	m_velocity = m_movementSpeed * deltaTime;
 
+	int nextAnim = -1;
+
 	if (direction == FORWARD)
 	{
 		m_position += GetPlayerFront() * m_velocity;
 		m_recomputeWorldTransform = true;
 		ComputeAudioWorldTransform();
 		UpdateComponents(deltaTime);
-		if (m_destAnim != 2 && GetPrevDirection() != direction)
-		{
-			SetSourceAnimNum(m_destAnim);
-			SetDestAnimNum(2);
-			m_blendAnim = true;
-			m_resetBlend = true;
-		}
+		nextAnim = 2;
 	}
 	if (direction == BACKWARD)
 	{
@@ -190,13 +185,7 @@ void Player::PlayerProcessKeyboard(CameraMovement direction, float deltaTime)
 		m_recomputeWorldTransform = true;
 		ComputeAudioWorldTransform();
 		UpdateComponents(deltaTime);
-		if (m_destAnim != 2 && GetPrevDirection() != direction)
-		{
-			SetSourceAnimNum(m_destAnim);
-			SetDestAnimNum(2);
-			m_blendAnim = true;
-			m_resetBlend = true;
-		}
+		nextAnim = 2;
 	}
 	if (direction == LEFT)
 	{
@@ -204,13 +193,7 @@ void Player::PlayerProcessKeyboard(CameraMovement direction, float deltaTime)
 		m_recomputeWorldTransform = true;
 		ComputeAudioWorldTransform();
 		UpdateComponents(deltaTime);
-		if (m_destAnim != 4 && GetPrevDirection() != direction)
-		{
-			SetSourceAnimNum(m_destAnim);
-			SetDestAnimNum(4);
-			m_blendAnim = true;
-			m_resetBlend = true;
-		}
+		nextAnim = 4;
 	}
 	if (direction == RIGHT)
 	{
@@ -218,13 +201,15 @@ void Player::PlayerProcessKeyboard(CameraMovement direction, float deltaTime)
 		m_recomputeWorldTransform = true;
 		ComputeAudioWorldTransform();
 		UpdateComponents(deltaTime);
-		if (m_destAnim != 5 && GetPrevDirection() != direction)
-		{
-			SetSourceAnimNum(m_destAnim);
-			SetDestAnimNum(5);
-			m_blendAnim = true;
-			m_resetBlend = true;
-		}
+		nextAnim = 5;
+	}
+
+	if (nextAnim != m_destAnim)
+	{
+		SetSourceAnimNum(m_destAnim);
+		SetDestAnimNum(nextAnim);
+		m_blendAnim = true;
+		m_resetBlend = true;
 	}
 
 	SetPrevDirection(direction);
