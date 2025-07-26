@@ -215,7 +215,8 @@ void GameManager::SetupCamera(unsigned int width, unsigned int height, float del
 	{
 		if (m_camera->isBlending)
 		{
-			m_view = m_camera->UpdateCameraLerp(m_camera->GetPosition(), m_player->GetPosition() + (m_player->GetPlayerFront() * m_camera->GetPlayerPosOffset()), deltaTime);
+			m_camera->SetPitch(45.0f);
+			m_view = m_camera->UpdateCameraLerp(m_camera->GetPosition(), m_player->GetPosition() + (m_player->GetPlayerFront() * m_camera->GetPlayerPosOffset()), glm::vec3(0.0f, 1.0f, 0.0f), deltaTime);
 		} else {
 			m_camera->SetPitch(45.0f);
 			m_camera->FollowTarget(m_player->GetPosition() + (m_player->GetPlayerFront() * m_camera->GetPlayerPosOffset()), m_player->GetPlayerFront(), m_camera->GetPlayerCamRearOffset(), m_camera->GetPlayerCamHeightOffset());
@@ -262,21 +263,19 @@ void GameManager::SetupCamera(unsigned int width, unsigned int height, float del
 			m_camera->SetPosition(camPos);
 		}
 
-		glm::vec3 target = m_player->GetPosition() + (m_player->GetPlayerFront() * m_camera->GetPlayerPosOffset() + (m_player->GetPlayerRight() * m_camera->GetPlayerAimRightOffset()) + m_player->GetPlayerAimFront(), m_camera->GetPlayerCamRearOffset());
+		glm::vec3 target = m_player->GetPosition() + (m_player->GetPlayerFront() * m_camera->GetPlayerPosOffset()) + (m_player->GetPlayerRight() * m_camera->GetPlayerAimRightOffset());
 		if (target.y < 0.0f)
 			target.y = 0.0f;
 
+		m_camera->SetZoom(40.0f);
+		if (m_camera->GetPitch() > 16.0f)
+			m_camera->SetPitch(16.0f);
+
 		if (m_camera->isBlending)
 		{
-		
+			m_view = m_camera->UpdateCameraLerp(camPos, target, m_player->GetPlayerAimUp(), deltaTime);
+		} else {
 
-			m_view = m_camera->UpdateCameraLerp(camPos, target, deltaTime);
-		}
-		else {
-
-			m_camera->SetZoom(40.0f);
-			if (m_camera->GetPitch() > 16.0f)
-				m_camera->SetPitch(16.0f);
 
 			m_camera->FollowTarget(m_player->GetPosition() + (m_player->GetPlayerFront() * m_camera->GetPlayerPosOffset()) + (m_player->GetPlayerRight() * m_camera->GetPlayerAimRightOffset()), m_player->GetPlayerAimFront(), m_camera->GetPlayerCamRearOffset(), m_camera->GetPlayerCamHeightOffset());
 			

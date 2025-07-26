@@ -103,7 +103,7 @@ public:
 	bool HasSwitched() const { return hasSwitched; }
 	void StorePrevCam(const glm::vec3& prevPos, const glm::vec3& targetPos);
 	void LerpCamera();
-	glm::mat4 UpdateCameraLerp(const glm::vec3& newPos, const glm::vec3& targetPos, float dt);
+	glm::mat4 UpdateCameraLerp(const glm::vec3& newPos, const glm::vec3& targetPos, const glm::vec3& up, float dt);
 
 	glm::vec3 prevCamPos;
 	glm::vec3 targetCamPos;
@@ -135,6 +135,6 @@ private:
 	float m_enemyCamRearOffset = 15.0f;
 	float m_enemyCamHeightOffset = 5.0f;
 
-	float cameraBlendTime = 10.0f;
+	float cameraBlendTime = 1.3f;
 	float cameraBlendTimer = 0.0f;
 };

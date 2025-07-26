@@ -134,7 +134,7 @@ void Camera::LerpCamera()
 	isBlending = true;
 }
 
-glm::mat4 Camera::UpdateCameraLerp(const glm::vec3& newPos, const glm::vec3& targetPos, float dt)
+glm::mat4 Camera::UpdateCameraLerp(const glm::vec3& newPos, const glm::vec3& targetPos, const glm::vec3& up, float dt)
 {
 	cameraBlendTimer += dt;
 
