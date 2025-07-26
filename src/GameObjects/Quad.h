@@ -72,7 +72,7 @@ public:
 		m_shader->SetInt("muzzleTexture", 0);
 		m_shader->SetMat4("projection", proj);
 		m_shader->SetMat4("view", view);
-		m_shader->SetMat4("m_model", model);
+		m_shader->SetMat4("model", model);
 
 		m_shader->SetVec3("tint", tint);
 		m_shader->SetFloat("alpha", alpha);
