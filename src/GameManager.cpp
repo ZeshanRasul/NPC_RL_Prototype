@@ -207,14 +207,31 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 	m_musicEvent = m_audioSystem->PlayEvent("event:/bgm");
 }
 
-void GameManager::SetupCamera(unsigned int width, unsigned int height)
+void GameManager::SetupCamera(unsigned int width, unsigned int height, float deltaTime)
 {
 	m_camera->SetZoom(45.0f);
+
 	if (m_camera->GetMode() == PLAYER_FOLLOW)
 	{
-		m_camera->SetPitch(45.0f);
-		m_camera->FollowTarget(m_player->GetPosition() + (m_player->GetPlayerFront() * m_camera->GetPlayerPosOffset()), m_player->GetPlayerFront(), m_camera->GetPlayerCamRearOffset(), m_camera->GetPlayerCamHeightOffset());
-		m_view = m_camera->GetViewMatrixPlayerFollow(m_player->GetPosition() + (m_player->GetPlayerFront() * m_camera->GetPlayerPosOffset()), glm::vec3(0.0f, 1.0f, 0.0f));
+		if (m_camera->isBlending)
+		{
+			m_view = m_camera->UpdateCameraLerp(m_camera->GetPosition(), m_player->GetPosition() + (m_player->GetPlayerFront() * m_camera->GetPlayerPosOffset()), deltaTime);
+		} else {
+			m_camera->SetPitch(45.0f);
+			m_camera->FollowTarget(m_player->GetPosition() + (m_player->GetPlayerFront() * m_camera->GetPlayerPosOffset()), m_player->GetPlayerFront(), m_camera->GetPlayerCamRearOffset(), m_camera->GetPlayerCamHeightOffset());
+			if (m_camera->HasSwitched())
+				m_camera->StorePrevCam(m_camera->GetPosition(), m_player->GetPosition() + (m_player->GetPlayerFront() * m_camera->GetPlayerPosOffset()));
+
+			glm::vec3 camPos = m_camera->GetPosition();
+			if (camPos.y < 0.0f)
+			{
+				camPos.y = 0.0f;
+				m_camera->SetPosition(camPos);
+			}
+
+			m_view = m_camera->GetViewMatrixPlayerFollow(m_player->GetPosition() + (m_player->GetPlayerFront() * m_camera->GetPlayerPosOffset()), glm::vec3(0.0f, 1.0f, 0.0f));
+		}
+
 	}
 	else if (m_camera->GetMode() == ENEMY_FOLLOW)
 	{
@@ -238,15 +255,6 @@ void GameManager::SetupCamera(unsigned int width, unsigned int height)
 	}
 	else if (m_camera->GetMode() == PLAYER_AIM)
 	{
-		m_camera->SetZoom(40.0f);
-		if (m_camera->GetPitch() > 16.0f)
-			m_camera->SetPitch(16.0f);
-
-		m_camera->FollowTarget(m_player->GetPosition() + (m_player->GetPlayerFront() * m_camera->GetPlayerPosOffset()) + (m_player->GetPlayerRight() * m_camera->GetPlayerAimRightOffset()), m_player->GetPlayerAimFront(), m_camera->GetPlayerCamRearOffset(), m_camera->GetPlayerCamHeightOffset());
-		glm::vec3 target = m_player->GetPosition() + (m_player->GetPlayerFront() * m_camera->GetPlayerPosOffset());
-		if (target.y < 0.0f)
-			target.y = 0.0f;
-
 		glm::vec3 camPos = m_camera->GetPosition();
 		if (camPos.y < 0.0f)
 		{
@@ -254,8 +262,38 @@ void GameManager::SetupCamera(unsigned int width, unsigned int height)
 			m_camera->SetPosition(camPos);
 		}
 
-		m_view = m_camera->GetViewMatrixPlayerFollow(target, m_player->GetPlayerAimUp());
+		glm::vec3 target = m_player->GetPosition() + (m_player->GetPlayerFront() * m_camera->GetPlayerPosOffset() + (m_player->GetPlayerRight() * m_camera->GetPlayerAimRightOffset()) + m_player->GetPlayerAimFront(), m_camera->GetPlayerCamRearOffset());
+		if (target.y < 0.0f)
+			target.y = 0.0f;
+
+		if (m_camera->isBlending)
+		{
+		
+
+			m_view = m_camera->UpdateCameraLerp(camPos, target, deltaTime);
+		}
+		else {
+
+			m_camera->SetZoom(40.0f);
+			if (m_camera->GetPitch() > 16.0f)
+				m_camera->SetPitch(16.0f);
+
+			m_camera->FollowTarget(m_player->GetPosition() + (m_player->GetPlayerFront() * m_camera->GetPlayerPosOffset()) + (m_player->GetPlayerRight() * m_camera->GetPlayerAimRightOffset()), m_player->GetPlayerAimFront(), m_camera->GetPlayerCamRearOffset(), m_camera->GetPlayerCamHeightOffset());
+			
+
+			glm::vec3 camPos = m_camera->GetPosition();
+			if (camPos.y < 0.0f)
+			{
+				camPos.y = 0.0f;
+				m_camera->SetPosition(camPos);
+			}
+			if (m_camera->HasSwitched())
+				m_camera->StorePrevCam(m_camera->GetPosition(), m_player->GetPosition() + (m_player->GetPlayerFront() * m_camera->GetPlayerPosOffset()));
+
+			m_view = m_camera->GetViewMatrixPlayerFollow(target, m_player->GetPlayerAimUp());
+		}
 	}
+
 	m_cubemapView = glm::mat4(glm::mat3(m_camera->GetViewMatrixPlayerFollow(m_player->GetPosition(), glm::vec3(0.0f, 1.0f, 0.0f))));
 
 	m_projection = glm::perspective(glm::radians(m_camera->GetZoom()), (float)width / (float)height, 0.1f, 500.0f);

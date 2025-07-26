@@ -90,19 +90,21 @@ void InputManager::ProcessInput(GLFWwindow* window, float deltaTime)
 	m_spaceKeyPressed = spaceKeyCurrentlyPressed;
 
 
-	bool tabKeyCurrentlyPressed = glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS;
+	bool ctrlKeyCurrentlyPressed = glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS;
 
 
 	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
 		glfwSetWindowShouldClose(window, true);
 
-	if (!m_tabBeenPressed && tabKeyCurrentlyPressed)
+	if (!m_ctrlBeenPressed && ctrlKeyCurrentlyPressed)
 	{
 		if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS)
+		{
 			m_camera->SetMode(static_cast<CameraMode>((m_camera->GetMode() + 1) % MODE_COUNT));
+		}
 	}
 
-	m_tabBeenPressed = tabKeyCurrentlyPressed;
+	m_ctrlBeenPressed = ctrlKeyCurrentlyPressed;
 
 	if (m_controlCamera && m_camera->GetMode() == FLY)
 	{
@@ -131,6 +133,8 @@ void InputManager::ProcessInput(GLFWwindow* window, float deltaTime)
 			m_player->UpdatePlayerVectors();
 			m_camera->SetMode(PLAYER_FOLLOW);
 		}
+		m_camera->hasSwitched = true;
+		m_camera->LerpCamera();
 	}
 
 	m_shiftKeyPressed = shiftKeyCurrentlyPressed;

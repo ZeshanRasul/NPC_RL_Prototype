@@ -41,7 +41,7 @@ void App::Run()
 		m_gameManager->SetSceneData();
 		m_gameManager->Update(m_deltaTime);
 		m_gameManager->CreateLightSpaceMatrices();
-		m_gameManager->SetupCamera(m_width, m_height);
+		m_gameManager->SetupCamera(m_width, m_height, m_deltaTime);
 		m_gameManager->Render(false, true, false);
 		m_gameManager->Render(true, false, false);
 		m_gameManager->Render(false, false, true);

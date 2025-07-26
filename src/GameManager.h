@@ -128,7 +128,8 @@ public:
 		delete m_inputManager;
 	}
 
-	void SetupCamera(unsigned int width, unsigned int height);
+	void SetupCamera(unsigned int width, unsigned int height, float deltaTime);
+
 	void SetSceneData();
 	AudioSystem* GetAudioSystem() { return m_audioSystem; }
 

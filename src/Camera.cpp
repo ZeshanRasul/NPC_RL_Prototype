@@ -13,6 +13,7 @@ Camera::Camera(glm::vec3 position, glm::vec3 up, float yaw, float pitch, glm::ve
 	SetYaw(yaw);
 	SetPitch(pitch);
 	UpdateCameraVectors();
+	StorePrevCam(GetPosition(), GetPosition() + GetFront() * 10.0f);
 }
 
 Camera::Camera(float posX, float posY, float posZ, float upX, float upY, float upZ, float yaw, float pitch)
@@ -27,7 +28,7 @@ Camera::Camera(float posX, float posY, float posZ, float upX, float upY, float u
 	SetYaw(yaw);
 	SetPitch(pitch);
 	UpdateCameraVectors();
-
+	StorePrevCam(GetPosition(), GetPosition() + GetFront() * 10.0f);
 }
 
 void Camera::FollowTarget(const glm::vec3& targetPosition, const glm::vec3& targetFront, float distanceBehind, float heightOffset)
@@ -35,6 +36,8 @@ void Camera::FollowTarget(const glm::vec3& targetPosition, const glm::vec3& targ
 	glm::vec3 offset = -targetFront * distanceBehind;
 	offset.y += heightOffset;
 	SetPosition(targetPosition + offset);
+	target = targetPosition;
+	prevCamTarget = targetPosition;
 	UpdateCameraVectors();
 }
 
@@ -112,4 +115,48 @@ void Camera::UpdateCameraVectors()
 	SetFront(glm::normalize(front));
 	SetRight(glm::normalize(glm::cross(GetFront(), GetWorldUp())));
 	SetUp(glm::normalize(glm::cross(GetRight(), GetFront())));
+}
+
+void Camera::StorePrevCam(const glm::vec3& prevPos, const glm::vec3& targetPos)
+{
+	prevCamPos = prevPos;
+	prevCamTarget = targetPos;
+	prevCamDir = GetFront();
+}
+
+void Camera::LerpCamera()
+{
+	targetCamPos = GetPosition();
+	targetCamTarget = target;
+	targetCamDir = glm::normalize(targetCamTarget - targetCamPos);
+
+	cameraBlendTimer = 0.0f;
+	isBlending = true;
+}
+
+glm::mat4 Camera::UpdateCameraLerp(const glm::vec3& newPos, const glm::vec3& targetPos, float dt)
+{
+	cameraBlendTimer += dt;
+
+	float t = glm::clamp(cameraBlendTimer / cameraBlendTime, 0.0f, 1.0f);
+
+	t = t * t * (3 - 2 * t);
+
+	glm::vec3 blendedPos = glm::mix(prevCamPos, newPos, t);
+	glm::vec3 blendedTarget = glm::mix(prevCamTarget, targetPos, t);
+	glm::vec3 blendedTargetDir = glm::mix(prevCamDir, targetCamDir, t);
+
+
+	SetPosition(blendedPos);
+	target = blendedTarget;
+
+	FollowTarget(blendedTarget, blendedTargetDir, m_playerCamRearOffset, m_playerCamHeightOffset);
+
+	if (t >= 1.0f)
+	{
+		isBlending = false;
+		hasSwitched = false;
+	}
+
+	return GetViewMatrixPlayerFollow(blendedTarget, GetWorldUp());
 }

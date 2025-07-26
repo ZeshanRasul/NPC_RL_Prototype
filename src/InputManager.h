@@ -45,7 +45,7 @@ private:
 
 	bool m_controlCamera = true;
 	bool m_isTabPressed = false;
-	bool m_tabBeenPressed = false;
+	bool m_ctrlBeenPressed = false;
 	bool m_spaceKeyPressed = false;
 	bool m_shiftKeyPressed = false;
 	bool m_leftClickPressed = false;
