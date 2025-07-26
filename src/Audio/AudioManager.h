@@ -40,6 +40,7 @@ private:
 	void ProcessNextAudioRequest();
 
 	std::unordered_map<int, float> m_enemyCooldowns;
+	std::unordered_map<int, float> m_enemySpeakTime;
 	std::priority_queue<AudioRequest, std::vector<AudioRequest>, ComparePriority> m_audioQueue;
 	float m_globalCooldown = 1.8f;
 	float m_globalCooldownTimer = 0.0f;

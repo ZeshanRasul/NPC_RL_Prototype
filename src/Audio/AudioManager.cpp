@@ -5,7 +5,7 @@ void AudioManager::SubmitAudioRequest(int enemyId, const std::string& eventName,
 {
 	bool isHighPriority = (priority >= m_priorityThreshold);
 
-	if (isHighPriority || (m_enemyCooldowns[enemyId] <= 0.0f && m_globalCooldownTimer <= 0.0f))
+	if (isHighPriority || (m_enemyCooldowns[enemyId] <= 0.0f && m_globalCooldownTimer <= 0.0f) || m_enemySpeakTime[enemyId] < 0.5f)
 	{
 		AudioRequest request{enemyId, eventName, priority, cooldown};
 		m_audioQueue.push(request);
@@ -19,6 +19,11 @@ void AudioManager::Update(float deltaTime)
 	for (auto& [enemyId, cooldown] : m_enemyCooldowns)
 	{
 		cooldown -= deltaTime;
+	}
+
+	for (auto& [enemyId, timeSinceRequest] : m_enemySpeakTime)
+	{
+		timeSinceRequest += deltaTime;
 	}
 
 	if (!m_audioQueue.empty() && m_globalCooldownTimer <= 0.0f)
@@ -52,4 +57,5 @@ void AudioManager::ProcessNextAudioRequest()
 
 	m_globalCooldownTimer = m_globalCooldown;
 	m_enemyCooldowns[request.m_enemyId] = request.m_cooldown;
+	m_enemySpeakTime[request.m_enemyId] = 0.0f;
 }
