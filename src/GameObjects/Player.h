@@ -53,7 +53,7 @@ public:
 			"C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Models/GLTF/SwatPlayer/Swat_Ch15_body_AO.png");
 
 		m_model->UploadIndexBuffer();
-		Logger::Log(1, "%s: glTF m_model '%s' succesfully loaded\n", __FUNCTION__, modelFilename.c_str());
+		Logger::Log(1, "%s: glTF m_model '%s' successfully loaded\n", __FUNCTION__, modelFilename.c_str());
 
 		size_t playerModelJointDualQuatBufferSize = m_model->GetJointDualQuatsSize() *
 			sizeof(glm::mat2x4);

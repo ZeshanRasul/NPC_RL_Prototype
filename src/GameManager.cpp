@@ -125,7 +125,7 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 	m_enemy4MuzzleFlashQuad->LoadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/muzzleflash.png");
 
 
-	m_player = new Player(m_gameGrid->SnapToGrid(glm::vec3(90.0f, 0.0f, 25.0f)), glm::vec3(3.0f), &m_playerShader, &m_playerShadowMapShader, true, this);
+	m_player = new Player(m_gameGrid->SnapToGrid(glm::vec3(95.0f, 0.0f, 25.0f)), glm::vec3(3.0f), &m_playerShader, &m_playerShadowMapShader, true, this);
 	m_player->SetAABBShader(&m_aabbShader);
 	m_player->SetUpAABB();
 

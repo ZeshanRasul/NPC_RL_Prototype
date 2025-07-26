@@ -273,7 +273,7 @@ private:
 	std::vector<glm::ivec2> m_prevPath = {};
 
 	glm::vec3 m_aabbColor = glm::vec3(0.0f, 0.0f, 1.0f);
-	glm::vec3 m_aabbScale = glm::vec3(3.2f, 3.0f, 3.2f);
+	glm::vec3 m_aabbScale = glm::vec3(2.0f, 3.0f, 7.2f);
 
 	float m_speed = 7.5f;
 	float m_enemyCameraYaw;

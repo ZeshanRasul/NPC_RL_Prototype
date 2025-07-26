@@ -128,7 +128,7 @@ bool PhysicsWorld::RayEnemyCrosshairIntersect(const glm::vec3& rayOrigin, const 
 	for (AABB* collider : m_colliders)
 	{
 		glm::vec3 tempHitPoint;
-		if (RayAABBIntersect(rayOrigin, rayDirection, collider, tempHitPoint) && !collider->GetIsPlayer())
+		if (RayAABBIntersect(rayOrigin, rayDirection, collider, tempHitPoint) && collider->GetIsEnemy())
 		{
 			float distance = length(tempHitPoint - rayOrigin);
 			if (distance < closestDistance)
@@ -142,7 +142,6 @@ bool PhysicsWorld::RayEnemyCrosshairIntersect(const glm::vec3& rayOrigin, const 
 				else
 				{
 					hit = false;
-					break;
 				}
 			}
 		}
