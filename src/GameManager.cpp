@@ -82,10 +82,10 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 
 	for (glm::vec3 coverPos : m_gameGrid->GetCoverPositions())
 	{
-	//	Cube* cover = new Cube(m_gameGrid->SnapToGrid(coverPos), glm::vec3((float)m_gameGrid->GetCellSize()), &m_cubeShader, &m_shadowMapShader, false, this, cubeTexFilename);
-	//	cover->SetAABBShader(&m_aabbShader);
-	//	cover->LoadMesh();
-	//	m_coverSpots.push_back(cover);
+		Cube* cover = new Cube(m_gameGrid->SnapToGrid(coverPos), glm::vec3((float)m_gameGrid->GetCellSize()), &m_cubeShader, &m_shadowMapShader, false, this, cubeTexFilename);
+		cover->SetAABBShader(&m_aabbShader);
+		cover->LoadMesh();
+		m_coverSpots.push_back(cover);
 	}
 
 	m_gameGrid->InitializeGrid();
@@ -138,17 +138,17 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 	m_enemy->SetAABBShader(&m_aabbShader);
 	m_enemy->SetUpAABB();
 
-	//m_enemy2 = new Enemy(m_gameGrid->SnapToGrid(glm::vec3(3.0f, 0.0f, 53.0f)), glm::vec3(3.0f), &m_enemyShader, &m_enemyShadowMapShader, true, this, m_gameGrid, texture2, 1, GetEventManager(), *m_player);
-	//m_enemy2->SetAABBShader(&m_aabbShader);
-	//m_enemy2->SetUpAABB();
-	//
-	//m_enemy3 = new Enemy(m_gameGrid->SnapToGrid(glm::vec3(43.0f, 0.0f, 53.0f)), glm::vec3(3.0f), &m_enemyShader, &m_enemyShadowMapShader, true, this, m_gameGrid, texture3, 2, GetEventManager(), *m_player);
-	//m_enemy3->SetAABBShader(&m_aabbShader);
-	//m_enemy3->SetUpAABB();
-	//
-	//m_enemy4 = new Enemy(m_gameGrid->SnapToGrid(glm::vec3(11.0f, 0.0f, 23.0f)), glm::vec3(3.0f), &m_enemyShader, &m_enemyShadowMapShader, true, this, m_gameGrid, texture4, 3, GetEventManager(), *m_player);
-	//m_enemy4->SetAABBShader(&m_aabbShader);
-	//m_enemy4->SetUpAABB();
+	m_enemy2 = new Enemy(m_gameGrid->SnapToGrid(glm::vec3(3.0f, 0.0f, 53.0f)), glm::vec3(3.0f), &m_enemyShader, &m_enemyShadowMapShader, true, this, m_gameGrid, texture2, 1, GetEventManager(), *m_player);
+	m_enemy2->SetAABBShader(&m_aabbShader);
+	m_enemy2->SetUpAABB();
+	
+	m_enemy3 = new Enemy(m_gameGrid->SnapToGrid(glm::vec3(43.0f, 0.0f, 53.0f)), glm::vec3(3.0f), &m_enemyShader, &m_enemyShadowMapShader, true, this, m_gameGrid, texture3, 2, GetEventManager(), *m_player);
+	m_enemy3->SetAABBShader(&m_aabbShader);
+	m_enemy3->SetUpAABB();
+	
+	m_enemy4 = new Enemy(m_gameGrid->SnapToGrid(glm::vec3(11.0f, 0.0f, 23.0f)), glm::vec3(3.0f), &m_enemyShader, &m_enemyShadowMapShader, true, this, m_gameGrid, texture4, 3, GetEventManager(), *m_player);
+	m_enemy4->SetAABBShader(&m_aabbShader);
+	m_enemy4->SetUpAABB();
 
 	m_crosshair = new Crosshair(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.3f), &m_crosshairShader, &m_shadowMapShader, false, this);
 	m_crosshair->LoadMesh();
@@ -162,19 +162,19 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 
 	m_gameObjects.push_back(m_player);
 	m_gameObjects.push_back(m_enemy);
-	//m_gameObjects.push_back(m_enemy2);
-	//m_gameObjects.push_back(m_enemy3);
-	//m_gameObjects.push_back(m_enemy4);
+	m_gameObjects.push_back(m_enemy2);
+	m_gameObjects.push_back(m_enemy3);
+	m_gameObjects.push_back(m_enemy4);
 
 	for (Cube* coverSpot : m_coverSpots)
 	{
-	//	m_gameObjects.push_back(coverSpot);
+		m_gameObjects.push_back(coverSpot);
 	}
 
 	m_enemies.push_back(m_enemy);
-	//m_enemies.push_back(m_enemy2);
-	//m_enemies.push_back(m_enemy3);
-	//m_enemies.push_back(m_enemy4);
+	m_enemies.push_back(m_enemy2);
+	m_enemies.push_back(m_enemy3);
+	m_enemies.push_back(m_enemy4);
 
 	for (int i = 0; i < m_enemies.size(); i++)
 	{
@@ -217,6 +217,13 @@ void GameManager::SetupCamera(unsigned int width, unsigned int height, float del
 		{
 			m_camera->SetPitch(45.0f);
 			m_view = m_camera->UpdateCameraLerp(m_camera->GetPosition() + (glm::vec3(0.0f, 1.0f, 0.0f) * m_camera->GetPlayerCamHeightOffset()), m_player->GetPosition() + (m_player->GetPlayerFront() * m_camera->GetPlayerPosOffset()), m_player->GetPlayerFront(), glm::vec3(0.0f, 1.0f, 0.0f), deltaTime);
+			glm::vec3 camPos = m_camera->GetPosition();
+			if (camPos.y < 0.0f)
+			{
+				camPos.y = 0.0f;
+				m_camera->SetPosition(camPos);
+			}
+
 		} else {
 			m_camera->SetPitch(45.0f);
 			m_camera->FollowTarget(m_player->GetPosition() + (m_player->GetPlayerFront() * m_camera->GetPlayerPosOffset()), m_player->GetPlayerFront(), m_camera->GetPlayerCamRearOffset(), m_camera->GetPlayerCamHeightOffset());
@@ -263,34 +270,45 @@ void GameManager::SetupCamera(unsigned int width, unsigned int height, float del
 			m_camera->SetPosition(camPos);
 		}
 
-		glm::vec3 target = m_player->GetPosition() + (m_player->GetPlayerFront() * m_camera->GetPlayerPosOffset()) + (m_player->GetPlayerRight() * m_camera->GetPlayerAimRightOffset());
+		glm::vec3 target = m_player->GetPosition() + (m_player->GetPlayerAimFront() * m_camera->GetPlayerPosOffset()) + (m_player->GetPlayerRight() * m_camera->GetPlayerAimRightOffset());
 		if (target.y < 0.0f)
 			target.y = 0.0f;
 
 		m_camera->SetZoom(40.0f);
-		if (m_camera->GetPitch() > 16.0f)
-			m_camera->SetPitch(16.0f);
 
 		if (m_camera->isBlending)
 		{
-			m_view = m_camera->UpdateCameraLerp(camPos, m_player->GetPosition() + (m_player->GetPlayerFront() * m_camera->GetPlayerPosOffset()) + (m_player->GetPlayerRight() * m_camera->GetPlayerAimRightOffset()), m_player->GetPlayerAimFront(), m_player->GetPlayerAimUp(), deltaTime);
-		} else {
-
-			m_camera->FollowTarget(m_player->GetPosition() + (m_player->GetPlayerFront() * m_camera->GetPlayerPosOffset()) + (m_player->GetPlayerRight() * m_camera->GetPlayerAimRightOffset()), m_player->GetPlayerAimFront(), m_camera->GetPlayerCamRearOffset(), m_camera->GetPlayerCamHeightOffset());
-			
-
+			glm::vec3 newPos =
+				m_player->GetPosition() +
+				(m_player->GetPlayerFront() * m_camera->GetPlayerPosOffset()) +
+				(m_player->GetPlayerRight() * m_camera->GetPlayerAimRightOffset()) -
+				(m_player->GetPlayerFront() * m_camera->GetPlayerCamRearOffset());
+			m_view = m_camera->UpdateCameraLerp(newPos, m_player->GetPosition() + (m_player->GetPlayerAimFront() * m_camera->GetPlayerPosOffset()) + (m_player->GetPlayerRight() * m_camera->GetPlayerAimRightOffset()), m_player->GetPlayerFront(), m_player->GetPlayerAimUp(), deltaTime);
 			glm::vec3 camPos = m_camera->GetPosition();
 			if (camPos.y < 0.0f)
 			{
 				camPos.y = 0.0f;
 				m_camera->SetPosition(camPos);
-			}
+			}		
+		} else {
+
+			m_camera->FollowTarget(m_player->GetPosition() + (m_player->GetPlayerAimFront() * m_camera->GetPlayerPosOffset()) + (m_player->GetPlayerRight() * m_camera->GetPlayerAimRightOffset()), m_player->GetPlayerFront(), m_camera->GetPlayerCamRearOffset(), m_camera->GetPlayerCamHeightOffset());
+			
 			if (m_camera->HasSwitched())
 				m_camera->StorePrevCam(m_camera->GetPosition() + m_player->GetPlayerAimUp() * m_camera->GetPlayerCamHeightOffset(), m_player->GetPosition() + (m_player->GetPlayerFront() * m_camera->GetPlayerPosOffset()) + (m_player->GetPlayerRight() * m_camera->GetPlayerAimRightOffset()) + (m_player->GetPlayerAimUp() * m_camera->GetPlayerCamHeightOffset()));
 
 			m_view = m_camera->GetViewMatrixPlayerFollow(target, m_player->GetPlayerAimUp());
 		}
 	}
+
+	glm::vec3 camPos = m_camera->GetPosition();
+
+	if (camPos.y < 0.0f)
+	{
+		camPos.y = 0.0f;
+		m_camera->SetPosition(camPos);
+	}
+
 
 	m_cubemapView = glm::mat4(glm::mat3(m_camera->GetViewMatrixPlayerFollow(m_player->GetPosition(), glm::vec3(0.0f, 1.0f, 0.0f))));
 
@@ -612,7 +630,17 @@ void GameManager::RenderPlayerCrosshairAndMuzzleFlash(bool isMainPass)
 		glm::vec3 crosshairHitpoint;
 		glm::vec3 crosshairCol;
 
-		if (m_physicsWorld->RayEnemyCrosshairIntersect(rayO, glm::normalize(rayEnd - rayO), crosshairHitpoint))
+		auto clipCoords = glm::vec4(0.2f, 0.5f, 1.0f, 1.0f);
+
+		glm::vec4 cameraCoords = inverse(m_projection) * clipCoords;
+		cameraCoords /= cameraCoords.w;
+
+		glm::vec4 worldCoords = inverse(m_view) * cameraCoords;
+		rayEnd = glm::vec3(worldCoords) / worldCoords.w;
+
+		rayD = normalize(rayEnd - rayO);
+
+		if (m_physicsWorld->RayEnemyCrosshairIntersect(rayO, rayD, crosshairHitpoint))
 		{
 			crosshairCol = glm::vec3(1.0f, 0.0f, 0.0f);
 		}

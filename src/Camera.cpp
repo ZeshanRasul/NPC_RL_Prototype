@@ -152,12 +152,24 @@ glm::mat4 Camera::UpdateCameraLerp(const glm::vec3& newPos, const glm::vec3& tar
 
 	FollowTarget(blendedTarget, front, m_playerCamRearOffset, m_playerCamHeightOffset);
 
+	glm::vec3 camPos = GetPosition();
+	if (camPos.y < 0.0f)
+	{
+		camPos.y = 0.1f;
+		SetPosition(camPos);
+	}
+
 	if (t >= 1.0f)
 	{
 		isBlending = false;
 		hasSwitched = true;
 		StorePrevCam(blendedPos, targetCamTarget);
-		SetPosition(newPos);
+		camPos = newPos;
+		if (camPos.y < 0.0f)
+		{
+			camPos.y = 0.1f;
+		}
+		SetPosition(camPos);
 		target = targetCamTarget;
 		return GetViewMatrixPlayerFollow(targetPos, up);
 	}

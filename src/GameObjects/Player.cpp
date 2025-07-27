@@ -292,7 +292,7 @@ void Player::Shoot()
 	glm::vec3 rayD;
 	float dist = GetShootDistance();
 
-	auto clipCoords = glm::vec4(0.0f, 0.5f, 1.0f, 1.0f);
+	auto clipCoords = glm::vec4(0.2f, 0.5f, 1.0f, 1.0f);
 
 	glm::vec4 cameraCoords = inverse(m_projection) * clipCoords;
 	cameraCoords /= cameraCoords.w;
