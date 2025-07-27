@@ -398,7 +398,7 @@ void Enemy::MoveEnemy(const std::vector<glm::ivec2>& path, float deltaTime, floa
 
 		if (m_isTakingCover)
 		{
-			if (distance(GetPosition(), m_selectedCover->m_worldPosition) < m_grid->GetCellSize() / 4.0f)
+			if (distance(GetPosition(), m_selectedCover->m_worldPosition) < m_grid->GetCellSize() / 2.0f)
 			{
 				m_reachedCover = true;
 				m_isTakingCover = false;

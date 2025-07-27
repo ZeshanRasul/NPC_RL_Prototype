@@ -567,7 +567,7 @@ void GameManager::RenderEnemyLineAndMuzzleFlash(bool isMainPass, bool isMinimapP
 
 			if (enem->GetEnemyHasShot() && enem->GetEnemyDebugRayRenderTimer() > 0.0f)
 			{
-				glm::vec3 enemyLineColor = glm::vec3(0.2f, 0.2f, 0.2f);
+				glm::vec3 enemyLineColor = glm::vec3(0.88f, 0.72f, 0.08f);
 
 				if (enem->GetEnemyHasHit())
 				{

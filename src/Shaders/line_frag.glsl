@@ -1,6 +1,7 @@
 #version 460 core
 
 in vec4 FragPosLightSpace;
+in float vGradient;
 
 uniform vec3 lineColor;
 uniform float lifetime;
@@ -26,7 +27,9 @@ float ShadowCalculation(vec4 fragPosLightSpace)
 void main()
 {
     float shadow = ShadowCalculation(FragPosLightSpace);
-    float timeLeft = 0.3 - lifetime;
-    float alpha = 1.0 - (timeLeft / 0.3);
-    FragColor = (1.0f - shadow) * vec4(lineColor, alpha);
+    vec3 startColor = lineColor;
+    vec3 endColor = lineColor * 0.3;
+    vec3 finalColor = mix(startColor, endColor, vGradient);
+
+    FragColor = (1.0f - shadow) * vec4(finalColor, 1.0);
 }
