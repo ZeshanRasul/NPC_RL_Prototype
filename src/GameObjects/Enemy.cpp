@@ -568,7 +568,7 @@ void Enemy::Shoot()
 	UpdateEnemyVectors();
 
 	bool hit = false;
-	hit = GetGameManager()->GetPhysicsWorld()->RayPlayerIntersect(m_enemyShootPos, m_enemyShootDir, m_enemyHitPoint, m_aabb);
+	hit = GetGameManager()->GetPhysicsWorld()->RayIntersect(m_enemyShootPos, m_enemyShootDir, m_enemyHitPoint, m_aabb);
 
 	if (hit)
 	{
