@@ -57,6 +57,7 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 	m_enemyShadowMapShader.LoadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/shadow_map_enemy_vertex.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/shadow_map_fragment.glsl");
 	m_shadowMapQuadShader.LoadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/shadow_map_quad_vertex.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/shadow_map_quad_fragment.glsl");
 	m_playerMuzzleFlashShader.LoadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/muzzle_flash_vertex.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/muzzle_flash_fragment.glsl");
+	m_playerTracerShader.LoadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/muzzle_flash_vertex.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/muzzle_flash_fragment.glsl");
 
 	m_physicsWorld = new PhysicsWorld();
 
@@ -123,6 +124,28 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 	m_enemy4MuzzleFlashQuad->SetUpVAO(true);
 	m_enemy4MuzzleFlashQuad->SetShader(&m_playerMuzzleFlashShader);
 	m_enemy4MuzzleFlashQuad->LoadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/muzzleflash.png");
+
+	m_enemyTracerQuad = new Quad();
+	m_enemyTracerQuad->SetUpVAO(true);
+	m_enemyTracerQuad->SetShader(&m_playerTracerShader);
+	m_enemyTracerQuad->LoadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/bullet_tracer.png");
+
+	m_enemy2TracerQuad = new Quad();
+	m_enemy2TracerQuad->SetUpVAO(true);
+	m_enemy2TracerQuad->SetShader(&m_playerTracerShader);
+	m_enemy2TracerQuad->LoadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/bullet_tracer.png");
+
+	m_enemy3TracerQuad = new Quad();
+	m_enemy3TracerQuad->SetUpVAO(true);
+	m_enemy3TracerQuad->SetShader(&m_playerTracerShader);
+	m_enemy3TracerQuad->LoadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/bullet_tracer.png");
+
+	m_enemy4TracerQuad = new Quad();
+	m_enemy4TracerQuad->SetUpVAO(true);
+	m_enemy4TracerQuad->SetShader(&m_playerTracerShader);
+	m_enemy4TracerQuad->LoadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/bullet_tracer.png");
+
+
 
 
 	m_player = new Player(m_gameGrid->SnapToGrid(glm::vec3(95.0f, 0.0f, 25.0f)), glm::vec3(3.0f), &m_playerShader, &m_playerShadowMapShader, true, this);
@@ -532,7 +555,7 @@ void GameManager::RenderEnemyLineAndMuzzleFlash(bool isMainPass, bool isMinimapP
 	{
 		if (!enem->IsDestroyed())
 		{
-			glm::vec3 enemyRayEnd = glm::vec3(0.0f);
+			glm::vec3 enemyTracerEnd = glm::vec3(0.0f);
 
 			int enemyID = enem->GetID();
 
@@ -563,34 +586,51 @@ void GameManager::RenderEnemyLineAndMuzzleFlash(bool isMainPass, bool isMinimapP
 					m_enemyMuzzleModelMatrices.at(enemyID) = glm::scale(m_enemyMuzzleModelMatrices.at(enemyID), glm::vec3(m_enemyMuzzleFlashScales.at(enemyID), m_enemyMuzzleFlashScales.at(enemyID), 1.0f));
 					m_enemyMuzzleFlashQuad->Draw3D(m_enemyMuzzleFlashTints.at(enemyID), m_enemyMuzzleAlphas.at(enemyID), m_projection, m_view, m_enemyMuzzleModelMatrices.at(enemyID));
 				}
-			}
 
-			if (enem->GetEnemyHasShot() && enem->GetEnemyDebugRayRenderTimer() > 0.0f)
-			{
-				glm::vec3 enemyLineColor = glm::vec3(0.88f, 0.72f, 0.08f);
+				if (enem->GetEnemyHasShot() && enem->GetEnemyDebugRayRenderTimer() > 0.0f)
+				{
+					if (enem->GetEnemyHasHit())
+					{
+						enemyTracerEnd = enem->GetEnemyHitPoint();
+					}
+					else
+					{
+						enemyTracerEnd = enem->GetEnemyShootPos(m_muzzleOffset) + enem->GetEnemyShootDir() * enem->GetEnemyShootDistance();
+					}
 
-				if (enem->GetEnemyHasHit())
-				{
-					enemyRayEnd = enem->GetEnemyHitPoint();
-				}
-				else
-				{
-					enemyRayEnd = enem->GetEnemyShootPos(m_muzzleOffset) + enem->GetEnemyShootDir() * enem->GetEnemyShootDistance();
+					float enemyTracerCurrentTime = (float)glfwGetTime();
+
+					if (m_renderEnemyTracer.at(enemyID) && m_enemyTracerStartTimes.at(enemyID) + m_enemyTracerDurations.at(enemyID) > enemyTracerCurrentTime)
+					{
+						m_renderEnemyTracer.at(enemyID) = false;
+					}
+					else
+					{
+						m_renderEnemyTracer.at(enemyID) = true;
+						m_enemyTracerStartTimes.at(enemyID) = enemyTracerCurrentTime;
+					}
+
+					if (m_renderEnemyTracer.at(enemyID) && isMainPass)
+					{
+						m_enemyTracerTimesSinceStart.at(enemyID) = enemyTracerCurrentTime - m_enemyTracerStartTimes.at(enemyID);
+						m_enemyTracerAlphas.at(enemyID) = glm::max(0.0f, 1.0f - (m_enemyTracerTimesSinceStart.at(enemyID) / m_enemyTracerDurations.at(enemyID)));
+						m_enemyTracerScales.at(enemyID) = 1.0f + (0.5f * m_enemyTracerAlphas.at(enemyID));
+
+						m_enemyTracerModelMatrices.at(enemyID) = glm::mat4(1.0f);
+
+						glm::vec3 tracerDir = glm::normalize(enemyTracerEnd - enem->GetEnemyShootPos(m_tracerOffset));
+
+						m_enemyTracerModelMatrices.at(enemyID) = glm::translate(m_enemyTracerModelMatrices.at(enemyID), enem->GetEnemyShootPos(m_tracerOffset));
+						glm::quat tracerRotation = glm::rotation(glm::vec3(0.0f, 0.0f, 1.0f), tracerDir);
+						m_enemyTracerModelMatrices.at(enemyID) *= glm::toMat4(tracerRotation);
+						//m_enemyTracerModelMatrices.at(enemyID) = glm::rotate(m_enemyTracerModelMatrices.at(enemyID), (-enem->GetYaw() + 90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+						m_enemyTracerModelMatrices.at(enemyID) = glm::scale(m_enemyTracerModelMatrices.at(enemyID), glm::vec3(m_enemyTracerScales.at(enemyID), m_enemyTracerScales.at(enemyID), length(enemyTracerEnd - enem->GetEnemyShootPos(m_tracerOffset))));
+						m_enemyTracerModelMatrices.at(enemyID) = glm::translate(m_enemyTracerModelMatrices.at(enemyID), glm::vec3(0.0f, 0.0f, 0.27f));
+
+						m_enemyTracerQuad->Draw3D(m_enemyTracerTints.at(enemyID), m_enemyTracerAlphas.at(enemyID) - m_dt, m_projection, m_view, m_enemyTracerModelMatrices.at(enemyID));
+					}
 				}
 
-				m_enemyLines.at(enemyID)->UpdateVertexBuffer(enem->GetEnemyShootPos(m_muzzleOffset), enemyRayEnd);
-				if (isMinimapPass)
-				{
-					m_enemyLines.at(enemyID)->DrawLine(m_minimapView, m_minimapProjection, enemyLineColor, m_lightSpaceMatrix, m_renderer->GetShadowMapTexture(), false, enem->GetEnemyDebugRayRenderTimer());
-				}
-				else if (isShadowPass)
-				{
-					m_enemyLines.at(enemyID)->DrawLine(m_lightSpaceView, m_lightSpaceProjection, enemyLineColor, m_lightSpaceMatrix, m_renderer->GetShadowMapTexture(), true, enem->GetEnemyDebugRayRenderTimer());
-				}
-				else
-				{
-					m_enemyLines.at(enemyID)->DrawLine(m_view, m_projection, enemyLineColor, m_lightSpaceMatrix, m_renderer->GetShadowMapTexture(), false, enem->GetEnemyDebugRayRenderTimer());
-				}
 			}
 		}
 	}
@@ -696,6 +736,8 @@ void GameManager::Update(float deltaTime)
 	m_player->UpdatePlayerAimVectors();
 
 	m_player->Update(deltaTime);
+
+	m_dt = deltaTime;
 
 	int enemyID = 0;
 	for (Enemy* e : m_enemies)

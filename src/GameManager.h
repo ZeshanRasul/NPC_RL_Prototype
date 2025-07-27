@@ -202,6 +202,7 @@ private:
 
 	float m_decisionTimer = 0.0f;
 	float m_decisionInterval = 0.5f;
+	float m_dt;
 
 	float m_fps = 0.0f;
 	int m_numFramesAvg = 0;
@@ -262,6 +263,12 @@ private:
 	Quad* m_enemy3MuzzleFlashQuad;
 	Quad* m_enemy4MuzzleFlashQuad;
 
+	Quad* m_playerTracerQuad;
+	Quad* m_enemyTracerQuad;
+	Quad* m_enemy2TracerQuad;
+	Quad* m_enemy3TracerQuad;
+	Quad* m_enemy4TracerQuad;
+
 	Shader m_playerShader{};
 	Shader m_enemyShader{};
 	Shader m_gridShader{};
@@ -277,6 +284,7 @@ private:
 	Shader m_enemyShadowMapShader{};
 	Shader m_shadowMapQuadShader{};
 	Shader m_playerMuzzleFlashShader{};
+	Shader m_playerTracerShader{};
 
 	ShaderStorageBuffer m_playerSsBuffer{};
 	ShaderStorageBuffer m_enemySsBuffer{};
@@ -306,6 +314,17 @@ private:
 	std::vector<glm::mat4> m_enemyMuzzleModelMatrices = { glm::mat4(1.0f), glm::mat4(1.0f), glm::mat4(1.0f), glm::mat4(1.0f) };
 	glm::vec3 m_enemyMuzzleFlashOffsets = glm::vec3(0.0f);
 	float m_muzzleOffset = 2.4f;
+
+	std::vector<bool> m_renderEnemyTracer = { false, false, false, false };
+	std::vector<float> m_enemyTracerStartTimes = { 0.0f, 0.0f, 0.0f, 0.0f };
+	std::vector<float> m_enemyTracerTimesSinceStart = { 0.0f, 0.0f, 0.0f, 0.0f };
+	std::vector<float> m_enemyTracerDurations = { 0.1f, 0.1f, 0.1f, 0.1f };
+	std::vector<float> m_enemyTracerAlphas = { 0.0f, 0.0f, 0.0f, 0.0f };
+	std::vector<glm::vec3> m_enemyTracerTints = { {1.0f, 1.0f, 1.0f}, {1.0f, 1.0f, 1.0f}, {1.0f, 1.0f, 1.0f}, {1.0f, 1.0f, 1.0f} };
+	std::vector<float> m_enemyTracerScales = { 1.0f, 1.0f, 1.0f, 1.0f };
+	std::vector<glm::mat4> m_enemyTracerModelMatrices = { glm::mat4(1.0f), glm::mat4(1.0f), glm::mat4(1.0f), glm::mat4(1.0f) };
+	glm::vec3 m_enemyTracerOffsets = glm::vec3(0.0f);
+	float m_tracerOffset = 2.4f;
 
 	glm::mat4 m_view = glm::mat4(1.0f);
 	glm::mat4 m_projection = glm::mat4(1.0f);

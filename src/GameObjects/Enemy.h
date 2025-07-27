@@ -133,6 +133,7 @@ public:
 
 	glm::vec3 GetEnemyShootPos(float forwardOffset)
 	{
+		UpdateEnemyVectors();
 		return GetPosition() + glm::vec3(0.0f, 4.5f, 0.0f) + (forwardOffset * m_front);
 	}
 
@@ -321,7 +322,7 @@ private:
 	glm::vec3 m_enemyHitPoint = glm::vec3(0.0f);
 	float m_enemyShootDistance = 100000.0f;
 	float m_enemyShootCooldown = 0.0f;
-	float m_enemyRayDebugRenderTimer = 0.3f;
+	float m_enemyRayDebugRenderTimer = 0.1f;
 	bool m_enemyHasShot = false;
 	bool m_enemyHasHit = false;
 	bool m_playerIsVisible = false;
