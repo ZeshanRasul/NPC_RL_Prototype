@@ -103,7 +103,7 @@ public:
 	bool HasSwitched() const { return hasSwitched; }
 	void StorePrevCam(const glm::vec3& prevPos, const glm::vec3& targetPos);
 	void LerpCamera();
-	glm::mat4 UpdateCameraLerp(const glm::vec3& newPos, const glm::vec3& targetPos, const glm::vec3& up, float dt);
+	glm::mat4 UpdateCameraLerp(const glm::vec3& newPos, const glm::vec3& targetPos, const glm::vec3& front, const glm::vec3& up, float dt);
 
 	glm::vec3 prevCamPos;
 	glm::vec3 targetCamPos;

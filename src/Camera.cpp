@@ -134,7 +134,7 @@ void Camera::LerpCamera()
 	isBlending = true;
 }
 
-glm::mat4 Camera::UpdateCameraLerp(const glm::vec3& newPos, const glm::vec3& targetPos, const glm::vec3& up, float dt)
+glm::mat4 Camera::UpdateCameraLerp(const glm::vec3& newPos, const glm::vec3& targetPos, const glm::vec3& front, const glm::vec3& up, float dt)
 {
 	cameraBlendTimer += dt;
 
@@ -150,13 +150,17 @@ glm::mat4 Camera::UpdateCameraLerp(const glm::vec3& newPos, const glm::vec3& tar
 	SetPosition(blendedPos);
 	target = blendedTarget;
 
-	FollowTarget(blendedTarget, blendedTargetDir, m_playerCamRearOffset, m_playerCamHeightOffset);
+	FollowTarget(blendedTarget, front, m_playerCamRearOffset, m_playerCamHeightOffset);
 
 	if (t >= 1.0f)
 	{
 		isBlending = false;
-		hasSwitched = false;
+		hasSwitched = true;
+		StorePrevCam(blendedPos, targetCamTarget);
+		SetPosition(newPos);
+		target = targetCamTarget;
+		return GetViewMatrixPlayerFollow(targetPos, up);
 	}
 
-	return GetViewMatrixPlayerFollow(blendedTarget, GetWorldUp());
+	return GetViewMatrixPlayerFollow(blendedTarget, up);
 }
