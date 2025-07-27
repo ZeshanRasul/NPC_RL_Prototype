@@ -150,14 +150,14 @@ glm::mat4 Camera::UpdateCameraLerp(const glm::vec3& newPos, const glm::vec3& tar
 	SetPosition(blendedPos);
 	target = blendedTarget;
 
+	float yOffset = m_playerCamHeightOffset;
+
+	if (GetMode() == PLAYER_AIM)
+		yOffset = 0.0f;
+
 	FollowTarget(blendedTarget, front, m_playerCamRearOffset, m_playerCamHeightOffset);
 
 	glm::vec3 camPos = GetPosition();
-	if (camPos.y < 0.0f)
-	{
-		camPos.y = 0.1f;
-		SetPosition(camPos);
-	}
 
 	if (t >= 1.0f)
 	{
