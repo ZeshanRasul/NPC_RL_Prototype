@@ -132,8 +132,8 @@ void Enemy::DrawObject(glm::mat4 viewMat, glm::mat4 proj, bool shadowMap, glm::m
 		glBindTexture(GL_TEXTURE_2D, shadowMapTexture);
 		m_shader->SetInt("shadowMap", 6);
 		m_model->Draw(m_tex);
-		m_aabb->Render(viewMat, proj, modelMat, m_aabbColor);
 #ifdef _DEBUG
+		m_aabb->Render(viewMat, proj, modelMat, m_aabbColor);
 #endif
 	}
 }

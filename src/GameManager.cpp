@@ -61,12 +61,12 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 	m_physicsWorld = new PhysicsWorld();
 
 	m_cubemapFaces = {
-		"C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/Skybox/right.png",
-		"C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/Skybox/left.png",
-		"C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/Skybox/top.png",
-		"C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/Skybox/bottom.png",
-		"C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/Skybox/front.png",
-		"C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/Skybox/back.png"
+		"C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/Skybox/T3Nebula/right.png",
+		"C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/Skybox/T3Nebula/left.png",
+		"C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/Skybox/T3Nebula/top.png",
+		"C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/Skybox/T3Nebula/bottom.png",
+		"C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/Skybox/T3Nebula/front.png",
+		"C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/Skybox/T3Nebula/back.png"
 	};
 
 	m_cubemap = new Cubemap(&m_cubemapShader);
@@ -82,10 +82,10 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 
 	for (glm::vec3 coverPos : m_gameGrid->GetCoverPositions())
 	{
-		//Cube* cover = new Cube(m_gameGrid->SnapToGrid(coverPos), glm::vec3((float)m_gameGrid->GetCellSize()), &m_cubeShader, &m_shadowMapShader, false, this, cubeTexFilename);
-		//cover->SetAABBShader(&m_aabbShader);
-		//cover->LoadMesh();
-		//m_coverSpots.push_back(cover);
+		Cube* cover = new Cube(m_gameGrid->SnapToGrid(coverPos), glm::vec3((float)m_gameGrid->GetCellSize()), &m_cubeShader, &m_shadowMapShader, false, this, cubeTexFilename);
+		cover->SetAABBShader(&m_aabbShader);
+		cover->LoadMesh();
+		m_coverSpots.push_back(cover);
 	}
 
 	m_gameGrid->InitializeGrid();
@@ -168,7 +168,7 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 
 	for (Cube* coverSpot : m_coverSpots)
 	{
-	//	m_gameObjects.push_back(coverSpot);
+		m_gameObjects.push_back(coverSpot);
 	}
 
 	m_enemies.push_back(m_enemy);
@@ -332,8 +332,8 @@ void GameManager::SetUpDebugUi()
 
 void GameManager::ShowDebugUi()
 {
-	ShowCameraControlWindow(*m_camera);
 #ifdef DEBUG
+	ShowCameraControlWindow(*m_camera);
 	ShowLightControlWindow(dirLight);
 	ShowPerformanceWindow();
 #endif

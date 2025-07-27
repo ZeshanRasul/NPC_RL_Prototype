@@ -180,12 +180,12 @@ void main()
 
     float distanceToCamera = length(cameraPos - WorldPos);
 
-    float farFog = exp(-distanceToCamera * 0.013);
+    float farFog = exp(-distanceToCamera * 0.01);
     farFog = clamp(farFog, 0.0, 1.0);
 
     float nearFog = clamp(smoothstep(0.0, 4.0, distanceToCamera), 0.3, 0.9);
 
-    vec3 fogColor = vec3(0.25, 0.15, 0.08);
+    vec3 fogColor = vec3(0.18, 0.15, 0.26);
 
     float fogFactor = mix(0.55, farFog, nearFog);
 
