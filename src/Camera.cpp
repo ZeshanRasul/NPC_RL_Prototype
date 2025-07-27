@@ -34,7 +34,8 @@ Camera::Camera(float posX, float posY, float posZ, float upX, float upY, float u
 void Camera::FollowTarget(const glm::vec3& targetPosition, const glm::vec3& targetFront, float distanceBehind, float heightOffset)
 {
 	glm::vec3 offset = -targetFront * distanceBehind;
-	offset.y += heightOffset;
+	if (GetMode() != PLAYER_AIM)
+		offset.y += heightOffset;
 	SetPosition(targetPosition + offset);
 	target = targetPosition;
 	prevCamTarget = targetPosition;
@@ -78,8 +79,8 @@ void Camera::ProcessMouseMovement(float xOffset, float yOffset, GLboolean constr
 		}
 		else if (GetMode() == PLAYER_AIM || GetMode() == PLAYER_FOLLOW)
 		{
-			if (GetPitch() > 9.0f)
-				SetPitch(9.0f);
+			if (GetPitch() > 25.0f)
+				SetPitch(25.0f);
 			if (GetPitch() < -16.0)
 				SetPitch(-16.0f);
 		}
@@ -158,16 +159,21 @@ glm::mat4 Camera::UpdateCameraLerp(const glm::vec3& newPos, const glm::vec3& tar
 	FollowTarget(blendedTarget, front, m_playerCamRearOffset, m_playerCamHeightOffset);
 
 	glm::vec3 camPos = GetPosition();
+	if (camPos.y <= 0.02f)
+	{
+		camPos.y = m_playerCamHeightOffset;
+		SetPosition(camPos);
+	}
 
 	if (t >= 1.0f)
 	{
 		isBlending = false;
 		hasSwitched = true;
 		StorePrevCam(blendedPos, targetCamTarget);
-		camPos = newPos;
-		if (camPos.y < 0.0f)
+		camPos = GetPosition();
+		if (camPos.y <= 0.02f)
 		{
-			camPos.y = 0.1f;
+			camPos.y = m_playerCamHeightOffset;
 		}
 		SetPosition(camPos);
 		target = targetCamTarget;

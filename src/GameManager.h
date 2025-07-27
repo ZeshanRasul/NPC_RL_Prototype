@@ -139,6 +139,7 @@ public:
 
 	void SetUpDebugUi();
 	void ShowDebugUi();
+	void ShowCameraControlWindow(Camera& cam);
 	void RenderDebugUi();
 
 

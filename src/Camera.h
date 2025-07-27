@@ -114,8 +114,6 @@ public:
 	bool hasSwitched = false;
 	glm::vec3 target;
 	bool isBlending = false;
-
-private:
 	glm::vec3 m_position;
 	glm::vec3 m_front;
 	glm::vec3 m_up;
@@ -126,8 +124,10 @@ private:
 	float m_pitch;
 	float m_movementSpeed;
 	float m_mouseSensitivity;
-	CameraMode m_mode = PLAYER_FOLLOW;
 	float m_zoom;
+
+private:
+	CameraMode m_mode = PLAYER_FOLLOW;
 	float m_playerCamRearOffset = 25.0f;
 	float m_playerCamHeightOffset = 7.0f;
 	float m_playerPosOffset = 12.0f;
@@ -135,6 +135,6 @@ private:
 	float m_enemyCamRearOffset = 15.0f;
 	float m_enemyCamHeightOffset = 5.0f;
 
-	float cameraBlendTime = 1.3f;
+	float cameraBlendTime = 0.8f;
 	float cameraBlendTimer = 0.0f;
 };

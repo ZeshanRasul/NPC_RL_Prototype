@@ -216,13 +216,13 @@ void GameManager::SetupCamera(unsigned int width, unsigned int height, float del
 		if (m_camera->isBlending)
 		{
 			m_camera->SetPitch(45.0f);
-			m_view = m_camera->UpdateCameraLerp(m_camera->GetPosition() + (glm::vec3(0.0f, 1.0f, 0.0f) * m_camera->GetPlayerCamHeightOffset()), m_player->GetPosition() + (m_player->GetPlayerFront() * m_camera->GetPlayerPosOffset()), m_player->GetPlayerFront(), glm::vec3(0.0f, 1.0f, 0.0f), deltaTime);
 			glm::vec3 camPos = m_camera->GetPosition();
 			if (camPos.y < 0.0f)
 			{
-				camPos.y = 0.0f;
+				camPos.y = m_camera->GetPlayerCamHeightOffset();
 				m_camera->SetPosition(camPos);
 			}
+			m_view = m_camera->UpdateCameraLerp(m_camera->GetPosition() + (glm::vec3(0.0f, 1.0f, 0.0f) * m_camera->GetPlayerCamHeightOffset()), m_player->GetPosition() + (m_player->GetPlayerFront() * m_camera->GetPlayerPosOffset()), m_player->GetPlayerFront(), glm::vec3(0.0f, 1.0f, 0.0f), deltaTime);
 
 		} else {
 			m_camera->SetPitch(45.0f);
@@ -233,7 +233,7 @@ void GameManager::SetupCamera(unsigned int width, unsigned int height, float del
 			glm::vec3 camPos = m_camera->GetPosition();
 			if (camPos.y < 0.0f)
 			{
-				camPos.y = 0.0f;
+				camPos.y = m_camera->GetPlayerCamHeightOffset();
 				m_camera->SetPosition(camPos);
 			}
 
@@ -263,12 +263,6 @@ void GameManager::SetupCamera(unsigned int width, unsigned int height, float del
 	}
 	else if (m_camera->GetMode() == PLAYER_AIM)
 	{
-		glm::vec3 camPos = m_camera->GetPosition();
-		if (camPos.y < 0.0f)
-		{
-			camPos.y = 0.0f;
-			m_camera->SetPosition(camPos);
-		}
 
 		glm::vec3 target = m_player->GetPosition() + (m_player->GetPlayerAimFront() * m_camera->GetPlayerPosOffset()) + (m_player->GetPlayerRight() * m_camera->GetPlayerAimRightOffset());
 		if (target.y < 0.0f)
@@ -282,26 +276,35 @@ void GameManager::SetupCamera(unsigned int width, unsigned int height, float del
 				m_player->GetPosition() +
 				(m_player->GetPlayerFront() * m_camera->GetPlayerPosOffset()) +
 				(m_player->GetPlayerRight() * m_camera->GetPlayerAimRightOffset());
+			
+			glm::vec3 camPos = m_camera->GetPosition();
+			if (camPos.y <= 0.02f)
+			{
+				camPos.y = m_camera->GetPlayerCamHeightOffset();
+				m_camera->SetPosition(camPos);
+			}
 			m_view = m_camera->UpdateCameraLerp(newPos, m_player->GetPosition() + (m_player->GetPlayerFront() * m_camera->GetPlayerPosOffset()) + (m_player->GetPlayerRight() * m_camera->GetPlayerAimRightOffset()), m_player->GetPlayerAimFront(), m_player->GetPlayerAimUp(), deltaTime);	
+		
 		} else {
+
+			glm::vec3 camPos = m_camera->GetPosition();
 
 			m_camera->FollowTarget(m_player->GetPosition() + (m_player->GetPlayerFront() * m_camera->GetPlayerPosOffset()) + (m_player->GetPlayerRight() * m_camera->GetPlayerAimRightOffset()), m_player->GetPlayerFront(), m_camera->GetPlayerCamRearOffset(), m_camera->GetPlayerCamHeightOffset());
 			
 			if (m_camera->HasSwitched())
 				m_camera->StorePrevCam(m_camera->GetPosition() + m_player->GetPlayerAimUp() * m_camera->GetPlayerCamHeightOffset(), m_player->GetPosition() + (m_player->GetPlayerFront() * m_camera->GetPlayerPosOffset()) + (m_player->GetPlayerRight() * m_camera->GetPlayerAimRightOffset()) + (m_player->GetPlayerAimUp() * m_camera->GetPlayerCamHeightOffset()));
 
+			camPos = m_camera->GetPosition();
+
+			if (camPos.y <= 0.02f)
+			{
+				camPos.y = m_camera->GetPlayerCamHeightOffset();
+				m_camera->SetPosition(camPos);
+			}
 			m_view = m_camera->GetViewMatrixPlayerFollow(target, m_player->GetPlayerAimUp());
 		}
+
 	}
-
-	glm::vec3 camPos = m_camera->GetPosition();
-
-	if (camPos.y < 0.0f)
-	{
-		camPos.y = 0.0f;
-		m_camera->SetPosition(camPos);
-	}
-
 
 	m_cubemapView = glm::mat4(glm::mat3(m_camera->GetViewMatrixPlayerFollow(m_player->GetPosition(), glm::vec3(0.0f, 1.0f, 0.0f))));
 
@@ -329,6 +332,7 @@ void GameManager::SetUpDebugUi()
 
 void GameManager::ShowDebugUi()
 {
+	ShowCameraControlWindow(*m_camera);
 #ifdef DEBUG
 	ShowLightControlWindow(dirLight);
 	ShowPerformanceWindow();
@@ -338,6 +342,37 @@ void GameManager::ShowDebugUi()
 	{
 		ShowEnemyStateWindow();
 	}
+}
+
+void GameManager::ShowCameraControlWindow(Camera& cam)
+{
+	ImGui::Begin("Camera Control");
+
+	std::string modeText = "";
+
+	if (cam.GetMode() == FLY)
+	{
+		modeText = "Flycam";
+
+
+		cam.UpdateCameraVectors();
+	}
+	else if (cam.GetMode() == PLAYER_FOLLOW)
+		modeText = "Player Follow";
+	else if (cam.GetMode() == ENEMY_FOLLOW)
+		modeText = "Enemy Follow";
+	else if (cam.GetMode() == PLAYER_AIM)
+		modeText = "Player Aim"
+		;
+	ImGui::Text(modeText.c_str());
+
+	ImGui::InputFloat3("Position", (float*)&cam.m_position);
+
+	ImGui::InputFloat("Pitch", (float*)&cam.m_pitch);
+	ImGui::InputFloat("Yaw", (float*)&cam.m_yaw);
+	ImGui::InputFloat("Zoom", (float*)&cam.m_zoom);
+
+	ImGui::End();
 }
 
 void GameManager::RenderDebugUi()
