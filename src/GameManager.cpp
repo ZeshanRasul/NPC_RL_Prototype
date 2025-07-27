@@ -638,7 +638,7 @@ void GameManager::RenderPlayerCrosshairAndMuzzleFlash(bool isMainPass)
 				m_playerMuzzleModel = glm::mat4(1.0f);
 
 				m_playerMuzzleModel = glm::translate(m_playerMuzzleModel, m_player->GetShootPos());
-				m_playerMuzzleModel = glm::rotate(m_playerMuzzleModel, (-m_player->GetYaw() + 180.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+				m_playerMuzzleModel = glm::rotate(m_playerMuzzleModel, (-m_player->GetYaw() + 90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 				m_playerMuzzleModel = glm::scale(m_playerMuzzleModel, glm::vec3(m_playerMuzzleFlashScale, m_playerMuzzleFlashScale, 1.0f));
 				m_playerMuzzleFlashQuad->Draw3D(m_playerMuzzleTint, m_playerMuzzleAlpha, m_projection, m_view, m_playerMuzzleModel);
 			}

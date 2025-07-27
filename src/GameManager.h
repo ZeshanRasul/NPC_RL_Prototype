@@ -290,7 +290,7 @@ private:
 	bool m_renderPlayerMuzzleFlash = false;
 	float m_playerMuzzleFlashStartTime = 0.0f;
 	float m_playerMuzzleTimeSinceStart = 0.0f;
-	float m_playerMuzzleFlashDuration = 0.1f;
+	float m_playerMuzzleFlashDuration = 0.05f;
 	float m_playerMuzzleAlpha = 0.0f;
 	glm::vec3 m_playerMuzzleTint = { 1.0f, 1.0f, 1.0f };
 	float m_playerMuzzleFlashScale = 1.0f;
