@@ -69,7 +69,7 @@ void Cube::DrawObject(glm::mat4 viewMat, glm::mat4 proj, bool shadowMap, glm::ma
 		m_tex.Unbind();
 
 #ifdef _DEBUG
-		m_aabb->Render(viewMat, proj, modelMat, m_aabbColor);
+		aabb->Render(viewMat, proj, modelMat, aabbColor);
 #endif
 	}
 }

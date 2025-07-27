@@ -123,6 +123,7 @@ void Camera::StorePrevCam(const glm::vec3& prevPos, const glm::vec3& targetPos)
 	prevCamPos = prevPos;
 	prevCamTarget = targetPos;
 	prevCamDir = GetFront();
+	prevCamPitch = GetPitch();
 }
 
 void Camera::LerpCamera()
@@ -130,6 +131,15 @@ void Camera::LerpCamera()
 	targetCamPos = GetPosition();
 	targetCamTarget = target;
 	targetCamDir = glm::normalize(targetCamTarget - targetCamPos);
+
+
+	if (GetMode() == PLAYER_AIM)
+	{
+		if (GetPitch() > 25.0f)
+			targetCamPitch =25.0f;
+		if (GetPitch() < -16.0)
+			targetCamPitch = -16.0f;
+	}
 
 	cameraBlendTimer = 0.0f;
 	isBlending = true;
@@ -146,8 +156,10 @@ glm::mat4 Camera::UpdateCameraLerp(const glm::vec3& newPos, const glm::vec3& tar
 	glm::vec3 blendedPos = glm::mix(prevCamPos, newPos, t);
 	glm::vec3 blendedTarget = glm::mix(prevCamTarget, targetPos, t);
 	glm::vec3 blendedTargetDir = glm::mix(prevCamDir, targetCamDir, t);
+	float blendedPitch = glm::mix(prevCamPitch, targetCamPitch, t);
 
 
+	SetPitch(blendedPitch);
 	SetPosition(blendedPos);
 	target = blendedTarget;
 

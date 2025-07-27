@@ -658,7 +658,7 @@ void GameManager::RenderPlayerCrosshairAndMuzzleFlash(bool isMainPass)
 		glm::vec3 crosshairHitpoint;
 		glm::vec3 crosshairCol;
 
-		auto clipCoords = glm::vec4(0.2f, 0.5f, 1.0f, 1.0f);
+		auto clipCoords = glm::vec4(0.15f, 0.5f, 1.0f, 1.0f);
 
 		glm::vec4 cameraCoords = inverse(m_projection) * clipCoords;
 		cameraCoords /= cameraCoords.w;

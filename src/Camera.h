@@ -111,6 +111,8 @@ public:
 	glm::vec3 targetCamTarget;
 	glm::vec3 prevCamDir;
 	glm::vec3 targetCamDir;
+	float prevCamPitch;
+	float targetCamPitch;
 	bool hasSwitched = false;
 	glm::vec3 target;
 	bool isBlending = false;

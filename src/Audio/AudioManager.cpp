@@ -5,9 +5,10 @@ void AudioManager::SubmitAudioRequest(int enemyId, const std::string& eventName,
 {
 	bool isHighPriority = (priority >= m_priorityThreshold);
 
-	if (isHighPriority || (m_enemyCooldowns[enemyId] <= 0.0f && m_globalCooldownTimer <= 0.0f) || m_enemySpeakTime[enemyId] < 0.5f)
+	if (isHighPriority || (m_enemyCooldowns[enemyId] <= 0.0f && m_globalCooldownTimer <= 0.0f))
 	{
 		AudioRequest request{enemyId, eventName, priority, cooldown};
+		m_enemySpeakTime[enemyId] = 0.0f;
 		m_audioQueue.push(request);
 	}
 }
@@ -46,7 +47,7 @@ void AudioManager::ProcessNextAudioRequest()
 	m_audioQueue.pop();
 
 	Enemy* enemy = m_gameManager->GetEnemyByID(request.m_enemyId);
-	if (enemy && !enemy->IsDestroyed())
+	if (enemy && !enemy->IsDestroyed() && m_enemySpeakTime[request.m_enemyId] < 2.0f)
 	{
 		AudioComponent* audioComp = enemy->GetAudioComponent();
 		if (audioComp)
