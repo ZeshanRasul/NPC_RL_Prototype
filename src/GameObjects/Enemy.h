@@ -72,7 +72,7 @@ public:
 	void DrawObject(glm::mat4 viewMat, glm::mat4 proj, bool shadowMap, glm::mat4 lightSpaceMat, GLuint shadowMapTexture,
 		glm::vec3 camPos) override;
 
-	void Update(bool shouldUseEDBT);
+	void Update(bool shouldUseEDBT, bool isPaused, bool isTimeScaled);
 
 	void OnEvent(const Event& event);
 

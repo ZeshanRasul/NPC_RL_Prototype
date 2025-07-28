@@ -54,7 +54,7 @@ void Player::DrawObject(glm::mat4 viewMat, glm::mat4 proj, bool shadowMap, glm::
 	}
 }
 
-void Player::Update(float dt)
+void Player::Update(float dt, bool isPaused, bool isTimeScaled)
 {
 	UpdateAabb();
 	ComputeAudioWorldTransform();
@@ -100,11 +100,19 @@ void Player::Update(float dt)
 		m_resetBlend = false;
 	}
 
+	float animSpeedDivider = 1.0f;
+
+	if (isPaused)
+		animSpeedDivider = 0.0f;
+
+	if (isTimeScaled)
+		animSpeedDivider = 0.25f;
+
 	if (m_blendAnim)
 	{
 		m_blendFactor += m_blendSpeed * dt;
 
-		SetAnimation(GetSourceAnimNum(), GetDestAnimNum(), 1.0f, m_blendFactor, false);
+		SetAnimation(GetSourceAnimNum(), GetDestAnimNum(), animSpeedDivider, m_blendFactor, false);
 	
 		
 		if (m_blendFactor >= 1.0f)
@@ -117,7 +125,7 @@ void Player::Update(float dt)
 	}
 	else
 	{
-		SetAnimation(m_destAnim, 1.0f, 1.0f, false);
+		SetAnimation(m_destAnim, animSpeedDivider, 1.0f, false);
 	}
 }
 

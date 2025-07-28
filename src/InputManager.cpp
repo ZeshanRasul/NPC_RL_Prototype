@@ -175,7 +175,43 @@ void InputManager::ProcessInput(GLFWwindow* window, float deltaTime)
 
 	m_rKeyPressed = rKeyCurrentlyPressed;
 
-	HandlePlayerMovement(window, *m_player, *m_camera, deltaTime);
+	bool pauseKeyCurrentlyPressed = glfwGetKey(window, GLFW_KEY_P) == GLFW_PRESS;
+
+	if (pauseKeyCurrentlyPressed && !m_pausePressed)
+	{
+		if (!isPaused)
+		{
+			pauseFactor = 0.0f;
+			isPaused = true;
+		}
+		else
+		{
+			pauseFactor = 1.0f;
+			isPaused = false;
+		}
+	}
+
+	m_pausePressed = pauseKeyCurrentlyPressed;
+
+	bool zKeyCurrentlyPressed = glfwGetKey(window, GLFW_KEY_Z) == GLFW_PRESS;
+
+	if (m_zKeyPressed && !m_zKeyBeenPressed)
+	{
+		if (!isTimeScaled)
+		{
+			timeScaleFactor = 0.25f;
+			isTimeScaled = true;
+		}
+		else
+		{
+			timeScaleFactor = 1.0f;
+			isTimeScaled = false;
+		}
+	}
+
+	m_zKeyPressed = zKeyCurrentlyPressed;
+
+	HandlePlayerMovement(window, *m_player, *m_camera, deltaTime * pauseFactor * timeScaleFactor);
 }
 
 void InputManager::SetContext(Camera* cam, Player* plyr, Enemy* enmy, unsigned int width, unsigned int height)

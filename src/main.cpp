@@ -7,7 +7,7 @@ const unsigned int SCREEN_HEIGHT = 1080;
 
 int main()
 {
-    lpp::LppDefaultAgent lppAgent = lpp::LppCreateDefaultAgent(nullptr, L"C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/include/LivePP");
+    lpp::LppDefaultAgent lppAgent = lpp::LppCreateDefaultAgent(nullptr, L"include/LivePP");
 
     if (!lpp::LppIsValidDefaultAgent(&lppAgent))
         return 1;

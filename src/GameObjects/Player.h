@@ -32,9 +32,9 @@ public:
 		m_model = std::make_shared<GltfModel>();
 
 		std::string modelFilename =
-			"C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Models/GLTF/SwatPlayer/Swat.gltf";
+			"src/Assets/Models/GLTF/SwatPlayer/Swat.gltf";
 		std::string modelTextureFilename =
-			"C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Models/GLTF/SwatPlayer/Swat_Ch15_body_BaseColor.png";
+			"src/Assets/Models/GLTF/SwatPlayer/Swat_Ch15_body_BaseColor.png";
 
 		if (!m_model->LoadModel(modelFilename))
 		{
@@ -44,13 +44,13 @@ public:
 		m_tex = m_model->LoadTexture(modelTextureFilename, false);
 
 		m_normal.LoadTexture(
-			"C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Models/GLTF/SwatPlayer/Swat_Ch15_body_Normal.png");
+			"src/Assets/Models/GLTF/SwatPlayer/Swat_Ch15_body_Normal.png");
 		m_metallic.LoadTexture(
-			"C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Models/GLTF/SwatPlayer/Swat_Ch15_body_Metallic.png");
+			"src/Assets/Models/GLTF/SwatPlayer/Swat_Ch15_body_Metallic.png");
 		m_roughness.LoadTexture(
-			"C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Models/GLTF/SwatPlayer/Swat_Ch15_body_Roughness.png");
+			"src/Assets/Models/GLTF/SwatPlayer/Swat_Ch15_body_Roughness.png");
 		m_ao.LoadTexture(
-			"C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Models/GLTF/SwatPlayer/Swat_Ch15_body_AO.png");
+			"src/Assets/Models/GLTF/SwatPlayer/Swat_Ch15_body_AO.png");
 
 		m_model->UploadIndexBuffer();
 		Logger::Log(1, "%s: glTF m_model '%s' successfully loaded\n", __FUNCTION__, modelFilename.c_str());
@@ -81,7 +81,7 @@ public:
 	void DrawObject(glm::mat4 viewMat, glm::mat4 proj, bool shadowMap, glm::mat4 lightSpaceMat, GLuint shadowMapTexture,
 	                glm::vec3 camPos) override;
 
-	void Update(float dt);
+	void Update(float dt, bool isPaused, bool isTimeScaled);
 
 	glm::vec3 GetPosition()
 	{

@@ -30,7 +30,10 @@ public:
 	void HandleMouseScroll(double xOffset, double yOffset);
 	void ProcessInput(GLFWwindow* window, float deltaTime);
 	void HandlePlayerMovement(GLFWwindow* window, Player& player, Camera& camera, float deltaTime);
-
+	float GetPauseFactor() const { return pauseFactor; }
+	float GetTimeScaleFacotr() const { return timeScaleFactor; }
+	bool GetIsPaused() const { return isPaused; }
+	bool GetIsTimeScaled() const { return isTimeScaled; }
 
 	void SetContext(Camera* cam, Player* plyr, Enemy* enmy, unsigned int width, unsigned int height);
 
@@ -43,6 +46,12 @@ private:
 	float m_lastY = 0;
 	bool m_firstMouse = true;
 
+	float pauseFactor = 1.0f;
+	float timeScaleFactor = 1.0f;
+	bool isPaused = false;
+	bool isTimeScaled = false;
+
+
 	bool m_controlCamera = true;
 	bool m_isTabPressed = false;
 	bool m_ctrlBeenPressed = false;
@@ -51,4 +60,8 @@ private:
 	bool m_leftClickPressed = false;
 	bool m_rKeyBeenPressed = false;
 	bool m_rKeyPressed = false;
+	bool m_pausePressed = false;
+	bool m_pauseKeyBeenPressed = false;
+	bool m_zKeyPressed = false;
+	bool m_zKeyBeenPressed = false;
 };

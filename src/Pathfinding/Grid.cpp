@@ -77,26 +77,26 @@ void Grid::DrawGrid(Shader& gridShader, glm::mat4 viewMat, glm::mat4 projMat, gl
 		if (firstLoad)
 		{
 			grid[0][0].LoadTexture(
-				"C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/Floor/TCom_Scifi_Floor2_4K_albedo.png",
+				"src/Assets/Textures/Floor/TCom_Scifi_Floor2_4K_albedo.png",
 				&grid[0][0].m_tex);
 			grid[0][0].LoadTexture(
-				"C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/Floor/TCom_Scifi_Floor2_4K_normal.png",
+				"src/Assets/Textures/Floor/TCom_Scifi_Floor2_4K_normal.png",
 				&grid[0][0].m_normal);
 			grid[0][0].LoadTexture(
-				"C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/Floor/TCom_Scifi_Floor2_4K_metallic.png",
+				"src/Assets/Textures/Floor/TCom_Scifi_Floor2_4K_metallic.png",
 				&grid[0][0].m_metallic);
 			grid[0][0].LoadTexture(
-				"C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/Floor/TCom_Scifi_Floor2_4K_roughness.png",
+				"src/Assets/Textures/Floor/TCom_Scifi_Floor2_4K_roughness.png",
 				&grid[0][0].m_roughness);
 			grid[0][0].LoadTexture(
-				"C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/Floor/TCom_Scifi_Floor2_4K_ao.png",
+				"src/Assets/Textures/Floor/TCom_Scifi_Floor2_4K_ao.png",
 				&grid[0][0].m_ao);
 			grid[0][0].LoadTexture(
-				"C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/Floor/TCom_Scifi_Floor2_4K_emissive.png",
+				"src/Assets/Textures/Floor/TCom_Scifi_Floor2_4K_emissive.png",
 				&grid[0][0].m_emissive);
 #ifdef DEBUG
 #endif
-			grid[0][0].LoadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/Cell.png",
+			grid[0][0].LoadTexture("src/Assets/Textures/Cell.png",
 			                       &grid[0][0].m_debugOutline);
 
 			firstLoad = false;

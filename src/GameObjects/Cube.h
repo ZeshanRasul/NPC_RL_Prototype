@@ -12,21 +12,21 @@ public:
 		: GameObject(pos, scale, yaw, shdr, shadowMapShader, applySkinning, gameMgr)
 	{
 		LoadTexture(
-			"C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/Wall/TCom_SciFiPanels09_4K_albedo.png",
+			"src/Assets/Textures/Wall/TCom_SciFiPanels09_4K_albedo.png",
 			&m_tex);
 		LoadTexture(
-			"C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/Wall/TCom_SciFiPanels09_4K_normal.png",
+			"src/Assets/Textures/Wall/TCom_SciFiPanels09_4K_normal.png",
 			&m_normal);
 		LoadTexture(
-			"C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/Wall/TCom_SciFiPanels09_4K_metallic.png",
+			"src/Assets/Textures/Wall/TCom_SciFiPanels09_4K_metallic.png",
 			&m_metallic);
 		LoadTexture(
-			"C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/Wall/TCom_SciFiPanels09_4K_roughness.png",
+			"src/Assets/Textures/Wall/TCom_SciFiPanels09_4K_roughness.png",
 			&m_roughness);
-		LoadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/Wall/TCom_SciFiPanels09_4K_ao.png",
+		LoadTexture("src/Assets/Textures/Wall/TCom_SciFiPanels09_4K_ao.png",
 		            &m_ao);
 		LoadTexture(
-			"C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/Wall/TCom_SciFiPanels09_4K_emissive.png",
+			"src/Assets/Textures/Wall/TCom_SciFiPanels09_4K_emissive.png",
 			&m_emissive);
 
 		bulletHitAC = new AudioComponent(this);

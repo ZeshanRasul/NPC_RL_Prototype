@@ -9,7 +9,7 @@ public:
 	       GameManager* gameMgr, float yaw = 0.0f)
 		: GameObject(pos, scale, yaw, shdr, shadowMapShader, applySkinning, gameMgr)
 	{
-		//        m_model.LoadModel("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Models/GrassBase/GrassBase.obj");
+		//        m_model.LoadModel("src/Models/GrassBase/GrassBase.obj");
 		ComputeAudioWorldTransform();
 	}
 

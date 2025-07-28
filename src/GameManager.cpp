@@ -37,37 +37,37 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 	m_renderer->SetUpMinimapFBO(width, height);
 	m_renderer->SetUpShadowMapFBO(SHADOW_WIDTH, SHADOW_HEIGHT);
 
-	m_playerShader.LoadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/vertex_gpu_dquat_player.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/pbr_fragment.glsl");
-	m_enemyShader.LoadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/vertex_gpu_dquat_enemy.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/pbr_fragment_emissive.glsl");
+	m_playerShader.LoadShaders("src/Shaders/vertex_gpu_dquat_player.glsl", "src/Shaders/pbr_fragment.glsl");
+	m_enemyShader.LoadShaders("src/Shaders/vertex_gpu_dquat_enemy.glsl", "src/Shaders/pbr_fragment_emissive.glsl");
 	
 #ifdef DEBUG
-	m_gridShader.LoadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/pbr_grid_debug_vert.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/pbr_grid_debug_frag.glsl");
+	m_gridShader.LoadShaders("src/Shaders/pbr_grid_debug_vert.glsl", "src/Shaders/pbr_grid_debug_frag.glsl");
 #else
-	m_gridShader.LoadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/pbr_vertex.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/pbr_fragment.glsl");
+	m_gridShader.LoadShaders("src/Shaders/pbr_vertex.glsl", "src/Shaders/pbr_fragment.glsl");
 #endif
 
-	m_crosshairShader.LoadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/crosshair_vert.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/crosshair_frag.glsl");
-	m_lineShader.LoadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/line_vert.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/line_frag.glsl");
-	m_aabbShader.LoadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/aabb_vert.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/aabb_frag.glsl");
-	m_cubeShader.LoadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/pbr_vertex.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/pbr_fragment_emissive.glsl");
-	m_cubemapShader.LoadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/cubemap_vertex.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/cubemap_fragment.glsl");
-	m_minimapShader.LoadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/quad_vertex.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/quad_fragment.glsl");
-	m_shadowMapShader.LoadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/shadow_map_vertex.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/shadow_map_fragment.glsl");
-	m_playerShadowMapShader.LoadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/shadow_map_player_vertex.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/shadow_map_fragment.glsl");
-	m_enemyShadowMapShader.LoadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/shadow_map_enemy_vertex.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/shadow_map_fragment.glsl");
-	m_shadowMapQuadShader.LoadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/shadow_map_quad_vertex.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/shadow_map_quad_fragment.glsl");
-	m_playerMuzzleFlashShader.LoadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/muzzle_flash_vertex.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/muzzle_flash_fragment.glsl");
-	m_playerTracerShader.LoadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/muzzle_flash_vertex.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/muzzle_flash_fragment.glsl");
+	m_crosshairShader.LoadShaders("src/Shaders/crosshair_vert.glsl", "src/Shaders/crosshair_frag.glsl");
+	m_lineShader.LoadShaders("src/Shaders/line_vert.glsl", "src/Shaders/line_frag.glsl");
+	m_aabbShader.LoadShaders("src/Shaders/aabb_vert.glsl", "src/Shaders/aabb_frag.glsl");
+	m_cubeShader.LoadShaders("src/Shaders/pbr_vertex.glsl", "src/Shaders/pbr_fragment_emissive.glsl");
+	m_cubemapShader.LoadShaders("src/Shaders/cubemap_vertex.glsl", "src/Shaders/cubemap_fragment.glsl");
+	m_minimapShader.LoadShaders("src/Shaders/quad_vertex.glsl", "src/Shaders/quad_fragment.glsl");
+	m_shadowMapShader.LoadShaders("src/Shaders/shadow_map_vertex.glsl", "src/Shaders/shadow_map_fragment.glsl");
+	m_playerShadowMapShader.LoadShaders("src/Shaders/shadow_map_player_vertex.glsl", "src/Shaders/shadow_map_fragment.glsl");
+	m_enemyShadowMapShader.LoadShaders("src/Shaders/shadow_map_enemy_vertex.glsl", "src/Shaders/shadow_map_fragment.glsl");
+	m_shadowMapQuadShader.LoadShaders("src/Shaders/shadow_map_quad_vertex.glsl", "src/Shaders/shadow_map_quad_fragment.glsl");
+	m_playerMuzzleFlashShader.LoadShaders("src/Shaders/muzzle_flash_vertex.glsl", "src/Shaders/muzzle_flash_fragment.glsl");
+	m_playerTracerShader.LoadShaders("src/Shaders/muzzle_flash_vertex.glsl", "src/Shaders/muzzle_flash_fragment.glsl");
 
 	m_physicsWorld = new PhysicsWorld();
 
 	m_cubemapFaces = {
-		"C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/Skybox/T3Nebula/right.png",
-		"C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/Skybox/T3Nebula/left.png",
-		"C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/Skybox/T3Nebula/top.png",
-		"C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/Skybox/T3Nebula/bottom.png",
-		"C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/Skybox/T3Nebula/front.png",
-		"C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/Skybox/T3Nebula/back.png"
+		"src/Assets/Textures/Skybox/T3Nebula/right.png",
+		"src/Assets/Textures/Skybox/T3Nebula/left.png",
+		"src/Assets/Textures/Skybox/T3Nebula/top.png",
+		"src/Assets/Textures/Skybox/T3Nebula/bottom.png",
+		"src/Assets/Textures/Skybox/T3Nebula/front.png",
+		"src/Assets/Textures/Skybox/T3Nebula/back.png"
 	};
 
 	m_cubemap = new Cubemap(&m_cubemapShader);
@@ -76,8 +76,8 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 
 	m_cell = new Cell();
 	m_cell->SetUpVAO();
-	//    m_cell->LoadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/Ground.png", m_cell->m_tex);
-	std::string cubeTexFilename = "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/Cover.png";
+	//    m_cell->LoadTexture("src/Assets/Textures/Ground.png", m_cell->m_tex);
+	std::string cubeTexFilename = "src/Assets/Textures/Cover.png";
 
 	m_gameGrid = new Grid();
 
@@ -103,47 +103,47 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 	m_playerMuzzleFlashQuad = new Quad();
 	m_playerMuzzleFlashQuad->SetUpVAO(true);
 	m_playerMuzzleFlashQuad->SetShader(&m_playerMuzzleFlashShader);
-	m_playerMuzzleFlashQuad->LoadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/muzzleflash.png");
+	m_playerMuzzleFlashQuad->LoadTexture("src/Assets/Textures/muzzleflash.png");
 
 	m_enemyMuzzleFlashQuad = new Quad();
 	m_enemyMuzzleFlashQuad->SetUpVAO(true);
 	m_enemyMuzzleFlashQuad->SetShader(&m_playerMuzzleFlashShader);
-	m_enemyMuzzleFlashQuad->LoadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/muzzleflash.png");
+	m_enemyMuzzleFlashQuad->LoadTexture("src/Assets/Textures/muzzleflash.png");
 
 	m_enemy2MuzzleFlashQuad = new Quad();
 	m_enemy2MuzzleFlashQuad->SetUpVAO(true);
 	m_enemy2MuzzleFlashQuad->SetShader(&m_playerMuzzleFlashShader);
-	m_enemy2MuzzleFlashQuad->LoadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/muzzleflash.png");
+	m_enemy2MuzzleFlashQuad->LoadTexture("src/Assets/Textures/muzzleflash.png");
 
 	m_enemy3MuzzleFlashQuad = new Quad();
 	m_enemy3MuzzleFlashQuad->SetUpVAO(true);
 	m_enemy3MuzzleFlashQuad->SetShader(&m_playerMuzzleFlashShader);
-	m_enemy3MuzzleFlashQuad->LoadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/muzzleflash.png");
+	m_enemy3MuzzleFlashQuad->LoadTexture("src/Assets/Textures/muzzleflash.png");
 
 	m_enemy4MuzzleFlashQuad = new Quad();
 	m_enemy4MuzzleFlashQuad->SetUpVAO(true);
 	m_enemy4MuzzleFlashQuad->SetShader(&m_playerMuzzleFlashShader);
-	m_enemy4MuzzleFlashQuad->LoadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/muzzleflash.png");
+	m_enemy4MuzzleFlashQuad->LoadTexture("src/Assets/Textures/muzzleflash.png");
 
 	m_enemyTracerQuad = new Quad();
 	m_enemyTracerQuad->SetUpVAO(true);
 	m_enemyTracerQuad->SetShader(&m_playerTracerShader);
-	m_enemyTracerQuad->LoadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/bullet_tracer.png");
+	m_enemyTracerQuad->LoadTexture("src/Assets/Textures/bullet_tracer.png");
 
 	m_enemy2TracerQuad = new Quad();
 	m_enemy2TracerQuad->SetUpVAO(true);
 	m_enemy2TracerQuad->SetShader(&m_playerTracerShader);
-	m_enemy2TracerQuad->LoadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/bullet_tracer.png");
+	m_enemy2TracerQuad->LoadTexture("src/Assets/Textures/bullet_tracer.png");
 
 	m_enemy3TracerQuad = new Quad();
 	m_enemy3TracerQuad->SetUpVAO(true);
 	m_enemy3TracerQuad->SetShader(&m_playerTracerShader);
-	m_enemy3TracerQuad->LoadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/bullet_tracer.png");
+	m_enemy3TracerQuad->LoadTexture("src/Assets/Textures/bullet_tracer.png");
 
 	m_enemy4TracerQuad = new Quad();
 	m_enemy4TracerQuad->SetUpVAO(true);
 	m_enemy4TracerQuad->SetShader(&m_playerTracerShader);
-	m_enemy4TracerQuad->LoadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/bullet_tracer.png");
+	m_enemy4TracerQuad->LoadTexture("src/Assets/Textures/bullet_tracer.png");
 
 
 
@@ -152,10 +152,10 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 	m_player->SetAABBShader(&m_aabbShader);
 	m_player->SetUpAABB();
 
-	std::string texture = "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Models/GLTF/Enemies/Ely/EnemyEly_ely_vanguardsoldier_kerwinatienza_M2_BaseColor.png";
-	std::string texture2 = "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Models/GLTF/Enemies/Ely/ely-vanguardsoldier-kerwinatienza_diffuse_2.png";
-	std::string texture3 = "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Models/GLTF/Enemies/Ely/ely-vanguardsoldier-kerwinatienza_diffuse_3.png";
-	std::string texture4 = "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Models/GLTF/Enemies/Ely/ely-vanguardsoldier-kerwinatienza_diffuse_4.png";
+	std::string texture = "src/Assets/Models/GLTF/Enemies/Ely/EnemyEly_ely_vanguardsoldier_kerwinatienza_M2_BaseColor.png";
+	std::string texture2 = "src/Assets/Models/GLTF/Enemies/Ely/ely-vanguardsoldier-kerwinatienza_diffuse_2.png";
+	std::string texture3 = "src/Assets/Models/GLTF/Enemies/Ely/ely-vanguardsoldier-kerwinatienza_diffuse_3.png";
+	std::string texture4 = "src/Assets/Models/GLTF/Enemies/Ely/ely-vanguardsoldier-kerwinatienza_diffuse_4.png";
 
 	m_enemy = new Enemy(m_gameGrid->SnapToGrid(glm::vec3(33.0f, 0.0f, 23.0f)), glm::vec3(3.0f), &m_enemyShader, &m_enemyShadowMapShader, true, this, m_gameGrid, texture, 0, GetEventManager(), *m_player);
 	m_enemy->SetAABBShader(&m_aabbShader);
@@ -175,7 +175,7 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 
 	m_crosshair = new Crosshair(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.3f), &m_crosshairShader, &m_shadowMapShader, false, this);
 	m_crosshair->LoadMesh();
-	m_crosshair->LoadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/Crosshair.png");
+	m_crosshair->LoadTexture("src/Assets/Textures/Crosshair.png");
 	m_playerLine = new Line(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f), &m_lineShader, &m_shadowMapShader, false, this);
 	m_playerLine->LoadMesh();
 
@@ -732,12 +732,26 @@ void GameManager::RenderPlayerCrosshairAndMuzzleFlash(bool isMainPass)
 void GameManager::Update(float deltaTime)
 {
 	m_inputManager->ProcessInput(m_window->GetWindow(), deltaTime);
+	float pauseFactor = m_inputManager->GetPauseFactor();
+	float timeScaleFactor = m_inputManager->GetTimeScaleFacotr();
+
+	float scaledDeltaTime = deltaTime;
+
+	bool isPaused = m_inputManager->GetIsPaused();
+	bool isTimeScaled = m_inputManager->GetIsTimeScaled();
+
+	if (isPaused)
+		scaledDeltaTime *= pauseFactor;
+
+	if (isTimeScaled)
+		scaledDeltaTime *= timeScaleFactor;
+
 	m_player->UpdatePlayerVectors();
 	m_player->UpdatePlayerAimVectors();
 
-	m_player->Update(deltaTime);
+	m_player->Update(scaledDeltaTime, isPaused, isTimeScaled);
 
-	m_dt = deltaTime;
+	m_dt = scaledDeltaTime;
 
 	int enemyID = 0;
 	for (Enemy* e : m_enemies)
@@ -745,25 +759,25 @@ void GameManager::Update(float deltaTime)
 		if (e == nullptr || e->IsDestroyed())
 			continue;
 
-		e->SetDeltaTime(deltaTime);
+		e->SetDeltaTime(scaledDeltaTime);
 
 		if (!m_useEdbt)
 		{
 			if (m_training)
 			{
-				e->EnemyDecision(m_enemyStates[e->GetID()], e->GetID(), m_squadActions, deltaTime, m_enemyStateQTable);
+				e->EnemyDecision(m_enemyStates[e->GetID()], e->GetID(), m_squadActions, scaledDeltaTime, m_enemyStateQTable);
 			}
 			else
 			{
-				e->EnemyDecisionPrecomputedQ(m_enemyStates[e->GetID()], e->GetID(), m_squadActions, deltaTime, m_enemyStateQTable);
+				e->EnemyDecisionPrecomputedQ(m_enemyStates[e->GetID()], e->GetID(), m_squadActions, scaledDeltaTime, m_enemyStateQTable);
 			}
 		}
 
-		e->Update(m_useEdbt);
+		e->Update(m_useEdbt, isPaused, isTimeScaled);
 	}
 
-	m_audioManager->Update(deltaTime);
-	m_audioSystem->Update(deltaTime);
+	m_audioManager->Update(scaledDeltaTime);
+	m_audioSystem->Update(scaledDeltaTime);
 
 	CalculatePerformance(deltaTime);
 }

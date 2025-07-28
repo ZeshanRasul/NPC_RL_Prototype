@@ -23,7 +23,7 @@ Enemy::Enemy(glm::vec3 pos, glm::vec3 scale, Shader* sdr, Shader* shadowMapShade
 	m_model = std::make_shared<GltfModel>();
 
 	std::string modelFilename =
-		"C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Models/GLTF/Enemies/Ely/EnemyEly.gltf";
+		"src/Assets/Models/GLTF/Enemies/Ely/EnemyEly.gltf";
 
 	if (!m_model->LoadModel(modelFilename, true))
 	{
@@ -37,15 +37,15 @@ Enemy::Enemy(glm::vec3 pos, glm::vec3 scale, Shader* sdr, Shader* shadowMapShade
 	Logger::Log(1, "%s: glTF m_model texture '%s' successfully loaded\n", __FUNCTION__, texFilename.c_str());
 
 	m_normal.LoadTexture(
-		"C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Models/GLTF/Enemies/Ely/EnemyEly_ely_vanguardsoldier_kerwinatienza_M2_Normal.png");
+		"src/Assets/Models/GLTF/Enemies/Ely/EnemyEly_ely_vanguardsoldier_kerwinatienza_M2_Normal.png");
 	m_metallic.LoadTexture(
-		"C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Models/GLTF/Enemies/Ely/EnemyEly_ely_vanguardsoldier_kerwinatienza_M2_Metallic.png");
+		"src/Assets/Models/GLTF/Enemies/Ely/EnemyEly_ely_vanguardsoldier_kerwinatienza_M2_Metallic.png");
 	m_roughness.LoadTexture(
-		"C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Models/GLTF/Enemies/Ely/EnemyEly_ely_vanguardsoldier_kerwinatienza_M2_Roughness.png");
+		"src/Assets/Models/GLTF/Enemies/Ely/EnemyEly_ely_vanguardsoldier_kerwinatienza_M2_Roughness.png");
 	m_ao.LoadTexture(
-		"C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Models/GLTF/Enemies/Ely/EnemyEly_ely_vanguardsoldier_kerwinatienza_M2_AO.png");
+		"src/Assets/Models/GLTF/Enemies/Ely/EnemyEly_ely_vanguardsoldier_kerwinatienza_M2_AO.png");
 	m_emissive.LoadTexture(
-		"C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Models/GLTF/Enemies/Ely/EnemyEly_ely_vanguardsoldier_kerwinatienza_M2_Emissive.png");
+		"src/Assets/Models/GLTF/Enemies/Ely/EnemyEly_ely_vanguardsoldier_kerwinatienza_M2_Emissive.png");
 
 
 	SetUpModel();
@@ -138,7 +138,7 @@ void Enemy::DrawObject(glm::mat4 viewMat, glm::mat4 proj, bool shadowMap, glm::m
 	}
 }
 
-void Enemy::Update(bool shouldUseEDBT)
+void Enemy::Update(bool shouldUseEDBT, bool isPaused, bool isTimeScaled)
 {
 	if (!m_isDead || !m_isDestroyed)
 	{
@@ -189,12 +189,20 @@ void Enemy::Update(bool shouldUseEDBT)
 			m_resetBlend = false;
 		}
 
+		float animSpeedDivider = 1.0f;
+
+		if (isPaused)
+			animSpeedDivider = 0.0f;
+
+		if (isTimeScaled)
+			animSpeedDivider = 0.25f;
+
 		if (m_blendAnim)
 		{
 			m_blendFactor += (1.0f - m_blendFactor) * m_blendSpeed * m_dt;
 			if (m_blendFactor > 1.0f)
 				m_blendFactor = 1.0f;
-			SetAnimation(GetSourceAnimNum(), GetDestAnimNum(), 0.5f, m_blendFactor, false);
+			SetAnimation(GetSourceAnimNum(), GetDestAnimNum(), animSpeedDivider / 2.0f, m_blendFactor, false);
 			if (m_blendFactor >= 1.0f)
 			{
 				m_blendAnim = false;
@@ -204,7 +212,7 @@ void Enemy::Update(bool shouldUseEDBT)
 		}
 		else
 		{
-			SetAnimation(GetSourceAnimNum(), 1.0f, 1.0f, false);
+			SetAnimation(GetSourceAnimNum(), animSpeedDivider, 1.0f, false);
 			m_blendFactor = 0.0f;
 		}
 	}
@@ -617,7 +625,7 @@ void Enemy::Shoot()
 
 	m_enemyRayDebugRenderTimer = 0.3f;
 	m_enemyHasShot = true;
-	m_enemyShootCooldown = 0.3f;
+	m_enemyShootCooldown = 0.5f;
 }
 
 void Enemy::SetUpAABB()
