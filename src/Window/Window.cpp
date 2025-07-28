@@ -6,7 +6,6 @@
 #include "src/InputManager.h"
 #include "src/Tools/Logger.h"
 
-// TODO: Move these to Renderer
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 
 bool Window::Init(unsigned int width, unsigned int height, std::string title)
@@ -23,8 +22,22 @@ bool Window::Init(unsigned int width, unsigned int height, std::string title)
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+	
+	GLFWmonitor* monitor = glfwGetPrimaryMonitor();
+	if (!monitor) {
+		std::cerr << "No monitor found!\n";
+		glfwTerminate();
+		return -1;
+	}
 
-	m_window = glfwCreateWindow(width, height, title.c_str(), NULL, NULL);
+	const GLFWvidmode* mode = glfwGetVideoMode(monitor);
+
+	glfwWindowHint(GLFW_RED_BITS, mode->redBits);
+	glfwWindowHint(GLFW_GREEN_BITS, mode->greenBits);
+	glfwWindowHint(GLFW_BLUE_BITS, mode->blueBits);
+	glfwWindowHint(GLFW_REFRESH_RATE, mode->refreshRate);
+
+	m_window = glfwCreateWindow(width, height, title.c_str(), monitor, NULL);
 
 	if (!m_window) {
 		glfwTerminate();
@@ -49,6 +62,10 @@ bool Window::Init(unsigned int width, unsigned int height, std::string title)
 	glfwSetCursorPosCallback(m_window, InputManager::MouseCallback);
 
 	glfwSetScrollCallback(m_window, InputManager::ScrollCallback);
+
+	int fbWidth, fbHeight;
+	glfwGetFramebufferSize(m_window, &fbWidth, &fbHeight);
+	framebuffer_size_callback(m_window, fbWidth, fbHeight);
 
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
