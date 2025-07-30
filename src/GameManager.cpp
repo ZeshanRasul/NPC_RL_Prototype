@@ -319,8 +319,8 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 
 
 
-	float minBounds[3] = { -10.0f, 0.0f, -10.0f };
-	float maxBounds[3] = { 500.0f, 100.0f, 500.0f };
+	float minBounds[3] = { 0.0f, 0.0f, 0.0f };
+	float maxBounds[3] = { (105.0f) * 4.0f, 3.0f, (105.0f) * 4.0f };
 
 	//rcCalcBounds(navMeshVertices.data(), navMeshVertices.size() / 3, cfg.bmin, cfg.bmax);
 	cfg.width = maxBounds[0];
@@ -354,7 +354,7 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 	//float maxBounds[3] = { 500.0f, 1.0f, 500.0f };
 
 	heightField = rcAllocHeightfield();
-	if (!rcCreateHeightfield(ctx, *heightField, cfg.bmax[0] * cfg.cs, cfg.bmax[2] * cfg.cs, cfg.bmin, cfg.bmax, cfg.cs, cfg.ch))
+	if (!rcCreateHeightfield(ctx, *heightField, cfg.bmax[0], cfg.bmax[2], cfg.bmin, cfg.bmax, cfg.cs, cfg.ch))
 	{
 		Logger::log(1, "%s error: Could not create heightfield\n", __FUNCTION__);
 	}
@@ -454,6 +454,32 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 	Logger::log(1, "PolyMesh bounds: Min(%.2f, %.2f, %.2f) Max(%.2f, %.2f, %.2f)\n",
 		polyMesh->bmin[0], polyMesh->bmin[1], polyMesh->bmin[2],
 		polyMesh->bmax[0], polyMesh->bmax[1], polyMesh->bmax[2]);
+
+	for (int i = 0; i < (int)navMeshVertices.size(); i += 3) {
+		Logger::log(1, "NavMesh Vert %d: %.2f %.2f %.2f", i / 3,
+			navMeshVertices[i], navMeshVertices[i + 1], navMeshVertices[i + 2]);
+	}
+
+	for (int i = 0; i < (int)navMeshIndices.size(); ++i) {
+#
+		Logger::log(1, "Logging bad indices: \n");
+		if (navMeshIndices[i] >= navMeshVertices.size()) {
+			Logger::log(1, "BAD INDEX : %zu, out of range, %zu\n", navMeshIndices[i], navMeshVertices.size());
+		}
+	}
+
+	for (int i = 0; i < (int)navMeshIndices.size(); i += 3) {
+		
+		Logger::log(1, "Logging degenerate triangles: \n");
+		int a = navMeshIndices[i];
+		int b = navMeshIndices[i + 1];
+		int c = navMeshIndices[i + 2];
+		if (a == b || b == c || a == c) {
+			Logger::log(1, "DEGENERATE TRIANGLE: %zu, %zu, %zu\n", a, b, c);
+		}
+	}
+
+
 
 	dtNavMeshCreateParams params;
 
@@ -1321,7 +1347,7 @@ void GameManager::render(bool isMinimapRenderPass, bool isShadowMapRenderPass, b
 {
 	glEnable(GL_DEPTH_TEST);
 	glDisable(GL_BLEND);
-
+	//glEnable(GL_CULL_FACE);
 	if (!isShadowMapRenderPass)
 	{
 		renderer->ResetViewport(screenWidth, screenHeight);
@@ -1372,17 +1398,17 @@ void GameManager::render(bool isMinimapRenderPass, bool isShadowMapRenderPass, b
 
 	}
 
-	//if (isMinimapRenderPass)
-	//{
-	//	gameGrid->drawGrid(gridShader, minimapView, minimapProjection, camera->Position, false, lightSpaceMatrix, renderer->GetShadowMapTexture());
-	//}
-	//else if (isShadowMapRenderPass)
-	//{
-	//	gameGrid->drawGrid(shadowMapShader, lightSpaceView, lightSpaceProjection, camera->Position, true, lightSpaceMatrix, renderer->GetShadowMapTexture());
-	//}
-	//else
-	//{
-	//	gameGrid->drawGrid(gridShader, view, projection, camera->Position, false, lightSpaceMatrix, renderer->GetShadowMapTexture());
+	if (isMinimapRenderPass)
+	{
+		//gameGrid->drawGrid(gridShader, minimapView, minimapProjection, camera->Position, false, lightSpaceMatrix, renderer->GetShadowMapTexture());
+	}
+	else if (isShadowMapRenderPass)
+	{
+		//gameGrid->drawGrid(shadowMapShader, lightSpaceView, lightSpaceProjection, camera->Position, true, lightSpaceMatrix, renderer->GetShadowMapTexture());
+	}
+	else
+	{
+		//gameGrid->drawGrid(gridShader, view, projection, camera->Position, false, lightSpaceMatrix, renderer->GetShadowMapTexture());
 
 
 		navMeshShader.use();
@@ -1397,7 +1423,7 @@ void GameManager::render(bool isMinimapRenderPass, bool isShadowMapRenderPass, b
 		glDisable(GL_CULL_FACE);
 		glBindVertexArray(vao);
 		glDrawElements(GL_TRIANGLES, navMeshIndices.size(), GL_UNSIGNED_INT, 0);
-	//}
+	}
 
 	if (camSwitchedToAim)
 		camSwitchedToAim = false;
