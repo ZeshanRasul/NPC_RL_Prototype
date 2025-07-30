@@ -14,7 +14,9 @@ void Grid::initializeGrid() {
 			glm::vec3 position = glm::vec3(i * CELL_SIZE, 0.0f, j * CELL_SIZE);
 			glm::mat4 model = glm::translate(glm::mat4(1.0f), position);
 			model = glm::scale(model, glm::vec3(CELL_SIZE, 1.0f, CELL_SIZE));
-			
+			models.push_back(model);
+
+
 			std::vector<glm::vec3> cellVerts = grid[i][j].GetVertices();
 
 			for (const glm::vec3& posVerts : cellVerts) {
@@ -241,6 +243,11 @@ void Grid::VacateCell(int x, int y, int npcId)
 	if (grid[x][y].IsCover()) {
 		grid[x][y].SetColor(glm::vec3(1.0f, 0.4f, 0.0f));
 	}
+}
+
+std::vector<glm::vec3> Grid::GetWSVertices() const
+{
+	return wsVertices; 
 }
 
 

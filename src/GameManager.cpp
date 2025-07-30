@@ -15,6 +15,93 @@ DirLight dirLight = {
 
 glm::vec3 dirLightPBRColour = glm::vec3(10.f, 10.0f, 10.0f);
 
+void ProbeNavmesh(dtNavMeshQuery* navQuery, dtQueryFilter* filter,
+	float x, float y, float z)
+{
+	float pos[3] = { x, y, z };
+	float halfExtents[3] = { 50, 50, 50 };   // Big search area
+	dtPolyRef ref;
+	float snapped[3];
+
+	dtStatus status = navQuery->findNearestPoly(pos, halfExtents, filter, &ref, snapped);
+	Logger::log(1, "Probe at (%.2f, %.2f, %.2f): ", x, y, z);
+
+	if (dtStatusFailed(status) || ref == 0)
+	{
+		Logger::log(1, "No polygon found.\n");
+	}
+	else
+	{
+		Logger::log(1, "Found polygon %llu at snapped position (%.2f, %.2f, %.2f)\n",
+			(unsigned long long)ref,
+			snapped[0], snapped[1], snapped[2]);
+	}
+}
+
+
+bool AddAgentToCrowd(dtCrowd* crowd,
+	dtNavMeshQuery* navQuery,
+	const float* startPos,
+	const dtCrowdAgentParams* params,
+	const dtQueryFilter* filter,
+	float* outSnappedPos,
+	int& outAgentID)
+{
+	// Make a local copy of startPos
+	float searchPos[3] = { startPos[0], startPos[1], startPos[2] };
+
+	// Broad search extents for safety (you can tune smaller later)
+	float halfExtents[3] = { 50.0f, 50.0f, 50.0f };
+
+	// Query nearest poly
+	dtPolyRef startPoly = 0;
+	dtStatus status = navQuery->findNearestPoly(searchPos, halfExtents, filter, &startPoly, outSnappedPos);
+
+	Logger::log(1, "[CrowdSpawn] Query start(%.2f, %.2f, %.2f)\n",
+		searchPos[0], searchPos[1], searchPos[2]);
+
+	if (dtStatusFailed(status))
+	{
+		Logger::log(1, "[CrowdSpawn] findNearestPoly FAILED (status=0x%X)\n", status);
+		outAgentID = -1;
+		return false;
+	}
+
+	if (startPoly == 0)
+	{
+		Logger::log(1, "[CrowdSpawn] No polygon found near startPos (%.2f, %.2f, %.2f)\n",
+			searchPos[0], searchPos[1], searchPos[2]);
+		outAgentID = -1;
+		return false;
+	}
+
+	Logger::log(1, "[CrowdSpawn] Found poly %llu, snapped to (%.2f, %.2f, %.2f)\n",
+		(unsigned long long)startPoly,
+		outSnappedPos[0], outSnappedPos[1], outSnappedPos[2]);
+
+	// Add agent at snapped position
+	outAgentID = crowd->addAgent(outSnappedPos, params);
+	if (outAgentID == -1)
+	{
+		Logger::log(1, "[CrowdSpawn] Crowd is full or agent failed to add!\n");
+		return false;
+	}
+
+	// Check agent state after adding
+	const dtCrowdAgent* ag = crowd->getAgent(outAgentID);
+	if (!ag)
+	{
+		Logger::log(1, "[CrowdSpawn] Agent pointer null after addAgent.\n");
+		return false;
+	}
+
+	Logger::log(1, "[CrowdSpawn] Agent %d added: state=%d (0=INVALID, 1=WALKING, 2=OFFMESH, 3=IDLE)\n",
+		outAgentID, ag->state);
+
+	return (ag->state != DT_CROWDAGENT_STATE_INVALID);
+}
+
+
 GameManager::GameManager(Window* window, unsigned int width, unsigned int height)
 	: window(window), screenWidth(width), screenHeight(height)
 {
@@ -82,42 +169,69 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 		cover->LoadMesh();
 		coverSpots.push_back(cover);
 	}
-
+	
+	navMeshVertices.reserve(10000);
+	navMeshVertices.reserve(10000);
 	size_t vertexOffset = 0;
+	int vertexCount = 0;
 
 	int coverCount = 0;
 
 	for (Cube* coverSpot : coverSpots)
 	{
-		for (glm::vec3 coverPosVerts : coverSpot->GetPositionVertices())
+		std::vector<glm::vec3> coverVerts = coverSpot->GetPositionVertices();
+		for (glm::vec3 coverPosVerts : coverVerts)
 		{
 			navMeshVertices.push_back(coverPosVerts.x);
 			navMeshVertices.push_back(coverPosVerts.y);
 			navMeshVertices.push_back(coverPosVerts.z);
+			vertexCount += 3;
 		}
-
+	
 		GLuint* indices = coverSpot->indices;
-
+	
 		int numIndices = 36;
-
+	
 		for (int i = 0; i < numIndices; i++)
 		{
 			navMeshIndices.push_back(indices[i] + vertexOffset);
 		}
-
-		vertexOffset += coverSpot->GetPositionVertices().size();
+	
+		vertexOffset += coverVerts.size();
 	
 		coverCount++;
 	}
 
+
+
 	gameGrid->initializeGrid();
 
-	for (glm::vec3 gridCellPosVerts : gameGrid->GetWSVertices())
+	std::vector<glm::vec3> gridVerts = gameGrid->GetWSVertices();
+
+	Logger::log(1, "Grid vertices count: %i", gridVerts.size());
+
+	int gridVertCount = 0;
+	std::vector<glm::mat4> models = gameGrid->GetModels();
+
+	for (auto gridVert : gridVerts)
 	{
-		navMeshVertices.push_back(gridCellPosVerts.x);
-		navMeshVertices.push_back(gridCellPosVerts.y);
-		navMeshVertices.push_back(gridCellPosVerts.z);
+		navMeshVertices.push_back(gridVert.x);
+		navMeshVertices.push_back(gridVert.y);
+		navMeshVertices.push_back(gridVert.z);
+		vertexCount += 3;
+		gridVertCount += 1;
 	}
+
+	Logger::log(1, "navMeshVertices count: %zu", navMeshVertices.size());
+	for (size_t i = 0; i < std::min((size_t)10, navMeshVertices.size() / 3); ++i)
+	{
+		Logger::log(1, "Vertex %zu: %.2f %.2f %.2f",
+			i,
+			navMeshVertices[i * 3],
+			navMeshVertices[i * 3 + 1],
+			navMeshVertices[i * 3 + 2]);
+	}
+
 
 	for (int index : gameGrid->GetIndices())
 	{
@@ -132,9 +246,45 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 		triIndices[i] = navMeshIndices[i];
 	}
 
-	triAreas = new unsigned char[indexCount];
+	int triangleCount = indexCount / 3;
+	triAreas = new unsigned char[triangleCount];
+
+	//filter.setIncludeFlags(0xFFFF); // Include all polygons for testing
+	//filter.setExcludeFlags(0);      // Exclude no polygons
+
 
 	Logger::log(1, "Tri Areas: %s", triAreas);
+
+	// Slope threshold (in degrees) – typical value for shooters is 45
+	const float WALKABLE_SLOPE = 45.0f;
+
+	// Mark which triangles are walkable based on slope
+	rcMarkWalkableTriangles(ctx,
+		WALKABLE_SLOPE,
+		navMeshVertices.data(), navMeshVertices.size() / 3,
+		triIndices, triangleCount,
+		triAreas);
+
+	// Count how many triangles are walkable
+	int walkableCount = 0;
+	for (int i = 0; i < triangleCount; ++i)
+	{
+		if (triAreas[i] == RC_WALKABLE_AREA)
+			walkableCount++;
+	}
+
+	Logger::log(1, "[Recast] Triangles processed: %d\n", triangleCount);
+	Logger::log(1, "[Recast] Walkable triangles:  %d\n", walkableCount);
+	Logger::log(1, "[Recast] Non-walkable:        %d\n", triangleCount - walkableCount);
+
+	// Optional sanity check: Print first few triangles and their walkable flag
+	for (int i = 0; i < std::min(triangleCount, 5); ++i)
+	{
+		Logger::log(1, "  Tri %d: %s\n", i,
+			(triAreas[i] == RC_WALKABLE_AREA) ? "WALKABLE" : "NOT WALKABLE");
+	}
+
+
 
 	ctx = new rcContext();
 
@@ -143,23 +293,47 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 	cfg.cs = 0.3f;                      // Cell size
 	cfg.ch = 0.2f;                      // Cell height
 	cfg.walkableSlopeAngle = 35.0f;     // Steeper slopes allowed
-	cfg.walkableHeight = 2.0f;          // Min agent height
-	cfg.walkableClimb = 1.0f;           // Step height
-	cfg.walkableRadius = 0.6f;          // Agent radius
-	cfg.maxEdgeLen = 48;                // Longer edges for smoother polys
+	cfg.walkableHeight = 1.0f;          // Min agent height
+	cfg.walkableClimb = 0.5f;           // Step height
+	cfg.walkableRadius = 0.01f;          // Agent radius
+	cfg.maxEdgeLen = 24;                // Longer edges for smoother polys
 	cfg.minRegionArea = 4;              // Retain smaller regions
 	cfg.mergeRegionArea = 16;           // Merge small regions
-	cfg.maxSimplificationError = 0.3f;  // Less aggressive simplification
+	cfg.maxSimplificationError = 0.05f;  // Less aggressive simplification
 	cfg.detailSampleDist = cfg.cs * 6;  // Balanced detail
 	cfg.maxVertsPerPoly = 6;            // Max verts per poly
 	cfg.tileSize = 32;                  // Tile size
 	cfg.borderSize = (int)(cfg.walkableRadius / cfg.cs + 0.5f); // Tile overlap
-	cfg.width = 500.0f;
-	cfg.height = 500.0f;
+	
+	Logger::log(1, "Num verts %zu", navMeshVertices.size());
+
+	Logger::log(1, "navMeshVertices count: %zu", navMeshVertices.size());
+	for (size_t i = 0; i < std::min((size_t)10, navMeshVertices.size() / 3); ++i)
+	{
+		Logger::log(1, "Vertex %zu: %.2f %.2f %.2f",
+			i,
+			navMeshVertices[i * 3],
+			navMeshVertices[i * 3 + 1],
+			navMeshVertices[i * 3 + 2]);
+	}
+
+
 
 	float minBounds[3] = { -10.0f, 0.0f, -10.0f };
-	float maxBounds[3] = { 500.0f, 1.0f, 500.0f };
+	float maxBounds[3] = { 500.0f, 100.0f, 500.0f };
 
+	//rcCalcBounds(navMeshVertices.data(), navMeshVertices.size() / 3, cfg.bmin, cfg.bmax);
+	cfg.width = maxBounds[0];
+	cfg.height = maxBounds[2];
+	//cfg.bmax = maxBounds;
+	//cfg.bmin = minBounds;
+
+	cfg.bmin[0] = minBounds[0];
+	cfg.bmin[1] = minBounds[1];
+	cfg.bmin[2] = minBounds[2];
+	cfg.bmax[0] = maxBounds[0];
+	cfg.bmax[1] = maxBounds[1];
+	cfg.bmax[2] = maxBounds[2];
 	//cfg.cs = 0.3f;                      // Cell size
 	//cfg.ch = 0.2f;                      // Cell height
 	//cfg.walkableSlopeAngle = 30.0f;     // Allow steeper slopes
@@ -180,7 +354,7 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 	//float maxBounds[3] = { 500.0f, 1.0f, 500.0f };
 
 	heightField = rcAllocHeightfield();
-	if (!rcCreateHeightfield(ctx, *heightField, 500.0f, 500.0f, minBounds, maxBounds, cfg.cs, cfg.ch))
+	if (!rcCreateHeightfield(ctx, *heightField, cfg.bmax[0] * cfg.cs, cfg.bmax[2] * cfg.cs, cfg.bmin, cfg.bmax, cfg.cs, cfg.ch))
 	{
 		Logger::log(1, "%s error: Could not create heightfield\n", __FUNCTION__);
 	}
@@ -194,7 +368,7 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 	Logger::log(1, "Triangle indices: %d\n", indexCount);
 	Logger::log(1, "Triangle count: %d\n", numTris);
 
-	rcMarkWalkableTriangles(ctx, cfg.walkableSlopeAngle, navMeshVertices.data(), navMeshVertices.size(), triIndices, numTris, triAreas);
+	rcMarkWalkableTriangles(ctx, cfg.walkableSlopeAngle, navMeshVertices.data(), navMeshVertices.size() / 3, triIndices, triangleCount, triAreas);
 
 	for (int i = 0; i < indexCount / 3; ++i) {
 		if (i < coverCount * 36 / 3) {
@@ -202,7 +376,7 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 		}
 	}
 
-	if (!rcRasterizeTriangles(ctx, navMeshVertices.data(), navMeshVertices.size(), triIndices, triAreas, numTris, *heightField, cfg.walkableClimb))
+	if (!rcRasterizeTriangles(ctx, navMeshVertices.data(), navMeshVertices.size() / 3, triIndices, triAreas, triangleCount, *heightField, cfg.walkableClimb))
 	{
 		Logger::log(1, "%s error: Could not rasterize triangles\n", __FUNCTION__);
 	}
@@ -230,7 +404,7 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 	if (!rcBuildLayerRegions(ctx, *compactHeightField, 0, cfg.minRegionArea))
 	{
 		Logger::log(1, "buildNavigation: Could not build layer regions.");
-	} 
+	}
 	else
 	{
 		Logger::log(1, "buildNavigation: Layer regions successfully built.");
@@ -250,7 +424,7 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 	};
 
 	polyMesh = rcAllocPolyMesh();
-	
+
 	if (!rcBuildPolyMesh(ctx, *contourSet, cfg.maxVertsPerPoly, *polyMesh))
 	{
 		Logger::log(1, "%s error: Could not build polymesh\n", __FUNCTION__);
@@ -277,13 +451,37 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 	Logger::log(1, "PolyMesh vertices count: %d\n", polyMesh->nverts);
 	Logger::log(1, "PolyMesh polygons count: %d\n", polyMesh->npolys);
 	Logger::log(1, "PolyMeshDetail vertices count: %d\n", polyMeshDetail->nverts);
+	Logger::log(1, "PolyMesh bounds: Min(%.2f, %.2f, %.2f) Max(%.2f, %.2f, %.2f)\n",
+		polyMesh->bmin[0], polyMesh->bmin[1], polyMesh->bmin[2],
+		polyMesh->bmax[0], polyMesh->bmax[1], polyMesh->bmax[2]);
 
 	dtNavMeshCreateParams params;
+
 	params.verts = polyMesh->verts;
 	params.vertCount = polyMesh->nverts;
 	params.polys = polyMesh->polys;
 	params.polyAreas = polyMesh->areas;
+	static const unsigned short DT_POLYFLAGS_WALK = 0x01;
+
+	for (int i = 0; i < polyMesh->npolys; ++i)
+	{
+		if (polyMesh->areas[i] == RC_WALKABLE_AREA)
+		{
+			polyMesh->flags[i] = DT_POLYFLAGS_WALK;
+		}
+		else
+		{
+			polyMesh->flags[i] = 0;
+		}
+		params.polyAreas = polyMesh->areas;
+	};
+
+	rcVcopy(params.bmin, polyMesh->bmin);
+	rcVcopy(params.bmax, polyMesh->bmax);
+
 	params.polyFlags = polyMesh->flags;
+
+
 	params.polyCount = polyMesh->npolys;
 	params.nvp = polyMesh->nvp;
 	params.walkableHeight = cfg.walkableHeight;
@@ -308,7 +506,7 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 	dtCreateNavMeshData(&params, &navData, &navDataSize);
 
 	navMesh = dtAllocNavMesh();
-	
+
 	dtStatus navInitStatus = navMesh->init(navData, navDataSize, DT_TILE_FREE_DATA);
 
 	if (dtStatusFailed(navInitStatus))
@@ -322,12 +520,30 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 	if (dtStatusFailed(status))
 	{
 		Logger::log(1, "%s error: Could not init Detour navMeshQuery\n", __FUNCTION__);
-	} 
+	}
 	else
 	{
 		Logger::log(1, "%s: Detour navMeshQuery successfully initialized\n", __FUNCTION__);
 
 	}
+
+	const dtNavMeshParams* nmparams = navMesh->getParams();
+	Logger::log(1, "Navmesh origin: %.2f %.2f %.2f\n", nmparams->orig[0], nmparams->orig[1], nmparams->orig[2]);
+
+	for (int y = 0; y < navMesh->getMaxTiles(); ++y) {
+		for (int x = 0; x < navMesh->getMaxTiles(); ++x) {
+			const dtMeshTile* tile = navMesh->getTileAt(x, y, 0);  // layer = 0
+			if (!tile || !tile->header) continue;
+
+			Logger::log(1, "Tile at (%d,%d): Bmin(%.2f %.2f %.2f) Bmax(%.2f %.2f %.2f)\n",
+				x, y,
+				tile->header->bmin[0], tile->header->bmin[1], tile->header->bmin[2],
+				tile->header->bmin[0], tile->header->bmin[1], tile->header->bmin[2],
+				tile->header->bmax[0], tile->header->bmax[1], tile->header->bmax[2]);
+		}
+	}
+
+	{
 
 	camera = new Camera(glm::vec3(50.0f, 3.0f, 80.0f));
 	minimapCamera = new Camera(glm::vec3((gameGrid->GetCellSize() * gameGrid->GetGridSize()) / 2.0f, 140.0f, (gameGrid->GetCellSize() * gameGrid->GetGridSize()) / 2.0f), glm::vec3(0.0f, -1.0f, 0.0f), 0.0f, -90.0f, glm::vec3(0.0f, 0.0f, -1.0f));
@@ -414,7 +630,7 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 	/* reset skeleton split */
 	playerSkeletonSplitNode = player->model->getNodeCount() - 1;
 	enemySkeletonSplitNode = enemy->model->getNodeCount() - 1;
-
+}
 	std::srand(static_cast<unsigned int>(std::time(nullptr)));
 
 	gameObjects.push_back(player);
@@ -466,7 +682,7 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 	//	for (int j = 0; j < polyMesh->nvp; ++j) {
 	//		unsigned short index = polyMesh->polys[i * polyMesh->nvp + j];
 	//		if (index == RC_MESH_NULL_IDX) break;
-	//		navmeshIndices.push_back(static_cast<unsigned int>(index));
+	//		navMeshIndices.push_back(static_cast<unsigned int>(index));
 	//	}
 	//}
 	// 
@@ -482,9 +698,9 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 		const float x = orig[0] + v[0] * cs;
 		const float y = orig[1] + v[1] * ch;
 		const float z = orig[2] + v[2] * cs;
-		navmeshVertices.push_back(x);
-		navmeshVertices.push_back(y);
-		navmeshVertices.push_back(z);
+		navMeshVertices.push_back(x);
+		navMeshVertices.push_back(y);
+		navMeshVertices.push_back(z);
 	}
 
 	// Process indices
@@ -494,12 +710,14 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 		for (int j = 2; j < nvp; ++j)
 		{
 			if (p[j] == RC_MESH_NULL_IDX) break;
-			navmeshIndices.push_back(p[0]);      // Triangle vertex 1
-			navmeshIndices.push_back(p[j - 1]); // Triangle vertex 2
-			navmeshIndices.push_back(p[j]);     // Triangle vertex 3
+			navMeshIndices.push_back(p[0]);      // Triangle vertex 1
+			navMeshIndices.push_back(p[j - 1]); // Triangle vertex 2
+			navMeshIndices.push_back(p[j]);     // Triangle vertex 3
 		}
 	}
-
+	ProbeNavmesh(navMeshQuery, &filter, 5.0f, 0.0f, 5.0f);
+	ProbeNavmesh(navMeshQuery, &filter, 50.0f, 0.0f, 50.0f);
+	ProbeNavmesh(navMeshQuery, &filter, 95.0f, 0.0f, 95.0f);
 
 	// Create VAO
 	glGenVertexArrays(1, &vao);
@@ -508,12 +726,12 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 	// Create VBO
 	glGenBuffers(1, &vbo);
 	glBindBuffer(GL_ARRAY_BUFFER, vbo);
-	glBufferData(GL_ARRAY_BUFFER, navmeshVertices.size() * sizeof(float), navmeshVertices.data(), GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, navMeshVertices.size() * sizeof(float), navMeshVertices.data(), GL_STATIC_DRAW);
 
 	// Create EBO
 	glGenBuffers(1, &ebo);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, navmeshIndices.size() * sizeof(unsigned int), navmeshIndices.data(), GL_STATIC_DRAW);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, navMeshIndices.size() * sizeof(unsigned int), navMeshIndices.data(), GL_STATIC_DRAW);
 
 	// Enable vertex attribute (e.g., position at location 0)
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
@@ -521,6 +739,9 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 
 	glBindVertexArray(0);
 
+
+	//crowd = dtAllocCrowd();
+	//crowd->init(enemies.size(), 1.0f, navMesh);
 
 	crowd = dtAllocCrowd();
 	crowd->init(5, 1.0f, navMesh);
@@ -539,7 +760,81 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 		enemyAgentIDs.push_back(crowd->addAgent(startingPos, &ap));
 
 
-	}
+	};
+
+	//for (auto& enem : enemies)
+	//{
+	//	dtCrowdAgentParams ap;
+	//	memset(&ap, 0, sizeof(ap));
+	//	ap.radius = 0.6f;
+	//	ap.height = 2.0f;
+	//	ap.maxSpeed = 3.5f;
+	//	ap.maxAcceleration = 8.0f; // Meters per second squared
+	//	ap.collisionQueryRange = ap.radius * 12.0f;
+
+	//	
+	//	float startingPos[3] = { enem->getPosition().x, enem->getPosition().y, enem->getPosition().z };
+	//	float snappedPos[3];
+	//	dtPolyRef startPoly;
+	//	navMeshQuery->findNearestPoly(startingPos, halfExtents, &filter, &startPoly, snappedPos);
+	//	enemyAgentIDs.push_back(crowd->addAgent(snappedPos, &ap));
+
+	//	//enemyAgentIDs.push_back(crowd->addAgent(startingPos, &ap));
+
+
+	//}
+	//for (auto& enem : enemies)
+	//{
+	//	dtCrowdAgentParams ap;
+	//	memset(&ap, 0, sizeof(ap));
+	//	ap.radius = 0.6f;
+	//	ap.height = 2.0f;
+	//	ap.maxSpeed = 3.5f;
+	//	ap.maxAcceleration = 8.0f;
+	//	ap.collisionQueryRange = ap.radius * 12.0f;
+
+	//	float startPos[3] = { enem->getPosition().x, enem->getPosition().y, enem->getPosition().z };
+
+	//	int agentID;
+
+	//	bool added = AddAgentToCrowd(crowd, navMeshQuery, startPos, &ap, &filter, snappedPos, agentID);
+
+	//	if (added)
+	//	{
+	//		Logger::log(1, "[Spawn] Enemy spawned as agent %d at (%.2f, %.2f, %.2f)\n",
+	//			agentID, snappedPos[0], snappedPos[1], snappedPos[2]);
+
+	//		enemyAgentIDs.push_back(agentID);
+	//	}
+	//	else
+	//	{
+	//		Logger::log(1, "[Spawn] Enemy spawn FAILED at (%.2f, %.2f, %.2f)\n",
+	//			startPos[0], startPos[1], startPos[2]);
+	//		Logger::log(1, "[Spawn] Enemy spawned as agent %d at (%.2f, %.2f, %.2f)\n",
+	//			agentID, snappedPos[0], snappedPos[1], snappedPos[2]);
+	//	}
+	/*}*/
+
+	//float snappedPos[3] = { 1.0f, 0.0f, 1.0f };
+
+	//dtPolyRef polyref = 0;
+	//dtStatus newstatus = navMeshQuery->findNearestPoly(snappedPos, halfExtents, &filter, &polyref, snappedPos);
+
+
+	//if (dtStatusFailed(newstatus) || polyref == 0)
+	//{
+	//	Logger::log(1, "findNearestPoly failed: no polygon found near %.2f %.2f %.2f\n",
+	//		85.0f, 0.0f, 25.0f);
+	//	return; // stop here, don’t use snappedPos
+	//}
+
+	//float meshheight = 0.0f;
+	//if (navMeshQuery->getPolyHeight(polyref, snappedPos, &meshheight) == DT_SUCCESS)
+	//{
+	//	Logger::log(1, "Navmesh height at %.2f %.2f: %.2f\n", snappedPos[0], snappedPos[2], meshheight);
+	//}
+
+
 }
 
 void GameManager::setupCamera(unsigned int width, unsigned int height)
@@ -958,9 +1253,8 @@ void GameManager::update(float deltaTime)
 		}
 //		e->Update(useEDBT, speedDivider, blendFac);
 
-		
-		float targetPos[3] = { polyMesh->bmin[0] + 1.0f, 0.1f, polyMesh->bmin[2] + 1.0f };
-		Logger::log(1, "Target position on nav mesh after query: %f, %f, %f\n", targetPos[0], targetPos[1], targetPos[2]);
+		float targetPos[3] = { player->getPosition().x, 1.0f, player->getPosition().z };
+		Logger::log(1, "Target position on nav mesh before query: %f, %f, %f\n", targetPos[0], targetPos[1], targetPos[2]);
 
 
 		dtPolyRef targetPoly;
@@ -976,7 +1270,7 @@ void GameManager::update(float deltaTime)
 		if (navMeshQuery)
 			status = navMeshQuery->findNearestPoly(targetPos, halfExtents, &filter, &targetPoly, targetPosOnNavMesh);
 
-		Logger::log(1, "Player position: %f %f %f\n", player->getPosition().x, player->getPosition().y, player->getPosition().z); 
+		Logger::log(1, "Player position: %f %f %f\n", player->getPosition().x, player->getPosition().y, player->getPosition().z);
 		Logger::log(1, "Target position on nav mesh after query: %f, %f, %f\n", targetPosOnNavMesh[0], targetPosOnNavMesh[1], targetPosOnNavMesh[2]);
 
 		if (dtStatusFailed(status))
@@ -1000,7 +1294,7 @@ void GameManager::update(float deltaTime)
 		{
 			Logger::log(1, "%s: Move target set for enemy %d %f, %f, %f\n", __FUNCTION__, e->GetID(), targetPosOnNavMesh[0], targetPosOnNavMesh[1], targetPosOnNavMesh[2]);
 		}
-		
+
 
 	}
 	crowd->update(deltaTime, nullptr);
@@ -1008,7 +1302,7 @@ void GameManager::update(float deltaTime)
 
 	for (Enemy* e : enemies)
 	{
-		
+
 		const dtCrowdAgent* agent = crowd->getAgent(e->GetID());
 		float agentPos[3];
 		dtVcopy(agentPos, agent->npos);
@@ -1078,17 +1372,17 @@ void GameManager::render(bool isMinimapRenderPass, bool isShadowMapRenderPass, b
 
 	}
 
-	if (isMinimapRenderPass)
-	{
-		gameGrid->drawGrid(gridShader, minimapView, minimapProjection, camera->Position, false, lightSpaceMatrix, renderer->GetShadowMapTexture());
-	}
-	else if (isShadowMapRenderPass)
-	{
-		gameGrid->drawGrid(shadowMapShader, lightSpaceView, lightSpaceProjection, camera->Position, true, lightSpaceMatrix, renderer->GetShadowMapTexture());
-	}
-	else
-	{
-		gameGrid->drawGrid(gridShader, view, projection, camera->Position, false, lightSpaceMatrix, renderer->GetShadowMapTexture());
+	//if (isMinimapRenderPass)
+	//{
+	//	gameGrid->drawGrid(gridShader, minimapView, minimapProjection, camera->Position, false, lightSpaceMatrix, renderer->GetShadowMapTexture());
+	//}
+	//else if (isShadowMapRenderPass)
+	//{
+	//	gameGrid->drawGrid(shadowMapShader, lightSpaceView, lightSpaceProjection, camera->Position, true, lightSpaceMatrix, renderer->GetShadowMapTexture());
+	//}
+	//else
+	//{
+	//	gameGrid->drawGrid(gridShader, view, projection, camera->Position, false, lightSpaceMatrix, renderer->GetShadowMapTexture());
 
 
 		navMeshShader.use();
@@ -1096,14 +1390,14 @@ void GameManager::render(bool isMinimapRenderPass, bool isShadowMapRenderPass, b
 		navMeshShader.setMat4("projection", projection);
 		//glBindVertexArray(vao);
 		//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-		//glDrawElements(GL_TRIANGLES, navmeshIndices.size(), GL_UNSIGNED_INT, 0);
+		//glDrawElements(GL_TRIANGLES, navMeshIndices.size(), GL_UNSIGNED_INT, 0);
 
 		//glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
 		glDisable(GL_CULL_FACE);
 		glBindVertexArray(vao);
-		glDrawElements(GL_TRIANGLES, navmeshIndices.size(), GL_UNSIGNED_INT, 0);
-	}
+		glDrawElements(GL_TRIANGLES, navMeshIndices.size(), GL_UNSIGNED_INT, 0);
+	//}
 
 	if (camSwitchedToAim)
 		camSwitchedToAim = false;

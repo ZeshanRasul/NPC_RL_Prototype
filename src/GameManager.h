@@ -5,11 +5,11 @@
 #include <sstream>
 
 #include "Recast.h"
-#include "DetourNavMesh.h"
 #include "DetourNavMeshBuilder.h"
 #include "DetourNavMeshQuery.h"
 #include "DetourCrowd.h"
 #include "DetourCommon.h"
+#include "DetourNavMesh.h"
 
 #include "src/OpenGL/Renderer.h"
 #include "src/OpenGL/RenderData.h"
@@ -407,9 +407,10 @@ private:
 	dtNavMeshQuery* navMeshQuery = nullptr;
 	unsigned char* navData;
 	int navDataSize;
+	float snappedPos[3];
 
 	GLuint vao, vbo, ebo;
 	Shader navMeshShader{};
-	std::vector<float> navmeshVertices;
-	std::vector<unsigned int> navmeshIndices; 
+	//std::vector<float> navMeshVertices;
+	//std::vector<unsigned int> navMeshIndices; 
 };

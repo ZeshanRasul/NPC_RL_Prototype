@@ -80,13 +80,16 @@ public:
 
 	std::vector<Cover*> coverLocations;
 
-	std::vector<glm::vec3> GetWSVertices() const { return wsVertices; }
+	std::vector<glm::vec3> GetWSVertices() const;
 
 	std::vector<int> GetIndices() const { return indices; }
+	std::vector <glm::mat4> GetModels() const { return models; }
+
 
 private:
 	std::vector<glm::vec3> wsVertices;
 	std::vector<int> indices;
+	std::vector<glm::mat4> models;
 
 	UniformBuffer mGridUniformBuffer{};
 	UniformBuffer mGridColorUniformBuffer{};

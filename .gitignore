@@ -1,2 +1,8 @@
 x64
 .vs
+/include/LivePP/Broker/Plugins/LPP_Broker_x64_CPP.dll
+/include/LivePP/Broker/Plugins/LPP_Broker_x64_CPP.lic.dll
+/include/LivePP/Broker/dbghelp.dll
+/include/LivePP/Broker/LPP_Broker.exe
+/src/Assets/Textures/Skybox/TC_Nebula3_T - Copy.HDR
+/src/Assets/Textures/Skybox/TC_Nebula3_T.hdri
