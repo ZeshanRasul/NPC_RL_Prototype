@@ -292,10 +292,10 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 
 	cfg.cs = 0.3f;                      // Cell size
 	cfg.ch = 0.2f;                      // Cell height
-	cfg.walkableSlopeAngle = 35.0f;     // Steeper slopes allowed
+	cfg.walkableSlopeAngle = 65.0f;     // Steeper slopes allowed
 	cfg.walkableHeight = 1.0f;          // Min agent height
-	cfg.walkableClimb = 0.5f;           // Step height
-	cfg.walkableRadius = 0.01f;          // Agent radius
+	cfg.walkableClimb = 2.5f;           // Step height
+	cfg.walkableRadius = 0.7f;          // Agent radius
 	cfg.maxEdgeLen = 24;                // Longer edges for smoother polys
 	cfg.minRegionArea = 4;              // Retain smaller regions
 	cfg.mergeRegionArea = 16;           // Merge small regions
@@ -776,7 +776,7 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 	{
 		dtCrowdAgentParams ap;
 		memset(&ap, 0, sizeof(ap));
-		ap.radius = 0.6f;
+		ap.radius = 0.7f;
 		ap.height = 2.0f;
 		ap.maxSpeed = 3.5f;
 		ap.maxAcceleration = 8.0f; // Meters per second squared
@@ -1334,6 +1334,7 @@ void GameManager::update(float deltaTime)
 		dtVcopy(agentPos, agent->npos);
 		//Logger::log(1, "%s: Agent %d position: %f %f %f\n", __FUNCTION__, e->GetID(), agentPos[0], agentPos[1], agentPos[2]);
 		//Logger::log(1, "%s: Crowd Agent %d position: %f %f %f\n", __FUNCTION__, e->GetID(), agent->npos[0], agent->npos[1], agent->npos[2]);
+		e->Update(false, speedDivider, blendFac);
 		e->setPosition(glm::vec3(agentPos[0], agentPos[1], agentPos[2]));
 	}
 

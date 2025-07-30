@@ -84,42 +84,43 @@ void Enemy::drawObject(glm::mat4 viewMat, glm::mat4 proj, bool shadowMap, glm::m
 
 void Enemy::Update(bool shouldUseEDBT, float speedDivider, float blendFac)
 {
-	if (!isDead_ || !isDestroyed)
-	{
-		if (shouldUseEDBT)
-		{
-#ifdef TRACY_ENABLE
-			ZoneScopedN("EDBT Update");
-#endif
-			float playerEnemyDistance = glm::distance(getPosition(), player.getPosition());
-			if (playerEnemyDistance < 35.0f && !IsPlayerDetected())
-			{
-				DetectPlayer();
-			}
-
-			behaviorTree_->Tick();
-
-
-			if (enemyHasShot)
-			{
-				enemyRayDebugRenderTimer -= dt_;
-				enemyShootCooldown -= dt_;
-			}
-			if (enemyShootCooldown <= 0.0f)
-			{
-				enemyHasShot = false;
-			}
-
-			if (shootAudioCooldown > 0.0f)
-			{
-				shootAudioCooldown -= dt_;
-			}
-		}
-		else
-		{
-			decisionDelayTimer -= dt_;
-		}
-
+//	if (!isDead_ || !isDestroyed)
+//	{
+//		if (shouldUseEDBT)
+//		{
+//#ifdef TRACY_ENABLE
+//			ZoneScopedN("EDBT Update");
+//#endif
+//			float playerEnemyDistance = glm::distance(getPosition(), player.getPosition());
+//			if (playerEnemyDistance < 35.0f && !IsPlayerDetected())
+//			{
+//				DetectPlayer();
+//			}
+//
+//			behaviorTree_->Tick();
+//
+//
+//			if (enemyHasShot)
+//			{
+//				enemyRayDebugRenderTimer -= dt_;
+//				enemyShootCooldown -= dt_;
+//			}
+//			if (enemyShootCooldown <= 0.0f)
+//			{
+//				enemyHasShot = false;
+//			}
+//
+//			if (shootAudioCooldown > 0.0f)
+//			{
+//				shootAudioCooldown -= dt_;
+//			}
+//		}
+//		else
+//		{
+//			decisionDelayTimer -= dt_;
+//		}
+//
+//	}
 		if (isDestroyed)
 		{
 			GetGameManager()->GetPhysicsWorld()->removeCollider(GetAABB());
@@ -151,7 +152,6 @@ void Enemy::Update(bool shouldUseEDBT, float speedDivider, float blendFac)
 			SetAnimation(GetSourceAnimNum(), 1.0f, 1.0f, false);
 			blendFactor = 0.0f;
 		}
-	}
 }
 
 void Enemy::OnEvent(const Event& event)
