@@ -19,14 +19,14 @@ public:
 	};
 
 	std::vector<glm::vec3> coverPositions = {
-		glm::vec3(28.0f, 3.5f, 20.0f),
-		glm::vec3(50.0f, 3.5f, 35.0f),
-
+		//glm::vec3(28.0f, 3.5f, 20.0f),
+		//glm::vec3(50.0f, 3.5f, 35.0f),
+		//
 		//glm::vec3(10.0f, 3.5f, 60.0f),
 		//glm::vec3(70.0f, 3.5f, 15.0f),
-
+		//
 		//glm::vec3(75.0f, 3.5f, 65.0f),
-
+		//
 		//glm::vec3(70.0f, 3.5f, 27.0f),
 		//glm::vec3(70.0f, 3.5f, 34.0f),
 		//glm::vec3(70.0f, 3.5f, 41.0f),

@@ -249,8 +249,8 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 	int triangleCount = indexCount / 3;
 	triAreas = new unsigned char[triangleCount];
 
-	//filter.setIncludeFlags(0xFFFF); // Include all polygons for testing
-	//filter.setExcludeFlags(0);      // Exclude no polygons
+	filter.setIncludeFlags(0xFFFF); // Include all polygons for testing
+	filter.setExcludeFlags(0);      // Exclude no polygons
 
 
 	Logger::log(1, "Tri Areas: %s", triAreas);
@@ -774,18 +774,47 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 
 	for (auto& enem : enemies)
 	{
+		//dtCrowdAgentParams ap;
+		//memset(&ap, 0, sizeof(ap));
+		//ap.radius = 0.7f;
+		//ap.height = 2.0f;
+		//ap.maxSpeed = 3.5f;
+		//ap.maxAcceleration = 8.0f; // Meters per second squared
+		//ap.collisionQueryRange = ap.radius * 12.0f;
+
+		//float startingPos[3] = { enem->getPosition().x, enem->getPosition().y, enem->getPosition().z };
+		//enemyAgentIDs.push_back(crowd->addAgent(startingPos, &ap));
+		//AddAgentToCrowd(crowd, navMeshQuery, , )
+
 		dtCrowdAgentParams ap;
 		memset(&ap, 0, sizeof(ap));
-		ap.radius = 0.7f;
+		ap.radius = 0.6f;
 		ap.height = 2.0f;
 		ap.maxSpeed = 3.5f;
-		ap.maxAcceleration = 8.0f; // Meters per second squared
+		ap.maxAcceleration = 8.0f;
 		ap.collisionQueryRange = ap.radius * 12.0f;
 
-		float startingPos[3] = { enem->getPosition().x, enem->getPosition().y, enem->getPosition().z };
-		enemyAgentIDs.push_back(crowd->addAgent(startingPos, &ap));
+		float startPos[3] = { enem->getPosition().x, enem->getPosition().y, enem->getPosition().z };
 
+		int agentID;
 
+		bool added = AddAgentToCrowd(crowd, navMeshQuery, startPos, &ap, &filter, snappedPos, agentID);
+
+		if (added)
+		{
+			Logger::log(1, "[Spawn] Enemy spawned as agent %d at (%.2f, %.2f, %.2f)\n",
+				agentID, snappedPos[0], snappedPos[1], snappedPos[2]);
+
+			enemyAgentIDs.push_back(agentID);
+		}
+		else
+		{
+			Logger::log(1, "[Spawn] Enemy spawn FAILED at (%.2f, %.2f, %.2f)\n",
+				startPos[0], startPos[1], startPos[2]);
+			Logger::log(1, "[Spawn] Enemy spawned as agent %d at (%.2f, %.2f, %.2f)\n",
+				agentID, snappedPos[0], snappedPos[1], snappedPos[2]);
+		}
+	
 	};
 
 	//for (auto& enem : enemies)
@@ -1332,8 +1361,8 @@ void GameManager::update(float deltaTime)
 		const dtCrowdAgent* agent = crowd->getAgent(e->GetID());
 		float agentPos[3];
 		dtVcopy(agentPos, agent->npos);
-		//Logger::log(1, "%s: Agent %d position: %f %f %f\n", __FUNCTION__, e->GetID(), agentPos[0], agentPos[1], agentPos[2]);
-		//Logger::log(1, "%s: Crowd Agent %d position: %f %f %f\n", __FUNCTION__, e->GetID(), agent->npos[0], agent->npos[1], agent->npos[2]);
+		Logger::log(1, "%s: Agent %d position: %f %f %f\n", __FUNCTION__, e->GetID(), agentPos[0], agentPos[1], agentPos[2]);
+		Logger::log(1, "%s: Crowd Agent %d position: %f %f %f\n", __FUNCTION__, e->GetID(), agent->npos[0], agent->npos[1], agent->npos[2]);
 		e->Update(false, speedDivider, blendFac);
 		e->setPosition(glm::vec3(agentPos[0], agentPos[1], agentPos[2]));
 	}
