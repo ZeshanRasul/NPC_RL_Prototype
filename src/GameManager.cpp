@@ -294,8 +294,8 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 	cfg.ch = 0.2f;                      // Cell height
 	cfg.walkableSlopeAngle = 65.0f;     // Steeper slopes allowed
 	cfg.walkableHeight = 1.0f;          // Min agent height
-	cfg.walkableClimb = 2.5f;           // Step height
-	cfg.walkableRadius = 0.7f;          // Agent radius
+	cfg.walkableClimb = 0.5f;           // Step height
+	cfg.walkableRadius = 1.3f;          // Agent radius
 	cfg.maxEdgeLen = 24;                // Longer edges for smoother polys
 	cfg.minRegionArea = 4;              // Retain smaller regions
 	cfg.mergeRegionArea = 16;           // Merge small regions
@@ -370,11 +370,12 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 
 	//rcMarkWalkableTriangles(ctx, cfg.walkableSlopeAngle, navMeshVertices.data(), navMeshVertices.size() / 3, triIndices, triangleCount, triAreas);
 
-	//or (int i = 0; i < indexCount / 3; ++i) {
-	//if (i < coverCount * 36 / 3) {
-	//	triAreas[i] = RC_NULL_AREA; // Mark this triangle as non-walkable
-	//}
-	//
+	for (int i = 0; i < indexCount / 3; ++i) {
+		if (i < (coverCount * 36) / 3) {
+			triAreas[i] = RC_NULL_AREA; // Mark this triangle as non-walkable
+		}
+
+	}
 
 	if (!rcRasterizeTriangles(ctx, navMeshVertices.data(), navMeshVertices.size() / 3, triIndices, triAreas, triangleCount, *heightField, cfg.walkableClimb))
 	{
@@ -776,7 +777,7 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 	{
 		dtCrowdAgentParams ap;
 		memset(&ap, 0, sizeof(ap));
-		ap.radius = 0.7f;
+		ap.radius = 1.3f;
 		ap.height = 2.0f;
 		ap.maxSpeed = 3.5f;
 		ap.maxAcceleration = 8.0f; // Meters per second squared
