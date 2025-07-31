@@ -368,13 +368,13 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 	Logger::log(1, "Triangle indices: %d\n", indexCount);
 	Logger::log(1, "Triangle count: %d\n", numTris);
 
-	rcMarkWalkableTriangles(ctx, cfg.walkableSlopeAngle, navMeshVertices.data(), navMeshVertices.size() / 3, triIndices, triangleCount, triAreas);
+	//rcMarkWalkableTriangles(ctx, cfg.walkableSlopeAngle, navMeshVertices.data(), navMeshVertices.size() / 3, triIndices, triangleCount, triAreas);
 
-	for (int i = 0; i < indexCount / 3; ++i) {
-		if (i < coverCount * 36 / 3) {
-			triAreas[i] = RC_NULL_AREA; // Mark this triangle as non-walkable
-		}
-	}
+	//or (int i = 0; i < indexCount / 3; ++i) {
+	//if (i < coverCount * 36 / 3) {
+	//	triAreas[i] = RC_NULL_AREA; // Mark this triangle as non-walkable
+	//}
+	//
 
 	if (!rcRasterizeTriangles(ctx, navMeshVertices.data(), navMeshVertices.size() / 3, triIndices, triAreas, triangleCount, *heightField, cfg.walkableClimb))
 	{
