@@ -37,6 +37,9 @@ public:
 
 		setupGLTFMeshes(mapModel);
 
+		for (int texID : loadGLTFTextures(mapModel))
+			glTextures.push_back(texID);
+
 		//mTex.loadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/CovTurret_Base_imagesgreen-paint1er.jpg", false);
 
 		//model->loadModelNoAnim(modelFilename);
@@ -64,6 +67,7 @@ public:
 		GLsizei vertexCount;
 		GLenum indexType;
 		GLenum mode;
+		int material;
 	};
 
 	struct GLTFMesh {
@@ -83,6 +87,8 @@ public:
 				const tinygltf::Primitive& primitive = mesh.primitives[primIndex];
 				GLTFPrimitive gltfPrim = {};
 				gltfPrim.mode = primitive.mode; // usually GL_TRIANGLES
+
+				gltfPrim.material = primitive.material;
 
 				// --- Create VAO ---
 				glGenVertexArrays(1, &gltfPrim.vao);
@@ -159,10 +165,67 @@ public:
 		}
 	}
 
+	std::vector<GLuint> loadGLTFTextures(tinygltf::Model* model) {
+		std::vector<GLuint> textureIDs(model->images.size(), 0);
+
+		for (size_t i = 0; i < model->images.size(); ++i) {
+			const tinygltf::Image& image = model->images[i];
+
+			GLuint texID;
+			glGenTextures(1, &texID);
+			glBindTexture(GL_TEXTURE_2D, texID);
+
+			GLenum format = GL_RGBA;
+			if (image.component == 1) format = GL_RED;
+			else if (image.component == 2) format = GL_RG;
+			else if (image.component == 3) format = GL_RGB;
+			else if (image.component == 4) format = GL_RGBA;
+
+			GLenum type = (image.bits == 16) ? GL_UNSIGNED_SHORT : GL_UNSIGNED_BYTE;
+
+			glTexImage2D(GL_TEXTURE_2D,
+				0,
+				format,
+				image.width,
+				image.height,
+				0,
+				format,
+				type,
+				image.image.data());
+
+			glGenerateMipmap(GL_TEXTURE_2D);
+
+			// Set default sampler parameters
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+			textureIDs[i] = texID;
+		}
+
+		glBindTexture(GL_TEXTURE_2D, 0);
+		return textureIDs;
+	}
+
+	std::vector<GLuint> glTextures;
+
 	void drawGLTFModel() {
+		int texIndex = 0;
 		for (size_t meshIndex = 0; meshIndex < meshData.size(); ++meshIndex) {
 			for (size_t primIndex = 0; primIndex < meshData[meshIndex].primitives.size(); ++primIndex) {
 				const GLTFPrimitive& prim = meshData[meshIndex].primitives[primIndex];
+
+				
+
+				int matIndex = prim.material;
+				const tinygltf::Material& mat = mapModel->materials[texIndex];
+
+
+				glActiveTexture(GL_TEXTURE0);
+				glBindTexture(GL_TEXTURE_2D, glTextures[texIndex]);
+
+				shader->setInt("tex", 0);
 
 				glBindVertexArray(prim.vao);
 
@@ -174,6 +237,8 @@ public:
 				}
 
 				glBindVertexArray(0);
+
+				texIndex += 1;
 			}
 		}
 	}

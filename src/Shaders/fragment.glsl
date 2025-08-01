@@ -24,7 +24,7 @@ void main() {
 
 	vec3 result = CalcDirLight(dirLight, norm);
 
-	FragColor = vec4(1.0, 1.0, 1.0, 1.0);
+	FragColor = vec4(result, 1.0);
 }
 
 vec3 CalcDirLight(DirLight light, vec3 normal)

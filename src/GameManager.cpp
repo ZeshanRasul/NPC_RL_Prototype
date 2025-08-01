@@ -650,7 +650,7 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 	enemy3Line->LoadMesh();
 	enemy4Line->LoadMesh();
 
-	ground = new Ground(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.01f), &groundShader, &groundShadowShader, false, this);
+	ground = new Ground(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.1f), &groundShader, &groundShadowShader, false, this);
 
 	AudioComponent* fireAudioComponent = new AudioComponent(enemy);
 	fireAudioComponent->PlayEvent("event:/FireLoop");
