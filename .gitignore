@@ -6,3 +6,5 @@ x64
 /include/LivePP/Broker/LPP_Broker.exe
 /src/Assets/Textures/Skybox/TC_Nebula3_T - Copy.HDR
 /src/Assets/Textures/Skybox/TC_Nebula3_T.hdri
+/src/Assets/Models/Turret_Base/result.bin
+/src/Assets/Models/Turret_Base/result.gltf

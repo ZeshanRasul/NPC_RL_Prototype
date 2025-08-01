@@ -20,9 +20,11 @@ public:
 	Texture loadTexture(std::string textureFilename, bool flip);
 
 	void draw(Texture tex);
+	void drawNoTex();
 	void cleanup();
 	void uploadVertexBuffers();
 	void uploadEnemyVertexBuffers();
+	void uploadVertexBuffersMap();
 	void uploadVertexBuffersNoAnimations();
 	void uploadIndexBuffer();
 	std::shared_ptr<Mesh> getSkeleton(bool enableSkinning);

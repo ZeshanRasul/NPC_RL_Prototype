@@ -31,6 +31,7 @@
 #include "GameObjects/Line.h"
 #include "GameObjects/Cube.h"
 #include "GameObjects/Quad.h"
+#include "GameObjects/Ground.h"
 #include "Model/GltfModel.h"
 #include "src/Pathfinding/Grid.h"
 
@@ -250,6 +251,7 @@ private:
 	Line* enemy2Line;
 	Line* enemy3Line;
 	Line* enemy4Line;
+	Ground* ground;
 
 	std::vector<Cube*> coverSpots;
 
@@ -269,6 +271,8 @@ private:
 	std::vector<Enemy*> enemies;
 
 	Shader playerShader{};
+	Shader groundShader{};
+	Shader groundShadowShader{};
 	Shader enemyShader{};
 	Shader gridShader{};
 	Shader crosshairShader{};

@@ -10,13 +10,13 @@ void Ground::drawObject(glm::mat4 viewMat, glm::mat4 proj, bool shadowMap, glm::
 	matrixData.push_back(viewMat);
 	matrixData.push_back(proj);
 	matrixData.push_back(modelMat);
-	matrixData.push_back(lightSpaceMat);
 	mUniformBuffer.uploadUboData(matrixData, 0);
 
 
+	Logger::log(1, "Rendering ground!");
+	model->drawNoTex();
 	// TODO: Update for GLTF
-//	model.Draw(shader);
-}
+}	
 
 void Ground::ComputeAudioWorldTransform()
 {

@@ -447,6 +447,19 @@ void GltfModel::uploadVertexBuffers() {
 	}
 }
 
+void GltfModel::uploadVertexBuffersMap() {
+	for (int i = 0; i < 1; ++i) {
+		const tinygltf::Accessor& accessor = mModel->accessors.at(i);
+		const tinygltf::BufferView& bufferView = mModel->bufferViews.at(accessor.bufferView);
+		const tinygltf::Buffer& buffer = mModel->buffers.at(bufferView.buffer);
+
+		glBindBuffer(GL_ARRAY_BUFFER, mVertexVBO.at(i));
+		glBufferData(GL_ARRAY_BUFFER, bufferView.byteLength,
+			&buffer.data.at(0) + bufferView.byteOffset, GL_STATIC_DRAW);
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+	}
+}
+
 void GltfModel::uploadEnemyVertexBuffers() {
 	for (int i = 0; i < 7; ++i) {
 		const tinygltf::Accessor& accessor = mModel->accessors.at(i);
@@ -607,6 +620,25 @@ void GltfModel::draw(Texture tex) {
 	glDrawElements(drawMode, indexAccessor.count, indexAccessor.componentType, nullptr);
 	glBindVertexArray(0);
 	tex.unbind();
+}
+
+void GltfModel::drawNoTex() {
+	//const tinygltf::Primitive& primitives = mModel->meshes.at(0).primitives.at(0);
+	//const tinygltf::Accessor& indexAccessor = mModel->accessors.at(primitives.indices);
+	//
+	//GLuint drawMode = GL_TRIANGLES;
+	//switch (primitives.mode) {
+	//case TINYGLTF_MODE_TRIANGLES:
+	//	drawMode = GL_TRIANGLES;
+	//	break;
+	//default:
+	//	Logger::log(1, "%s error: unknown draw mode %i\n", __FUNCTION__, primitives.mode);
+	//	break;
+	//}
+
+	glBindVertexArray(mVAO);
+	glDrawArrays(GL_TRIANGLES, 0, 132804);
+	glBindVertexArray(0);
 }
 
 void GltfModel::getJointData() {

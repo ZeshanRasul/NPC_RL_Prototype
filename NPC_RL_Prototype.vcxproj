@@ -383,6 +383,8 @@
     <None Include="src\Shaders\vertex.glsl" />
     <None Include="src\Shaders\vertex_gpu.glsl" />
     <None Include="src\Shaders\vertex_gpu_dquat2.glsl" />
+    <None Include="src\Shaders\fragment2.glsl" />
+    <None Include="src\Shaders\vertex2.glsl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

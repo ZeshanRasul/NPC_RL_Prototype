@@ -7,7 +7,14 @@ public:
 	Ground(glm::vec3 pos, glm::vec3 scale, Shader* shdr, Shader* shadowMapShader, bool applySkinning, GameManager* gameMgr, float yaw = 0.0f)
 		: GameObject(pos, scale, yaw, shdr, shadowMapShader, applySkinning, gameMgr)
 	{
-		//        model.LoadModel("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Models/GrassBase/GrassBase.obj");
+		model = std::make_shared<GltfModel>();
+
+		std::string modelFilename = "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Models/Turret_Base/result.gltf";
+
+
+		model->loadModelNoAnim(modelFilename);
+		model->uploadVertexBuffersNoAnimations();
+
 		ComputeAudioWorldTransform();
 	}
 
