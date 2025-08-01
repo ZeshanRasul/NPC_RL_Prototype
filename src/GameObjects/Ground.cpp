@@ -14,8 +14,10 @@ void Ground::drawObject(glm::mat4 viewMat, glm::mat4 proj, bool shadowMap, glm::
 
 
 	Logger::log(1, "Rendering ground!");
-	model->drawNoTex();
+	//model->draw(mTex);
 	// TODO: Update for GLTF
+
+	drawGLTFModel();
 }	
 
 void Ground::ComputeAudioWorldTransform()

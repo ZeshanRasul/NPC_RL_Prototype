@@ -7,13 +7,40 @@ public:
 	Ground(glm::vec3 pos, glm::vec3 scale, Shader* shdr, Shader* shadowMapShader, bool applySkinning, GameManager* gameMgr, float yaw = 0.0f)
 		: GameObject(pos, scale, yaw, shdr, shadowMapShader, applySkinning, gameMgr)
 	{
-		model = std::make_shared<GltfModel>();
+		mapModel = new tinygltf::Model;
 
 		std::string modelFilename = "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Models/Turret_Base/result.gltf";
 
 
-		model->loadModelNoAnim(modelFilename);
-		model->uploadVertexBuffersNoAnimations();
+		tinygltf::TinyGLTF gltfLoader;
+		std::string loaderErrors;
+		std::string loaderWarnings;
+		bool result = false;
+
+		result = gltfLoader.LoadASCIIFromFile(mapModel, &loaderErrors, &loaderWarnings,
+			modelFilename);
+
+		if (!loaderWarnings.empty()) {
+			Logger::log(1, "%s: warnings while loading glTF model:\n%s\n", __FUNCTION__,
+				loaderWarnings.c_str());
+		}
+
+		if (!loaderErrors.empty()) {
+			Logger::log(1, "%s: errors while loading glTF model:\n%s\n", __FUNCTION__,
+				loaderErrors.c_str());
+		}
+
+		if (!result) {
+			Logger::log(1, "%s error: could not load file '%s'\n", __FUNCTION__,
+				modelFilename.c_str());
+		}
+
+		setupGLTFMeshes(mapModel);
+
+		//mTex.loadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/CovTurret_Base_imagesgreen-paint1er.jpg", false);
+
+		//model->loadModelNoAnim(modelFilename);
+		//model->uploadVertexBuffersNoAnimations();
 
 		ComputeAudioWorldTransform();
 	}
@@ -27,5 +54,135 @@ public:
 
 	void HasDealtDamage() override {};
 	void HasKilledPlayer() override {};
+	Texture mTex;
+	tinygltf::Model* mapModel;
+
+	struct GLTFPrimitive {
+		GLuint vao;
+		GLuint indexBuffer;
+		GLsizei indexCount;
+		GLsizei vertexCount;
+		GLenum indexType;
+		GLenum mode;
+	};
+
+	struct GLTFMesh {
+		std::vector<GLTFPrimitive> primitives;
+	};
+
+	std::vector<GLTFMesh> meshData;
+
+	void setupGLTFMeshes(tinygltf::Model* model) {
+		meshData.resize(model->meshes.size());
+
+		for (size_t meshIndex = 0; meshIndex < model->meshes.size(); ++meshIndex) {
+			const tinygltf::Mesh& mesh = model->meshes[meshIndex];
+			GLTFMesh gltfMesh;
+
+			for (size_t primIndex = 0; primIndex < mesh.primitives.size(); ++primIndex) {
+				const tinygltf::Primitive& primitive = mesh.primitives[primIndex];
+				GLTFPrimitive gltfPrim = {};
+				gltfPrim.mode = primitive.mode; // usually GL_TRIANGLES
+
+				// --- Create VAO ---
+				glGenVertexArrays(1, &gltfPrim.vao);
+				glBindVertexArray(gltfPrim.vao);
+
+				// --- Upload vertex attributes ---
+				for (const auto& attrib : primitive.attributes) {
+					const std::string& attribName = attrib.first; // "POSITION", "NORMAL", "TEXCOORD_0", etc.
+					int accessorIndex = attrib.second;
+					const tinygltf::Accessor& accessor = model->accessors[accessorIndex];
+					const tinygltf::BufferView& bufferView = model->bufferViews[accessor.bufferView];
+					const tinygltf::Buffer& buffer = model->buffers[bufferView.buffer];
+
+					GLuint vbo;
+					glGenBuffers(1, &vbo);
+					glBindBuffer(GL_ARRAY_BUFFER, vbo);
+
+					const void* dataPtr = &buffer.data[accessor.byteOffset + bufferView.byteOffset];
+					size_t dataSize = accessor.count * tinygltf::GetNumComponentsInType(accessor.type) * tinygltf::GetComponentSizeInBytes(accessor.componentType);
+
+					glBufferData(GL_ARRAY_BUFFER, dataSize, dataPtr, GL_STATIC_DRAW);
+
+					// Determine attribute layout location (you must match your shader locations)
+					GLint location = -1;
+					if (attribName == "POSITION") location = 0;
+					else if (attribName == "NORMAL") location = 1;
+					else if (attribName == "TEXCOORD_0") location = 2;
+					// Add JOINTS_0, WEIGHTS_0 etc. if needed
+
+					if (location >= 0) {
+						GLint numComponents = tinygltf::GetNumComponentsInType(accessor.type); // e.g. VEC3 -> 3
+						GLenum glType = accessor.componentType; // GL_FLOAT, GL_UNSIGNED_SHORT, etc.
+
+						glEnableVertexAttribArray(location);
+						glVertexAttribPointer(location, numComponents, glType,
+							accessor.normalized ? GL_TRUE : GL_FALSE,
+							bufferView.byteStride ? bufferView.byteStride : 0,
+							(const void*)0);
+					}
+
+					glBindBuffer(GL_ARRAY_BUFFER, 0);
+				}
+
+				// --- Index buffer (if present) ---
+				if (primitive.indices >= 0) {
+					const tinygltf::Accessor& indexAccessor = model->accessors[primitive.indices];
+					const tinygltf::BufferView& bufferView = model->bufferViews[indexAccessor.bufferView];
+					const tinygltf::Buffer& buffer = model->buffers[bufferView.buffer];
+
+					glGenBuffers(1, &gltfPrim.indexBuffer);
+					glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, gltfPrim.indexBuffer);
+
+					const void* dataPtr = &buffer.data[indexAccessor.byteOffset + bufferView.byteOffset];
+					size_t dataSize = indexAccessor.count * tinygltf::GetComponentSizeInBytes(indexAccessor.componentType);
+
+					glBufferData(GL_ELEMENT_ARRAY_BUFFER, dataSize, dataPtr, GL_STATIC_DRAW);
+
+					gltfPrim.indexCount = static_cast<GLsizei>(indexAccessor.count);
+					gltfPrim.indexType = indexAccessor.componentType;
+				}
+				else {
+					gltfPrim.indexBuffer = 0;
+					// Need POSITION accessor to know vertex count
+					int posAccessorIndex = primitive.attributes.at("POSITION");
+					gltfPrim.vertexCount = static_cast<GLsizei>(model->accessors[posAccessorIndex].count);
+				}
+
+				glBindVertexArray(0);
+
+				gltfMesh.primitives.push_back(gltfPrim);
+			}
+
+			meshData[meshIndex] = gltfMesh;
+		}
+	}
+
+	void drawGLTFModel() {
+		for (size_t meshIndex = 0; meshIndex < meshData.size(); ++meshIndex) {
+			for (size_t primIndex = 0; primIndex < meshData[meshIndex].primitives.size(); ++primIndex) {
+				const GLTFPrimitive& prim = meshData[meshIndex].primitives[primIndex];
+
+				glBindVertexArray(prim.vao);
+
+				if (prim.indexBuffer) {
+					glDrawElements(prim.mode, prim.indexCount, prim.indexType, 0);
+				}
+				else {
+					glDrawArrays(prim.mode, 0, prim.vertexCount);
+				}
+
+				glBindVertexArray(0);
+			}
+		}
+	}
+
+	static const void* getDataPointer(tinygltf::Model* model, const tinygltf::Accessor& accessor) {
+		const tinygltf::BufferView& bufferView = model->bufferViews[accessor.bufferView];
+		const tinygltf::Buffer& buffer = model->buffers[bufferView.buffer];
+		return &buffer.data[accessor.byteOffset + bufferView.byteOffset];
+	}
+
 
 };

@@ -610,8 +610,8 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 
 
 	player = new Player(gameGrid->snapToGrid(glm::vec3(90.0f, 0.0f, 25.0f)), glm::vec3(3.0f), &playerShader, &playerShadowMapShader, true, this);
-	//	player = new Player(gameGrid->snapToGrid(glm::vec3(23.0f, 0.0f, 37.0f)), glm::vec3(3.0f), &playerShader, &playerShadowMapShader, true, this);
-
+	//player = new Player(gameGrid->snapToGrid(glm::vec3(23.0f, 0.0f, 37.0f)), glm::vec3(3.0f), &playerShader, &playerShadowMapShader, true, this);
+	
 	player->aabbShader = &aabbShader;
 
 	std::string texture = "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Models/GLTF/Enemies/Ely/EnemyEly_ely_vanguardsoldier_kerwinatienza_M2_BaseColor.png";
@@ -671,10 +671,10 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 	gameObjects.push_back(enemy4);
 	gameObjects.push_back(ground);
 
-	for (Cube* coverSpot : coverSpots)
-	{
-		gameObjects.push_back(coverSpot);
-	}
+	//for (Cube* coverSpot : coverSpots)
+	//{
+	//	gameObjects.push_back(coverSpot);
+	//}
 
 	enemies.push_back(enemy);
 	enemies.push_back(enemy2);

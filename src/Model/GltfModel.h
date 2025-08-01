@@ -51,6 +51,9 @@ public:
 
 	std::string filename;
 
+
+
+
 private:
 	void createVertexBuffers(bool isEnemy = false);
 	void createIndexBuffer();
