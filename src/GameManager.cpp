@@ -194,7 +194,7 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 	
 		for (int i = 0; i < numIndices; i++)
 		{
-			navMeshIndices.push_back(indices[i] + vertexOffset);
+			navMeshIndices.push_back(indices[i]);
 		}
 	
 		vertexOffset += coverVerts.size();
@@ -370,12 +370,12 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 
 	//rcMarkWalkableTriangles(ctx, cfg.walkableSlopeAngle, navMeshVertices.data(), navMeshVertices.size() / 3, triIndices, triangleCount, triAreas);
 
-	for (int i = 0; i < indexCount / 3; ++i) {
-		if (i < (coverCount * 36) / 3) {
-			triAreas[i] = RC_NULL_AREA; // Mark this triangle as non-walkable
-		}
+	//for (int i = 0; i < indexCount / 3; ++i) {
+	//	if (i < (coverCount * 36) / 3) {
+	//		triAreas[i] = RC_NULL_AREA; // Mark this triangle as non-walkable
+	//	}
 
-	}
+	//}
 
 	if (!rcRasterizeTriangles(ctx, navMeshVertices.data(), navMeshVertices.size() / 3, triIndices, triAreas, triangleCount, *heightField, cfg.walkableClimb))
 	{
