@@ -46,6 +46,7 @@ public:
 		//model->uploadVertexBuffersNoAnimations();
 
 		ComputeAudioWorldTransform();
+
 	}
 
 	void drawObject(glm::mat4 viewMat, glm::mat4 proj, bool shadowMap, glm::mat4 lightSpaceMat, GLuint shadowMapTexture, glm::vec3 camPos) override;
@@ -221,11 +222,15 @@ public:
 				int matIndex = prim.material;
 				const tinygltf::Material& mat = mapModel->materials[texIndex];
 
+				if (mat.pbrMetallicRoughness.baseColorTexture.index >= 0)
+				{
+					texIndex = mat.pbrMetallicRoughness.baseColorTexture.index;
+					glActiveTexture(GL_TEXTURE0);
+					glBindTexture(GL_TEXTURE_2D, glTextures[mapModel->textures[texIndex].source]);
+					shader->setInt("tex", 0);
+				}
+			
 
-				glActiveTexture(GL_TEXTURE0);
-				glBindTexture(GL_TEXTURE_2D, glTextures[texIndex]);
-
-				shader->setInt("tex", 0);
 
 				glBindVertexArray(prim.vao);
 
@@ -238,8 +243,8 @@ public:
 
 				glBindVertexArray(0);
 
-				texIndex += 1;
 			}
+			texIndex += 1;
 		}
 	}
 
