@@ -417,4 +417,7 @@ private:
 	Shader navMeshShader{};
 	//std::vector<float> navMeshVertices;
 	//std::vector<unsigned int> navMeshIndices; 
+
+	glm::vec3 mapScale = glm::vec3(0.08f);
+	glm::vec3 mapPos = glm::vec3(40.0f, -44.0f, 20.0f);
 };

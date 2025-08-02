@@ -13,8 +13,6 @@ void Ground::drawObject(glm::mat4 viewMat, glm::mat4 proj, bool shadowMap, glm::
 	matrixData.push_back(modelMat);
 	mUniformBuffer.uploadUboData(matrixData, 0);
 
-
-	Logger::log(1, "Rendering ground!");
 	//model->draw(mTex);
 	// TODO: Update for GLTF
 

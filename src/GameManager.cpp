@@ -650,7 +650,7 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 	enemy3Line->LoadMesh();
 	enemy4Line->LoadMesh();
 
-	ground = new Ground(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.05f), &groundShader, &groundShadowShader, false, this);
+	ground = new Ground(mapPos, mapScale, &groundShader, &groundShadowShader, false, this);
 
 	AudioComponent* fireAudioComponent = new AudioComponent(enemy);
 	fireAudioComponent->PlayEvent("event:/FireLoop");
@@ -912,7 +912,7 @@ void GameManager::setupCamera(unsigned int width, unsigned int height)
 	}
 	cubemapView = glm::mat4(glm::mat3(camera->GetViewMatrixPlayerFollow(player->getPosition(), glm::vec3(0.0f, 1.0f, 0.0f))));
 
-	projection = glm::perspective(glm::radians(camera->Zoom), (float)width / (float)height, 0.1f, 500.0f);
+	projection = glm::perspective(glm::radians(camera->Zoom), (float)width / (float)height, 0.1f, 300.0f);
 
 	minimapView = minimapCamera->GetViewMatrix();
 	minimapProjection = glm::perspective(glm::radians(camera->Zoom), (float)width / (float)height, 0.1f, 500.0f);
@@ -965,6 +965,20 @@ void GameManager::renderDebugUI()
 
 void GameManager::ShowLightControlWindow(DirLight& light)
 {
+	ImGui::Begin("Map Settings");
+
+	ImGui::Text("Position");
+	ImGui::DragFloat3("Position", (float*)&mapPos, mapPos.x, mapPos.y, mapPos.z);
+	ground->SetPosition(mapPos);
+
+	ImGui::Text("Scale");
+	ImGui::DragFloat3("Scale", (float*)&mapScale, mapScale.x, mapScale.y, mapScale.z);
+	ground->SetScale(mapScale);
+	
+
+	ImGui::End();
+
+
 	ImGui::Begin("Directional Light Control");
 
 	ImGui::Text("Light Direction");

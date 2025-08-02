@@ -9,7 +9,7 @@ public:
 	{
 		mapModel = new tinygltf::Model;
 
-		std::string modelFilename = "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Models/Turret_Base/Latest/turret_base.gltf";
+		std::string modelFilename = "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Models/Turret_Base/Final/Final/turret_fixed.gltf";
 
 
 		tinygltf::TinyGLTF gltfLoader;
@@ -40,7 +40,7 @@ public:
 		for (int texID : loadGLTFTextures(mapModel))
 			glTextures.push_back(texID);
 
-		mTex.loadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Models/Turret_Base/Latest/Atlas_00001.png", false);
+		mTex.loadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Models/Turret_Base/Final/Final/Atlas_00001.png", false);
 
 		//model->loadModelNoAnim(modelFilename);
 		//model->uploadVertexBuffersNoAnimations();
@@ -48,6 +48,12 @@ public:
 		ComputeAudioWorldTransform();
 
 	}
+
+	void SetPosition(const glm::vec3& pos) { position = pos; }
+	void SetScale(const glm::vec3& newScale) { scale = newScale; }
+	glm::vec3 GetPosition() { return position; }
+	glm::vec3 GetScale() { return scale; }
+
 
 	void drawObject(glm::mat4 viewMat, glm::mat4 proj, bool shadowMap, glm::mat4 lightSpaceMat, GLuint shadowMapTexture, glm::vec3 camPos) override;
 

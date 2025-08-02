@@ -1,4 +1,4 @@
-#include "App.h"
+ #include "App.h"
 #include "src/Tools/Logger.h"
 
 #ifdef TRACY_ENABLE
