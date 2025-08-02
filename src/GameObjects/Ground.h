@@ -9,7 +9,7 @@ public:
 	{
 		mapModel = new tinygltf::Model;
 
-		std::string modelFilename = "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Models/Turret_Base/Final/Final/turret_fixed.gltf";
+		std::string modelFilename = "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Models/Turret_Base/Final/Final/Fixed/TurretBestAtlas.gltf";
 
 
 		tinygltf::TinyGLTF gltfLoader;
@@ -40,7 +40,7 @@ public:
 		for (int texID : loadGLTFTextures(mapModel))
 			glTextures.push_back(texID);
 
-		mTex.loadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Models/Turret_Base/Final/Final/Atlas_00001.png", false);
+		mTex.loadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Models/Turret_Base/Final/Final/Fixed/Atlas_00001.png", false);
 
 		//model->loadModelNoAnim(modelFilename);
 		//model->uploadVertexBuffersNoAnimations();
@@ -75,6 +75,7 @@ public:
 		GLenum indexType;
 		GLenum mode;
 		int material;
+		std::vector<glm::vec3> verts;
 	};
 
 	struct GLTFMesh {
@@ -112,6 +113,21 @@ public:
 					GLuint vbo;
 					glGenBuffers(1, &vbo);
 					glBindBuffer(GL_ARRAY_BUFFER, vbo);
+
+					if (attribName == "POSITION") {
+						int numPositionEntries = accessor.count;
+						Logger::log(1, "%s: loaded %i vertices from glTF file\n", __FUNCTION__,
+							numPositionEntries);
+
+						// Extract vertices
+						const float* positions = reinterpret_cast<const float*>(
+							buffer.data.data() + bufferView.byteOffset + accessor.byteOffset);
+
+						for (int i = 0; i < numPositionEntries; i++) 
+						{
+							gltfPrim.verts.push_back(glm::vec3(positions[i * 3 + 0], positions[i * 3 + 1] , positions[i * 3 + 2]));
+						}
+					}
 
 					const void* dataPtr = &buffer.data[accessor.byteOffset + bufferView.byteOffset];
 					size_t dataSize = accessor.count * tinygltf::GetNumComponentsInType(accessor.type) * tinygltf::GetComponentSizeInBytes(accessor.componentType);
