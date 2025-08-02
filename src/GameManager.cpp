@@ -9,7 +9,7 @@ DirLight dirLight = {
 		glm::vec3(-3.0f, -2.0f, -3.0f),
 
 		glm::vec3(0.15f, 0.2f, 0.25f),
-		glm::vec3(7.0f),
+		glm::vec3(0.8f),
 		glm::vec3(0.8f, 0.9f, 1.0f)
 };
 
@@ -650,7 +650,7 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 	enemy3Line->LoadMesh();
 	enemy4Line->LoadMesh();
 
-	ground = new Ground(glm::vec3(0.0f, -70.0f, 0.0f), glm::vec3(0.1f), &groundShader, &groundShadowShader, false, this);
+	ground = new Ground(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.05f), &groundShader, &groundShadowShader, false, this);
 
 	AudioComponent* fireAudioComponent = new AudioComponent(enemy);
 	fireAudioComponent->PlayEvent("event:/FireLoop");
@@ -1286,7 +1286,7 @@ void GameManager::update(float deltaTime)
 //		e->Update(useEDBT, speedDivider, blendFac);
 
 		float targetPos[3] = { player->getPosition().x, 1.0f, player->getPosition().z };
-		Logger::log(1, "Target position on nav mesh before query: %f, %f, %f\n", targetPos[0], targetPos[1], targetPos[2]);
+		//Logger::log(1, "Target position on nav mesh before query: %f, %f, %f\n", targetPos[0], targetPos[1], targetPos[2]);
 
 
 		dtPolyRef targetPoly;
@@ -1296,35 +1296,35 @@ void GameManager::update(float deltaTime)
 
 		if (!navMeshQuery)
 		{
-			Logger::log(1, "%s error: NavMeshQuery is null\n", __FUNCTION__);
+			//Logger::log(1, "%s error: NavMeshQuery is null\n", __FUNCTION__);
 		}
 		dtStatus status;
 		if (navMeshQuery)
 			status = navMeshQuery->findNearestPoly(targetPos, halfExtents, &filter, &targetPoly, targetPosOnNavMesh);
 
-		Logger::log(1, "Player position: %f %f %f\n", player->getPosition().x, player->getPosition().y, player->getPosition().z);
-		Logger::log(1, "Target position on nav mesh after query: %f, %f, %f\n", targetPosOnNavMesh[0], targetPosOnNavMesh[1], targetPosOnNavMesh[2]);
+		//Logger::log(1, "Player position: %f %f %f\n", player->getPosition().x, player->getPosition().y, player->getPosition().z);
+		//Logger::log(1, "Target position on nav mesh after query: %f, %f, %f\n", targetPosOnNavMesh[0], targetPosOnNavMesh[1], targetPosOnNavMesh[2]);
 
 		if (dtStatusFailed(status))
 		{
-			Logger::log(1, "%s error: Could not find nearest poly enemy %d\n", __FUNCTION__, e->GetID());
-			Logger::log(1, "findNearestPoly failed: %u\n", status);
+			//Logger::log(1, "%s error: Could not find nearest poly enemy %d\n", __FUNCTION__, e->GetID());
+			//Logger::log(1, "findNearestPoly failed: %u\n", status);
 		}
 		else
 		{
-			Logger::log(1, "%s: Found nearest poly enemy %d\n", __FUNCTION__, e->GetID());
-			Logger::log(1, "findNearestPoly succeeded: PolyRef = %u, Pos = %f %f %f\n", targetPoly, targetPosOnNavMesh[0], targetPosOnNavMesh[1], targetPosOnNavMesh[2]);
+			//Logger::log(1, "%s: Found nearest poly enemy %d\n", __FUNCTION__, e->GetID());
+			//Logger::log(1, "findNearestPoly succeeded: PolyRef = %u, Pos = %f %f %f\n", targetPoly, targetPosOnNavMesh[0], targetPosOnNavMesh[1], targetPosOnNavMesh[2]);
 		}
 
 		status = crowd->requestMoveTarget(e->GetID(), targetPoly, targetPosOnNavMesh);
 
 		if (dtStatusFailed(status))
 		{
-			Logger::log(1, "%s error: Could not set move target for enemy %d\n", __FUNCTION__, e->GetID());
+			//Logger::log(1, "%s error: Could not set move target for enemy %d\n", __FUNCTION__, e->GetID());
 		}
 		else
 		{
-			Logger::log(1, "%s: Move target set for enemy %d %f, %f, %f\n", __FUNCTION__, e->GetID(), targetPosOnNavMesh[0], targetPosOnNavMesh[1], targetPosOnNavMesh[2]);
+			//Logger::log(1, "%s: Move target set for enemy %d %f, %f, %f\n", __FUNCTION__, e->GetID(), targetPosOnNavMesh[0], targetPosOnNavMesh[1], targetPosOnNavMesh[2]);
 		}
 
 

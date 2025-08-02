@@ -9,7 +9,7 @@ public:
 	{
 		mapModel = new tinygltf::Model;
 
-		std::string modelFilename = "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Models/Turret_Base/result.gltf";
+		std::string modelFilename = "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Models/Turret_Base/Latest/turret_base.gltf";
 
 
 		tinygltf::TinyGLTF gltfLoader;
@@ -40,7 +40,7 @@ public:
 		for (int texID : loadGLTFTextures(mapModel))
 			glTextures.push_back(texID);
 
-		//mTex.loadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/CovTurret_Base_imagesgreen-paint1er.jpg", false);
+		mTex.loadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Models/Turret_Base/Latest/Atlas_00001.png", false);
 
 		//model->loadModelNoAnim(modelFilename);
 		//model->uploadVertexBuffersNoAnimations();
@@ -225,12 +225,12 @@ public:
 				if (mat.pbrMetallicRoughness.baseColorTexture.index >= 0)
 				{
 					texIndex = mat.pbrMetallicRoughness.baseColorTexture.index;
-					glActiveTexture(GL_TEXTURE0);
-					glBindTexture(GL_TEXTURE_2D, glTextures[mapModel->textures[texIndex].source]);
-					shader->setInt("tex", 0);
+					
 				}
 			
-
+				glActiveTexture(GL_TEXTURE0);
+				glBindTexture(GL_TEXTURE_2D, mTex.getTexID());
+				shader->setInt("tex", 0);
 
 				glBindVertexArray(prim.vao);
 
