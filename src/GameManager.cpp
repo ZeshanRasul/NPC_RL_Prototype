@@ -215,6 +215,7 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 			glm::vec4 newVert = glm::vec4(vert.x, vert.y, vert.z, 1.0f);
 			glm::mat4 model = glm::mat4(1.0f);
 			model = glm::translate(model, mapPos);
+			model = glm::rotate(model, glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
 			model = glm::scale(model, mapScale);
 			glm::vec4 newVertTr = glm::vec4(model * newVert);
 			mapVerts.push_back(glm::vec3(newVertTr.x, newVertTr.y, newVertTr.z));
