@@ -45,7 +45,7 @@ public:
 		//model->loadModelNoAnim(modelFilename);
 		//model->uploadVertexBuffersNoAnimations();
 
-		ComputeAudioWorldTransform();
+		//ComputeAudioWorldTransform();
 
 	}
 

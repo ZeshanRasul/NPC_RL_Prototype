@@ -392,8 +392,10 @@ private:
 
 	std::vector<float> navMeshVertices;
 	std::vector<unsigned int> navMeshIndices;
+	std::vector<glm::vec3> mapVerts;
 	int* triIndices;
 	unsigned char* triAreas;
+	std::vector<glm::vec3> mapVertices;
 
 	rcContext* ctx;
 	rcHeightfield* heightField;

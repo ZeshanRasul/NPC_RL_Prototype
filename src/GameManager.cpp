@@ -19,7 +19,7 @@ void ProbeNavmesh(dtNavMeshQuery* navQuery, dtQueryFilter* filter,
 	float x, float y, float z)
 {
 	float pos[3] = { x, y, z };
-	float halfExtents[3] = { 50, 50, 50 };   // Big search area
+	float halfExtents[3] = { 500, 500, 500 };   // Big search area
 	dtPolyRef ref;
 	float snapped[3];
 
@@ -51,7 +51,7 @@ bool AddAgentToCrowd(dtCrowd* crowd,
 	float searchPos[3] = { startPos[0], startPos[1], startPos[2] };
 
 	// Broad search extents for safety (you can tune smaller later)
-	float halfExtents[3] = { 50.0f, 50.0f, 50.0f };
+	float halfExtents[3] = { 500, 500, 500 };   // Big search area
 
 	// Query nearest poly
 	dtPolyRef startPoly = 0;
@@ -172,62 +172,96 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 		coverSpots.push_back(cover);
 	}
 	
-	navMeshVertices.reserve(10000);
-	navMeshVertices.reserve(10000);
+	ground = new Ground(mapPos, mapScale, &groundShader, &groundShadowShader, false, this);
+
 	size_t vertexOffset = 0;
-	int vertexCount = 0;
+	//int vertexCount = 0;
+	//
+	//int coverCount = 0;
+	//
+	//for (Cube* coverSpot : coverSpots)
+	//{
+	//	std::vector<glm::vec3> coverVerts = coverSpot->GetPositionVertices();
+	//	for (glm::vec3 coverPosVerts : coverVerts)
+	//	{
+	//		navMeshVertices.push_back(coverPosVerts.x);
+	//		navMeshVertices.push_back(coverPosVerts.y);
+	//		navMeshVertices.push_back(coverPosVerts.z);
+	//		vertexCount += 3;
+	//	}
+	//
+	//	GLuint* indices = coverSpot->indices;
+	//
+	//	int numIndices = 36;
+	//
+	//	for (int i = 0; i < numIndices; i++)
+	//	{
+	//		navMeshIndices.push_back(indices[i]);
+	//	}
+	//
+	//	vertexOffset += coverVerts.size();
+	//
+	//	coverCount++;
+	//}
 
-	int coverCount = 0;
-
-	for (Cube* coverSpot : coverSpots)
+	std::vector<Ground::GLTFMesh> meshDataGrnd = ground->meshData;
+	std::vector<Ground::GLTFPrimitive> prims = meshDataGrnd.data()->primitives;
+	int mapVertCount = 0;
+	int mapIndCount = 0;
+	for (Ground::GLTFPrimitive prim : prims)
 	{
-		std::vector<glm::vec3> coverVerts = coverSpot->GetPositionVertices();
-		for (glm::vec3 coverPosVerts : coverVerts)
+		for (glm::vec3 vert : prim.verts)
 		{
-			navMeshVertices.push_back(coverPosVerts.x);
-			navMeshVertices.push_back(coverPosVerts.y);
-			navMeshVertices.push_back(coverPosVerts.z);
-			vertexCount += 3;
+			glm::vec4 newVert = glm::vec4(vert.x, vert.y, vert.z, 1.0f);
+			glm::mat4 model = glm::mat4(1.0f);
+			model = glm::translate(model, mapPos);
+			model = glm::scale(model, mapScale);
+			glm::vec4 newVertTr = glm::vec4(model * newVert);
+			mapVerts.push_back(glm::vec3(newVertTr.x, newVertTr.y, newVertTr.z));
+			//navMeshVertices.push_back(mapVerts[i]);
+			//navMeshVertices.push_back(mapVerts[i + 1]);
+			//navMeshVertices.push_back(mapVerts[i + 2]);
+			mapVertCount += 3;
+			mapIndCount += 3;
 		}
-	
-		GLuint* indices = coverSpot->indices;
-	
-		int numIndices = 36;
-	
-		for (int i = 0; i < numIndices; i++)
-		{
-			navMeshIndices.push_back(indices[i]);
-		}
-	
-		vertexOffset += coverVerts.size();
-	
-		coverCount++;
 	}
 
-
+	//navMeshVertices.resize(1162447);
+	//navMeshIndices.resize(1162447);
 
 	gameGrid->initializeGrid();
 
 	std::vector<glm::vec3> gridVerts = gameGrid->GetWSVertices();
 
-	Logger::log(1, "Grid vertices count: %i", gridVerts.size());
+	Logger::log(1, "Map vertices count: %i\n", mapVerts.size());
 
 	int gridVertCount = 0;
-	std::vector<glm::mat4> models = gameGrid->GetModels();
+	//std::vector<glm::mat4> models = gameGrid->GetModels();
+	int index = 0;
+	int num = 0;
+	for (glm::vec3 mapVertex : mapVerts)
+	{	
+		navMeshVertices.push_back(mapVertex.x);
+		navMeshVertices.push_back(mapVertex.y);
+		navMeshVertices.push_back(mapVertex.z);
+	
+		if ((index + 1) % 3 == 0)  // every third vertex
+		{
+			int base = index - 2;
 
-	for (auto gridVert : gridVerts)
-	{
-		navMeshVertices.push_back(gridVert.x);
-		navMeshVertices.push_back(gridVert.y);
-		navMeshVertices.push_back(gridVert.z);
-		vertexCount += 3;
-		gridVertCount += 1;
+			// Choose consistent winding (counter-clockwise usually)
+			navMeshIndices.push_back(base);
+			navMeshIndices.push_back(base + 1);
+			navMeshIndices.push_back(base + 2);
+		}
+
+		index++;
 	}
 
-	Logger::log(1, "navMeshVertices count: %zu", navMeshVertices.size());
+	Logger::log(1, "navMeshVertices count: %zu\n", navMeshVertices.size());
 	for (size_t i = 0; i < std::min((size_t)10, navMeshVertices.size() / 3); ++i)
 	{
-		Logger::log(1, "Vertex %zu: %.2f %.2f %.2f",
+		Logger::log(1, "Vertex %zu: %.2f %.2f %.2f\n",
 			i,
 			navMeshVertices[i * 3],
 			navMeshVertices[i * 3 + 1],
@@ -235,31 +269,48 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 	}
 
 
-	for (int index : gameGrid->GetIndices())
-	{
-		navMeshIndices.push_back(index + vertexOffset);
-	}
+	//for (int index : gameGrid->GetIndices())
+	//{
+	//	navMeshIndices.push_back(index + vertexOffset);
+	//}
 
 	int indexCount = (int)navMeshIndices.size();
+	Logger::log(1, "Index Count: %zu\n", (int)navMeshIndices.size());
+
 	triIndices = new int[indexCount];
 
-	for (int i = 0; i < indexCount; i++)
+	for (int i = 0; i < navMeshIndices.size(); i++)
 	{
 		triIndices[i] = navMeshIndices[i];
 	}
 
+	Logger::log(1, "Index Count: %zu\n", indexCount);
+
+
+
+
 	int triangleCount = indexCount / 3;
 	triAreas = new unsigned char[triangleCount];
 
-	//filter.setIncludeFlags(0xFFFF); // Include all polygons for testing
-	//filter.setExcludeFlags(0);      // Exclude no polygons
+	filter.setIncludeFlags(0xFFFF); // Include all polygons for testing
+	filter.setExcludeFlags(0);      // Exclude no polygons
 
 
 	Logger::log(1, "Tri Areas: %s", triAreas);
 
-	// Slope threshold (in degrees) – typical value for shooters is 45
-	const float WALKABLE_SLOPE = 45.0f;
+	int vertexCount = navMeshVertices.size() / 3;
 
+	for (int i = 0; i < triangleCount * 3; i++) {
+		if (triIndices[i] < 0 || triIndices[i] >= vertexCount) {
+			Logger::log(1, "Invalid triangle index %d: %d (vertexCount=%d)\n",
+				i, triIndices[i], vertexCount);
+		}
+	}
+
+
+	// Slope threshold (in degrees) – typical value for shooters is 45
+	const float WALKABLE_SLOPE = 85.0f;
+	ctx = new rcContext();
 	// Mark which triangles are walkable based on slope
 	rcMarkWalkableTriangles(ctx,
 		WALKABLE_SLOPE,
@@ -288,13 +339,13 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 
 
 
-	ctx = new rcContext();
+
 
 	rcConfig cfg{};
 
 	cfg.cs = 0.3f;                      // Cell size
 	cfg.ch = 0.2f;                      // Cell height
-	cfg.walkableSlopeAngle = 65.0f;     // Steeper slopes allowed
+	cfg.walkableSlopeAngle = 85.0f;     // Steeper slopes allowed
 	cfg.walkableHeight = 1.0f;          // Min agent height
 	cfg.walkableClimb = 0.5f;           // Step height
 	cfg.walkableRadius = 1.3f;          // Agent radius
@@ -325,17 +376,14 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 	float maxBounds[3] = { (105.0f) * 4.0f, 3.0f, (105.0f) * 4.0f };
 
 	//rcCalcBounds(navMeshVertices.data(), navMeshVertices.size() / 3, cfg.bmin, cfg.bmax);
-	cfg.width = maxBounds[0];
-	cfg.height = maxBounds[2];
 	//cfg.bmax = maxBounds;
 	//cfg.bmin = minBounds;
 
-	cfg.bmin[0] = minBounds[0];
-	cfg.bmin[1] = minBounds[1];
-	cfg.bmin[2] = minBounds[2];
-	cfg.bmax[0] = maxBounds[0];
-	cfg.bmax[1] = maxBounds[1];
-	cfg.bmax[2] = maxBounds[2];
+	rcCalcBounds(navMeshVertices.data(), navMeshVertices.size() / 3, cfg.bmin, cfg.bmax);
+
+	cfg.width = cfg.bmax[0];
+	cfg.height = cfg.bmax[2];
+
 	//cfg.cs = 0.3f;                      // Cell size
 	//cfg.ch = 0.2f;                      // Cell height
 	//cfg.walkableSlopeAngle = 30.0f;     // Allow steeper slopes
@@ -365,7 +413,7 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 		Logger::log(1, "%s: Heightfield successfully created\n", __FUNCTION__);
 	};
 
-	int numTris = indexCount / 3;
+	int numTris = navMeshIndices.size() / 3;
 
 	Logger::log(1, "Triangle indices: %d\n", indexCount);
 	Logger::log(1, "Triangle count: %d\n", numTris);
@@ -389,8 +437,8 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 	};
 
 	rcFilterLowHangingWalkableObstacles(ctx, cfg.walkableClimb, *heightField);
-	rcFilterWalkableLowHeightSpans(ctx, cfg.walkableHeight, *heightField);
-	rcFilterLedgeSpans(ctx, cfg.walkableHeight, cfg.walkableClimb, *heightField);
+	//rcFilterWalkableLowHeightSpans(ctx, cfg.walkableHeight, *heightField);
+	//rcFilterLedgeSpans(ctx, cfg.walkableHeight, cfg.walkableClimb, *heightField);
 
 	compactHeightField = rcAllocCompactHeightfield();
 	if (!rcBuildCompactHeightfield(ctx, cfg.walkableHeight, cfg.walkableClimb, *heightField, *compactHeightField))
@@ -458,12 +506,12 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 		polyMesh->bmin[0], polyMesh->bmin[1], polyMesh->bmin[2],
 		polyMesh->bmax[0], polyMesh->bmax[1], polyMesh->bmax[2]);
 
-	for (int i = 0; i < (int)navMeshVertices.size(); i += 3) {
+	for (int i = 0; i < std::min(10, (int)navMeshVertices.size()); i += 3) {
 		Logger::log(1, "NavMesh Vert %d: %.2f %.2f %.2f", i / 3,
 			navMeshVertices[i], navMeshVertices[i + 1], navMeshVertices[i + 2]);
 	}
 
-	for (int i = 0; i < (int)navMeshIndices.size(); ++i) {
+	for (int i = 0; i < std::min(10,(int)navMeshIndices.size()); ++i) {
 #
 		Logger::log(1, "Logging bad indices: \n");
 		if (navMeshIndices[i] >= navMeshVertices.size()) {
@@ -471,16 +519,16 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 		}
 	}
 
-	for (int i = 0; i < (int)navMeshIndices.size(); i += 3) {
-		
-		Logger::log(1, "Logging degenerate triangles: \n");
-		int a = navMeshIndices[i];
-		int b = navMeshIndices[i + 1];
-		int c = navMeshIndices[i + 2];
-		if (a == b || b == c || a == c) {
-			Logger::log(1, "DEGENERATE TRIANGLE: %zu, %zu, %zu\n", a, b, c);
-		}
-	}
+	//for (int i = 0; i < (int)navMeshIndices.size(); i += 3) {
+	//	
+	//	Logger::log(1, "Logging degenerate triangles: \n");
+	//	int a = navMeshIndices[i];
+	//	int b = navMeshIndices[i + 1];
+	//	int c = navMeshIndices[i + 2];
+	//	if (a == b || b == c || a == c) {
+	//		Logger::log(1, "DEGENERATE TRIANGLE: %zu, %zu, %zu\n", a, b, c);
+	//	}
+	//}
 
 
 
@@ -671,10 +719,10 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 	gameObjects.push_back(enemy4);
 	gameObjects.push_back(ground);
 
-	//for (Cube* coverSpot : coverSpots)
-	//{
-	//	gameObjects.push_back(coverSpot);
-	//}
+	for (Cube* coverSpot : coverSpots)
+	{
+		gameObjects.push_back(coverSpot);
+	}
 
 	enemies.push_back(enemy);
 	enemies.push_back(enemy2);
@@ -702,7 +750,7 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 		}
 	}
 
-	mMusicEvent = audioSystem->PlayEvent("event:/bgm");
+	//mMusicEvent = audioSystem->PlayEvent("event:/bgm");
 
 	//for (int i = 0; i < polyMesh->nverts; ++i) {
 	//	const unsigned short* v = &polyMesh->verts[i * 3];
