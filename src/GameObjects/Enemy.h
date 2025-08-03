@@ -83,7 +83,7 @@ public:
 		if (!mTex.loadTexture(texFilename, false)) {
 			Logger::log(1, "%s: texture loading failed\n", __FUNCTION__);
 		}
-		Logger::log(1, "%s: glTF model texture '%s' successfully loaded\n", __FUNCTION__, texFilename.c_str());
+		//Logger::log(1, "%s: glTF model texture '%s' successfully loaded\n", __FUNCTION__, texFilename.c_str());
 
 		mNormal.loadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Models/GLTF/Enemies/Ely/EnemyEly_ely_vanguardsoldier_kerwinatienza_M2_Normal.png");
 		mMetallic.loadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Models/GLTF/Enemies/Ely/EnemyEly_ely_vanguardsoldier_kerwinatienza_M2_Metallic.png");
