@@ -589,9 +589,9 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 		Logger::log(1, "%s: rasterize triangles successfully created\n", __FUNCTION__);
 	};
 
-	rcFilterLowHangingWalkableObstacles(ctx, cfg.walkableClimb, *heightField);
-	rcFilterWalkableLowHeightSpans(ctx, cfg.walkableHeight, *heightField);
-	rcFilterLedgeSpans(ctx, cfg.walkableHeight, cfg.walkableClimb, *heightField);
+	//rcFilterLowHangingWalkableObstacles(ctx, cfg.walkableClimb, *heightField);
+	//rcFilterWalkableLowHeightSpans(ctx, cfg.walkableHeight, *heightField);
+	//rcFilterLedgeSpans(ctx, cfg.walkableHeight, cfg.walkableClimb, *heightField);
 
 	compactHeightField = rcAllocCompactHeightfield();
 	if (!rcBuildCompactHeightfield(ctx, cfg.walkableHeight, cfg.walkableClimb, *heightField, *compactHeightField))
@@ -800,7 +800,7 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 	enemy4MuzzleFlashQuad->LoadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/muzzleflash.png");
 
 
-	player = new Player(gameGrid->snapToGrid(glm::vec3(5.0, 10.0f, 0.0f)), glm::vec3(1.0f), &playerShader, &playerShadowMapShader, true, this);
+	player = new Player(gameGrid->snapToGrid(glm::vec3(5.0f, 60.0f, 0.0f)), glm::vec3(3.0f), &playerShader, &playerShadowMapShader, true, this);
 	//player = new Player(gameGrid->snapToGrid(glm::vec3(23.0f, 0.0f, 37.0f)), glm::vec3(3.0f), &playerShader, &playerShadowMapShader, true, this);
 	
 	player->aabbShader = &aabbShader;
@@ -810,19 +810,19 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 	std::string texture3 = "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Models/GLTF/Enemies/Ely/ely-vanguardsoldier-kerwinatienza_diffuse_3.png";
 	std::string texture4 = "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Models/GLTF/Enemies/Ely/ely-vanguardsoldier-kerwinatienza_diffuse_4.png";
 
-	enemy = new Enemy(gameGrid->snapToGrid(glm::vec3(0.0, 10.0f, 1.0f)), glm::vec3(1.0f), &enemyShader, &enemyShadowMapShader, true, this, gameGrid, texture, 0, GetEventManager(), *player);
+	enemy = new Enemy(gameGrid->snapToGrid(glm::vec3(5.0, 60.0f, 5.0f)), glm::vec3(3.0f), &enemyShader, &enemyShadowMapShader, true, this, gameGrid, texture, 0, GetEventManager(), *player);
 	enemy->SetAABBShader(&aabbShader);
 	enemy->SetUpAABB();
 
-	enemy2 = new Enemy(gameGrid->snapToGrid(glm::vec3(3.0, 10.0f, 2.0f)), glm::vec3(1.0f), &enemyShader, &enemyShadowMapShader, true, this, gameGrid, texture2, 1, GetEventManager(), *player);
+	enemy2 = new Enemy(gameGrid->snapToGrid(glm::vec3(3.0, 60.0f, 13.0f)), glm::vec3(3.0f), &enemyShader, &enemyShadowMapShader, true, this, gameGrid, texture2, 1, GetEventManager(), *player);
 	enemy2->SetAABBShader(&aabbShader);
 	enemy2->SetUpAABB();
 
-	enemy3 = new Enemy(gameGrid->snapToGrid(glm::vec3(1.0, 10.0f, 3.0f)), glm::vec3(1.0f), &enemyShader, &enemyShadowMapShader, true, this, gameGrid, texture3, 2, GetEventManager(), *player);
+	enemy3 = new Enemy(gameGrid->snapToGrid(glm::vec3(12.0, 60.0f, 3.0f)), glm::vec3(3.0f), &enemyShader, &enemyShadowMapShader, true, this, gameGrid, texture3, 2, GetEventManager(), *player);
 	enemy3->SetAABBShader(&aabbShader);
 	enemy3->SetUpAABB();
 
-	enemy4 = new Enemy(gameGrid->snapToGrid(glm::vec3(2.0, 10.0f, 0.0f)), glm::vec3(1.0f), &enemyShader, &enemyShadowMapShader, true, this, gameGrid, texture4, 3, GetEventManager(), *player);
+	enemy4 = new Enemy(gameGrid->snapToGrid(glm::vec3(2.0, 10.0f, 0.0f)), glm::vec3(3.0f), &enemyShader, &enemyShadowMapShader, true, this, gameGrid, texture4, 3, GetEventManager(), *player);
 	enemy4->SetAABBShader(&aabbShader);
 	enemy4->SetUpAABB();
 
@@ -919,7 +919,7 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 	{
 		const unsigned short* v = &polyMesh->verts[i * 3];
 		const float x = orig[0] + v[0] * polyMesh->cs;
-		const float y = orig[1] + v[1] * polyMesh->ch + j * 0.01f;
+		const float y = orig[1] + v[1] * polyMesh->ch;
 		const float z = orig[2] + v[2] * polyMesh->cs;
 		navRenderMeshVertices.push_back(x);
 		navRenderMeshVertices.push_back(y);
