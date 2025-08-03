@@ -363,15 +363,15 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 			{
 				// Even triangle – normal winding
 				navMeshIndices.push_back(base);
-				navMeshIndices.push_back(base + 2);
 				navMeshIndices.push_back(base + 1);
+				navMeshIndices.push_back(base + 2);
 			}
 			else
 			{
 				// Odd triangle – reverse winding
 				navMeshIndices.push_back(base);
-				navMeshIndices.push_back(base + 2);
 				navMeshIndices.push_back(base + 1);
+				navMeshIndices.push_back(base + 2);
 			}
 
 			triCount++;
@@ -921,9 +921,9 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 		const float x = orig[0] + v[0] * polyMesh->cs;
 		const float y = orig[1] + v[1] * polyMesh->ch;
 		const float z = orig[2] + v[2] * polyMesh->cs;
-		navRenderMeshVertices.push_back(x);
-		navRenderMeshVertices.push_back(y);
-		navRenderMeshVertices.push_back(z);
+		navMeshVertices.push_back(x);
+		navMeshVertices.push_back(y);
+		navMeshVertices.push_back(z);
 	}
 	
 	// Process indices
@@ -935,9 +935,9 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 				if (p[j] == RC_MESH_NULL_IDX) break;
 			// Skip degenerate triangles
 			
-			navRenderMeshIndices.push_back(p[0]);      // Triangle vertex 1
-			navRenderMeshIndices.push_back(p[j]);     // Triangle vertex 3
-			navRenderMeshIndices.push_back(p[j - 1]); // Triangle vertex 2
+			navMeshIndices.push_back(p[0]);      // Triangle vertex 1
+			navMeshIndices.push_back(p[j - 1]); // Triangle vertex 2
+			navMeshIndices.push_back(p[j]);     // Triangle vertex 3
 		}
 	}
 	ProbeNavmesh(navMeshQuery, &filter, -162.6f, 46.4f, -127.9f);
@@ -953,12 +953,12 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 	// Create VBO
 	glGenBuffers(1, &vbo);
 	glBindBuffer(GL_ARRAY_BUFFER, vbo);
-	glBufferData(GL_ARRAY_BUFFER, navRenderMeshVertices.size() * sizeof(float), navRenderMeshVertices.data(), GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, navMeshVertices.size() * sizeof(float), navMeshVertices.data(), GL_STATIC_DRAW);
 
 	// Create EBO
 	glGenBuffers(1, &ebo);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, navRenderMeshIndices.size() * sizeof(unsigned int), navRenderMeshIndices.data(), GL_STATIC_DRAW);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, navMeshIndices.size() * sizeof(unsigned int), navMeshIndices.data(), GL_STATIC_DRAW);
 
 	// Enable vertex attribute (e.g., position at location 0)
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
@@ -1655,15 +1655,17 @@ void GameManager::render(bool isMinimapRenderPass, bool isShadowMapRenderPass, b
 
 		//glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
-		glBindVertexArray(vao);
-		glDisable(GL_CULL_FACE);
+		//glBindVertexArray(vao);
+		//glDisable(GL_CULL_FACE);
 
 		//glEnable(GL_CULL_FACE);
 		//glCullFace(GL_BACK);
 		//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-		//glDrawElements(GL_TRIANGLES, navMeshIndices.size(), GL_UNSIGNED_INT, 0);
-		//glDrawArrays(GL_TRIANGLES, 0, navRenderMeshVertices.size() / 3);
-		glDrawElements(GL_TRIANGLES, navRenderMeshVertices.size(), GL_UNSIGNED_INT, 0);
+		glDisable(GL_CULL_FACE);
+		glBindVertexArray(vao);
+		glDrawElements(GL_TRIANGLES, navMeshIndices.size(), GL_UNSIGNED_INT, 0);
+		//glDrawArrays(GL_TRIANGLES, 0, navMeshVertices.size() / 3);
+	//	glDrawElements(GL_TRIANGLES, navMesh.size(), GL_UNSIGNED_INT, 0);
 		//glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	}
 
