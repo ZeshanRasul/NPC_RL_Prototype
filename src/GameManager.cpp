@@ -310,7 +310,7 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 
 
 	// Slope threshold (in degrees) – typical value for shooters is 45
-	const float WALKABLE_SLOPE = 85.0f;
+	const float WALKABLE_SLOPE = 45.0f;
 	ctx = new rcContext();
 	// Mark which triangles are walkable based on slope
 	rcMarkWalkableTriangles(ctx,
@@ -346,7 +346,7 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 
 	cfg.cs = 0.3f;                      // Cell size
 	cfg.ch = 0.2f;                      // Cell height
-	cfg.walkableSlopeAngle = 85.0f;     // Steeper slopes allowed
+	cfg.walkableSlopeAngle = WALKABLE_SLOPE;     // Steeper slopes allowed
 	cfg.walkableHeight = 1.0f;          // Min agent height
 	cfg.walkableClimb = 0.5f;           // Step height
 	cfg.walkableRadius = 1.3f;          // Agent radius
@@ -377,8 +377,6 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 	float maxBounds[3] = { (105.0f) * 4.0f, 3.0f, (105.0f) * 4.0f };
 
 	//rcCalcBounds(navMeshVertices.data(), navMeshVertices.size() / 3, cfg.bmin, cfg.bmax);
-	//cfg.bmax = maxBounds;
-	//cfg.bmin = minBounds;
 
 	rcCalcBounds(navMeshVertices.data(), navMeshVertices.size() / 3, cfg.bmin, cfg.bmax);
 
@@ -438,8 +436,8 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 	};
 
 	rcFilterLowHangingWalkableObstacles(ctx, cfg.walkableClimb, *heightField);
-	//rcFilterWalkableLowHeightSpans(ctx, cfg.walkableHeight, *heightField);
-	//rcFilterLedgeSpans(ctx, cfg.walkableHeight, cfg.walkableClimb, *heightField);
+	rcFilterWalkableLowHeightSpans(ctx, cfg.walkableHeight, *heightField);
+	rcFilterLedgeSpans(ctx, cfg.walkableHeight, cfg.walkableClimb, *heightField);
 
 	compactHeightField = rcAllocCompactHeightfield();
 	if (!rcBuildCompactHeightfield(ctx, cfg.walkableHeight, cfg.walkableClimb, *heightField, *compactHeightField))
@@ -1348,8 +1346,15 @@ void GameManager::update(float deltaTime)
 		}
 //		e->Update(useEDBT, speedDivider, blendFac);
 
-		float targetPos[3] = { player->getPosition().x, 1.0f, player->getPosition().z };
-		//Logger::log(1, "Target position on nav mesh before query: %f, %f, %f\n", targetPos[0], targetPos[1], targetPos[2]);
+		float targetPos[3] = { player->getPosition().x, player->getPosition().y, player->getPosition().z };
+		dtPolyRef playerPoly;		
+		float targetPlayerPosOnNavMesh[3];
+
+		navMeshQuery->findNearestPoly(targetPos, halfExtents, &filter, &playerPoly, targetPlayerPosOnNavMesh);
+		Logger::log(1, "Player position: %f %f %f\n", player->getPosition().x, player->getPosition().y, player->getPosition().z);
+		Logger::log(1, "Target position on nav mesh after query: %f, %f, %f\n", targetPlayerPosOnNavMesh[0], targetPlayerPosOnNavMesh[1], targetPlayerPosOnNavMesh[2]);
+
+		Logger::log(1, "Target position on nav mesh before query: %f, %f, %f\n", targetPos[0], targetPos[1], targetPos[2]);
 
 
 		dtPolyRef targetPoly;
@@ -1365,29 +1370,29 @@ void GameManager::update(float deltaTime)
 		if (navMeshQuery)
 			status = navMeshQuery->findNearestPoly(targetPos, halfExtents, &filter, &targetPoly, targetPosOnNavMesh);
 
-		//Logger::log(1, "Player position: %f %f %f\n", player->getPosition().x, player->getPosition().y, player->getPosition().z);
-		//Logger::log(1, "Target position on nav mesh after query: %f, %f, %f\n", targetPosOnNavMesh[0], targetPosOnNavMesh[1], targetPosOnNavMesh[2]);
+		Logger::log(1, "Player position: %f %f %f\n", player->getPosition().x, player->getPosition().y, player->getPosition().z);
+		Logger::log(1, "Target position on nav mesh after query: %f, %f, %f\n", targetPosOnNavMesh[0], targetPosOnNavMesh[1], targetPosOnNavMesh[2]);
 
 		if (dtStatusFailed(status))
 		{
-			//Logger::log(1, "%s error: Could not find nearest poly enemy %d\n", __FUNCTION__, e->GetID());
-			//Logger::log(1, "findNearestPoly failed: %u\n", status);
+			Logger::log(1, "%s error: Could not find nearest poly enemy %d\n", __FUNCTION__, e->GetID());
+			Logger::log(1, "findNearestPoly failed: %u\n", status);
 		}
 		else
 		{
-			//Logger::log(1, "%s: Found nearest poly enemy %d\n", __FUNCTION__, e->GetID());
-			//Logger::log(1, "findNearestPoly succeeded: PolyRef = %u, Pos = %f %f %f\n", targetPoly, targetPosOnNavMesh[0], targetPosOnNavMesh[1], targetPosOnNavMesh[2]);
+			Logger::log(1, "%s: Found nearest poly enemy %d\n", __FUNCTION__, e->GetID());
+			Logger::log(1, "findNearestPoly succeeded: PolyRef = %u, Pos = %f %f %f\n", targetPoly, targetPosOnNavMesh[0], targetPosOnNavMesh[1], targetPosOnNavMesh[2]);
 		}
 
 		status = crowd->requestMoveTarget(e->GetID(), targetPoly, targetPosOnNavMesh);
 
 		if (dtStatusFailed(status))
 		{
-			//Logger::log(1, "%s error: Could not set move target for enemy %d\n", __FUNCTION__, e->GetID());
+			Logger::log(1, "%s error: Could not set move target for enemy %d\n", __FUNCTION__, e->GetID());
 		}
 		else
 		{
-			//Logger::log(1, "%s: Move target set for enemy %d %f, %f, %f\n", __FUNCTION__, e->GetID(), targetPosOnNavMesh[0], targetPosOnNavMesh[1], targetPosOnNavMesh[2]);
+			Logger::log(1, "%s: Move target set for enemy %d %f, %f, %f\n", __FUNCTION__, e->GetID(), targetPosOnNavMesh[0], targetPosOnNavMesh[1], targetPosOnNavMesh[2]);
 		}
 
 
@@ -1401,8 +1406,8 @@ void GameManager::update(float deltaTime)
 		const dtCrowdAgent* agent = crowd->getAgent(e->GetID());
 		float agentPos[3];
 		dtVcopy(agentPos, agent->npos);
-		//Logger::log(1, "%s: Agent %d position: %f %f %f\n", __FUNCTION__, e->GetID(), agentPos[0], agentPos[1], agentPos[2]);
-		//Logger::log(1, "%s: Crowd Agent %d position: %f %f %f\n", __FUNCTION__, e->GetID(), agent->npos[0], agent->npos[1], agent->npos[2]);
+		Logger::log(1, "%s: Agent %d position: %f %f %f\n", __FUNCTION__, e->GetID(), agentPos[0], agentPos[1], agentPos[2]);
+		Logger::log(1, "%s: Crowd Agent %d position: %f %f %f\n", __FUNCTION__, e->GetID(), agent->npos[0], agent->npos[1], agent->npos[2]);
 		e->Update(false, speedDivider, blendFac);
 		e->setPosition(glm::vec3(agentPos[0], agentPos[1], agentPos[2]));
 	}
