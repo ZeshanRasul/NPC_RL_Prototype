@@ -9,7 +9,7 @@ public:
 	{
 		mapModel = new tinygltf::Model;
 
-		std::string modelFilename = "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Models/Turret_Base/Final/Final/Fixed/TurretBestAtlas.gltf";
+		std::string modelFilename = "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Models/Turret_Base/Final/Final/Fixed/Scaled/TurretBestAtlas.gltf";
 
 
 		tinygltf::TinyGLTF gltfLoader;
@@ -40,7 +40,7 @@ public:
 		for (int texID : loadGLTFTextures(mapModel))
 			glTextures.push_back(texID);
 
-		mTex.loadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Models/Turret_Base/Final/Final/Fixed/Atlas_00001.png", false);
+		mTex.loadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Models/Turret_Base/Final/Final/Fixed/Scaled/Atlas_00001.png", false);
 
 		//model->loadModelNoAnim(modelFilename);
 		//model->uploadVertexBuffersNoAnimations();
