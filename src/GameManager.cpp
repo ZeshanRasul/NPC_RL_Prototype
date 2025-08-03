@@ -363,15 +363,15 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 			{
 				// Even triangle – normal winding
 				navMeshIndices.push_back(base);
-				navMeshIndices.push_back(base + 1);
 				navMeshIndices.push_back(base + 2);
+				navMeshIndices.push_back(base + 1);
 			}
 			else
 			{
 				// Odd triangle – reverse winding
 				navMeshIndices.push_back(base);
-				navMeshIndices.push_back(base + 1);
 				navMeshIndices.push_back(base + 2);
+				navMeshIndices.push_back(base + 1);
 			}
 
 			triCount++;
@@ -841,7 +841,7 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 	enemy3Line->LoadMesh();
 	enemy4Line->LoadMesh();
 
-	ground = new Ground(mapPos, mapScale, &groundShader, &groundShadowShader, false, this);
+	//ground = new Ground(mapPos, mapScale, &groundShader, &groundShadowShader, false, this);
 
 	AudioComponent* fireAudioComponent = new AudioComponent(enemy);
 	fireAudioComponent->PlayEvent("event:/FireLoop");
@@ -932,10 +932,12 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 		const unsigned short* p = &polyMesh->polys[i * nvp * 2];
 		for (int j = 2; j < nvp; ++j)
 		{
-			if (p[j] == RC_MESH_NULL_IDX) break;
+				if (p[j] == RC_MESH_NULL_IDX) break;
+			// Skip degenerate triangles
+			
 			navRenderMeshIndices.push_back(p[0]);      // Triangle vertex 1
-			navRenderMeshIndices.push_back(p[j - 1]); // Triangle vertex 2
 			navRenderMeshIndices.push_back(p[j]);     // Triangle vertex 3
+			navRenderMeshIndices.push_back(p[j - 1]); // Triangle vertex 2
 		}
 	}
 	ProbeNavmesh(navMeshQuery, &filter, -162.6f, 46.4f, -127.9f);
@@ -1291,6 +1293,7 @@ void GameManager::ShowEnemyStateWindow()
 		ImGui::Text("State: %s", e->GetEDBTState().c_str());
 		ImGui::SameLine();
 		ImGui::Text("Health %d", (int)e->GetHealth());
+		ImGui::InputFloat3("Position", &e->position[0]);
 	}
 
 	ImGui::End();
@@ -1659,7 +1662,8 @@ void GameManager::render(bool isMinimapRenderPass, bool isShadowMapRenderPass, b
 		//glCullFace(GL_BACK);
 		//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 		//glDrawElements(GL_TRIANGLES, navMeshIndices.size(), GL_UNSIGNED_INT, 0);
-		glDrawElements(GL_TRIANGLES, navRenderMeshIndices.size(), GL_UNSIGNED_INT, 0);
+		//glDrawArrays(GL_TRIANGLES, 0, navRenderMeshVertices.size() / 3);
+		glDrawElements(GL_TRIANGLES, navRenderMeshVertices.size(), GL_UNSIGNED_INT, 0);
 		//glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	}
 
