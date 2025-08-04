@@ -15,6 +15,54 @@ DirLight dirLight = {
 
 glm::vec3 dirLightPBRColour = glm::vec3(10.f, 10.0f, 10.0f);
 
+void generateDebugSpanMeshFromHeightfield(
+	const rcCompactHeightfield* chf,
+	std::vector<DebugVertex>& outVertices,
+	std::vector<GLuint>& outIndices)
+{
+	outVertices.clear();
+	outIndices.clear();
+	GLuint indexOffset = 0;
+
+	for (int z = 0; z < chf->height; ++z) {
+		for (int x = 0; x < chf->width; ++x) {
+			const rcCompactCell& cell = chf->cells[x + z * chf->width];
+
+			for (unsigned i = cell.index, ni = cell.index + cell.count; i < ni; ++i) {
+				const rcCompactSpan& span = chf->spans[i];
+				const unsigned char area = chf->areas[i];
+
+				float fx = x * chf->cs;
+				float fz = z * chf->cs;
+				float fy = span.y * chf->ch;
+
+				glm::vec3 color = (area == RC_NULL_AREA)
+					? glm::vec3(1.0f, 0.0f, 0.0f) // Red for non-walkable
+					: glm::vec3(0.0f, 1.0f, 0.0f); // Green for walkable
+
+				float cs = chf->cs;
+
+				// Define quad vertices (CCW)
+				outVertices.push_back({ glm::vec3(fx, fy, fz), color });             // 0
+				outVertices.push_back({ glm::vec3(fx + cs, fy, fz), color });        // 1
+				outVertices.push_back({ glm::vec3(fx + cs, fy, fz + cs), color });   // 2
+				outVertices.push_back({ glm::vec3(fx, fy, fz + cs), color });        // 3
+
+				// Two triangles per quad
+				outIndices.push_back(indexOffset + 0);
+				outIndices.push_back(indexOffset + 1);
+				outIndices.push_back(indexOffset + 2);
+
+				outIndices.push_back(indexOffset + 0);
+				outIndices.push_back(indexOffset + 2);
+				outIndices.push_back(indexOffset + 3);
+
+				indexOffset += 4;
+			}
+		}
+	}
+}
+
 dtPolyRef FindNearestPolyWithPreferredY(
 	dtNavMeshQuery* navQuery,
 	const dtQueryFilter& filter,
@@ -250,6 +298,7 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 	shadowMapQuadShader.loadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/shadow_map_quad_vertex.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/shadow_map_quad_fragment.glsl");
 	playerMuzzleFlashShader.loadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/muzzle_flash_vertex.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/muzzle_flash_fragment.glsl");
 	navMeshShader.loadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/navmesh_vert.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/navmesh_frag.glsl");
+	hfnavMeshShader.loadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/hf_vert.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/hf_frag.glsl");
 
 	physicsWorld = new PhysicsWorld();
 
@@ -317,7 +366,7 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 	int mapVertCount = 0;
 	int mapIndCount = 0;
 	int triCount = 0;
-	int vertexOffset = 0; // keeps track of how many verts we've added so far for indexing
+	int vertexOffset = 0; 
 
 	for (Ground::GLTFMesh& mesh : meshDataGrnd)
 	{
@@ -340,9 +389,9 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 				mapVertCount += 3;
 			}
 
-			for (unsigned int idx : prim.indices)  // prim.indices should be a std::vector<unsigned int>
+			for (unsigned int idx : prim.indices) 
 			{
-				navMeshIndices.push_back(idx + vertexOffset); // adjust for global vertex offset
+				navMeshIndices.push_back(idx + vertexOffset); 
 				mapIndCount++;
 			}
 
@@ -629,6 +678,31 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 	};
 
 	Logger::log(1, "CompactHeightfield walkable spans count: %d\n", compactHeightField->spanCount);
+
+	std::vector<DebugVertex> debugSpanVertices;
+	std::vector<unsigned int> debugSpanIndices;
+
+	generateDebugSpanMeshFromHeightfield(compactHeightField, debugSpanVertices, debugSpanIndices);
+
+	hfnavRenderMeshVertices.resize(debugSpanVertices.size() * 6);
+	hfnavRenderMeshIndices.resize(debugSpanIndices.size());
+
+	for (const DebugVertex& v : debugSpanVertices)
+	{
+		hfnavRenderMeshVertices.push_back(v.position.x);
+		hfnavRenderMeshVertices.push_back(v.position.y);
+		hfnavRenderMeshVertices.push_back(v.position.z);
+		hfnavRenderMeshVertices.push_back(v.color.x);
+		hfnavRenderMeshVertices.push_back(v.color.y);
+		hfnavRenderMeshVertices.push_back(v.color.z);
+	}
+
+	for (unsigned int index : debugSpanIndices)
+	{
+		hfnavRenderMeshIndices.push_back(index);
+	}
+
+
 
 	if (!rcBuildLayerRegions(ctx, *compactHeightField, 0, cfg.minRegionArea))
 	{
@@ -1008,7 +1082,28 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 		//crowd = dtAllocCrowd();
 		//crowd->init(enemies.size(), 1.0f, navMesh);
 
+				// Create VAO
+		glGenVertexArrays(1, &hfvao);
+		glBindVertexArray(hfvao);
 
+		// Create VBO
+		glGenBuffers(1, &hfvbo);
+		glBindBuffer(GL_ARRAY_BUFFER, hfvbo);
+		glBufferData(GL_ARRAY_BUFFER, hfnavRenderMeshVertices.size() * sizeof(float), hfnavRenderMeshVertices.data(), GL_STATIC_DRAW);
+
+		// Create EBO
+		glGenBuffers(1, &hfebo);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, hfebo);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, hfnavRenderMeshIndices.size() * sizeof(unsigned int), hfnavRenderMeshIndices.data(), GL_STATIC_DRAW);
+
+		// Enable vertex attribute (e.g., position at location 0)
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
+		glEnableVertexAttribArray(0);
+		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+		glEnableVertexAttribArray(1);
+
+
+		glBindVertexArray(0);
 
 		crowd = dtAllocCrowd();
 		crowd->init(50, 2.0f, navMesh);
@@ -1718,6 +1813,24 @@ void GameManager::render(bool isMinimapRenderPass, bool isShadowMapRenderPass, b
 	glBindVertexArray(vao);
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	glDrawElements(GL_TRIANGLES, navRenderMeshIndices.size(), GL_UNSIGNED_INT, 0);
+	//glDrawArrays(GL_TRIANGLES, 0, navMeshVertices.size() / 3);
+//	glDrawElements(GL_TRIANGLES, navMesh.size(), GL_UNSIGNED_INT, 0);
+	//glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	//glDisable(GL_POLYGON_OFFSET_FILL);
+	glBindVertexArray(0);
+	glDisable(GL_CULL_FACE);
+
+
+	hfnavMeshShader.use();
+	hfnavMeshShader.setMat4("view", view);
+	hfnavMeshShader.setMat4("projection", projection);
+
+	glDisable(GL_CULL_FACE);
+	glEnable(GL_CULL_FACE);
+	glCullFace(GL_BACK);
+	glBindVertexArray(hfvao);
+	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	glDrawElements(GL_TRIANGLES, hfnavRenderMeshIndices.size(), GL_UNSIGNED_INT, 0);
 	//glDrawArrays(GL_TRIANGLES, 0, navMeshVertices.size() / 3);
 //	glDrawElements(GL_TRIANGLES, navMesh.size(), GL_UNSIGNED_INT, 0);
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);

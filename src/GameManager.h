@@ -418,8 +418,18 @@ private:
 	GLuint vao, vbo, ebo;
 	Shader navMeshShader{};
 	std::vector<float> navRenderMeshVertices;
-	std::vector<unsigned int> navRenderMeshIndices; 
+	std::vector<unsigned int> navRenderMeshIndices;
+
+	GLuint hfvao, hfvbo, hfebo;
+	Shader hfnavMeshShader{};
+	std::vector<float> hfnavRenderMeshVertices;
+	std::vector<unsigned int> hfnavRenderMeshIndices; 
 
 	glm::vec3 mapScale = glm::vec3(15.0f);
 	glm::vec3 mapPos = glm::vec3(0.0f, 0.f, 0.0f);
 };
+
+struct DebugVertex {
+	glm::vec3 position;
+	glm::vec3 color;
+};	
