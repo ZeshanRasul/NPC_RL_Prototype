@@ -845,7 +845,7 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 
 	navMeshQuery = dtAllocNavMeshQuery();
 
-	dtStatus status = navMeshQuery->init(navMesh, 60000);
+	dtStatus status = navMeshQuery->init(navMesh, 10);
 	if (dtStatusFailed(status))
 	{
 		Logger::log(1, "%s error: Could not init Detour navMeshQuery\n", __FUNCTION__);
@@ -1030,9 +1030,9 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 	for (int i = 0, j = polyMesh->nverts - 1; i < polyMesh->nverts; j = i++)
 	{
 		const unsigned short* v = &polyMesh->verts[i * 3];
-		const float x = orig[0] + v[0];
-		const float y = orig[1] + v[1];
-		const float z = orig[2] + v[2];
+		const float x = orig[0] + v[0] * cs;
+		const float y = orig[1] + v[1] * ch;
+		const float z = orig[2] + v[2] * cs;
 		navRenderMeshVertices.push_back(x);
 		navRenderMeshVertices.push_back(y);
 		navRenderMeshVertices.push_back(z);
@@ -1806,9 +1806,10 @@ void GameManager::render(bool isMinimapRenderPass, bool isShadowMapRenderPass, b
 	glDisable(GL_BLEND);*/
 
 	glDisable(GL_CULL_FACE);
-	glEnable(GL_CULL_FACE);
-	glCullFace(GL_BACK);
+	//glEnable(GL_CULL_FACE);
+	//glCullFace(GL_BACK);
 	glBindVertexArray(vao);
+	glDisable(GL_CULL_FACE);
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	glDrawElements(GL_TRIANGLES, navRenderMeshIndices.size(), GL_UNSIGNED_INT, 0);
 	//glDrawArrays(GL_TRIANGLES, 0, navMeshVertices.size() / 3);
@@ -1824,9 +1825,10 @@ void GameManager::render(bool isMinimapRenderPass, bool isShadowMapRenderPass, b
 	hfnavMeshShader.setMat4("projection", projection);
 
 	glDisable(GL_CULL_FACE);
-	glEnable(GL_CULL_FACE);
-	glCullFace(GL_BACK);
+	//glEnable(GL_CULL_FACE);
+	//glCullFace(GL_BACK);
 	glBindVertexArray(hfvao);
+	glDisable(GL_CULL_FACE);
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	glDrawElements(GL_TRIANGLES, hfnavRenderMeshIndices.size(), GL_UNSIGNED_INT, 0);
 	//glDrawArrays(GL_TRIANGLES, 0, navMeshVertices.size() / 3);
