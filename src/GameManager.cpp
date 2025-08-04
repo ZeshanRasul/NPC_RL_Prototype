@@ -467,7 +467,7 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 
 		// Flip winding if normal points down
 		if (faceNormal.y < 0.0f) {
-		//	std::swap(triIndices[i * 3 + 1], triIndices[i * 3 + 2]);
+			std::swap(triIndices[i * 3 + 1], triIndices[i * 3 + 2]);
 		}
 
 	}
@@ -547,8 +547,8 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 
 	rcCalcBounds(navMeshVertices.data(), navMeshVertices.size() / 3, cfg.bmin, cfg.bmax);
 
-	cfg.width = (int)((cfg.bmax[0] - cfg.bmin[0]) / cfg.cs + 0.5f);
-	cfg.height = (int)((cfg.bmax[2] - cfg.bmin[2]) / cfg.cs + 0.5f);	
+	cfg.width = (int)((cfg.bmax[0] - cfg.bmin[0]));
+	cfg.height = (int)((cfg.bmax[2] - cfg.bmin[2]));	
 
 	//cfg.width = (cfg.bmax[0] - cfg.bmin[0]);
 	//cfg.height = (cfg.bmax[2] - cfg.bmin[2]);
@@ -835,7 +835,7 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 		enemy4MuzzleFlashQuad->LoadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/muzzleflash.png");
 
 
-		player = new Player(glm::vec3(-200.0f, 28.9f, -158.0f), glm::vec3(1.0f), &playerShader, &playerShadowMapShader, true, this);
+		player = new Player(glm::vec3(-200.0f, 28.9f, -158.0f), glm::vec3(3.0f), &playerShader, &playerShadowMapShader, true, this);
 		//player = new Player( (glm::vec3(23.0f, 0.0f, 37.0f)), glm::vec3(3.0f), &playerShader, &playerShadowMapShader, true, this);
 
 		player->aabbShader = &aabbShader;
@@ -845,19 +845,19 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 		std::string texture3 = "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Models/GLTF/Enemies/Ely/ely-vanguardsoldier-kerwinatienza_diffuse_3.png";
 		std::string texture4 = "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Models/GLTF/Enemies/Ely/ely-vanguardsoldier-kerwinatienza_diffuse_4.png";
 
-		enemy = new Enemy(glm::vec3(-190.0f, 28.9f, -148.0f), glm::vec3(1.0f), &enemyShader, &enemyShadowMapShader, true, this, gameGrid, texture, 0, GetEventManager(), *player);
+		enemy = new Enemy(glm::vec3(-190.0f, 28.9f, -148.0f), glm::vec3(3.0f), &enemyShader, &enemyShadowMapShader, true, this, gameGrid, texture, 0, GetEventManager(), *player);
 		enemy->SetAABBShader(&aabbShader);
 		enemy->SetUpAABB();
 
-		enemy2 = new Enemy(glm::vec3(-210.0f, 28.9f, -158.0f), glm::vec3(1.0f), &enemyShader, &enemyShadowMapShader, true, this, gameGrid, texture2, 1, GetEventManager(), *player);
+		enemy2 = new Enemy(glm::vec3(-210.0f, 28.9f, -158.0f), glm::vec3(3.0f), &enemyShader, &enemyShadowMapShader, true, this, gameGrid, texture2, 1, GetEventManager(), *player);
 		enemy2->SetAABBShader(&aabbShader);
 		enemy2->SetUpAABB();
 
-		enemy3 = new Enemy(glm::vec3(-200.0f, 28.9f, -158.0f), glm::vec3(1.0f), &enemyShader, &enemyShadowMapShader, true, this, gameGrid, texture3, 2, GetEventManager(), *player);
+		enemy3 = new Enemy(glm::vec3(-200.0f, 28.9f, -158.0f), glm::vec3(3.0f), &enemyShader, &enemyShadowMapShader, true, this, gameGrid, texture3, 2, GetEventManager(), *player);
 		enemy3->SetAABBShader(&aabbShader);
 		enemy3->SetUpAABB();
 
-		enemy4 = new Enemy(glm::vec3(-210.0f, 28.9f, -168.0f), glm::vec3(1.0f), &enemyShader, &enemyShadowMapShader, true, this, gameGrid, texture4, 3, GetEventManager(), *player);
+		enemy4 = new Enemy(glm::vec3(-210.0f, 28.9f, -168.0f), glm::vec3(3.0f), &enemyShader, &enemyShadowMapShader, true, this, gameGrid, texture4, 3, GetEventManager(), *player);
 		enemy4->SetAABBShader(&aabbShader);
 		enemy4->SetUpAABB();
 
@@ -1720,7 +1720,7 @@ void GameManager::render(bool isMinimapRenderPass, bool isShadowMapRenderPass, b
 //	glDrawElements(GL_TRIANGLES, navMesh.size(), GL_UNSIGNED_INT, 0);
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	//glDisable(GL_POLYGON_OFFSET_FILL);
-	
+	glBindVertexArray(0);
 
 	if (camSwitchedToAim)
 		camSwitchedToAim = false;

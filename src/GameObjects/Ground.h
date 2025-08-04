@@ -128,6 +128,7 @@ public:
 						for (int i = 0; i < numPositionEntries; i++) 
 						{
 							gltfPrim.verts.push_back(glm::vec3(positions[i * 3 + 0], positions[i * 3 + 1] , positions[i * 3 + 2]));
+							gltfPrim.vertexCount++;
 						}
 					}
 
@@ -259,6 +260,7 @@ public:
 				const GLTFPrimitive& prim = meshData[meshIndex].primitives[primIndex];
 
 				
+				glBindVertexArray(prim.vao);
 
 				int matIndex = prim.material;
 				const tinygltf::Material& mat = mapModel->materials[texIndex];
@@ -273,14 +275,13 @@ public:
 				glBindTexture(GL_TEXTURE_2D, mTex.getTexID());
 				shader->setInt("tex", 0);
 
-				glBindVertexArray(prim.vao);
 
 				if (prim.indexBuffer) {
-					glDrawElements(prim.mode, prim.indexCount, prim.indexType, 0);
+					glDrawElements(GL_TRIANGLES, prim.indexCount, GL_UNSIGNED_INT, 0);
 				}
 				else {
+					glDrawArrays(prim.mode, 0, prim.vertexCount);
 				}
-				glDrawArrays(prim.mode, 0, prim.vertexCount);
 
 				glBindVertexArray(0);
 
