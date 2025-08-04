@@ -561,12 +561,12 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 
 	rcConfig cfg{};
 
-	cfg.cs = 1.2f;                      // Cell size
-	cfg.ch = 1.2f;                      // Cell height
+	cfg.cs = 2.2f;                      // Cell size
+	cfg.ch = 2.2f;                      // Cell height
 	cfg.walkableSlopeAngle = WALKABLE_SLOPE;     // Steeper slopes allowed
 	cfg.walkableHeight = 0.01f;          // Min agent height
 	cfg.walkableClimb = 10.0f;           // Step height
-	cfg.walkableRadius = 0.01f;          // Agent radius
+	cfg.walkableRadius = 1.6f;          // Agent radius
 	cfg.maxEdgeLen = 24;                // Longer edges for smoother polys
 	cfg.minRegionArea = 1;              // Retain smaller regions
 	cfg.mergeRegionArea = 1;           // Merge small regions
@@ -909,7 +909,7 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 	enemy4MuzzleFlashQuad->LoadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/muzzleflash.png");
 
 
-	player = new Player(glm::vec3(0.0f, 0.0f, -4.0f), glm::vec3(3.0f), &playerShader, &playerShadowMapShader, true, this);
+	player = new Player(glm::vec3(0.0f, 1.0f, -4.0f), glm::vec3(3.0f), &playerShader, &playerShadowMapShader, true, this);
 	//player = new Player( (glm::vec3(23.0f, 0.0f, 37.0f)), glm::vec3(3.0f), &playerShader, &playerShadowMapShader, true, this);
 
 	player->aabbShader = &aabbShader;
@@ -1056,12 +1056,6 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 	Logger::log(1, "Render NavMesh Vert Count: %zu", navRenderMeshVertices.size());
 	Logger::log(1, "Render NavMesh Index Count: %zu", navRenderMeshIndices.size());
 
-	ProbeNavmesh(navMeshQuery, &filter, -162.6f, 46.4f, -127.9f);
-	ProbeNavmesh(navMeshQuery, &filter, -162.6f, 46.4f, -127.9f);
-	ProbeNavmesh(navMeshQuery, &filter, -162.6f, 46.4f, -127.9f);
-	ProbeNavmesh(navMeshQuery, &filter, 50.0f, -10.0f, 50.0f);
-	ProbeNavmesh(navMeshQuery, &filter, 95.0f, -20.0f, 95.0f);
-
 	// Create VAO
 	glGenVertexArrays(1, &vao);
 	glBindVertexArray(vao);
@@ -1132,7 +1126,7 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 	{
 		dtCrowdAgentParams ap;
 		memset(&ap, 0, sizeof(ap));
-		ap.radius = 0.6f;
+		ap.radius = 1.6f;
 		ap.height = 2.0f;
 		ap.maxSpeed = 3.5f;
 		ap.maxAcceleration = 8.0f; // Meters per second squared
