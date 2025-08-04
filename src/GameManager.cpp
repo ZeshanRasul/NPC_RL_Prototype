@@ -1080,28 +1080,35 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 	//crowd = dtAllocCrowd();
 	//crowd->init(enemies.size(), 1.0f, navMesh);
 
-	//		// Create VAO
-	//glGenVertexArrays(1, &hfvao);
-	//glBindVertexArray(hfvao);
+			// Create VAO
+	glGenVertexArrays(1, &hfvao);
+	glBindVertexArray(hfvao);
 
-	//// Create VBO
-	//glGenBuffers(1, &hfvbo);
-	//glBindBuffer(GL_ARRAY_BUFFER, hfvbo);
-	//glBufferData(GL_ARRAY_BUFFER, hfnavRenderMeshVertices.size() * sizeof(float), hfnavRenderMeshVertices.data(), GL_STATIC_DRAW);
+	// Create VBO
+	glGenBuffers(1, &hfvbo);
+	glBindBuffer(GL_ARRAY_BUFFER, hfvbo);
+	glBufferData(GL_ARRAY_BUFFER, hfnavRenderMeshVertices.size() * sizeof(float), hfnavRenderMeshVertices.data(), GL_STATIC_DRAW);
 
-	//// Create EBO
-	//glGenBuffers(1, &hfebo);
-	//glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, hfebo);
-	//glBufferData(GL_ELEMENT_ARRAY_BUFFER, hfnavRenderMeshIndices.size() * sizeof(unsigned int), hfnavRenderMeshIndices.data(), GL_STATIC_DRAW);
+	// Create EBO
+	glGenBuffers(1, &hfebo);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, hfebo);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, hfnavRenderMeshIndices.size() * sizeof(unsigned int), hfnavRenderMeshIndices.data(), GL_STATIC_DRAW);
 
-	//// Enable vertex attribute (e.g., position at location 0)
-	//glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
-	//glEnableVertexAttribArray(0);
-	//glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
-	//glEnableVertexAttribArray(1);
+	// Enable vertex attribute (e.g., position at location 0)
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+	glEnableVertexAttribArray(1);
 
 
-	//glBindVertexArray(0);
+	glBindVertexArray(0);
+
+	float playerStartingPos[3] = { player->getPosition().x, player->getPosition().y, player->getPosition().z };
+	float playerSnappedPos[3];
+	dtPolyRef playerStartPoly;
+	navMeshQuery->findNearestPoly(playerStartingPos, halfExtents, &filter, &playerStartPoly, playerSnappedPos);
+	player->setPosition(glm::vec3(playerSnappedPos[0], playerSnappedPos[1], playerSnappedPos[2]));
+	
 
 	crowd = dtAllocCrowd();
 	crowd->init(50, 4.0f, navMesh);
@@ -1812,24 +1819,24 @@ void GameManager::render(bool isMinimapRenderPass, bool isShadowMapRenderPass, b
 	glBindVertexArray(0);
 	glDisable(GL_CULL_FACE);
 
-//
-//	hfnavMeshShader.use();
-//	hfnavMeshShader.setMat4("view", view);
-//	hfnavMeshShader.setMat4("projection", projection);
-//
-//	glDisable(GL_CULL_FACE);
-//	//glEnable(GL_CULL_FACE);
-//	//glCullFace(GL_BACK);
-//	glBindVertexArray(hfvao);
-//	glDisable(GL_CULL_FACE);
-//	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-//	glDrawElements(GL_TRIANGLES, hfnavRenderMeshIndices.size(), GL_UNSIGNED_INT, 0);
-//	//glDrawArrays(GL_TRIANGLES, 0, navMeshVertices.size() / 3);
-////	glDrawElements(GL_TRIANGLES, navMesh.size(), GL_UNSIGNED_INT, 0);
-//	//glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-//	//glDisable(GL_POLYGON_OFFSET_FILL);
-//	glBindVertexArray(0);
-//	glDisable(GL_CULL_FACE);
+
+	hfnavMeshShader.use();
+	hfnavMeshShader.setMat4("view", view);
+	hfnavMeshShader.setMat4("projection", projection);
+
+	glDisable(GL_CULL_FACE);
+	//glEnable(GL_CULL_FACE);
+	//glCullFace(GL_BACK);
+	glBindVertexArray(hfvao);
+	glDisable(GL_CULL_FACE);
+	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	glDrawElements(GL_TRIANGLES, hfnavRenderMeshIndices.size(), GL_UNSIGNED_INT, 0);
+	//glDrawArrays(GL_TRIANGLES, 0, navMeshVertices.size() / 3);
+//	glDrawElements(GL_TRIANGLES, navMesh.size(), GL_UNSIGNED_INT, 0);
+	//glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	//glDisable(GL_POLYGON_OFFSET_FILL);
+	glBindVertexArray(0);
+	glDisable(GL_CULL_FACE);
 
 
 	if (camSwitchedToAim)
