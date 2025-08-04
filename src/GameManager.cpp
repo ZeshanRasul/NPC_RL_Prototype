@@ -547,8 +547,8 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 
 	rcCalcBounds(navMeshVertices.data(), navMeshVertices.size() / 3, cfg.bmin, cfg.bmax);
 
-	cfg.width = (int)((cfg.bmax[0] - cfg.bmin[0]));
-	cfg.height = (int)((cfg.bmax[2] - cfg.bmin[2]));	
+	cfg.width = (int)((cfg.bmax[0] - cfg.bmin[0]) / cfg.cs + 0.5f);
+	cfg.height = (int)((cfg.bmax[2] - cfg.bmin[2]) / cfg.cs + 0.5f);
 
 	//cfg.width = (cfg.bmax[0] - cfg.bmin[0]);
 	//cfg.height = (cfg.bmax[2] - cfg.bmin[2]);
@@ -956,9 +956,9 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 		for (int i = 0, j = polyMesh->nverts - 1; i < polyMesh->nverts; j = i++)
 		{
 			const unsigned short* v = &polyMesh->verts[i * 3];
-			const float x = orig[0] + v[0] * polyMesh->cs;
-			const float y = orig[1] + v[1] * polyMesh->ch;
-			const float z = orig[2] + v[2] * polyMesh->cs;
+			const float x = orig[0] + v[0];
+			const float y = orig[1] + v[1];
+			const float z = orig[2] + v[2];
 			navRenderMeshVertices.push_back(x);
 			navRenderMeshVertices.push_back(y);
 			navRenderMeshVertices.push_back(z);
