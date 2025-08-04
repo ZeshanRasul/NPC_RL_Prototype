@@ -561,15 +561,15 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 
 	rcConfig cfg{};
 
-	cfg.cs = 0.3f;                      // Cell size
-	cfg.ch = 0.1f;                      // Cell height
+	cfg.cs = 1.2f;                      // Cell size
+	cfg.ch = 1.2f;                      // Cell height
 	cfg.walkableSlopeAngle = WALKABLE_SLOPE;     // Steeper slopes allowed
 	cfg.walkableHeight = 0.01f;          // Min agent height
 	cfg.walkableClimb = 10.0f;           // Step height
 	cfg.walkableRadius = 0.01f;          // Agent radius
 	cfg.maxEdgeLen = 24;                // Longer edges for smoother polys
-	cfg.minRegionArea = 4;              // Retain smaller regions
-	cfg.mergeRegionArea = 16;           // Merge small regions
+	cfg.minRegionArea = 1;              // Retain smaller regions
+	cfg.mergeRegionArea = 1;           // Merge small regions
 	cfg.maxSimplificationError = 0.05f;  // Less aggressive simplification
 	cfg.detailSampleDist = cfg.cs * 6;  // Balanced detail
 	cfg.maxVertsPerPoly = 6;            // Max verts per poly
@@ -909,7 +909,7 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 	enemy4MuzzleFlashQuad->LoadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/muzzleflash.png");
 
 
-	player = new Player(glm::vec3(-292.0f, 0.0f, -222.0f), glm::vec3(3.0f), &playerShader, &playerShadowMapShader, true, this);
+	player = new Player(glm::vec3(0.0f, 0.0f, -4.0f), glm::vec3(3.0f), &playerShader, &playerShadowMapShader, true, this);
 	//player = new Player( (glm::vec3(23.0f, 0.0f, 37.0f)), glm::vec3(3.0f), &playerShader, &playerShadowMapShader, true, this);
 
 	player->aabbShader = &aabbShader;
@@ -1052,6 +1052,10 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 			navRenderMeshIndices.push_back(p[j]);     // Triangle vertex 3
 		}
 	}
+
+	Logger::log(1, "Render NavMesh Vert Count: %zu", navRenderMeshVertices.size());
+	Logger::log(1, "Render NavMesh Index Count: %zu", navRenderMeshIndices.size());
+
 	ProbeNavmesh(navMeshQuery, &filter, -162.6f, 46.4f, -127.9f);
 	ProbeNavmesh(navMeshQuery, &filter, -162.6f, 46.4f, -127.9f);
 	ProbeNavmesh(navMeshQuery, &filter, -162.6f, 46.4f, -127.9f);
@@ -1082,28 +1086,28 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 	//crowd = dtAllocCrowd();
 	//crowd->init(enemies.size(), 1.0f, navMesh);
 
-			// Create VAO
-	glGenVertexArrays(1, &hfvao);
-	glBindVertexArray(hfvao);
+	//		// Create VAO
+	//glGenVertexArrays(1, &hfvao);
+	//glBindVertexArray(hfvao);
 
-	// Create VBO
-	glGenBuffers(1, &hfvbo);
-	glBindBuffer(GL_ARRAY_BUFFER, hfvbo);
-	glBufferData(GL_ARRAY_BUFFER, hfnavRenderMeshVertices.size() * sizeof(float), hfnavRenderMeshVertices.data(), GL_STATIC_DRAW);
+	//// Create VBO
+	//glGenBuffers(1, &hfvbo);
+	//glBindBuffer(GL_ARRAY_BUFFER, hfvbo);
+	//glBufferData(GL_ARRAY_BUFFER, hfnavRenderMeshVertices.size() * sizeof(float), hfnavRenderMeshVertices.data(), GL_STATIC_DRAW);
 
-	// Create EBO
-	glGenBuffers(1, &hfebo);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, hfebo);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, hfnavRenderMeshIndices.size() * sizeof(unsigned int), hfnavRenderMeshIndices.data(), GL_STATIC_DRAW);
+	//// Create EBO
+	//glGenBuffers(1, &hfebo);
+	//glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, hfebo);
+	//glBufferData(GL_ELEMENT_ARRAY_BUFFER, hfnavRenderMeshIndices.size() * sizeof(unsigned int), hfnavRenderMeshIndices.data(), GL_STATIC_DRAW);
 
-	// Enable vertex attribute (e.g., position at location 0)
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
-	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
-	glEnableVertexAttribArray(1);
+	//// Enable vertex attribute (e.g., position at location 0)
+	//glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
+	//glEnableVertexAttribArray(0);
+	//glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+	//glEnableVertexAttribArray(1);
 
 
-	glBindVertexArray(0);
+	//glBindVertexArray(0);
 
 	crowd = dtAllocCrowd();
 	crowd->init(50, 4.0f, navMesh);
@@ -1142,58 +1146,58 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 		enemyAgentIDs.push_back(crowd->addAgent(snappedPos, &ap));
 	}
 
-	for (auto& enem : enemies)
-	{
-		dtCrowdAgentParams ap;
-		memset(&ap, 0, sizeof(ap));
-		ap.radius = 0.6f;
-		ap.height = 2.0f;
-		ap.maxSpeed = 3.5f;
-		ap.maxAcceleration = 8.0f;
-		ap.collisionQueryRange = ap.radius * 12.0f;
+	//for (auto& enem : enemies)
+	//{
+	//	dtCrowdAgentParams ap;
+	//	memset(&ap, 0, sizeof(ap));
+	//	ap.radius = 0.6f;
+	//	ap.height = 2.0f;
+	//	ap.maxSpeed = 3.5f;
+	//	ap.maxAcceleration = 8.0f;
+	//	ap.collisionQueryRange = ap.radius * 12.0f;
 
-		float startPos[3] = { enem->getPosition().x, enem->getPosition().y, enem->getPosition().z };
+	//	float startPos[3] = { enem->getPosition().x, enem->getPosition().y, enem->getPosition().z };
 
-		int agentID;
+	//	int agentID;
 
-		bool added = AddAgentToCrowd(crowd, navMeshQuery, startPos, &ap, &filter, snappedPos, agentID);
+	//	bool added = AddAgentToCrowd(crowd, navMeshQuery, startPos, &ap, &filter, snappedPos, agentID);
 
-		if (added)
-		{
-			Logger::log(1, "[Spawn] Enemy spawned as agent %d at (%.2f, %.2f, %.2f)\n",
-				agentID, snappedPos[0], snappedPos[1], snappedPos[2]);
-
-			enemyAgentIDs.push_back(agentID);
-		}
-		else
-		{
-			Logger::log(1, "[Spawn] Enemy spawn FAILED at (%.2f, %.2f, %.2f)\n",
-				startPos[0], startPos[1], startPos[2]);
-			Logger::log(1, "[Spawn] Enemy spawned as agent %d at (%.2f, %.2f, %.2f)\n",
-				agentID, snappedPos[0], snappedPos[1], snappedPos[2]);
-		}
-
-
-	//	float snappedPos[3] = { 1.0f, 0.0f, 1.0f };
-
-	//	dtPolyRef polyref = 0;
-	//	dtStatus newstatus = navMeshQuery->findNearestPoly(snappedPos, halfExtents, &filter, &polyref, snappedPos);
-
-
-	//	if (dtStatusFailed(newstatus) || polyref == 0)
+	//	if (added)
 	//	{
-	//		Logger::log(1, "findNearestPoly failed: no polygon found near %.2f %.2f %.2f\n",
-	//			85.0f, 0.0f, 25.0f);
-	//		return; // stop here, don’t use snappedPos
+	//		Logger::log(1, "[Spawn] Enemy spawned as agent %d at (%.2f, %.2f, %.2f)\n",
+	//			agentID, snappedPos[0], snappedPos[1], snappedPos[2]);
+
+	//		enemyAgentIDs.push_back(agentID);
+	//	}
+	//	else
+	//	{
+	//		Logger::log(1, "[Spawn] Enemy spawn FAILED at (%.2f, %.2f, %.2f)\n",
+	//			startPos[0], startPos[1], startPos[2]);
+	//		Logger::log(1, "[Spawn] Enemy spawned as agent %d at (%.2f, %.2f, %.2f)\n",
+	//			agentID, snappedPos[0], snappedPos[1], snappedPos[2]);
 	//	}
 
-	//	float meshheight = 0.0f;
-	//	if (navMeshQuery->getPolyHeight(polyref, snappedPos, &meshheight) == DT_SUCCESS)
-	//	{
-	//		Logger::log(1, "Navmesh height at %.2f %.2f: %.2f\n", snappedPos[0], snappedPos[2], meshheight);
-	//	}
 
-	}
+	////	float snappedPos[3] = { 1.0f, 0.0f, 1.0f };
+
+	////	dtPolyRef polyref = 0;
+	////	dtStatus newstatus = navMeshQuery->findNearestPoly(snappedPos, halfExtents, &filter, &polyref, snappedPos);
+
+
+	////	if (dtStatusFailed(newstatus) || polyref == 0)
+	////	{
+	////		Logger::log(1, "findNearestPoly failed: no polygon found near %.2f %.2f %.2f\n",
+	////			85.0f, 0.0f, 25.0f);
+	////		return; // stop here, don’t use snappedPos
+	////	}
+
+	////	float meshheight = 0.0f;
+	////	if (navMeshQuery->getPolyHeight(polyref, snappedPos, &meshheight) == DT_SUCCESS)
+	////	{
+	////		Logger::log(1, "Navmesh height at %.2f %.2f: %.2f\n", snappedPos[0], snappedPos[2], meshheight);
+	////	}
+
+	//}
 }
 
 
@@ -1640,10 +1644,10 @@ void GameManager::update(float deltaTime)
 		filter.setIncludeFlags(0xFFFF); // Include all polygons for testing
 		filter.setExcludeFlags(0);      // Exclude no polygons
 
-	//	Logger::log(1, "Target position on nav mesh before query: %f, %f, %f\n", targetPos[0], targetPos[1], targetPos[2]);
+		Logger::log(1, "Target position on nav mesh before query: %f, %f, %f\n", targetPos[0], targetPos[1], targetPos[2]);
 		navMeshQuery->findNearestPoly(targetPos, halfExtents, &filter, &playerPoly, targetPlayerPosOnNavMesh);
 	//	Logger::log(1, "Player position: %f %f %f\n", player->getPosition().x, player->getPosition().y, player->getPosition().z);
-	//	Logger::log(1, "Target position on nav mesh after query: %f, %f, %f\n", targetPlayerPosOnNavMesh[0], targetPlayerPosOnNavMesh[1], targetPlayerPosOnNavMesh[2]);
+		Logger::log(1, "Target position on nav mesh after query: %f, %f, %f\n", targetPlayerPosOnNavMesh[0], targetPlayerPosOnNavMesh[1], targetPlayerPosOnNavMesh[2]);
 
 		std::vector<float* [3]> enemPos;
 		
@@ -1665,29 +1669,29 @@ void GameManager::update(float deltaTime)
 			if (navMeshQuery)
 				status = navMeshQuery->findNearestPoly(targetPos, halfExtents, &filter, &playerPoly, targetPlayerPosOnNavMesh);
 
-//		Logger::log(1, "Player position: %f %f %f\n", player->getPosition().x, player->getPosition().y, player->getPosition().z);
-//		Logger::log(1, "Target position on nav mesh after query: %f, %f, %f\n", targetPlayerPosOnNavMesh[0], targetPlayerPosOnNavMesh[1], targetPlayerPosOnNavMesh[2]);
+		Logger::log(1, "Player position: %f %f %f\n", player->getPosition().x, player->getPosition().y, player->getPosition().z);
+		Logger::log(1, "Target position on nav mesh after query: %f, %f, %f\n", targetPlayerPosOnNavMesh[0], targetPlayerPosOnNavMesh[1], targetPlayerPosOnNavMesh[2]);
 
 		if (dtStatusFailed(status))
 		{
-//			Logger::log(1, "%s error: Could not find nearest poly enemy %d\n", __FUNCTION__, e->GetID());
-//			Logger::log(1, "findNearestPoly failed: %u\n", status);
+			Logger::log(1, "%s error: Could not find nearest poly enemy %d\n", __FUNCTION__, e->GetID());
+			Logger::log(1, "findNearestPoly failed: %u\n", status);
 		}
 		else
 		{
-//			Logger::log(1, "%s: Found nearest poly enemy %d\n", __FUNCTION__, e->GetID());
-//			Logger::log(1, "findNearestPoly succeeded: PolyRef = %u, Pos = %f %f %f\n", playerPoly, targetPlayerPosOnNavMesh[0], targetPlayerPosOnNavMesh[1], targetPlayerPosOnNavMesh[2]);
+			Logger::log(1, "%s: Found nearest poly enemy %d\n", __FUNCTION__, e->GetID());
+			Logger::log(1, "findNearestPoly succeeded: PolyRef = %u, Pos = %f %f %f\n", playerPoly, targetPlayerPosOnNavMesh[0], targetPlayerPosOnNavMesh[1], targetPlayerPosOnNavMesh[2]);
 		}
 
 		status = crowd->requestMoveTarget(e->GetID(), playerPoly, targetPlayerPosOnNavMesh);
 
 		if (dtStatusFailed(status))
 		{
-	//		Logger::log(1, "%s error: Could not set move target for enemy %d\n", __FUNCTION__, e->GetID());
+			Logger::log(1, "%s error: Could not set move target for enemy %d\n", __FUNCTION__, e->GetID());
 		}
 		else
 		{
-		//	Logger::log(1, "%s: Move target set for enemy %d %f, %f, %f\n", __FUNCTION__, e->GetID(), targetPlayerPosOnNavMesh[0], targetPlayerPosOnNavMesh[1], targetPlayerPosOnNavMesh[2]);
+			Logger::log(1, "%s: Move target set for enemy %d %f, %f, %f\n", __FUNCTION__, e->GetID(), targetPlayerPosOnNavMesh[0], targetPlayerPosOnNavMesh[1], targetPlayerPosOnNavMesh[2]);
 		}
 
 
@@ -1701,8 +1705,8 @@ void GameManager::update(float deltaTime)
 		const dtCrowdAgent* agent = crowd->getAgent(e->GetID());
 		float agentPos[3];
 		dtVcopy(agentPos, agent->npos);
-	//	Logger::log(1, "%s: Agent %d position: %f %f %f\n", __FUNCTION__, e->GetID(), agentPos[0], agentPos[1], agentPos[2]);
-	//	Logger::log(1, "%s: Crowd Agent %d position: %f %f %f\n", __FUNCTION__, e->GetID(), agent->npos[0], agent->npos[1], agent->npos[2]);
+		Logger::log(1, "%s: Agent %d position: %f %f %f\n", __FUNCTION__, e->GetID(), agentPos[0], agentPos[1], agentPos[2]);
+		Logger::log(1, "%s: Crowd Agent %d position: %f %f %f\n", __FUNCTION__, e->GetID(), agent->npos[0], agent->npos[1], agent->npos[2]);
 		e->Update(false, speedDivider, blendFac);
 		e->setPosition(glm::vec3(agentPos[0], agentPos[1], agentPos[2]));
 	}
@@ -1807,31 +1811,31 @@ void GameManager::render(bool isMinimapRenderPass, bool isShadowMapRenderPass, b
 	glDisable(GL_CULL_FACE);
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	glDrawElements(GL_TRIANGLES, navRenderMeshIndices.size(), GL_UNSIGNED_INT, 0);
-	//glDrawArrays(GL_TRIANGLES, 0, navMeshVertices.size() / 3);
+	//glDrawArrays(GL_TRIANGLES, 0, navRenderMeshVertices.size() / 3);
 //	glDrawElements(GL_TRIANGLES, navMesh.size(), GL_UNSIGNED_INT, 0);
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	//glDisable(GL_POLYGON_OFFSET_FILL);
 	glBindVertexArray(0);
 	glDisable(GL_CULL_FACE);
 
-
-	hfnavMeshShader.use();
-	hfnavMeshShader.setMat4("view", view);
-	hfnavMeshShader.setMat4("projection", projection);
-
-	glDisable(GL_CULL_FACE);
-	//glEnable(GL_CULL_FACE);
-	//glCullFace(GL_BACK);
-	glBindVertexArray(hfvao);
-	glDisable(GL_CULL_FACE);
-	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-	glDrawElements(GL_TRIANGLES, hfnavRenderMeshIndices.size(), GL_UNSIGNED_INT, 0);
-	//glDrawArrays(GL_TRIANGLES, 0, navMeshVertices.size() / 3);
-//	glDrawElements(GL_TRIANGLES, navMesh.size(), GL_UNSIGNED_INT, 0);
-	//glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-	//glDisable(GL_POLYGON_OFFSET_FILL);
-	glBindVertexArray(0);
-	glDisable(GL_CULL_FACE);
+//
+//	hfnavMeshShader.use();
+//	hfnavMeshShader.setMat4("view", view);
+//	hfnavMeshShader.setMat4("projection", projection);
+//
+//	glDisable(GL_CULL_FACE);
+//	//glEnable(GL_CULL_FACE);
+//	//glCullFace(GL_BACK);
+//	glBindVertexArray(hfvao);
+//	glDisable(GL_CULL_FACE);
+//	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+//	glDrawElements(GL_TRIANGLES, hfnavRenderMeshIndices.size(), GL_UNSIGNED_INT, 0);
+//	//glDrawArrays(GL_TRIANGLES, 0, navMeshVertices.size() / 3);
+////	glDrawElements(GL_TRIANGLES, navMesh.size(), GL_UNSIGNED_INT, 0);
+//	//glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+//	//glDisable(GL_POLYGON_OFFSET_FILL);
+//	glBindVertexArray(0);
+//	glDisable(GL_CULL_FACE);
 
 
 	if (camSwitchedToAim)
