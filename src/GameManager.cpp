@@ -1713,6 +1713,8 @@ void GameManager::render(bool isMinimapRenderPass, bool isShadowMapRenderPass, b
 	glDisable(GL_BLEND);*/
 
 	glDisable(GL_CULL_FACE);
+	glEnable(GL_CULL_FACE);
+	glCullFace(GL_BACK);
 	glBindVertexArray(vao);
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	glDrawElements(GL_TRIANGLES, navRenderMeshIndices.size(), GL_UNSIGNED_INT, 0);
@@ -1721,6 +1723,8 @@ void GameManager::render(bool isMinimapRenderPass, bool isShadowMapRenderPass, b
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	//glDisable(GL_POLYGON_OFFSET_FILL);
 	glBindVertexArray(0);
+	glDisable(GL_CULL_FACE);
+
 
 	if (camSwitchedToAim)
 		camSwitchedToAim = false;

@@ -198,6 +198,20 @@ public:
 					}
 				}
 
+				if (!gltfPrim.indices.empty()) {
+					glGenBuffers(1, &gltfPrim.indexBuffer);
+					glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, gltfPrim.indexBuffer);
+					glBufferData(GL_ELEMENT_ARRAY_BUFFER,
+						gltfPrim.indices.size() * sizeof(unsigned int),
+						gltfPrim.indices.data(),
+						GL_STATIC_DRAW);
+
+					gltfPrim.indexCount = static_cast<GLsizei>(gltfPrim.indices.size());
+					gltfPrim.indexType = GL_UNSIGNED_INT;
+				} else {
+					gltfPrim.indexBuffer = 0;
+					gltfPrim.indexCount = 0;
+				}
 
 				glBindVertexArray(0);
 
@@ -277,7 +291,7 @@ public:
 
 
 				if (prim.indexBuffer) {
-					glDrawElements(GL_TRIANGLES, prim.indexCount, GL_UNSIGNED_INT, 0);
+					glDrawElements(GL_TRIANGLES, prim.indexCount, prim.indexType, 0);
 				}
 				else {
 					glDrawArrays(prim.mode, 0, prim.vertexCount);
