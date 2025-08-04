@@ -324,7 +324,7 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 
 	for (glm::vec3 coverPos : gameGrid->coverPositions)
 	{
-		Cube* cover = new Cube( (coverPos), glm::vec3((float)gameGrid->GetCellSize()), &cubeShader, &shadowMapShader, false, this, cubeTexFilename);
+		Cube* cover = new Cube((coverPos), glm::vec3((float)gameGrid->GetCellSize()), &cubeShader, &shadowMapShader, false, this, cubeTexFilename);
 		cover->SetAABBShader(&aabbShader);
 		cover->LoadMesh();
 		coverSpots.push_back(cover);
@@ -366,7 +366,7 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 	int mapVertCount = 0;
 	int mapIndCount = 0;
 	int triCount = 0;
-	int vertexOffset = 0; 
+	int vertexOffset = 0;
 
 	for (Ground::GLTFMesh& mesh : meshDataGrnd)
 	{
@@ -389,9 +389,9 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 				mapVertCount += 3;
 			}
 
-			for (unsigned int idx : prim.indices) 
+			for (unsigned int idx : prim.indices)
 			{
-				navMeshIndices.push_back(idx + vertexOffset); 
+				navMeshIndices.push_back(idx + vertexOffset);
 				mapIndCount++;
 			}
 
@@ -419,29 +419,29 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 		//navMeshVertices.push_back(mapVertex.z);
 
 	}
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
 
-	
-	
 
-	
-	
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 	Logger::log(1, "navMeshVertices count: %zu\n", navMeshVertices.size());
 	for (size_t i = 0; i < std::min((size_t)10, navMeshVertices.size() / 3); ++i)
@@ -502,7 +502,7 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 		const float* v0 = &navMeshVertices[triIndices[i * 3 + 0] * 3];
 		const float* v1 = &navMeshVertices[triIndices[i * 3 + 1] * 3];
 		const float* v2 = &navMeshVertices[triIndices[i * 3 + 2] * 3];
-		
+
 		glm::vec3 v0_glm(v0[0], v0[1], v0[2]);
 		glm::vec3 v1_glm(v1[0], v1[1], v1[2]);
 		glm::vec3 v2_glm(v2[0], v2[1], v2[2]);
@@ -575,7 +575,7 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 	cfg.maxVertsPerPoly = 6;            // Max verts per poly
 	cfg.tileSize = 32;                  // Tile size
 	cfg.borderSize = (int)(cfg.walkableRadius / cfg.cs + 0.5f); // Tile overlap
-	
+
 	Logger::log(1, "Num verts %zu", navMeshVertices.size());
 
 	Logger::log(1, "navMeshVertices count: %zu", navMeshVertices.size());
@@ -763,7 +763,7 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 			navMeshVertices[i], navMeshVertices[i + 1], navMeshVertices[i + 2]);
 	}
 
-	for (int i = 0; i < std::min(10,(int)navMeshIndices.size()); ++i) {
+	for (int i = 0; i < std::min(10, (int)navMeshIndices.size()); ++i) {
 #
 		Logger::log(1, "Logging bad indices: \n");
 		if (navMeshIndices[i] >= navMeshVertices.size()) {
@@ -772,7 +772,7 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 	}
 
 	for (int i = 0; i < std::min(10, (int)navMeshIndices.size()); i += 3) {
-		
+
 		Logger::log(1, "Logging degenerate triangles: \n");
 		int a = navMeshIndices[i];
 		int b = navMeshIndices[i + 1];
@@ -872,327 +872,328 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 		}
 	}
 
-	
-
-		camera = new Camera(glm::vec3(50.0f, 3.0f, 80.0f));
-		minimapCamera = new Camera(glm::vec3((gameGrid->GetCellSize() * gameGrid->GetGridSize()) / 2.0f, 140.0f, (gameGrid->GetCellSize() * gameGrid->GetGridSize()) / 2.0f), glm::vec3(0.0f, -1.0f, 0.0f), 0.0f, -90.0f, glm::vec3(0.0f, 0.0f, -1.0f));
-
-		minimapQuad = new Quad();
-		minimapQuad->SetUpVAO(false);
-
-		shadowMapQuad = new Quad();
-		shadowMapQuad->SetUpVAO(false);
-
-		playerMuzzleFlashQuad = new Quad();
-		playerMuzzleFlashQuad->SetUpVAO(true);
-		playerMuzzleFlashQuad->SetShader(&playerMuzzleFlashShader);
-		playerMuzzleFlashQuad->LoadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/muzzleflash.png");
-
-		enemyMuzzleFlashQuad = new Quad();
-		enemyMuzzleFlashQuad->SetUpVAO(true);
-		enemyMuzzleFlashQuad->SetShader(&playerMuzzleFlashShader);
-		enemyMuzzleFlashQuad->LoadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/muzzleflash.png");
-
-		enemy2MuzzleFlashQuad = new Quad();
-		enemy2MuzzleFlashQuad->SetUpVAO(true);
-		enemy2MuzzleFlashQuad->SetShader(&playerMuzzleFlashShader);
-		enemy2MuzzleFlashQuad->LoadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/muzzleflash.png");
-
-		enemy3MuzzleFlashQuad = new Quad();
-		enemy3MuzzleFlashQuad->SetUpVAO(true);
-		enemy3MuzzleFlashQuad->SetShader(&playerMuzzleFlashShader);
-		enemy3MuzzleFlashQuad->LoadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/muzzleflash.png");
-
-		enemy4MuzzleFlashQuad = new Quad();
-		enemy4MuzzleFlashQuad->SetUpVAO(true);
-		enemy4MuzzleFlashQuad->SetShader(&playerMuzzleFlashShader);
-		enemy4MuzzleFlashQuad->LoadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/muzzleflash.png");
 
 
-		player = new Player(glm::vec3(-200.0f, 28.9f, -158.0f), glm::vec3(3.0f), &playerShader, &playerShadowMapShader, true, this);
-		//player = new Player( (glm::vec3(23.0f, 0.0f, 37.0f)), glm::vec3(3.0f), &playerShader, &playerShadowMapShader, true, this);
+	camera = new Camera(glm::vec3(50.0f, 3.0f, 80.0f));
+	minimapCamera = new Camera(glm::vec3((gameGrid->GetCellSize() * gameGrid->GetGridSize()) / 2.0f, 140.0f, (gameGrid->GetCellSize() * gameGrid->GetGridSize()) / 2.0f), glm::vec3(0.0f, -1.0f, 0.0f), 0.0f, -90.0f, glm::vec3(0.0f, 0.0f, -1.0f));
 
-		player->aabbShader = &aabbShader;
+	minimapQuad = new Quad();
+	minimapQuad->SetUpVAO(false);
 
-		std::string texture = "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Models/GLTF/Enemies/Ely/EnemyEly_ely_vanguardsoldier_kerwinatienza_M2_BaseColor.png";
-		std::string texture2 = "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Models/GLTF/Enemies/Ely/ely-vanguardsoldier-kerwinatienza_diffuse_2.png";
-		std::string texture3 = "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Models/GLTF/Enemies/Ely/ely-vanguardsoldier-kerwinatienza_diffuse_3.png";
-		std::string texture4 = "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Models/GLTF/Enemies/Ely/ely-vanguardsoldier-kerwinatienza_diffuse_4.png";
+	shadowMapQuad = new Quad();
+	shadowMapQuad->SetUpVAO(false);
 
-		enemy = new Enemy(glm::vec3(-190.0f, 28.9f, -148.0f), glm::vec3(3.0f), &enemyShader, &enemyShadowMapShader, true, this, gameGrid, texture, 0, GetEventManager(), *player);
-		enemy->SetAABBShader(&aabbShader);
-		enemy->SetUpAABB();
+	playerMuzzleFlashQuad = new Quad();
+	playerMuzzleFlashQuad->SetUpVAO(true);
+	playerMuzzleFlashQuad->SetShader(&playerMuzzleFlashShader);
+	playerMuzzleFlashQuad->LoadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/muzzleflash.png");
 
-		enemy2 = new Enemy(glm::vec3(-210.0f, 28.9f, -158.0f), glm::vec3(3.0f), &enemyShader, &enemyShadowMapShader, true, this, gameGrid, texture2, 1, GetEventManager(), *player);
-		enemy2->SetAABBShader(&aabbShader);
-		enemy2->SetUpAABB();
+	enemyMuzzleFlashQuad = new Quad();
+	enemyMuzzleFlashQuad->SetUpVAO(true);
+	enemyMuzzleFlashQuad->SetShader(&playerMuzzleFlashShader);
+	enemyMuzzleFlashQuad->LoadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/muzzleflash.png");
 
-		enemy3 = new Enemy(glm::vec3(-200.0f, 28.9f, -158.0f), glm::vec3(3.0f), &enemyShader, &enemyShadowMapShader, true, this, gameGrid, texture3, 2, GetEventManager(), *player);
-		enemy3->SetAABBShader(&aabbShader);
-		enemy3->SetUpAABB();
+	enemy2MuzzleFlashQuad = new Quad();
+	enemy2MuzzleFlashQuad->SetUpVAO(true);
+	enemy2MuzzleFlashQuad->SetShader(&playerMuzzleFlashShader);
+	enemy2MuzzleFlashQuad->LoadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/muzzleflash.png");
 
-		enemy4 = new Enemy(glm::vec3(-210.0f, 28.9f, -168.0f), glm::vec3(3.0f), &enemyShader, &enemyShadowMapShader, true, this, gameGrid, texture4, 3, GetEventManager(), *player);
-		enemy4->SetAABBShader(&aabbShader);
-		enemy4->SetUpAABB();
+	enemy3MuzzleFlashQuad = new Quad();
+	enemy3MuzzleFlashQuad->SetUpVAO(true);
+	enemy3MuzzleFlashQuad->SetShader(&playerMuzzleFlashShader);
+	enemy3MuzzleFlashQuad->LoadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/muzzleflash.png");
 
-		crosshair = new Crosshair(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.3f), &crosshairShader, &shadowMapShader, false, this);
-		crosshair->LoadMesh();
-		crosshair->LoadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/Crosshair.png");
-		line = new Line(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f), &lineShader, &shadowMapShader, false, this);
-		line->LoadMesh();
-
-		enemyLine = new Line(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f), &lineShader, &shadowMapShader, false, this);
-		enemy2Line = new Line(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f), &lineShader, &shadowMapShader, false, this);
-		enemy3Line = new Line(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f), &lineShader, &shadowMapShader, false, this);
-		enemy4Line = new Line(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f), &lineShader, &shadowMapShader, false, this);
-		enemyLine->LoadMesh();
-		enemy2Line->LoadMesh();
-		enemy3Line->LoadMesh();
-		enemy4Line->LoadMesh();
-
-		//ground = new Ground(mapPos, mapScale, &groundShader, &groundShadowShader, false, this);
-
-		AudioComponent* fireAudioComponent = new AudioComponent(enemy);
-		fireAudioComponent->PlayEvent("event:/FireLoop");
+	enemy4MuzzleFlashQuad = new Quad();
+	enemy4MuzzleFlashQuad->SetUpVAO(true);
+	enemy4MuzzleFlashQuad->SetShader(&playerMuzzleFlashShader);
+	enemy4MuzzleFlashQuad->LoadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/muzzleflash.png");
 
 
-		inputManager->setContext(camera, player, enemy, width, height);
+	player = new Player(glm::vec3(-200.0f, 28.9f, -158.0f), glm::vec3(3.0f), &playerShader, &playerShadowMapShader, true, this);
+	//player = new Player( (glm::vec3(23.0f, 0.0f, 37.0f)), glm::vec3(3.0f), &playerShader, &playerShadowMapShader, true, this);
 
-		/* reset skeleton split */
-		playerSkeletonSplitNode = player->model->getNodeCount() - 1;
-		enemySkeletonSplitNode = enemy->model->getNodeCount() - 1;
+	player->aabbShader = &aabbShader;
 
-		std::srand(static_cast<unsigned int>(std::time(nullptr)));
+	std::string texture = "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Models/GLTF/Enemies/Ely/EnemyEly_ely_vanguardsoldier_kerwinatienza_M2_BaseColor.png";
+	std::string texture2 = "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Models/GLTF/Enemies/Ely/ely-vanguardsoldier-kerwinatienza_diffuse_2.png";
+	std::string texture3 = "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Models/GLTF/Enemies/Ely/ely-vanguardsoldier-kerwinatienza_diffuse_3.png";
+	std::string texture4 = "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Models/GLTF/Enemies/Ely/ely-vanguardsoldier-kerwinatienza_diffuse_4.png";
 
-		gameObjects.push_back(player);
-		gameObjects.push_back(enemy);
-		gameObjects.push_back(enemy2);
-		gameObjects.push_back(enemy3);
-		gameObjects.push_back(enemy4);
-		gameObjects.push_back(ground);
+	enemy = new Enemy(glm::vec3(-190.0f, 28.9f, -148.0f), glm::vec3(3.0f), &enemyShader, &enemyShadowMapShader, true, this, gameGrid, texture, 0, GetEventManager(), *player);
+	enemy->SetAABBShader(&aabbShader);
+	enemy->SetUpAABB();
 
-		/*for (Cube* coverSpot : coverSpots)
-		{
-			gameObjects.push_back(coverSpot);
-		}*/
+	enemy2 = new Enemy(glm::vec3(-210.0f, 28.9f, -158.0f), glm::vec3(3.0f), &enemyShader, &enemyShadowMapShader, true, this, gameGrid, texture2, 1, GetEventManager(), *player);
+	enemy2->SetAABBShader(&aabbShader);
+	enemy2->SetUpAABB();
 
-		enemies.push_back(enemy);
-		enemies.push_back(enemy2);
-		enemies.push_back(enemy3);
-		enemies.push_back(enemy4);
+	enemy3 = new Enemy(glm::vec3(-200.0f, 28.9f, -158.0f), glm::vec3(3.0f), &enemyShader, &enemyShadowMapShader, true, this, gameGrid, texture3, 2, GetEventManager(), *player);
+	enemy3->SetAABBShader(&aabbShader);
+	enemy3->SetUpAABB();
 
-		if (initializeQTable)
-		{
-			for (auto& enem : enemies)
-			{
-				int enemyID = enem->GetID();
-				Logger::log(1, "%s Initializing Q Table for Enemy %d\n", __FUNCTION__, enemyID);
-				InitializeQTable(mEnemyStateQTable[enemyID]);
-				Logger::log(1, "%s Initialized Q Table for Enemy %d\n", __FUNCTION__, enemyID);
-			}
-		}
-		else if (loadQTable)
-		{
-			for (auto& enem : enemies)
-			{
-				int enemyID = enem->GetID();
-				Logger::log(1, "%s Loading Q Table for Enemy %d\n", __FUNCTION__, enemyID);
-				LoadQTable(mEnemyStateQTable[enemyID], std::to_string(enemyID) + mEnemyStateFilename);
-				Logger::log(1, "%s Loaded Q Table for Enemy %d\n", __FUNCTION__, enemyID);
-			}
-		}
+	enemy4 = new Enemy(glm::vec3(-210.0f, 28.9f, -168.0f), glm::vec3(3.0f), &enemyShader, &enemyShadowMapShader, true, this, gameGrid, texture4, 3, GetEventManager(), *player);
+	enemy4->SetAABBShader(&aabbShader);
+	enemy4->SetUpAABB();
 
-		//mMusicEvent = audioSystem->PlayEvent("event:/bgm");
+	crosshair = new Crosshair(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.3f), &crosshairShader, &shadowMapShader, false, this);
+	crosshair->LoadMesh();
+	crosshair->LoadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/Crosshair.png");
+	line = new Line(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f), &lineShader, &shadowMapShader, false, this);
+	line->LoadMesh();
 
-		//for (int i = 0; i < polyMesh->nverts; ++i) {
-		//	const unsigned short* v = &polyMesh->verts[i * 3];
-		//	navRenderMeshVertices.push_back(v[0]); // X
-		//	navRenderMeshVertices.push_back(v[1]); // Y
-		//	navRenderMeshVertices.push_back(v[2]); // Z
-		//}
-		//for (int i = 0; i < polyMesh->npolys; ++i) {
-		//	for (int j = 0; j < polyMesh->nvp; ++j) {
-		//		unsigned short index = polyMesh->polys[i * polyMesh->nvp + j];
-		//		if (index == RC_MESH_NULL_IDX) break;
-		//		navRenderMeshIndices.push_back(static_cast<unsigned int>(index));
-		//	}
-		//}
+	enemyLine = new Line(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f), &lineShader, &shadowMapShader, false, this);
+	enemy2Line = new Line(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f), &lineShader, &shadowMapShader, false, this);
+	enemy3Line = new Line(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f), &lineShader, &shadowMapShader, false, this);
+	enemy4Line = new Line(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f), &lineShader, &shadowMapShader, false, this);
+	enemyLine->LoadMesh();
+	enemy2Line->LoadMesh();
+	enemy3Line->LoadMesh();
+	enemy4Line->LoadMesh();
+
+	//ground = new Ground(mapPos, mapScale, &groundShader, &groundShadowShader, false, this);
+
+	AudioComponent* fireAudioComponent = new AudioComponent(enemy);
+	fireAudioComponent->PlayEvent("event:/FireLoop");
 
 
-		const int nvp = polyMesh->nvp;
-		const float cs = polyMesh->cs;
-		const float ch = polyMesh->ch;
-		const float* orig = polyMesh->bmin;
+	inputManager->setContext(camera, player, enemy, width, height);
 
-		//navMeshVertices.clear();
-		//navMeshIndices.clear();
+	/* reset skeleton split */
+	playerSkeletonSplitNode = player->model->getNodeCount() - 1;
+	enemySkeletonSplitNode = enemy->model->getNodeCount() - 1;
 
-		for (int i = 0, j = polyMesh->nverts - 1; i < polyMesh->nverts; j = i++)
-		{
-			const unsigned short* v = &polyMesh->verts[i * 3];
-			const float x = orig[0] + v[0];
-			const float y = orig[1] + v[1];
-			const float z = orig[2] + v[2];
-			navRenderMeshVertices.push_back(x);
-			navRenderMeshVertices.push_back(y);
-			navRenderMeshVertices.push_back(z);
-		}
+	std::srand(static_cast<unsigned int>(std::time(nullptr)));
 
-		// Process indices
-		for (int i = 0; i < polyMesh->npolys; ++i)
-		{
-			const unsigned short* p = &polyMesh->polys[i * nvp * 2];
-			for (int j = 2; j < nvp; ++j)
-			{
-				if (p[j] == RC_MESH_NULL_IDX) break;
-				// Skip degenerate triangles
-				if (p[0] == p[j - 1] || p[0] == p[j] || p[j - 1] == p[j]) continue;
-				navRenderMeshIndices.push_back(p[0]);      // Triangle vertex 1
-				navRenderMeshIndices.push_back(p[j - 1]); // Triangle vertex 2
-				navRenderMeshIndices.push_back(p[j]);     // Triangle vertex 3
-			}
-		}
-		ProbeNavmesh(navMeshQuery, &filter, -162.6f, 46.4f, -127.9f);
-		ProbeNavmesh(navMeshQuery, &filter, -162.6f, 46.4f, -127.9f);
-		ProbeNavmesh(navMeshQuery, &filter, -162.6f, 46.4f, -127.9f);
-		ProbeNavmesh(navMeshQuery, &filter, 50.0f, -10.0f, 50.0f);
-		ProbeNavmesh(navMeshQuery, &filter, 95.0f, -20.0f, 95.0f);
+	gameObjects.push_back(player);
+	gameObjects.push_back(enemy);
+	gameObjects.push_back(enemy2);
+	gameObjects.push_back(enemy3);
+	gameObjects.push_back(enemy4);
+	gameObjects.push_back(ground);
 
-		// Create VAO
-		glGenVertexArrays(1, &vao);
-		glBindVertexArray(vao);
+	/*for (Cube* coverSpot : coverSpots)
+	{
+		gameObjects.push_back(coverSpot);
+	}*/
 
-		// Create VBO
-		glGenBuffers(1, &vbo);
-		glBindBuffer(GL_ARRAY_BUFFER, vbo);
-		glBufferData(GL_ARRAY_BUFFER, navRenderMeshVertices.size() * sizeof(float), navRenderMeshVertices.data(), GL_STATIC_DRAW);
+	enemies.push_back(enemy);
+	enemies.push_back(enemy2);
+	enemies.push_back(enemy3);
+	enemies.push_back(enemy4);
 
-		// Create EBO
-		glGenBuffers(1, &ebo);
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
-		glBufferData(GL_ELEMENT_ARRAY_BUFFER, navRenderMeshIndices.size() * sizeof(unsigned int), navRenderMeshIndices.data(), GL_STATIC_DRAW);
-
-		// Enable vertex attribute (e.g., position at location 0)
-		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-		glEnableVertexAttribArray(0);
-
-		glBindVertexArray(0);
-
-
-		//crowd = dtAllocCrowd();
-		//crowd->init(enemies.size(), 1.0f, navMesh);
-
-				// Create VAO
-		glGenVertexArrays(1, &hfvao);
-		glBindVertexArray(hfvao);
-
-		// Create VBO
-		glGenBuffers(1, &hfvbo);
-		glBindBuffer(GL_ARRAY_BUFFER, hfvbo);
-		glBufferData(GL_ARRAY_BUFFER, hfnavRenderMeshVertices.size() * sizeof(float), hfnavRenderMeshVertices.data(), GL_STATIC_DRAW);
-
-		// Create EBO
-		glGenBuffers(1, &hfebo);
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, hfebo);
-		glBufferData(GL_ELEMENT_ARRAY_BUFFER, hfnavRenderMeshIndices.size() * sizeof(unsigned int), hfnavRenderMeshIndices.data(), GL_STATIC_DRAW);
-
-		// Enable vertex attribute (e.g., position at location 0)
-		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
-		glEnableVertexAttribArray(0);
-		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
-		glEnableVertexAttribArray(1);
-
-
-		glBindVertexArray(0);
-
-		crowd = dtAllocCrowd();
-		crowd->init(50, 2.0f, navMesh);
-
+	if (initializeQTable)
+	{
 		for (auto& enem : enemies)
 		{
-			dtCrowdAgentParams ap;
-			memset(&ap, 0, sizeof(ap));
-			ap.radius = 0.01f;
-			ap.height = 3.0f;
-			ap.maxSpeed = 3.5f;
-			ap.maxAcceleration = 8.0f; // Meters per second squared
-			ap.collisionQueryRange = ap.radius * 12.0f;
-
-			float startingPos[3] = { enem->getPosition().x, enem->getPosition().y, enem->getPosition().z };
-			enemyAgentIDs.push_back(crowd->addAgent(startingPos, &ap));
-
-
-		};
-
-		//for (auto& enem : enemies)
-		//{
-		//	dtCrowdAgentParams ap;
-		//	memset(&ap, 0, sizeof(ap));
-		//	ap.radius = 0.6f;
-		//	ap.height = 2.0f;
-		//	ap.maxSpeed = 3.5f;
-		//	ap.maxAcceleration = 8.0f; // Meters per second squared
-		//	ap.collisionQueryRange = ap.radius * 12.0f;
-
-
-		//	float startingPos[3] = { enem->getPosition().x, enem->getPosition().y, enem->getPosition().z };
-		//	float snappedPos[3];
-		//	dtPolyRef startPoly;
-		//	navMeshQuery->findNearestPoly(startingPos, halfExtents, &filter, &startPoly, snappedPos);
-		//	enemyAgentIDs.push_back(crowd->addAgent(snappedPos, &ap));
-		//}
-
-		/*for (auto& enem : enemies)
+			int enemyID = enem->GetID();
+			Logger::log(1, "%s Initializing Q Table for Enemy %d\n", __FUNCTION__, enemyID);
+			InitializeQTable(mEnemyStateQTable[enemyID]);
+			Logger::log(1, "%s Initialized Q Table for Enemy %d\n", __FUNCTION__, enemyID);
+		}
+	}
+	else if (loadQTable)
+	{
+		for (auto& enem : enemies)
 		{
-			dtCrowdAgentParams ap;
-			memset(&ap, 0, sizeof(ap));
-			ap.radius = 0.6f;
-			ap.height = 2.0f;
-			ap.maxSpeed = 3.5f;
-			ap.maxAcceleration = 8.0f;
-			ap.collisionQueryRange = ap.radius * 12.0f;
+			int enemyID = enem->GetID();
+			Logger::log(1, "%s Loading Q Table for Enemy %d\n", __FUNCTION__, enemyID);
+			LoadQTable(mEnemyStateQTable[enemyID], std::to_string(enemyID) + mEnemyStateFilename);
+			Logger::log(1, "%s Loaded Q Table for Enemy %d\n", __FUNCTION__, enemyID);
+		}
+	}
 
-			float startPos[3] = { enem->getPosition().x, enem->getPosition().y, enem->getPosition().z };
+	//mMusicEvent = audioSystem->PlayEvent("event:/bgm");
 
-			int agentID;
-
-			bool added = AddAgentToCrowd(crowd, navMeshQuery, startPos, &ap, &filter, snappedPos, agentID);
-
-			if (added)
-			{
-				Logger::log(1, "[Spawn] Enemy spawned as agent %d at (%.2f, %.2f, %.2f)\n",
-					agentID, snappedPos[0], snappedPos[1], snappedPos[2]);
-
-				enemyAgentIDs.push_back(agentID);
-			}
-			else
-			{
-				Logger::log(1, "[Spawn] Enemy spawn FAILED at (%.2f, %.2f, %.2f)\n",
-					startPos[0], startPos[1], startPos[2]);
-				Logger::log(1, "[Spawn] Enemy spawned as agent %d at (%.2f, %.2f, %.2f)\n",
-					agentID, snappedPos[0], snappedPos[1], snappedPos[2]);
-			}*/
-			/*}*/
-
-			//float snappedPos[3] = { 1.0f, 0.0f, 1.0f };
-
-			//dtPolyRef polyref = 0;
-			//dtStatus newstatus = navMeshQuery->findNearestPoly(snappedPos, halfExtents, &filter, &polyref, snappedPos);
-
-
-			//if (dtStatusFailed(newstatus) || polyref == 0)
-			//{
-			//	Logger::log(1, "findNearestPoly failed: no polygon found near %.2f %.2f %.2f\n",
-			//		85.0f, 0.0f, 25.0f);
-			//	return; // stop here, don’t use snappedPos
-			//}
-
-			//float meshheight = 0.0f;
-			//if (navMeshQuery->getPolyHeight(polyref, snappedPos, &meshheight) == DT_SUCCESS)
-			//{
-			//	Logger::log(1, "Navmesh height at %.2f %.2f: %.2f\n", snappedPos[0], snappedPos[2], meshheight);
-			//}
+	//for (int i = 0; i < polyMesh->nverts; ++i) {
+	//	const unsigned short* v = &polyMesh->verts[i * 3];
+	//	navRenderMeshVertices.push_back(v[0]); // X
+	//	navRenderMeshVertices.push_back(v[1]); // Y
+	//	navRenderMeshVertices.push_back(v[2]); // Z
 	//}
+	//for (int i = 0; i < polyMesh->npolys; ++i) {
+	//	for (int j = 0; j < polyMesh->nvp; ++j) {
+	//		unsigned short index = polyMesh->polys[i * polyMesh->nvp + j];
+	//		if (index == RC_MESH_NULL_IDX) break;
+	//		navRenderMeshIndices.push_back(static_cast<unsigned int>(index));
+	//	}
+	//}
+
+
+	const int nvp = polyMesh->nvp;
+	const float cs = polyMesh->cs;
+	const float ch = polyMesh->ch;
+	const float* orig = polyMesh->bmin;
+
+	//navMeshVertices.clear();
+	//navMeshIndices.clear();
+
+	for (int i = 0, j = polyMesh->nverts - 1; i < polyMesh->nverts; j = i++)
+	{
+		const unsigned short* v = &polyMesh->verts[i * 3];
+		const float x = orig[0] + v[0];
+		const float y = orig[1] + v[1];
+		const float z = orig[2] + v[2];
+		navRenderMeshVertices.push_back(x);
+		navRenderMeshVertices.push_back(y);
+		navRenderMeshVertices.push_back(z);
+	}
+
+	// Process indices
+	for (int i = 0; i < polyMesh->npolys; ++i)
+	{
+		const unsigned short* p = &polyMesh->polys[i * nvp * 2];
+		for (int j = 2; j < nvp; ++j)
+		{
+			if (p[j] == RC_MESH_NULL_IDX) break;
+			// Skip degenerate triangles
+			if (p[0] == p[j - 1] || p[0] == p[j] || p[j - 1] == p[j]) continue;
+			navRenderMeshIndices.push_back(p[0]);      // Triangle vertex 1
+			navRenderMeshIndices.push_back(p[j - 1]); // Triangle vertex 2
+			navRenderMeshIndices.push_back(p[j]);     // Triangle vertex 3
+		}
+	}
+	ProbeNavmesh(navMeshQuery, &filter, -162.6f, 46.4f, -127.9f);
+	ProbeNavmesh(navMeshQuery, &filter, -162.6f, 46.4f, -127.9f);
+	ProbeNavmesh(navMeshQuery, &filter, -162.6f, 46.4f, -127.9f);
+	ProbeNavmesh(navMeshQuery, &filter, 50.0f, -10.0f, 50.0f);
+	ProbeNavmesh(navMeshQuery, &filter, 95.0f, -20.0f, 95.0f);
+
+	// Create VAO
+	glGenVertexArrays(1, &vao);
+	glBindVertexArray(vao);
+
+	// Create VBO
+	glGenBuffers(1, &vbo);
+	glBindBuffer(GL_ARRAY_BUFFER, vbo);
+	glBufferData(GL_ARRAY_BUFFER, navRenderMeshVertices.size() * sizeof(float), navRenderMeshVertices.data(), GL_STATIC_DRAW);
+
+	// Create EBO
+	glGenBuffers(1, &ebo);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, navRenderMeshIndices.size() * sizeof(unsigned int), navRenderMeshIndices.data(), GL_STATIC_DRAW);
+
+	// Enable vertex attribute (e.g., position at location 0)
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(0);
+
+	glBindVertexArray(0);
+
+
+	//crowd = dtAllocCrowd();
+	//crowd->init(enemies.size(), 1.0f, navMesh);
+
+			// Create VAO
+	glGenVertexArrays(1, &hfvao);
+	glBindVertexArray(hfvao);
+
+	// Create VBO
+	glGenBuffers(1, &hfvbo);
+	glBindBuffer(GL_ARRAY_BUFFER, hfvbo);
+	glBufferData(GL_ARRAY_BUFFER, hfnavRenderMeshVertices.size() * sizeof(float), hfnavRenderMeshVertices.data(), GL_STATIC_DRAW);
+
+	// Create EBO
+	glGenBuffers(1, &hfebo);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, hfebo);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, hfnavRenderMeshIndices.size() * sizeof(unsigned int), hfnavRenderMeshIndices.data(), GL_STATIC_DRAW);
+
+	// Enable vertex attribute (e.g., position at location 0)
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+	glEnableVertexAttribArray(1);
+
+
+	glBindVertexArray(0);
+
+	crowd = dtAllocCrowd();
+	crowd->init(50, 2.0f, navMesh);
+
+	//for (auto& enem : enemies)
+	//{
+	//	dtCrowdAgentParams ap;
+	//	memset(&ap, 0, sizeof(ap));
+	//	ap.radius = 0.01f;
+	//	ap.height = 3.0f;
+	//	ap.maxSpeed = 3.5f;
+	//	ap.maxAcceleration = 8.0f; // Meters per second squared
+	//	ap.collisionQueryRange = ap.radius * 12.0f;
+
+	//	float startingPos[3] = { enem->getPosition().x, enem->getPosition().y, enem->getPosition().z };
+	//	enemyAgentIDs.push_back(crowd->addAgent(startingPos, &ap));
+
+
+	//};
+
+	//for (auto& enem : enemies)
+	//{
+	//	dtCrowdAgentParams ap;
+	//	memset(&ap, 0, sizeof(ap));
+	//	ap.radius = 0.6f;
+	//	ap.height = 2.0f;
+	//	ap.maxSpeed = 3.5f;
+	//	ap.maxAcceleration = 8.0f; // Meters per second squared
+	//	ap.collisionQueryRange = ap.radius * 12.0f;
+
+
+	//	float startingPos[3] = { enem->getPosition().x, enem->getPosition().y, enem->getPosition().z };
+	//	float snappedPos[3];
+	//	dtPolyRef startPoly;
+	//	navMeshQuery->findNearestPoly(startingPos, halfExtents, &filter, &startPoly, snappedPos);
+	//	enemyAgentIDs.push_back(crowd->addAgent(snappedPos, &ap));
+	//}
+
+	for (auto& enem : enemies)
+	{
+		dtCrowdAgentParams ap;
+		memset(&ap, 0, sizeof(ap));
+		ap.radius = 0.6f;
+		ap.height = 2.0f;
+		ap.maxSpeed = 3.5f;
+		ap.maxAcceleration = 8.0f;
+		ap.collisionQueryRange = ap.radius * 12.0f;
+
+		float startPos[3] = { enem->getPosition().x, enem->getPosition().y, enem->getPosition().z };
+
+		int agentID;
+
+		bool added = AddAgentToCrowd(crowd, navMeshQuery, startPos, &ap, &filter, snappedPos, agentID);
+
+		if (added)
+		{
+			Logger::log(1, "[Spawn] Enemy spawned as agent %d at (%.2f, %.2f, %.2f)\n",
+				agentID, snappedPos[0], snappedPos[1], snappedPos[2]);
+
+			enemyAgentIDs.push_back(agentID);
+		}
+		else
+		{
+			Logger::log(1, "[Spawn] Enemy spawn FAILED at (%.2f, %.2f, %.2f)\n",
+				startPos[0], startPos[1], startPos[2]);
+			Logger::log(1, "[Spawn] Enemy spawned as agent %d at (%.2f, %.2f, %.2f)\n",
+				agentID, snappedPos[0], snappedPos[1], snappedPos[2]);
+		}
+
+
+		float snappedPos[3] = { 1.0f, 0.0f, 1.0f };
+
+		dtPolyRef polyref = 0;
+		dtStatus newstatus = navMeshQuery->findNearestPoly(snappedPos, halfExtents, &filter, &polyref, snappedPos);
+
+
+		if (dtStatusFailed(newstatus) || polyref == 0)
+		{
+			Logger::log(1, "findNearestPoly failed: no polygon found near %.2f %.2f %.2f\n",
+				85.0f, 0.0f, 25.0f);
+			return; // stop here, don’t use snappedPos
+		}
+
+		float meshheight = 0.0f;
+		if (navMeshQuery->getPolyHeight(polyref, snappedPos, &meshheight) == DT_SUCCESS)
+		{
+			Logger::log(1, "Navmesh height at %.2f %.2f: %.2f\n", snappedPos[0], snappedPos[2], meshheight);
+		}
+
+	}
 }
 
 
@@ -1629,9 +1630,6 @@ void GameManager::update(float deltaTime)
 //		e->Update(useEDBT, speedDivider, blendFac);
 
 		float targetPos[3] = { player->getPosition().x, player->getPosition().y, player->getPosition().z };
-		targetPos[0] = 120.0f;
-		targetPos[1] = 57.79999f;
-		targetPos[2] = 50.0f;
 
 	/*	targetPos[0] = 0.0f;
 		targetPos[1] = 0.0f;
