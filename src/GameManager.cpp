@@ -32,7 +32,7 @@ dtPolyRef FindNearestPolyWithPreferredY(
 	// Step through extents gradually (starting narrow, expanding outward)
 	for (float halfHeight = initialHeight; halfHeight <= maxHeight; halfHeight += step)
 	{
-		const float extents[3] = { 2.0f, halfHeight, 2.0f };
+		const float extents[3] = { 200.0f, 200, 200.0f };
 
 		dtStatus status = navQuery->findNearestPoly(pos, extents, &filter, &nearestPoly, tempNearest);
 
@@ -68,7 +68,7 @@ void DebugNavmeshConnectivity(
 	const float enemyPositions[3])
 {
 	// Small AABB around query point to find nearest polys
-	const float extents[3] = { 2.0f, 4.0f, 2.0f }; // x/z search size and y search size
+	const float extents[3] = { 600.0f, 400.0f, 600.0f }; // x/z search size and y search size
 
 	float playpos[3] = { playerPos[0], playerPos[1], playerPos[2] };
 	float snapped[3];
@@ -283,7 +283,7 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 
 	ground = new Ground(mapPos, mapScale, &groundShader, &groundShadowShader, false, this);
 
-	size_t vertexOffset = 0;
+	//size_t vertexOffset = 0;
 	//int vertexCount = 0;
 	//
 	//int coverCount = 0;
@@ -314,27 +314,42 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 	//}
 
 	std::vector<Ground::GLTFMesh> meshDataGrnd = ground->meshData;
-	std::vector<Ground::GLTFPrimitive> prims = meshDataGrnd.data()->primitives;
 	int mapVertCount = 0;
 	int mapIndCount = 0;
-	for (Ground::GLTFPrimitive prim : prims)
+	int triCount = 0;
+	int vertexOffset = 0; // keeps track of how many verts we've added so far for indexing
+
+	for (Ground::GLTFMesh& mesh : meshDataGrnd)
 	{
-		for (glm::vec3 vert : prim.verts)
+		for (Ground::GLTFPrimitive& prim : mesh.primitives)
 		{
-			glm::vec4 newVert = glm::vec4(vert.x, vert.y, vert.z, 1.0f);
-			glm::mat4 model = glm::mat4(1.0f);
-			model = glm::translate(model, mapPos);
-			model = glm::rotate(model, glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-			model = glm::scale(model, mapScale);
-			glm::vec4 newVertTr = glm::vec4(model * newVert);
-			mapVerts.push_back(glm::vec3(newVertTr.x, newVertTr.y, newVertTr.z));
-			navMeshVertices.push_back(newVertTr.x);
-			navMeshVertices.push_back(newVertTr.y);
-			navMeshVertices.push_back(newVertTr.z);
-			mapVertCount += 3;
-			mapIndCount += 3;
+			for (glm::vec3 vert : prim.verts)
+			{
+				glm::vec4 newVert = glm::vec4(vert.x, vert.y, vert.z, 1.0f);
+				glm::mat4 model = glm::mat4(1.0f);
+				model = glm::translate(model, mapPos);
+				model = glm::rotate(model, glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+				model = glm::scale(model, mapScale);
+				glm::vec4 newVertTr = model * newVert;
+
+				// Add transformed vertices
+				mapVerts.push_back(glm::vec3(newVertTr.x, newVertTr.y, newVertTr.z));
+				navMeshVertices.push_back(newVertTr.x);
+				navMeshVertices.push_back(newVertTr.y);
+				navMeshVertices.push_back(newVertTr.z);
+				mapVertCount += 3;
+			}
+
+			for (unsigned int idx : prim.indices)  // prim.indices should be a std::vector<unsigned int>
+			{
+				navMeshIndices.push_back(idx + vertexOffset); // adjust for global vertex offset
+				mapIndCount++;
+			}
+
+			vertexOffset += static_cast<int>(prim.verts.size());
 		}
 	}
+
 
 	//navMeshVertices.resize(1162447);
 	//navMeshIndices.resize(1162447);
@@ -347,39 +362,37 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 
 	int gridVertCount = 0;
 	//std::vector<glm::mat4> models = gameGrid->GetModels();
-	int index = 0;
-	int num = 0;
-	int triCount = 0;
+
 	for (glm::vec3 mapVertex : mapVerts)
 	{
-		/*navMeshVertices.push_back(mapVertex.x);
-		navMeshVertices.push_back(mapVertex.y);
-		navMeshVertices.push_back(mapVertex.z);
-		*/
+		//navMeshVertices.push_back(mapVertex.x);
+		//navMeshVertices.push_back(mapVertex.y);
+		//navMeshVertices.push_back(mapVertex.z);
 
-		if ((index + 1) % 3 == 0)  // every third vertex
-		{
-			int base = index - 2;
-			if (triCount % 2 == 0)
-			{
-				// Even triangle – normal winding
-				navMeshIndices.push_back(base);
-				navMeshIndices.push_back(base + 1);
-				navMeshIndices.push_back(base + 2);
-			}
-			else
-			{
-				// Odd triangle – reverse winding
-				navMeshIndices.push_back(base);
-				navMeshIndices.push_back(base + 1);
-				navMeshIndices.push_back(base + 2);
-			}
-
-			triCount++;
-		}
-
-		index++;
 	}
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+
+	
+	
+
+	
+	
 
 	Logger::log(1, "navMeshVertices count: %zu\n", navMeshVertices.size());
 	for (size_t i = 0; i < std::min((size_t)10, navMeshVertices.size() / 3); ++i)
@@ -432,7 +445,7 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 
 
 	// Slope threshold (in degrees) – typical value for shooters is 45
-	const float WALKABLE_SLOPE = 45.0f;
+	const float WALKABLE_SLOPE = 35.0f;
 	ctx = new rcContext();
 
 	for (int i = 0; i < triangleCount; ++i) {
@@ -454,7 +467,7 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 
 		// Flip winding if normal points down
 		if (faceNormal.y < 0.0f) {
-			std::swap(triIndices[i * 3 + 1], triIndices[i * 3 + 2]);
+		//	std::swap(triIndices[i * 3 + 1], triIndices[i * 3 + 2]);
 		}
 
 	}
@@ -502,9 +515,9 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 	cfg.cs = 0.3f;                      // Cell size
 	cfg.ch = 0.1f;                      // Cell height
 	cfg.walkableSlopeAngle = WALKABLE_SLOPE;     // Steeper slopes allowed
-	cfg.walkableHeight = 1.0f;          // Min agent height
-	cfg.walkableClimb = 1.0f;           // Step height
-	cfg.walkableRadius = 0.5f;          // Agent radius
+	cfg.walkableHeight = 0.01f;          // Min agent height
+	cfg.walkableClimb = 10.0f;           // Step height
+	cfg.walkableRadius = 0.01f;          // Agent radius
 	cfg.maxEdgeLen = 24;                // Longer edges for smoother polys
 	cfg.minRegionArea = 4;              // Retain smaller regions
 	cfg.mergeRegionArea = 16;           // Merge small regions
@@ -527,9 +540,8 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 	}
 
 
-
-	float minBounds[3] = { (-200.0f) * 4.0f, -200.0f, (-200.0f) * 4.0f };
-	float maxBounds[3] = { (200.0f) * 4.0f, 200.0f, (200.0f) * 4.0f };
+	float minBounds[3] = { -261.04f, -2.39, -231.76 };
+	float maxBounds[3] = { 251.37f, 213.66f, 304.81f };
 
 	//rcCalcBounds(navMeshVertices.data(), navMeshVertices.size() / 3, cfg.bmin, cfg.bmax);
 
@@ -538,17 +550,17 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 	cfg.width = (int)((cfg.bmax[0] - cfg.bmin[0]) / cfg.cs + 0.5f);
 	cfg.height = (int)((cfg.bmax[2] - cfg.bmin[2]) / cfg.cs + 0.5f);	
 
-	//cfg.width = maxBounds[0];
-	//cfg.height = maxBounds[2];
+	//cfg.width = (cfg.bmax[0] - cfg.bmin[0]);
+	//cfg.height = (cfg.bmax[2] - cfg.bmin[2]);
 	//cfg.bmax = maxBounds;
 	//cfg.bmin = minBounds;
 
-	/*cfg.bmin[0] = minBounds[0];
-	cfg.bmin[1] = minBounds[1];
-	cfg.bmin[2] = minBounds[2];
-	cfg.bmax[0] = maxBounds[0];
-	cfg.bmax[1] = maxBounds[1];
-	cfg.bmax[2] = maxBounds[2];*/
+	//cfg.bmin[0] = minBounds[0];
+	//cfg.bmin[1] = minBounds[1];
+	//cfg.bmin[2] = minBounds[2];
+	//cfg.bmax[0] = maxBounds[0];
+	//cfg.bmax[1] = maxBounds[1];
+	//cfg.bmax[2] = maxBounds[2];
 
 	//cfg.cs = 0.3f;                      // Cell size
 	//cfg.ch = 0.2f;                      // Cell height
@@ -602,7 +614,7 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 		Logger::log(1, "%s: rasterize triangles successfully created\n", __FUNCTION__);
 	};
 
-	rcFilterLowHangingWalkableObstacles(ctx, cfg.walkableClimb, *heightField);
+	//rcFilterLowHangingWalkableObstacles(ctx, cfg.walkableClimb, *heightField);
 	rcFilterWalkableLowHeightSpans(ctx, cfg.walkableHeight, *heightField);
 	rcFilterLedgeSpans(ctx, cfg.walkableHeight, cfg.walkableClimb, *heightField);
 
@@ -714,7 +726,7 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 		}
 		else
 		{
-			polyMesh->flags[i] = 0;
+			polyMesh->flags[i] = DT_POLYFLAGS_WALK;
 		}
 		params.polyAreas = polyMesh->areas;
 	};
@@ -786,303 +798,305 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 		}
 	}
 
-	{
-
-	camera = new Camera(glm::vec3(50.0f, 3.0f, 80.0f));
-	minimapCamera = new Camera(glm::vec3((gameGrid->GetCellSize() * gameGrid->GetGridSize()) / 2.0f, 140.0f, (gameGrid->GetCellSize() * gameGrid->GetGridSize()) / 2.0f), glm::vec3(0.0f, -1.0f, 0.0f), 0.0f, -90.0f, glm::vec3(0.0f, 0.0f, -1.0f));
-
-	minimapQuad = new Quad();
-	minimapQuad->SetUpVAO(false);
-
-	shadowMapQuad = new Quad();
-	shadowMapQuad->SetUpVAO(false);
-
-	playerMuzzleFlashQuad = new Quad();
-	playerMuzzleFlashQuad->SetUpVAO(true);
-	playerMuzzleFlashQuad->SetShader(&playerMuzzleFlashShader);
-	playerMuzzleFlashQuad->LoadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/muzzleflash.png");
-
-	enemyMuzzleFlashQuad = new Quad();
-	enemyMuzzleFlashQuad->SetUpVAO(true);
-	enemyMuzzleFlashQuad->SetShader(&playerMuzzleFlashShader);
-	enemyMuzzleFlashQuad->LoadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/muzzleflash.png");
-
-	enemy2MuzzleFlashQuad = new Quad();
-	enemy2MuzzleFlashQuad->SetUpVAO(true);
-	enemy2MuzzleFlashQuad->SetShader(&playerMuzzleFlashShader);
-	enemy2MuzzleFlashQuad->LoadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/muzzleflash.png");
-
-	enemy3MuzzleFlashQuad = new Quad();
-	enemy3MuzzleFlashQuad->SetUpVAO(true);
-	enemy3MuzzleFlashQuad->SetShader(&playerMuzzleFlashShader);
-	enemy3MuzzleFlashQuad->LoadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/muzzleflash.png");
-
-	enemy4MuzzleFlashQuad = new Quad();
-	enemy4MuzzleFlashQuad->SetUpVAO(true);
-	enemy4MuzzleFlashQuad->SetShader(&playerMuzzleFlashShader);
-	enemy4MuzzleFlashQuad->LoadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/muzzleflash.png");
-
-
-	player = new Player(glm::vec3(105.0f, 58.0f, 8.0f), glm::vec3(3.0f), &playerShader, &playerShadowMapShader, true, this);
-	//player = new Player( (glm::vec3(23.0f, 0.0f, 37.0f)), glm::vec3(3.0f), &playerShader, &playerShadowMapShader, true, this);
 	
-	player->aabbShader = &aabbShader;
 
-	std::string texture = "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Models/GLTF/Enemies/Ely/EnemyEly_ely_vanguardsoldier_kerwinatienza_M2_BaseColor.png";
-	std::string texture2 = "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Models/GLTF/Enemies/Ely/ely-vanguardsoldier-kerwinatienza_diffuse_2.png";
-	std::string texture3 = "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Models/GLTF/Enemies/Ely/ely-vanguardsoldier-kerwinatienza_diffuse_3.png";
-	std::string texture4 = "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Models/GLTF/Enemies/Ely/ely-vanguardsoldier-kerwinatienza_diffuse_4.png";
+		camera = new Camera(glm::vec3(50.0f, 3.0f, 80.0f));
+		minimapCamera = new Camera(glm::vec3((gameGrid->GetCellSize() * gameGrid->GetGridSize()) / 2.0f, 140.0f, (gameGrid->GetCellSize() * gameGrid->GetGridSize()) / 2.0f), glm::vec3(0.0f, -1.0f, 0.0f), 0.0f, -90.0f, glm::vec3(0.0f, 0.0f, -1.0f));
 
-	enemy = new Enemy( glm::vec3(105.0, 58.0f, 15.0f), glm::vec3(3.0f), &enemyShader, &enemyShadowMapShader, true, this, gameGrid, texture, 0, GetEventManager(), *player);
-	enemy->SetAABBShader(&aabbShader);
-	enemy->SetUpAABB();
+		minimapQuad = new Quad();
+		minimapQuad->SetUpVAO(false);
 
-	enemy2 = new Enemy(glm::vec3(103.0, 58.0f, 13.0f), glm::vec3(3.0f), &enemyShader, &enemyShadowMapShader, true, this, gameGrid, texture2, 1, GetEventManager(), *player);
-	enemy2->SetAABBShader(&aabbShader);
-	enemy2->SetUpAABB();
+		shadowMapQuad = new Quad();
+		shadowMapQuad->SetUpVAO(false);
 
-	enemy3 = new Enemy(glm::vec3(102.0, 58.0f, 3.0f), glm::vec3(3.0f), &enemyShader, &enemyShadowMapShader, true, this, gameGrid, texture3, 2, GetEventManager(), *player);
-	enemy3->SetAABBShader(&aabbShader);
-	enemy3->SetUpAABB();
+		playerMuzzleFlashQuad = new Quad();
+		playerMuzzleFlashQuad->SetUpVAO(true);
+		playerMuzzleFlashQuad->SetShader(&playerMuzzleFlashShader);
+		playerMuzzleFlashQuad->LoadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/muzzleflash.png");
 
-	enemy4 = new Enemy(glm::vec3(102.0, 58.0f, 20.0f), glm::vec3(3.0f), &enemyShader, &enemyShadowMapShader, true, this, gameGrid, texture4, 3, GetEventManager(), *player);
-	enemy4->SetAABBShader(&aabbShader);
-	enemy4->SetUpAABB();
+		enemyMuzzleFlashQuad = new Quad();
+		enemyMuzzleFlashQuad->SetUpVAO(true);
+		enemyMuzzleFlashQuad->SetShader(&playerMuzzleFlashShader);
+		enemyMuzzleFlashQuad->LoadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/muzzleflash.png");
 
-	crosshair = new Crosshair(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.3f), &crosshairShader, &shadowMapShader, false, this);
-	crosshair->LoadMesh();
-	crosshair->LoadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/Crosshair.png");
-	line = new Line(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f), &lineShader, &shadowMapShader, false, this);
-	line->LoadMesh();
+		enemy2MuzzleFlashQuad = new Quad();
+		enemy2MuzzleFlashQuad->SetUpVAO(true);
+		enemy2MuzzleFlashQuad->SetShader(&playerMuzzleFlashShader);
+		enemy2MuzzleFlashQuad->LoadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/muzzleflash.png");
 
-	enemyLine = new Line(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f), &lineShader, &shadowMapShader, false, this);
-	enemy2Line = new Line(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f), &lineShader, &shadowMapShader, false, this);
-	enemy3Line = new Line(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f), &lineShader, &shadowMapShader, false, this);
-	enemy4Line = new Line(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f), &lineShader, &shadowMapShader, false, this);
-	enemyLine->LoadMesh();
-	enemy2Line->LoadMesh();
-	enemy3Line->LoadMesh();
-	enemy4Line->LoadMesh();
+		enemy3MuzzleFlashQuad = new Quad();
+		enemy3MuzzleFlashQuad->SetUpVAO(true);
+		enemy3MuzzleFlashQuad->SetShader(&playerMuzzleFlashShader);
+		enemy3MuzzleFlashQuad->LoadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/muzzleflash.png");
 
-	//ground = new Ground(mapPos, mapScale, &groundShader, &groundShadowShader, false, this);
-
-	AudioComponent* fireAudioComponent = new AudioComponent(enemy);
-	fireAudioComponent->PlayEvent("event:/FireLoop");
+		enemy4MuzzleFlashQuad = new Quad();
+		enemy4MuzzleFlashQuad->SetUpVAO(true);
+		enemy4MuzzleFlashQuad->SetShader(&playerMuzzleFlashShader);
+		enemy4MuzzleFlashQuad->LoadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/muzzleflash.png");
 
 
-	inputManager->setContext(camera, player, enemy, width, height);
+		player = new Player(glm::vec3(-200.0f, 28.9f, -158.0f), glm::vec3(1.0f), &playerShader, &playerShadowMapShader, true, this);
+		//player = new Player( (glm::vec3(23.0f, 0.0f, 37.0f)), glm::vec3(3.0f), &playerShader, &playerShadowMapShader, true, this);
 
-	/* reset skeleton split */
-	playerSkeletonSplitNode = player->model->getNodeCount() - 1;
-	enemySkeletonSplitNode = enemy->model->getNodeCount() - 1;
-}
-	std::srand(static_cast<unsigned int>(std::time(nullptr)));
+		player->aabbShader = &aabbShader;
 
-	gameObjects.push_back(player);
-	gameObjects.push_back(enemy);
-	gameObjects.push_back(enemy2);
-	gameObjects.push_back(enemy3);
-	gameObjects.push_back(enemy4);
-	gameObjects.push_back(ground);
+		std::string texture = "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Models/GLTF/Enemies/Ely/EnemyEly_ely_vanguardsoldier_kerwinatienza_M2_BaseColor.png";
+		std::string texture2 = "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Models/GLTF/Enemies/Ely/ely-vanguardsoldier-kerwinatienza_diffuse_2.png";
+		std::string texture3 = "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Models/GLTF/Enemies/Ely/ely-vanguardsoldier-kerwinatienza_diffuse_3.png";
+		std::string texture4 = "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Models/GLTF/Enemies/Ely/ely-vanguardsoldier-kerwinatienza_diffuse_4.png";
 
-	/*for (Cube* coverSpot : coverSpots)
-	{
-		gameObjects.push_back(coverSpot);
-	}*/
+		enemy = new Enemy(glm::vec3(-190.0f, 28.9f, -148.0f), glm::vec3(1.0f), &enemyShader, &enemyShadowMapShader, true, this, gameGrid, texture, 0, GetEventManager(), *player);
+		enemy->SetAABBShader(&aabbShader);
+		enemy->SetUpAABB();
 
-	enemies.push_back(enemy);
-	enemies.push_back(enemy2);
-	enemies.push_back(enemy3);
-	enemies.push_back(enemy4);
+		enemy2 = new Enemy(glm::vec3(-210.0f, 28.9f, -158.0f), glm::vec3(1.0f), &enemyShader, &enemyShadowMapShader, true, this, gameGrid, texture2, 1, GetEventManager(), *player);
+		enemy2->SetAABBShader(&aabbShader);
+		enemy2->SetUpAABB();
 
-	if (initializeQTable)
-	{
-		for (auto& enem : enemies)
+		enemy3 = new Enemy(glm::vec3(-200.0f, 28.9f, -158.0f), glm::vec3(1.0f), &enemyShader, &enemyShadowMapShader, true, this, gameGrid, texture3, 2, GetEventManager(), *player);
+		enemy3->SetAABBShader(&aabbShader);
+		enemy3->SetUpAABB();
+
+		enemy4 = new Enemy(glm::vec3(-210.0f, 28.9f, -168.0f), glm::vec3(1.0f), &enemyShader, &enemyShadowMapShader, true, this, gameGrid, texture4, 3, GetEventManager(), *player);
+		enemy4->SetAABBShader(&aabbShader);
+		enemy4->SetUpAABB();
+
+		crosshair = new Crosshair(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.3f), &crosshairShader, &shadowMapShader, false, this);
+		crosshair->LoadMesh();
+		crosshair->LoadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/Crosshair.png");
+		line = new Line(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f), &lineShader, &shadowMapShader, false, this);
+		line->LoadMesh();
+
+		enemyLine = new Line(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f), &lineShader, &shadowMapShader, false, this);
+		enemy2Line = new Line(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f), &lineShader, &shadowMapShader, false, this);
+		enemy3Line = new Line(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f), &lineShader, &shadowMapShader, false, this);
+		enemy4Line = new Line(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f), &lineShader, &shadowMapShader, false, this);
+		enemyLine->LoadMesh();
+		enemy2Line->LoadMesh();
+		enemy3Line->LoadMesh();
+		enemy4Line->LoadMesh();
+
+		//ground = new Ground(mapPos, mapScale, &groundShader, &groundShadowShader, false, this);
+
+		AudioComponent* fireAudioComponent = new AudioComponent(enemy);
+		fireAudioComponent->PlayEvent("event:/FireLoop");
+
+
+		inputManager->setContext(camera, player, enemy, width, height);
+
+		/* reset skeleton split */
+		playerSkeletonSplitNode = player->model->getNodeCount() - 1;
+		enemySkeletonSplitNode = enemy->model->getNodeCount() - 1;
+
+		std::srand(static_cast<unsigned int>(std::time(nullptr)));
+
+		gameObjects.push_back(player);
+		gameObjects.push_back(enemy);
+		gameObjects.push_back(enemy2);
+		gameObjects.push_back(enemy3);
+		gameObjects.push_back(enemy4);
+		gameObjects.push_back(ground);
+
+		/*for (Cube* coverSpot : coverSpots)
 		{
-			int enemyID = enem->GetID();
-			Logger::log(1, "%s Initializing Q Table for Enemy %d\n", __FUNCTION__, enemyID);
-			InitializeQTable(mEnemyStateQTable[enemyID]);
-			Logger::log(1, "%s Initialized Q Table for Enemy %d\n", __FUNCTION__, enemyID);
+			gameObjects.push_back(coverSpot);
+		}*/
+
+		enemies.push_back(enemy);
+		enemies.push_back(enemy2);
+		enemies.push_back(enemy3);
+		enemies.push_back(enemy4);
+
+		if (initializeQTable)
+		{
+			for (auto& enem : enemies)
+			{
+				int enemyID = enem->GetID();
+				Logger::log(1, "%s Initializing Q Table for Enemy %d\n", __FUNCTION__, enemyID);
+				InitializeQTable(mEnemyStateQTable[enemyID]);
+				Logger::log(1, "%s Initialized Q Table for Enemy %d\n", __FUNCTION__, enemyID);
+			}
 		}
-	}
-	else if (loadQTable)
-	{
-		for (auto& enem : enemies)
+		else if (loadQTable)
 		{
-			int enemyID = enem->GetID();
-			Logger::log(1, "%s Loading Q Table for Enemy %d\n", __FUNCTION__, enemyID);
-			LoadQTable(mEnemyStateQTable[enemyID], std::to_string(enemyID) + mEnemyStateFilename);
-			Logger::log(1, "%s Loaded Q Table for Enemy %d\n", __FUNCTION__, enemyID);
+			for (auto& enem : enemies)
+			{
+				int enemyID = enem->GetID();
+				Logger::log(1, "%s Loading Q Table for Enemy %d\n", __FUNCTION__, enemyID);
+				LoadQTable(mEnemyStateQTable[enemyID], std::to_string(enemyID) + mEnemyStateFilename);
+				Logger::log(1, "%s Loaded Q Table for Enemy %d\n", __FUNCTION__, enemyID);
+			}
 		}
-	}
 
-	//mMusicEvent = audioSystem->PlayEvent("event:/bgm");
+		//mMusicEvent = audioSystem->PlayEvent("event:/bgm");
 
-	//for (int i = 0; i < polyMesh->nverts; ++i) {
-	//	const unsigned short* v = &polyMesh->verts[i * 3];
-	//	navRenderMeshVertices.push_back(v[0]); // X
-	//	navRenderMeshVertices.push_back(v[1]); // Y
-	//	navRenderMeshVertices.push_back(v[2]); // Z
-	//}
-	//for (int i = 0; i < polyMesh->npolys; ++i) {
-	//	for (int j = 0; j < polyMesh->nvp; ++j) {
-	//		unsigned short index = polyMesh->polys[i * polyMesh->nvp + j];
-	//		if (index == RC_MESH_NULL_IDX) break;
-	//		navRenderMeshIndices.push_back(static_cast<unsigned int>(index));
-	//	}
-	//}
-	 
-	
-	const int nvp = polyMesh->nvp;
-	const float cs = polyMesh->cs;
-	const float ch = polyMesh->ch;
-	const float* orig = polyMesh->bmin;
+		//for (int i = 0; i < polyMesh->nverts; ++i) {
+		//	const unsigned short* v = &polyMesh->verts[i * 3];
+		//	navRenderMeshVertices.push_back(v[0]); // X
+		//	navRenderMeshVertices.push_back(v[1]); // Y
+		//	navRenderMeshVertices.push_back(v[2]); // Z
+		//}
+		//for (int i = 0; i < polyMesh->npolys; ++i) {
+		//	for (int j = 0; j < polyMesh->nvp; ++j) {
+		//		unsigned short index = polyMesh->polys[i * polyMesh->nvp + j];
+		//		if (index == RC_MESH_NULL_IDX) break;
+		//		navRenderMeshIndices.push_back(static_cast<unsigned int>(index));
+		//	}
+		//}
 
-	//navMeshVertices.clear();
-	//navMeshIndices.clear();
 
-	for (int i = 0, j = polyMesh->nverts - 1; i < polyMesh->nverts; j = i++)
-	{
-		const unsigned short* v = &polyMesh->verts[i * 3];
-		const float x = orig[0] + v[0] * polyMesh->cs;
-		const float y = orig[1] + v[1] * polyMesh->ch;
-		const float z = orig[2] + v[2] * polyMesh->cs;
-		navMeshVertices.push_back(x);
-		navMeshVertices.push_back(y);
-		navMeshVertices.push_back(z);
-	}
-	
-	// Process indices
-	for (int i = 0; i < polyMesh->npolys; ++i)
-	{
-		const unsigned short* p = &polyMesh->polys[i * nvp * 2];
-		for (int j = 2; j < nvp; ++j)
+		const int nvp = polyMesh->nvp;
+		const float cs = polyMesh->cs;
+		const float ch = polyMesh->ch;
+		const float* orig = polyMesh->bmin;
+
+		//navMeshVertices.clear();
+		//navMeshIndices.clear();
+
+		for (int i = 0, j = polyMesh->nverts - 1; i < polyMesh->nverts; j = i++)
 		{
+			const unsigned short* v = &polyMesh->verts[i * 3];
+			const float x = orig[0] + v[0] * polyMesh->cs;
+			const float y = orig[1] + v[1] * polyMesh->ch;
+			const float z = orig[2] + v[2] * polyMesh->cs;
+			navRenderMeshVertices.push_back(x);
+			navRenderMeshVertices.push_back(y);
+			navRenderMeshVertices.push_back(z);
+		}
+
+		// Process indices
+		for (int i = 0; i < polyMesh->npolys; ++i)
+		{
+			const unsigned short* p = &polyMesh->polys[i * nvp * 2];
+			for (int j = 2; j < nvp; ++j)
+			{
 				if (p[j] == RC_MESH_NULL_IDX) break;
-			// Skip degenerate triangles
-			
-			navMeshIndices.push_back(p[0]);      // Triangle vertex 1
-			navMeshIndices.push_back(p[j - 1]); // Triangle vertex 2
-			navMeshIndices.push_back(p[j]);     // Triangle vertex 3
+				// Skip degenerate triangles
+				if (p[0] == p[j - 1] || p[0] == p[j] || p[j - 1] == p[j]) continue;
+				navRenderMeshIndices.push_back(p[0]);      // Triangle vertex 1
+				navRenderMeshIndices.push_back(p[j - 1]); // Triangle vertex 2
+				navRenderMeshIndices.push_back(p[j]);     // Triangle vertex 3
+			}
 		}
-	}
-	ProbeNavmesh(navMeshQuery, &filter, -162.6f, 46.4f, -127.9f);
-	ProbeNavmesh(navMeshQuery, &filter, -162.6f, 46.4f, -127.9f);
-	ProbeNavmesh(navMeshQuery, &filter, -162.6f, 46.4f, -127.9f);
-	ProbeNavmesh(navMeshQuery, &filter, 50.0f, -10.0f, 50.0f);
-	ProbeNavmesh(navMeshQuery, &filter, 95.0f, -20.0f, 95.0f);
+		ProbeNavmesh(navMeshQuery, &filter, -162.6f, 46.4f, -127.9f);
+		ProbeNavmesh(navMeshQuery, &filter, -162.6f, 46.4f, -127.9f);
+		ProbeNavmesh(navMeshQuery, &filter, -162.6f, 46.4f, -127.9f);
+		ProbeNavmesh(navMeshQuery, &filter, 50.0f, -10.0f, 50.0f);
+		ProbeNavmesh(navMeshQuery, &filter, 95.0f, -20.0f, 95.0f);
 
-	// Create VAO
-	glGenVertexArrays(1, &vao);
-	glBindVertexArray(vao);
+		// Create VAO
+		glGenVertexArrays(1, &vao);
+		glBindVertexArray(vao);
 
-	// Create VBO
-	glGenBuffers(1, &vbo);
-	glBindBuffer(GL_ARRAY_BUFFER, vbo);
-	glBufferData(GL_ARRAY_BUFFER, navMeshVertices.size() * sizeof(float), navMeshVertices.data(), GL_STATIC_DRAW);
+		// Create VBO
+		glGenBuffers(1, &vbo);
+		glBindBuffer(GL_ARRAY_BUFFER, vbo);
+		glBufferData(GL_ARRAY_BUFFER, navRenderMeshVertices.size() * sizeof(float), navRenderMeshVertices.data(), GL_STATIC_DRAW);
 
-	// Create EBO
-	glGenBuffers(1, &ebo);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, navMeshIndices.size() * sizeof(unsigned int), navMeshIndices.data(), GL_STATIC_DRAW);
+		// Create EBO
+		glGenBuffers(1, &ebo);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, navRenderMeshIndices.size() * sizeof(unsigned int), navRenderMeshIndices.data(), GL_STATIC_DRAW);
 
-	// Enable vertex attribute (e.g., position at location 0)
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-	glEnableVertexAttribArray(0);
+		// Enable vertex attribute (e.g., position at location 0)
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+		glEnableVertexAttribArray(0);
 
-	glBindVertexArray(0);
-
-
-	//crowd = dtAllocCrowd();
-	//crowd->init(enemies.size(), 1.0f, navMesh);
-
-	crowd = dtAllocCrowd();
-	crowd->init(5, 2.0f, navMesh);
-
-	for (auto& enem : enemies)
-	{
-		dtCrowdAgentParams ap;
-		memset(&ap, 0, sizeof(ap));
-		ap.radius = 1.3f;
-		ap.height = 2.0f;
-		ap.maxSpeed = 3.5f;
-		ap.maxAcceleration = 8.0f; // Meters per second squared
-		ap.collisionQueryRange = ap.radius * 12.0f;
-
-		float startingPos[3] = { enem->getPosition().x, enem->getPosition().y, enem->getPosition().z };
-		enemyAgentIDs.push_back(crowd->addAgent(startingPos, &ap));
+		glBindVertexArray(0);
 
 
-	};
-
-	//for (auto& enem : enemies)
-	//{
-	//	dtCrowdAgentParams ap;
-	//	memset(&ap, 0, sizeof(ap));
-	//	ap.radius = 0.6f;
-	//	ap.height = 2.0f;
-	//	ap.maxSpeed = 3.5f;
-	//	ap.maxAcceleration = 8.0f; // Meters per second squared
-	//	ap.collisionQueryRange = ap.radius * 12.0f;
+		//crowd = dtAllocCrowd();
+		//crowd->init(enemies.size(), 1.0f, navMesh);
 
 
-	//	float startingPos[3] = { enem->getPosition().x, enem->getPosition().y, enem->getPosition().z };
-	//	float snappedPos[3];
-	//	dtPolyRef startPoly;
-	//	navMeshQuery->findNearestPoly(startingPos, halfExtents, &filter, &startPoly, snappedPos);
-	//	enemyAgentIDs.push_back(crowd->addAgent(snappedPos, &ap));
-	//}
 
-	//for (auto& enem : enemies)
-	//{
-	//	dtCrowdAgentParams ap;
-	//	memset(&ap, 0, sizeof(ap));
-	//	ap.radius = 0.6f;
-	//	ap.height = 2.0f;
-	//	ap.maxSpeed = 3.5f;
-	//	ap.maxAcceleration = 8.0f;
-	//	ap.collisionQueryRange = ap.radius * 12.0f;
+		crowd = dtAllocCrowd();
+		crowd->init(50, 2.0f, navMesh);
 
-	//	float startPos[3] = { enem->getPosition().x, enem->getPosition().y, enem->getPosition().z };
+		for (auto& enem : enemies)
+		{
+			dtCrowdAgentParams ap;
+			memset(&ap, 0, sizeof(ap));
+			ap.radius = 0.01f;
+			ap.height = 3.0f;
+			ap.maxSpeed = 3.5f;
+			ap.maxAcceleration = 8.0f; // Meters per second squared
+			ap.collisionQueryRange = ap.radius * 12.0f;
 
-	//	int agentID;
-
-	//	bool added = AddAgentToCrowd(crowd, navMeshQuery, startPos, &ap, &filter, snappedPos, agentID);
-
-	//	if (added)
-	//	{
-	//		Logger::log(1, "[Spawn] Enemy spawned as agent %d at (%.2f, %.2f, %.2f)\n",
-	//			agentID, snappedPos[0], snappedPos[1], snappedPos[2]);
-
-	//		enemyAgentIDs.push_back(agentID);
-	//	}
-	//	else
-	//	{
-	//		Logger::log(1, "[Spawn] Enemy spawn FAILED at (%.2f, %.2f, %.2f)\n",
-	//			startPos[0], startPos[1], startPos[2]);
-	//		Logger::log(1, "[Spawn] Enemy spawned as agent %d at (%.2f, %.2f, %.2f)\n",
-	//			agentID, snappedPos[0], snappedPos[1], snappedPos[2]);
-	//	}
-	//	/*}*/
-
-	//	float snappedPos[3] = { 1.0f, 0.0f, 1.0f };
-
-	//	dtPolyRef polyref = 0;
-	//	dtStatus newstatus = navMeshQuery->findNearestPoly(snappedPos, halfExtents, &filter, &polyref, snappedPos);
+			float startingPos[3] = { enem->getPosition().x, enem->getPosition().y, enem->getPosition().z };
+			enemyAgentIDs.push_back(crowd->addAgent(startingPos, &ap));
 
 
-	//	if (dtStatusFailed(newstatus) || polyref == 0)
-	//	{
-	//		Logger::log(1, "findNearestPoly failed: no polygon found near %.2f %.2f %.2f\n",
-	//			85.0f, 0.0f, 25.0f);
-	//		return; // stop here, don’t use snappedPos
-	//	}
+		};
 
-	//	float meshheight = 0.0f;
-	//	if (navMeshQuery->getPolyHeight(polyref, snappedPos, &meshheight) == DT_SUCCESS)
-	//	{
-	//		Logger::log(1, "Navmesh height at %.2f %.2f: %.2f\n", snappedPos[0], snappedPos[2], meshheight);
-	//	}
+		//for (auto& enem : enemies)
+		//{
+		//	dtCrowdAgentParams ap;
+		//	memset(&ap, 0, sizeof(ap));
+		//	ap.radius = 0.6f;
+		//	ap.height = 2.0f;
+		//	ap.maxSpeed = 3.5f;
+		//	ap.maxAcceleration = 8.0f; // Meters per second squared
+		//	ap.collisionQueryRange = ap.radius * 12.0f;
+
+
+		//	float startingPos[3] = { enem->getPosition().x, enem->getPosition().y, enem->getPosition().z };
+		//	float snappedPos[3];
+		//	dtPolyRef startPoly;
+		//	navMeshQuery->findNearestPoly(startingPos, halfExtents, &filter, &startPoly, snappedPos);
+		//	enemyAgentIDs.push_back(crowd->addAgent(snappedPos, &ap));
+		//}
+
+		/*for (auto& enem : enemies)
+		{
+			dtCrowdAgentParams ap;
+			memset(&ap, 0, sizeof(ap));
+			ap.radius = 0.6f;
+			ap.height = 2.0f;
+			ap.maxSpeed = 3.5f;
+			ap.maxAcceleration = 8.0f;
+			ap.collisionQueryRange = ap.radius * 12.0f;
+
+			float startPos[3] = { enem->getPosition().x, enem->getPosition().y, enem->getPosition().z };
+
+			int agentID;
+
+			bool added = AddAgentToCrowd(crowd, navMeshQuery, startPos, &ap, &filter, snappedPos, agentID);
+
+			if (added)
+			{
+				Logger::log(1, "[Spawn] Enemy spawned as agent %d at (%.2f, %.2f, %.2f)\n",
+					agentID, snappedPos[0], snappedPos[1], snappedPos[2]);
+
+				enemyAgentIDs.push_back(agentID);
+			}
+			else
+			{
+				Logger::log(1, "[Spawn] Enemy spawn FAILED at (%.2f, %.2f, %.2f)\n",
+					startPos[0], startPos[1], startPos[2]);
+				Logger::log(1, "[Spawn] Enemy spawned as agent %d at (%.2f, %.2f, %.2f)\n",
+					agentID, snappedPos[0], snappedPos[1], snappedPos[2]);
+			}*/
+			/*}*/
+
+			//float snappedPos[3] = { 1.0f, 0.0f, 1.0f };
+
+			//dtPolyRef polyref = 0;
+			//dtStatus newstatus = navMeshQuery->findNearestPoly(snappedPos, halfExtents, &filter, &polyref, snappedPos);
+
+
+			//if (dtStatusFailed(newstatus) || polyref == 0)
+			//{
+			//	Logger::log(1, "findNearestPoly failed: no polygon found near %.2f %.2f %.2f\n",
+			//		85.0f, 0.0f, 25.0f);
+			//	return; // stop here, don’t use snappedPos
+			//}
+
+			//float meshheight = 0.0f;
+			//if (navMeshQuery->getPolyHeight(polyref, snappedPos, &meshheight) == DT_SUCCESS)
+			//{
+			//	Logger::log(1, "Navmesh height at %.2f %.2f: %.2f\n", snappedPos[0], snappedPos[2], meshheight);
+			//}
 	//}
 }
 
@@ -1319,7 +1333,7 @@ void GameManager::ShowEnemyStateWindow()
 		ImGui::Text("State: %s", e->GetEDBTState().c_str());
 		ImGui::SameLine();
 		ImGui::Text("Health %d", (int)e->GetHealth());
-		ImGui::InputFloat3("Position", &e->position[0]);
+		//ImGui::InputFloat3("Position", &e->position[0]);
 	}
 
 	ImGui::End();
@@ -1520,10 +1534,18 @@ void GameManager::update(float deltaTime)
 //		e->Update(useEDBT, speedDivider, blendFac);
 
 		float targetPos[3] = { player->getPosition().x, player->getPosition().y, player->getPosition().z };
+		targetPos[0] = 120.0f;
+		targetPos[1] = 57.79999f;
+		targetPos[2] = 50.0f;
+
+	/*	targetPos[0] = 0.0f;
+		targetPos[1] = 0.0f;
+		targetPos[2] = .0f;*/
+
 		dtPolyRef playerPoly;		
 		float targetPlayerPosOnNavMesh[3];
-		//filter.setIncludeFlags(0xFFFF); // Include all polygons for testing
-		//filter.setExcludeFlags(0);      // Exclude no polygons
+		filter.setIncludeFlags(0xFFFF); // Include all polygons for testing
+		filter.setExcludeFlags(0);      // Exclude no polygons
 
 		Logger::log(1, "Target position on nav mesh before query: %f, %f, %f\n", targetPos[0], targetPos[1], targetPos[2]);
 		navMeshQuery->findNearestPoly(targetPos, halfExtents, &filter, &playerPoly, targetPlayerPosOnNavMesh);
@@ -1534,7 +1556,7 @@ void GameManager::update(float deltaTime)
 		
 		float enemyPosition[3] = { e->getPosition().x, e->getPosition().y, e->getPosition().z };
 
-		DebugNavmeshConnectivity(navMeshQuery, navMesh, filter, targetPos, enemyPosition);
+		//DebugNavmeshConnectivity(navMeshQuery, navMesh, filter, targetPos, enemyPosition);
 
 
 		dtPolyRef targetPoly;
@@ -1548,10 +1570,10 @@ void GameManager::update(float deltaTime)
 		}
 		dtStatus status;
 			if (navMeshQuery)
-			status = navMeshQuery->findNearestPoly(targetPos, halfExtents, &filter, &targetPoly, targetPosOnNavMesh);
+				status = navMeshQuery->findNearestPoly(targetPos, halfExtents, &filter, &playerPoly, targetPlayerPosOnNavMesh);
 
 		Logger::log(1, "Player position: %f %f %f\n", player->getPosition().x, player->getPosition().y, player->getPosition().z);
-		Logger::log(1, "Target position on nav mesh after query: %f, %f, %f\n", targetPosOnNavMesh[0], targetPosOnNavMesh[1], targetPosOnNavMesh[2]);
+		Logger::log(1, "Target position on nav mesh after query: %f, %f, %f\n", targetPlayerPosOnNavMesh[0], targetPlayerPosOnNavMesh[1], targetPlayerPosOnNavMesh[2]);
 
 		if (dtStatusFailed(status))
 		{
@@ -1561,10 +1583,10 @@ void GameManager::update(float deltaTime)
 		else
 		{
 			Logger::log(1, "%s: Found nearest poly enemy %d\n", __FUNCTION__, e->GetID());
-			Logger::log(1, "findNearestPoly succeeded: PolyRef = %u, Pos = %f %f %f\n", targetPoly, targetPosOnNavMesh[0], targetPosOnNavMesh[1], targetPosOnNavMesh[2]);
+			Logger::log(1, "findNearestPoly succeeded: PolyRef = %u, Pos = %f %f %f\n", playerPoly, targetPlayerPosOnNavMesh[0], targetPlayerPosOnNavMesh[1], targetPlayerPosOnNavMesh[2]);
 		}
 
-		status = crowd->requestMoveTarget(e->GetID(), targetPoly, targetPosOnNavMesh);
+		status = crowd->requestMoveTarget(e->GetID(), playerPoly, targetPlayerPosOnNavMesh);
 
 		if (dtStatusFailed(status))
 		{
@@ -1572,7 +1594,7 @@ void GameManager::update(float deltaTime)
 		}
 		else
 		{
-			Logger::log(1, "%s: Move target set for enemy %d %f, %f, %f\n", __FUNCTION__, e->GetID(), targetPosOnNavMesh[0], targetPosOnNavMesh[1], targetPosOnNavMesh[2]);
+			Logger::log(1, "%s: Move target set for enemy %d %f, %f, %f\n", __FUNCTION__, e->GetID(), targetPlayerPosOnNavMesh[0], targetPlayerPosOnNavMesh[1], targetPlayerPosOnNavMesh[2]);
 		}
 
 
@@ -1664,36 +1686,41 @@ void GameManager::render(bool isMinimapRenderPass, bool isShadowMapRenderPass, b
 	else
 	{
 		//gameGrid->drawGrid(gridShader, view, projection, camera->Position, false, lightSpaceMatrix, renderer->GetShadowMapTexture());
-
-
-		navMeshShader.use();
-		navMeshShader.setMat4("view", view);
-		navMeshShader.setMat4("projection", projection);
-		glm::mat4 modelMat = glm::mat4(1.0f);
-		modelMat = glm::translate(modelMat, mapPos);
-		modelMat = glm::rotate(modelMat, glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-		modelMat = glm::scale(modelMat, mapScale);
-		navMeshShader.setMat4("model", modelMat);
-		//glBindVertexArray(vao);
-		//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-		//glCullFace(GL_FRONT);
-		//glDrawElements(GL_TRIANGLES, navMeshIndices.size(), GL_UNSIGNED_INT, 0);
-
-		//glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-
-		//glBindVertexArray(vao);
-		//glDisable(GL_CULL_FACE);
-
-		//glEnable(GL_CULL_FACE);
-		//glCullFace(GL_BACK);
-		//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-		glDisable(GL_CULL_FACE);
-		glBindVertexArray(vao);
-		glDrawElements(GL_TRIANGLES, navMeshIndices.size(), GL_UNSIGNED_INT, 0);
-		//glDrawArrays(GL_TRIANGLES, 0, navMeshVertices.size() / 3);
-	//	glDrawElements(GL_TRIANGLES, navMesh.size(), GL_UNSIGNED_INT, 0);
-		//glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	}
+
+	navMeshShader.use();
+	navMeshShader.setMat4("view", view);
+	navMeshShader.setMat4("projection", projection);
+	glm::mat4 modelMat = glm::mat4(1.0f);
+	modelMat = glm::translate(modelMat, mapPos);
+	modelMat = glm::rotate(modelMat, glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+	modelMat = glm::scale(modelMat, mapScale);
+	navMeshShader.setMat4("model", modelMat);
+	//glBindVertexArray(vao);
+	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	//glCullFace(GL_FRONT);
+	//glDrawElements(GL_TRIANGLES, navMeshIndices.size(), GL_UNSIGNED_INT, 0);
+
+	//glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
+	//glBindVertexArray(vao);
+	//glDisable(GL_CULL_FACE);
+
+	//glEnable(GL_CULL_FACE);
+	//glCullFace(GL_BACK);
+	// Draw navmesh
+	/*glEnable(GL_DEPTH_TEST);
+	glDisable(GL_BLEND);*/
+
+	glDisable(GL_CULL_FACE);
+	glBindVertexArray(vao);
+	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	glDrawElements(GL_TRIANGLES, navRenderMeshIndices.size(), GL_UNSIGNED_INT, 0);
+	//glDrawArrays(GL_TRIANGLES, 0, navMeshVertices.size() / 3);
+//	glDrawElements(GL_TRIANGLES, navMesh.size(), GL_UNSIGNED_INT, 0);
+	//glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	//glDisable(GL_POLYGON_OFFSET_FILL);
+	
 
 	if (camSwitchedToAim)
 		camSwitchedToAim = false;

@@ -76,6 +76,8 @@ public:
 		GLenum mode;
 		int material;
 		std::vector<glm::vec3> verts;
+		std::vector<unsigned int> indices;
+
 	};
 
 	struct GLTFMesh {
@@ -155,34 +157,51 @@ public:
 					glBindBuffer(GL_ARRAY_BUFFER, 0);
 				}
 
-				// --- Index buffer (if present) ---
+
 				if (primitive.indices >= 0) {
+					// Get the accessor, bufferview, and buffer for the index data
 					const tinygltf::Accessor& indexAccessor = model->accessors[primitive.indices];
 					const tinygltf::BufferView& bufferView = model->bufferViews[indexAccessor.bufferView];
 					const tinygltf::Buffer& buffer = model->buffers[bufferView.buffer];
 
-					glGenBuffers(1, &gltfPrim.indexBuffer);
-					glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, gltfPrim.indexBuffer);
+					// Pointer to the actual index data
+					const unsigned char* dataPtr = buffer.data.data() + bufferView.byteOffset + indexAccessor.byteOffset;
 
-					const void* dataPtr = &buffer.data[indexAccessor.byteOffset + bufferView.byteOffset];
-					size_t dataSize = indexAccessor.count * tinygltf::GetComponentSizeInBytes(indexAccessor.componentType);
-
-					glBufferData(GL_ELEMENT_ARRAY_BUFFER, dataSize, dataPtr, GL_STATIC_DRAW);
-
-					gltfPrim.indexCount = static_cast<GLsizei>(indexAccessor.count);
-					gltfPrim.indexType = indexAccessor.componentType;
+					// Loop through and extract indices based on the component type
+					for (size_t i = 0; i < indexAccessor.count; ++i) {
+						switch (indexAccessor.componentType) {
+						case TINYGLTF_PARAMETER_TYPE_UNSIGNED_BYTE: {
+							gltfPrim.indices.push_back(static_cast<unsigned int>(reinterpret_cast<const uint8_t*>(dataPtr)[i]));
+							break;
+						}
+						case TINYGLTF_PARAMETER_TYPE_UNSIGNED_SHORT: {
+							gltfPrim.indices.push_back(static_cast<unsigned int>(reinterpret_cast<const uint16_t*>(dataPtr)[i]));
+							break;
+						}
+						case TINYGLTF_PARAMETER_TYPE_UNSIGNED_INT: {
+							gltfPrim.indices.push_back(reinterpret_cast<const uint32_t*>(dataPtr)[i]);
+							break;
+						}
+						default:
+							Logger::log(1, " << indexAccessor.componentType, %zu", indexAccessor.componentType);
+							break;
+						}
+					}
 				}
 				else {
-					gltfPrim.indexBuffer = 0;
-					// Need POSITION accessor to know vertex count
+					// No index buffer: assume the primitive is non-indexed (each vertex is used once)
 					int posAccessorIndex = primitive.attributes.at("POSITION");
-					gltfPrim.vertexCount = static_cast<GLsizei>(model->accessors[posAccessorIndex].count);
+					const tinygltf::Accessor& posAccessor = model->accessors[posAccessorIndex];
+					for (size_t i = 0; i < posAccessor.count; ++i) {
+						gltfPrim.indices.push_back(static_cast<unsigned int>(i));
+					}
 				}
+
 
 				glBindVertexArray(0);
 
 				gltfMesh.primitives.push_back(gltfPrim);
-			}
+			}	
 
 			meshData[meshIndex] = gltfMesh;
 		}
@@ -260,8 +279,8 @@ public:
 					glDrawElements(prim.mode, prim.indexCount, prim.indexType, 0);
 				}
 				else {
-					glDrawArrays(prim.mode, 0, prim.vertexCount);
 				}
+				glDrawArrays(prim.mode, 0, prim.vertexCount);
 
 				glBindVertexArray(0);
 

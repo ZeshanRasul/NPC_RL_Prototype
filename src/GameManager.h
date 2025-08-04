@@ -420,6 +420,6 @@ private:
 	std::vector<float> navRenderMeshVertices;
 	std::vector<unsigned int> navRenderMeshIndices; 
 
-	glm::vec3 mapScale = glm::vec3(10.0f);
+	glm::vec3 mapScale = glm::vec3(15.0f);
 	glm::vec3 mapPos = glm::vec3(0.0f, 0.f, 0.0f);
 };
