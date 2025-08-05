@@ -9,7 +9,7 @@ public:
 	{
 		mapModel = new tinygltf::Model;
 
-		std::string modelFilename = "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Models/Turret_Base/Final/Final/Fixed/Scaled/TurretBestAtlas.gltf";
+		std::string modelFilename = "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Models/New/Updated/Aviary final Model1.gltf";
 
 
 		tinygltf::TinyGLTF gltfLoader;
@@ -40,7 +40,7 @@ public:
 		for (int texID : loadGLTFTextures(mapModel))
 			glTextures.push_back(texID);
 
-		mTex.loadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Models/Turret_Base/Final/Final/Fixed/Scaled/Atlas_00001.png", false);
+		mTex.loadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Models/New/Updated/Atlas_00001.png", false);
 
 		//model->loadModelNoAnim(modelFilename);
 		//model->uploadVertexBuffersNoAnimations();
@@ -142,6 +142,8 @@ public:
 					if (attribName == "POSITION") location = 0;
 					else if (attribName == "NORMAL") location = 1;
 					else if (attribName == "TEXCOORD_0") location = 2;
+					else if (attribName == "TEXCOORD_1") location = 3;
+					else if (attribName == "TEXCOORD_2") location = 4;
 					// Add JOINTS_0, WEIGHTS_0 etc. if needed
 
 					if (location >= 0) {
@@ -164,6 +166,8 @@ public:
 					const tinygltf::Accessor& indexAccessor = model->accessors[primitive.indices];
 					const tinygltf::BufferView& bufferView = model->bufferViews[indexAccessor.bufferView];
 					const tinygltf::Buffer& buffer = model->buffers[bufferView.buffer];
+
+					
 
 					// Pointer to the actual index data
 					const unsigned char* dataPtr = buffer.data.data() + bufferView.byteOffset + indexAccessor.byteOffset;
@@ -267,31 +271,65 @@ public:
 
 	std::vector<GLuint> glTextures;
 
-	void drawGLTFModel() {
+	
+
+	void drawGLTFModel(glm::mat4 viewMat, glm::mat4 projMat) {
+		glDisable(GL_CULL_FACE);
+		
 		int texIndex = 0;
 		for (size_t meshIndex = 0; meshIndex < meshData.size(); ++meshIndex) {
 			for (size_t primIndex = 0; primIndex < meshData[meshIndex].primitives.size(); ++primIndex) {
 				const GLTFPrimitive& prim = meshData[meshIndex].primitives[primIndex];
 
-				
+
+				shader->use();
+				glm::mat4 modelMat = glm::mat4(1.0f);
+				modelMat = glm::translate(modelMat, position);
+				//modelMat = glm::rotate(modelMat, glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+				modelMat = glm::scale(modelMat, scale);
+				std::vector<glm::mat4> matrixData;
+				matrixData.push_back(viewMat);
+				matrixData.push_back(projMat);
+				matrixData.push_back(modelMat);
+				mUniformBuffer.uploadUboData(matrixData, 0);
+
 				glBindVertexArray(prim.vao);
-
 				int matIndex = prim.material;
-				const tinygltf::Material& mat = mapModel->materials[texIndex];
+				if (matIndex >= 0 && matIndex < mapModel->materials.size()) {
+					const tinygltf::Material& mat = mapModel->materials[matIndex];
+					if (mat.pbrMetallicRoughness.baseColorTexture.index >= 0) {
+						texIndex = mat.pbrMetallicRoughness.baseColorTexture.index;
+					}
+					// You can add more checks for other texture types if needed
 
-				if (mat.pbrMetallicRoughness.baseColorTexture.index >= 0)
-				{
-					texIndex = mat.pbrMetallicRoughness.baseColorTexture.index;
-					
+					if (texIndex >= 0 && texIndex < glTextures.size()) {
+						glActiveTexture(GL_TEXTURE0);
+						glBindTexture(GL_TEXTURE_2D, glTextures[texIndex]);
+						shader->setInt("tex", 0); // Use location 0 for GL_TEXTURE0
+					}
+					else {
+
+						glActiveTexture(GL_TEXTURE0);
+						glBindTexture(GL_TEXTURE_2D, mTex.getTexID());
+						shader->setInt("tex", 0);
+					}
 				}
-			
-				glActiveTexture(GL_TEXTURE0);
-				glBindTexture(GL_TEXTURE_2D, mTex.getTexID());
-				shader->setInt("tex", 0);
+	
+
+
+				//int matIndex = prim.material;
+				//const tinygltf::Material& mat = mapModel->materials[texIndex];
+				//
+				//if (mat.pbrMetallicRoughness.baseColorTexture.index >= 0)
+				//{
+			//		texIndex = mat.pbrMetallicRoughness.baseColorTexture.index;
+			//		
+				//}
+		
 
 
 				if (prim.indexBuffer) {
-					glDrawElements(GL_TRIANGLES, prim.indexCount, prim.indexType, 0);
+					glDrawElements(GL_TRIANGLES, prim.indexCount, GL_UNSIGNED_INT , 0);
 				}
 				else {
 					glDrawArrays(prim.mode, 0, prim.vertexCount);
@@ -300,7 +338,9 @@ public:
 				glBindVertexArray(0);
 
 			}
-			texIndex += 1;
+
+			if (texIndex < glTextures.size())
+				texIndex += 1;
 		}
 	}
 
