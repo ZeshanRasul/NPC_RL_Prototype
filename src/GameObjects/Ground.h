@@ -302,7 +302,7 @@ public:
 					}
 					// You can add more checks for other texture types if needed
 
-					if (texIndex >= 0 && texIndex < glTextures.size()) {
+					if (texIndex >= 0 && texIndex < glTextures.size() && mat.pbrMetallicRoughness.baseColorTexture.index >= 0) {
 						glActiveTexture(GL_TEXTURE0);
 						glBindTexture(GL_TEXTURE_2D, glTextures[texIndex]);
 						shader->setInt("tex", 0); // Use location 0 for GL_TEXTURE0
@@ -339,8 +339,8 @@ public:
 
 			}
 
-			if (texIndex < glTextures.size())
-				texIndex += 1;
+			//if (texIndex < glTextures.size())
+			//	texIndex += 1;
 		}
 	}
 

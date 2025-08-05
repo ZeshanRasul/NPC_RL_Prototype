@@ -1257,10 +1257,10 @@ void GameManager::setupCamera(unsigned int width, unsigned int height)
 	}
 	cubemapView = glm::mat4(glm::mat3(camera->GetViewMatrixPlayerFollow(player->getPosition(), glm::vec3(0.0f, 1.0f, 0.0f))));
 
-	projection = glm::perspective(glm::radians(camera->Zoom), (float)width / (float)height, 0.0001f, 10000.0f);
+	projection = glm::perspective(glm::radians(camera->Zoom), (float)width / (float)height, 0.1f, 300.0f);
 
 	minimapView = minimapCamera->GetViewMatrix();
-	minimapProjection = glm::perspective(glm::radians(camera->Zoom), (float)width / (float)height, 0.0001f, 10000.0f);
+	minimapProjection = glm::perspective(glm::radians(camera->Zoom), (float)width / (float)height, 0.1f, 300.0f);
 
 	player->SetCameraMatrices(view, projection);
 
@@ -1835,19 +1835,19 @@ void GameManager::render(bool isMinimapRenderPass, bool isShadowMapRenderPass, b
 	hfnavMeshShader.setMat4("view", view);
 	hfnavMeshShader.setMat4("projection", projection);
 
-	glDisable(GL_CULL_FACE);
-	//glEnable(GL_CULL_FACE);
-	//glCullFace(GL_BACK);
-	glBindVertexArray(hfvao);
-	glDisable(GL_CULL_FACE);
-	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-	glDrawElements(GL_TRIANGLES, hfnavRenderMeshIndices.size(), GL_UNSIGNED_INT, 0);
-	//glDrawArrays(GL_TRIANGLES, 0, navMeshVertices.size() / 3);
-//	glDrawElements(GL_TRIANGLES, navMesh.size(), GL_UNSIGNED_INT, 0);
-	//glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-	//glDisable(GL_POLYGON_OFFSET_FILL);
-	glBindVertexArray(0);
-	glDisable(GL_CULL_FACE);
+//	glDisable(GL_CULL_FACE);
+//	//glEnable(GL_CULL_FACE);
+//	//glCullFace(GL_BACK);
+//	glBindVertexArray(hfvao);
+//	glDisable(GL_CULL_FACE);
+//	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+//	glDrawElements(GL_TRIANGLES, hfnavRenderMeshIndices.size(), GL_UNSIGNED_INT, 0);
+//	//glDrawArrays(GL_TRIANGLES, 0, navMeshVertices.size() / 3);
+////	glDrawElements(GL_TRIANGLES, navMesh.size(), GL_UNSIGNED_INT, 0);
+//	//glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+//	//glDisable(GL_POLYGON_OFFSET_FILL);
+//	glBindVertexArray(0);
+//	glDisable(GL_CULL_FACE);
 
 
 	if (camSwitchedToAim)
