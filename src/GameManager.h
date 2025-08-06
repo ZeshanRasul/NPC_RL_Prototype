@@ -183,6 +183,7 @@ private:
 
 	EventManager& GetEventManager() { return eventManager; }
 
+	bool BuildTile(int tx, int ty, float* bmin, float* bmax, rcConfig cfg, unsigned char* navData, int* navDataSize);
 	void SetUpAndRenderNavMesh();
 	std::vector<float> renderNavMeshVerts;
 
@@ -397,12 +398,12 @@ private:
 	unsigned char* triAreas;
 	std::vector<glm::vec3> mapVertices;
 
-	rcContext* ctx;
-	rcHeightfield* heightField;
-	rcCompactHeightfield* compactHeightField;
-	rcContourSet* contourSet;
-	rcPolyMesh* polyMesh;
-	rcPolyMeshDetail* polyMeshDetail;
+	rcContext ctx;
+	std::vector<rcHeightfield*> heightFields;
+	std::vector<rcCompactHeightfield*> compactHeightFields;
+	std::vector<rcContourSet*> contourSets;
+	std::vector<rcPolyMesh*> polyMeshes;
+	std::vector<rcPolyMeshDetail*> polyMeshDetails;
 	dtCrowd* crowd;
 	std::vector<int> enemyAgentIDs;
 	float* targetPosOnNavMesh;
@@ -410,7 +411,7 @@ private:
 	const float halfExtents[3] = { 1000.0f, 1000.0f, 1000.0f };
 
 	dtNavMesh* navMesh;
-	dtNavMeshQuery* navMeshQuery = nullptr;
+	dtNavMeshQuery* navMeshQuery;
 	unsigned char* navData;
 	int navDataSize;
 	float snappedPos[3];
