@@ -8,35 +8,88 @@
 DirLight dirLight = {
 		glm::vec3(-3.0f, -2.0f, -3.0f),
 
-		glm::vec3(0.15f, 0.2f, 0.25f),
+		glm::vec3(1.0f),
 		glm::vec3(0.8f),
 		glm::vec3(0.8f, 0.9f, 1.0f)
 };
 
 glm::vec3 dirLightPBRColour = glm::vec3(10.f, 10.0f, 10.0f);
 
-bool GameManager::BuildTile(int tx, int ty, float* bmin, float* bmax,  rcConfig cfg, unsigned char* navData, int* navDataSize)
+bool GameManager::BuildTile(int tx, int ty, float* bmin, float* bmax,  rcConfig cfg, unsigned char*& navData, int* navDataSize, dtNavMeshParams parameters)
 {
 	// Compute tile bounds
 	float tileBMin[3], tileBMax[3];
-	tileBMin[0] = bmin[0] + tx * cfg.tileSize * cfg.cs;
+	tileBMin[0] = parameters.orig[0] + tx * tileWorldSize;
 	tileBMin[1] = bmin[1];
-	tileBMin[2] = bmin[2] + ty * cfg.tileSize * cfg.cs;
+	tileBMin[2] = parameters.orig[2] + ty * tileWorldSize;
 
-	tileBMax[0] = bmin[0] + (tx + 1) * cfg.tileSize * cfg.cs;
+	tileBMax[0] = parameters.orig[0] + (tx + 1) * tileWorldSize;
 	tileBMax[1] = bmax[1];
-	tileBMax[2] = bmin[2] + (ty + 1) * cfg.tileSize * cfg.cs;
+	tileBMax[2] = parameters.orig[2] + (ty + 1) * tileWorldSize;
 
 	// Expand by border size
 	float border = cfg.borderSize * cfg.cs;
 	float tbmin[3], tbmax[3];
 	rcVcopy(tbmin, tileBMin);
 	rcVcopy(tbmax, tileBMax);
-	tbmin[0] -= border; tbmin[2] -= border;
-	tbmax[0] += border; tbmax[2] += border;
+	tbmin[0] -= border; 
+	tbmin[2] -= border;
+	tbmax[0] += border; 
+	tbmax[2] += border;
 
 	//rcContext ctx;
 
+	std::vector<float> tileVerts;             
+	std::vector<int> tileIndices;             
+	std::vector<unsigned char> tileAreas;     
+	std::unordered_map<int, int> globalToLocalVert;
+
+	int triCount = navMeshIndices.size() / 3;
+
+	for (int i = 0; i < triCount; ++i)
+	{
+		int ia = navMeshIndices[i * 3 + 0];
+		int ib = navMeshIndices[i * 3 + 1];
+		int ic = navMeshIndices[i * 3 + 2];
+
+		glm::vec3 a = glm::make_vec3(&navMeshVertices[ia * 3]);
+		glm::vec3 b = glm::make_vec3(&navMeshVertices[ib * 3]);
+		glm::vec3 c = glm::make_vec3(&navMeshVertices[ic * 3]);
+
+		// Compute AABB of triangle
+		glm::vec3 triMin = glm::min(a, glm::min(b, c));
+		glm::vec3 triMax = glm::max(a, glm::max(b, c));
+
+		// Reject if triangle doesn't intersect tile bounds
+		if (triMax.x < tbmin[0] || triMin.x > tbmax[0] ||
+			triMax.y < tbmin[1] || triMin.y > tbmax[1] ||
+			triMax.z < tbmin[2] || triMin.z > tbmax[2])
+			continue;
+
+		// Remap and copy vertices
+		auto remap = [&](int globalIndex) -> int {
+			auto found = globalToLocalVert.find(globalIndex);
+			if (found != globalToLocalVert.end())
+				return found->second;
+
+			int localIndex = tileVerts.size() / 3;
+			tileVerts.push_back(navMeshVertices[globalIndex * 3 + 0]);
+			tileVerts.push_back(navMeshVertices[globalIndex * 3 + 1]);
+			tileVerts.push_back(navMeshVertices[globalIndex * 3 + 2]);
+			globalToLocalVert[globalIndex] = localIndex;
+			return localIndex;
+			};
+
+		int localA = remap(ia);
+		int localB = remap(ib);
+		int localC = remap(ic);
+
+		tileIndices.push_back(localA);
+		tileIndices.push_back(localB);
+		tileIndices.push_back(localC);
+
+		tileAreas.push_back(RC_WALKABLE_AREA); // Mark triangle as walkable
+	}
 	rcHeightfield* heightField = rcAllocHeightfield();
 	if (!rcCreateHeightfield(&ctx, *heightField, cfg.width, cfg.height, tbmin, tbmax, cfg.cs, cfg.ch)) 
 	{
@@ -50,7 +103,7 @@ bool GameManager::BuildTile(int tx, int ty, float* bmin, float* bmax,  rcConfig 
 
 	int triangleCount = navMeshIndices.size() / 3;
 
-	if (!rcRasterizeTriangles(&ctx, navMeshVertices.data(), navMeshVertices.size() / 3, triIndices, triAreas, triangleCount, *heightField, cfg.walkableClimb))
+	if (!rcRasterizeTriangles(&ctx, tileVerts.data(), tileVerts.size() / 3, tileIndices.data(), tileAreas.data(), tileIndices.size() / 3, *heightField, cfg.walkableClimb))
 	{
 		Logger::log(1, "%s error: Could not rasterize triangles\n", __FUNCTION__);
 	}
@@ -104,8 +157,8 @@ bool GameManager::BuildTile(int tx, int ty, float* bmin, float* bmax,  rcConfig 
 		Logger::log(1, "%s: polymesh detail successfully created\n", __FUNCTION__);
 	};
 
-	Logger::log(1, "NavMesh vertices count: %d\n", navMeshVertices.size());
-	Logger::log(1, "NavMesh indices count: %d\n", navMeshIndices.size());
+	Logger::log(1, "NavMesh vertices count: %d\n", tileVerts.size());
+	Logger::log(1, "NavMesh indices count: %d\n", tileIndices.size());
 	Logger::log(1, "Heightfield span count: %d\n", heightField->width * heightField->height);
 	Logger::log(1, "Compact heightfield span count: %d\n", chf->spanCount);
 	Logger::log(1, "PolyMesh vertices count: %d\n", pmesh->nverts);
@@ -117,23 +170,23 @@ bool GameManager::BuildTile(int tx, int ty, float* bmin, float* bmax,  rcConfig 
 
 	for (int i = 0; i < std::min(10, (int)navMeshVertices.size()); i += 3) {
 		Logger::log(1, "NavMesh Vert %d: %.2f %.2f %.2f\n", i / 3,
-			navMeshVertices[i], navMeshVertices[i + 1], navMeshVertices[i + 2]);
+			tileVerts[i], tileVerts[i + 1], tileVerts[i + 2]);
 	}
 
 	for (int i = 0; i < std::min(10, (int)navMeshIndices.size()); ++i) {
 #
 		Logger::log(1, "Logging bad indices: \n");
-		if (navMeshIndices[i] >= navMeshVertices.size()) {
-			Logger::log(1, "BAD INDEX : %zu, out of range, %zu\n", navMeshIndices[i], navMeshVertices.size());
+		if (tileIndices[i] >= navMeshVertices.size()) {
+			Logger::log(1, "BAD INDEX : %zu, out of range, %zu\n", tileIndices[i], tileIndices.size());
 		}
 	}
 
-	for (int i = 0; i < std::min(10, (int)navMeshIndices.size()); i += 3) {
+	for (int i = 0; i < std::min(10, (int)tileIndices.size()); i += 3) {
 
 		Logger::log(1, "Logging degenerate triangles: \n");
-		int a = navMeshIndices[i];
-		int b = navMeshIndices[i + 1];
-		int c = navMeshIndices[i + 2];
+		int a = tileIndices[i];
+		int b = tileIndices[i + 1];
+		int c = tileIndices[i + 2];
 		if (a == b || b == c || a == c) {
 			Logger::log(1, "DEGENERATE TRIANGLE: %zu, %zu, %zu\n", a, b, c);
 		}
@@ -162,8 +215,10 @@ bool GameManager::BuildTile(int tx, int ty, float* bmin, float* bmax,  rcConfig 
 		params.polyAreas = pmesh->areas;
 	};
 
-	rcVcopy(params.bmin, pmesh->bmin);
-	rcVcopy(params.bmax, pmesh->bmax);
+	rcVcopy(params.bmin, tbmin);
+	rcVcopy(params.bmax, tbmax);
+	Logger::log(1, "Tile (%d,%d) bmin: %.2f %.2f %.2f  bmax: %.2f %.2f %.2f\n",
+		tx, ty, tbmin[0], tbmin[1], tbmin[2], tbmax[0], tbmax[1], tbmax[2]);
 
 	params.polyFlags = pmesh->flags;
 
@@ -198,6 +253,14 @@ bool GameManager::BuildTile(int tx, int ty, float* bmin, float* bmax,  rcConfig 
 		return false;
 	}
 
+	heightFields.push_back(heightField);
+	compactHeightFields.push_back(chf);
+	contourSets.push_back(cset);
+	polyMeshes.push_back(pmesh);
+	Logger::log(1, "PolyMeshes count: %d\n", polyMeshes.size());
+
+	polyMeshDetails.push_back(dmesh);
+
 	// Add tile to Detour navmesh
 	dtStatus status = navMesh->addTile(navData, *navDataSize, DT_TILE_FREE_DATA, 0, nullptr);
 	if (dtStatusFailed(status))
@@ -206,13 +269,6 @@ bool GameManager::BuildTile(int tx, int ty, float* bmin, float* bmax,  rcConfig 
 		return false;
 	}
 
-	heightFields.push_back(heightField);
-	compactHeightFields.push_back(chf);
-	contourSets.push_back(cset);
-	polyMeshes.push_back(pmesh);
-	Logger::log(1, "PolyMeshes count: %d\n", polyMeshes.size());
-
-	polyMeshDetails.push_back(dmesh);
 
 	return true;
 }
@@ -741,8 +797,8 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 
 	rcConfig cfg{};
 
-	cfg.cs = 1.0f;                      // Cell size
-	cfg.ch = 1.0f;                      // Cell height
+	cfg.cs = 0.3f;                      // Cell size
+	cfg.ch = 0.2f;                      // Cell height
 	cfg.walkableSlopeAngle = WALKABLE_SLOPE;     // Steeper slopes allowed
 	cfg.walkableHeight = (int)ceilf(2.0f / cfg.ch);          // Min agent height
 	cfg.walkableClimb = (int)floorf(0.4f / cfg.ch);           // Step height
@@ -984,13 +1040,20 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 
 
 	dtNavMeshParams params = {};
-	params.orig[0] = cfg.bmin[0];
+	tileWorldSize = cfg.tileSize * cfg.cs;
+
+	int tileCountX = (cfg.width + cfg.tileSize - 1) / cfg.tileSize;
+	int tileCountY = (cfg.height + cfg.tileSize - 1) / cfg.tileSize;
+
+
+	params.orig[0] = floor(cfg.bmin[0] / tileWorldSize) * tileWorldSize;
 	params.orig[1] = cfg.bmin[1];
-	params.orig[2] = cfg.bmin[2];
-	params.tileWidth = cfg.tileSize;
-	params.tileHeight = cfg.tileSize;
-	params.maxTiles = tileWidth * tileHeight; // Set a reasonable limit for the number of tiles
+	params.orig[2] = floor(cfg.bmin[2] / tileWorldSize) * tileWorldSize;
+	params.tileWidth = cfg.tileSize * cfg.cs;
+	params.tileHeight = cfg.tileSize * cfg.cs;
+	params.maxTiles = tileCountX * tileCountY;
 	params.maxPolys = 2048; // Set a reasonable limit for the number of polygons per tile
+	Logger::log(1, "Navmesh origin: %.2f %.2f %.2f\n", params.orig[0], params.orig[1], params.orig[2]);
 
 	navMesh = dtAllocNavMesh();
 
@@ -1001,10 +1064,6 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 		Logger::log(1, "%s error: Could not init Detour navMesh\n", __FUNCTION__);
 	}
 
-	int tileCountX = (cfg.width + cfg.tileSize - 1) / cfg.tileSize;
-	int tileCountY = (cfg.height + cfg.tileSize - 1) / cfg.tileSize;
-
-
 	for (int y = 0; y < tileCountY; ++y)
 	{
 		for (int x = 0; x < tileCountX; ++x)
@@ -1012,7 +1071,7 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 			unsigned char* navData = nullptr;
 			int navDataSize = 0;
 
-			if (BuildTile(x, y, cfg.bmin, cfg.bmax, cfg, navData, &navDataSize))
+			if (BuildTile(x, y, cfg.bmin, cfg.bmax, cfg, navData, &navDataSize, params))
 			{
 				navMesh->addTile(navData, navDataSize, DT_TILE_FREE_DATA, 0, nullptr);
 			}
@@ -1087,7 +1146,7 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 	enemy4MuzzleFlashQuad->LoadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/muzzleflash.png");
 
 
-	player = new Player(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f), &playerShader, &playerShadowMapShader, true, this);
+	player = new Player(glm::vec3(-10.0f, -10.0f, -10.0f), glm::vec3(1.0f), &playerShader, &playerShadowMapShader, true, this);
 	//player = new Player( (glm::vec3(23.0f, 0.0f, 37.0f)), glm::vec3(3.0f), &playerShader, &playerShadowMapShader, true, this);
 
 	player->aabbShader = &aabbShader;

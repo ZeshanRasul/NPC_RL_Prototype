@@ -183,7 +183,7 @@ private:
 
 	EventManager& GetEventManager() { return eventManager; }
 
-	bool BuildTile(int tx, int ty, float* bmin, float* bmax, rcConfig cfg, unsigned char* navData, int* navDataSize);
+	bool BuildTile(int tx, int ty, float* bmin, float* bmax, rcConfig cfg, unsigned char*& navData, int* navDataSize, dtNavMeshParams parameters);
 	void SetUpAndRenderNavMesh();
 	std::vector<float> renderNavMeshVerts;
 
@@ -415,6 +415,7 @@ private:
 	unsigned char* navData;
 	int navDataSize;
 	float snappedPos[3];
+	float tileWorldSize;
 
 	GLuint vao, vbo, ebo;
 	Shader navMeshShader{};
