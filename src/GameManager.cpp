@@ -174,29 +174,7 @@ bool GameManager::BuildTile(int tx, int ty, float* bmin, float* bmax,  rcConfig 
 			tileVerts[i], tileVerts[i + 1], tileVerts[i + 2]);
 	}
 
-	for (int i = 0; i < std::min(10, (int)navMeshIndices.size()); ++i) {
-#
-		Logger::log(1, "Logging bad indices: \n");
-		if (tileIndices[i] >= navMeshVertices.size()) {
-			Logger::log(1, "BAD INDEX : %zu, out of range, %zu\n", tileIndices[i], tileIndices.size());
-		}
-	}
-
-	for (int i = 0; i < std::min(10, (int)tileIndices.size()); i += 3) {
-
-		Logger::log(1, "Logging degenerate triangles: \n");
-		int a = tileIndices[i];
-		int b = tileIndices[i + 1];
-		int c = tileIndices[i + 2];
-		if (a == b || b == c || a == c) {
-			Logger::log(1, "DEGENERATE TRIANGLE: %zu, %zu, %zu\n", a, b, c);
-		}
-	}
-
-	// Finally:
 	dtNavMeshCreateParams params = {};
-	// fill in params from rcPolyMesh and rcPolyMeshDetail
-	// set tile position:
 	params.verts = pmesh->verts;
 	params.vertCount = pmesh->nverts;
 	params.polys = pmesh->polys;
@@ -211,7 +189,7 @@ bool GameManager::BuildTile(int tx, int ty, float* bmin, float* bmax,  rcConfig 
 		}
 		else
 		{
-			pmesh->flags[i] = DT_POLYFLAGS_WALK;
+			pmesh->flags[i] = 0;
 		}
 		params.polyAreas = pmesh->areas;
 	};
@@ -729,7 +707,7 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 
 
 	// Slope threshold (in degrees) – typical value for shooters is 45
-	const float WALKABLE_SLOPE = 80.0f;
+	const float WALKABLE_SLOPE = 45.0f;
 	ctx = new rcContext();
 
 	for (int i = 0; i < triangleCount; ++i) {
@@ -796,8 +774,8 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 
 	rcConfig cfg{};
 
-	cfg.cs = 0.3f;                      // Cell size
-	cfg.ch = 0.2f;                      // Cell height
+	cfg.cs = 0.8f;                      // Cell size
+	cfg.ch = 0.8f;                      // Cell height
 	cfg.walkableSlopeAngle = WALKABLE_SLOPE;     // Steeper slopes allowed
 	cfg.walkableHeight = (int)ceilf(2.0f / cfg.ch);          // Min agent height
 	cfg.walkableClimb = (int)floorf(0.4f / cfg.ch);           // Step height
@@ -805,10 +783,10 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 	cfg.maxEdgeLen = (int)(12.0f / cfg.cs);                // Longer edges for smoother polys
 	cfg.minRegionArea = rcSqr(12);              // Retain smaller regions
 	cfg.mergeRegionArea = rcSqr(30);           // Merge small regions
-	cfg.maxSimplificationError = 0.05f;  // Less aggressive simplification
+	cfg.maxSimplificationError = 0.4f;  // Less aggressive simplification
 	cfg.detailSampleDist = cfg.cs * 6;  // Balanced detail
 	cfg.maxVertsPerPoly = 6;            // Max verts per poly
-	cfg.tileSize = 64;                  // Tile size
+	cfg.tileSize = 128;                  // Tile size
 
 	rcCalcGridSize(cfg.bmin, cfg.bmax, cfg.cs, &cfg.width, &cfg.height);
 
@@ -840,202 +818,6 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 
 	cfg.width = (int)((cfg.bmax[0] - cfg.bmin[0]) / cfg.cs + 0.5f);
 	cfg.height = (int)((cfg.bmax[2] - cfg.bmin[2]) / cfg.cs + 0.5f);
-
-	//cfg.width = (cfg.bmax[0] - cfg.bmin[0]);
-	//cfg.height = (cfg.bmax[2] - cfg.bmin[2]);
-	//cfg.bmax = maxBounds;
-	//cfg.bmin = minBounds;
-
-	//cfg.bmin[0] = minBounds[0];
-	//cfg.bmin[1] = minBounds[1];
-	//cfg.bmin[2] = minBounds[2];
-	//cfg.bmax[0] = maxBounds[0];
-	//cfg.bmax[1] = maxBounds[1];
-	//cfg.bmax[2] = maxBounds[2];
-
-	//cfg.cs = 0.3f;                      // Cell size
-	//cfg.ch = 0.2f;                      // Cell height
-	//cfg.walkableSlopeAngle = 30.0f;     // Allow steeper slopes
-	//cfg.walkableHeight = 2.0f;          // Agent height (in grid units)
-	//cfg.walkableClimb = 1.0f;           // Max climb height
-	//cfg.walkableRadius = 1.0f;          // Agent radius
-	//cfg.maxEdgeLen = 24;                // Larger edge length
-	//cfg.minRegionArea = 8;  // Keep smaller regions
-	//cfg.maxSimplificationError = 0.5f;  // Fine simplification
-	//cfg.detailSampleDist = cfg.cs * 6;  // Balance detail
-	//cfg.maxVertsPerPoly = 6;			// Fewer verts per poly
-	//cfg.tileSize = 32;					// Tile size
-	//cfg.borderSize = (int)(cfg.walkableRadius / cfg.cs + 0.5f);
-	//cfg.width = 500.0f;
-	//cfg.height = 500.0f;
-
-	//float minBounds[3] = { 0.0f, 0.0f, 0.0f };
-	//float maxBounds[3] = { 500.0f, 1.0f, 500.0f };
-//
-//	heightField = rcAllocHeightfield();
-//	if (!rcCreateHeightfield(ctx, *heightField, cfg.bmax[0], cfg.bmax[2], cfg.bmin, cfg.bmax, cfg.cs, cfg.ch))
-//	{
-//		Logger::log(1, "%s error: Could not create heightfield\n", __FUNCTION__);
-//	}
-//	else
-//	{
-//		Logger::log(1, "%s: Heightfield successfully created\n", __FUNCTION__);
-//	};
-//
-//	int numTris = navMeshIndices.size() / 3;
-//
-//	Logger::log(1, "Triangle indices: %d\n", indexCount);
-//	Logger::log(1, "Triangle count: %d\n", numTris);
-//
-//	Logger::log(1, "Heightfield width: %d, height: %d\n", heightField->width, heightField->height);
-//	int totalSpans = 0;
-//	for (int i = 0; i < heightField->width * heightField->height; ++i) {
-//		rcSpan* span = heightField->spans[i];
-//		while (span) {
-//			++totalSpans;
-//			span = span->next;
-//		}
-//	}
-//	Logger::log(1, "Total spans before filtering: %d\n", totalSpans);
-//
-//	//rcMarkWalkableTriangles(ctx, cfg.walkableSlopeAngle, navMeshVertices.data(), navMeshVertices.size() / 3, triIndices, triangleCount, triAreas);
-//
-//	//for (int i = 0; i < indexCount / 3; ++i) {
-//	//	if (i < (coverCount * 36) / 3) {
-//	//		triAreas[i] = RC_NULL_AREA; // Mark this triangle as non-walkable
-//	//	}
-//
-//	//}
-//
-//	if (!rcRasterizeTriangles(ctx, navMeshVertices.data(), navMeshVertices.size() / 3, triIndices, triAreas, triangleCount, *heightField, cfg.walkableClimb))
-//	{
-//		Logger::log(1, "%s error: Could not rasterize triangles\n", __FUNCTION__);
-//	}
-//	else
-//	{
-//		Logger::log(1, "%s: rasterize triangles successfully created\n", __FUNCTION__);
-//	};
-//
-//	//rcFilterLowHangingWalkableObstacles(ctx, cfg.walkableClimb, *heightField);
-//	//rcFilterWalkableLowHeightSpans(ctx, cfg.walkableHeight, *heightField);
-//	//rcFilterLedgeSpans(ctx, cfg.walkableHeight, cfg.walkableClimb, *heightField);
-//
-//	compactHeightField = rcAllocCompactHeightfield();
-//	if (!rcBuildCompactHeightfield(ctx, cfg.walkableHeight, cfg.walkableClimb, *heightField, *compactHeightField))
-//	{
-//		Logger::log(1, "%s error: Could not build compact heightfield\n", __FUNCTION__);
-//	}
-//	else
-//	{
-//		Logger::log(1, "%s: compact heightfield successfully created\n", __FUNCTION__);
-//	};
-//
-//	Logger::log(1, "CompactHeightfield walkable spans count: %d\n", compactHeightField->spanCount);
-//
-//	std::vector<DebugVertex> debugSpanVertices;
-//	std::vector<unsigned int> debugSpanIndices;
-//
-//	generateDebugSpanMeshFromHeightfield(compactHeightField, debugSpanVertices, debugSpanIndices);
-//
-//	hfnavRenderMeshVertices.resize(debugSpanVertices.size() * 6);
-//	hfnavRenderMeshIndices.resize(debugSpanIndices.size());
-//
-//	for (const DebugVertex& v : debugSpanVertices)
-//	{
-//		hfnavRenderMeshVertices.push_back(v.position.x);
-//		hfnavRenderMeshVertices.push_back(v.position.y);
-//		hfnavRenderMeshVertices.push_back(v.position.z);
-//		hfnavRenderMeshVertices.push_back(v.color.x);
-//		hfnavRenderMeshVertices.push_back(v.color.y);
-//		hfnavRenderMeshVertices.push_back(v.color.z);
-//	}
-//
-//	for (unsigned int index : debugSpanIndices)
-//	{
-//		hfnavRenderMeshIndices.push_back(index);
-//	}
-//
-//
-//
-//	if (!rcBuildLayerRegions(ctx, *compactHeightField, 0, cfg.minRegionArea))
-//	{
-//		Logger::log(1, "buildNavigation: Could not build layer regions.");
-//	}
-//	else
-//	{
-//		Logger::log(1, "buildNavigation: Layer regions successfully built.");
-//
-//	}
-//
-//	contourSet = rcAllocContourSet();
-//
-//	if (!rcBuildContours(ctx, *compactHeightField, cfg.maxSimplificationError, cfg.maxEdgeLen, *contourSet))
-//	{
-//		Logger::log(1, "%s error: Could not build contours\n", __FUNCTION__);
-//	}
-//	else
-//	{
-//		Logger::log(1, "%s: contours successfully created\n", __FUNCTION__);
-//		Logger::log(1, "Contours count: %d\n", contourSet->nconts);
-//	};
-//
-//	polyMesh = rcAllocPolyMesh();
-//
-//	if (!rcBuildPolyMesh(ctx, *contourSet, cfg.maxVertsPerPoly, *polyMesh))
-//	{
-//		Logger::log(1, "%s error: Could not build polymesh\n", __FUNCTION__);
-//	}
-//	else
-//	{
-//		Logger::log(1, "%s: polymesh successfully created\n", __FUNCTION__);
-//	};
-//
-//	polyMeshDetail = rcAllocPolyMeshDetail();
-//	if (!rcBuildPolyMeshDetail(ctx, *polyMesh, *compactHeightField, cfg.detailSampleDist, cfg.detailSampleMaxError, *polyMeshDetail))
-//	{
-//		Logger::log(1, "%s error: Could not build polymesh detail\n", __FUNCTION__);
-//	}
-//	else
-//	{
-//		Logger::log(1, "%s: polymesh detail successfully created\n", __FUNCTION__);
-//	};
-//
-//	Logger::log(1, "NavMesh vertices count: %d\n", navMeshVertices.size());
-//	Logger::log(1, "NavMesh indices count: %d\n", navMeshIndices.size());
-//	Logger::log(1, "Heightfield span count: %d\n", heightField->width * heightField->height);
-//	Logger::log(1, "Compact heightfield span count: %d\n", compactHeightField->spanCount);
-//	Logger::log(1, "PolyMesh vertices count: %d\n", polyMesh->nverts);
-//	Logger::log(1, "PolyMesh polygons count: %d\n", polyMesh->npolys);
-//	Logger::log(1, "PolyMeshDetail vertices count: %d\n", polyMeshDetail->nverts);
-//	Logger::log(1, "PolyMesh bounds: Min(%.2f, %.2f, %.2f) Max(%.2f, %.2f, %.2f)\n",
-//		polyMesh->bmin[0], polyMesh->bmin[1], polyMesh->bmin[2],
-//		polyMesh->bmax[0], polyMesh->bmax[1], polyMesh->bmax[2]);
-//
-//	for (int i = 0; i < std::min(10, (int)navMeshVertices.size()); i += 3) {
-//		Logger::log(1, "NavMesh Vert %d: %.2f %.2f %.2f\n", i / 3,
-//			navMeshVertices[i], navMeshVertices[i + 1], navMeshVertices[i + 2]);
-//	}
-//
-//	for (int i = 0; i < std::min(10, (int)navMeshIndices.size()); ++i) {
-//#
-//		Logger::log(1, "Logging bad indices: \n");
-//		if (navMeshIndices[i] >= navMeshVertices.size()) {
-//			Logger::log(1, "BAD INDEX : %zu, out of range, %zu\n", navMeshIndices[i], navMeshVertices.size());
-//		}
-//	}
-//
-//	for (int i = 0; i < std::min(10, (int)navMeshIndices.size()); i += 3) {
-//
-//		Logger::log(1, "Logging degenerate triangles: \n");
-//		int a = navMeshIndices[i];
-//		int b = navMeshIndices[i + 1];
-//		int c = navMeshIndices[i + 2];
-//		if (a == b || b == c || a == c) {
-//			Logger::log(1, "DEGENERATE TRIANGLE: %zu, %zu, %zu\n", a, b, c);
-//		}
-//	}
-
-
 
 
 	dtNavMeshParams params = {};
@@ -1109,7 +891,6 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 			Logger::log(1, "Tile at (%d,%d): Bmin(%.2f %.2f %.2f) Bmax(%.2f %.2f %.2f)\n",
 				x, y,
 				tile->header->bmin[0], tile->header->bmin[1], tile->header->bmin[2],
-				tile->header->bmin[0], tile->header->bmin[1], tile->header->bmin[2],
 				tile->header->bmax[0], tile->header->bmax[1], tile->header->bmax[2]);
 		}
 	}
@@ -1151,7 +932,7 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 	enemy4MuzzleFlashQuad->LoadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/muzzleflash.png");
 
 
-	player = new Player(glm::vec3(-10.0f, -10.0f, -10.0f), glm::vec3(1.0f), &playerShader, &playerShadowMapShader, true, this);
+	player = new Player(glm::vec3(-130.0f, -20.0f, -40.0f), glm::vec3(1.0f), &playerShader, &playerShadowMapShader, true, this);
 	//player = new Player( (glm::vec3(23.0f, 0.0f, 37.0f)), glm::vec3(3.0f), &playerShader, &playerShadowMapShader, true, this);
 
 	player->aabbShader = &aabbShader;
@@ -1161,19 +942,19 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 	std::string texture3 = "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Models/GLTF/Enemies/Ely/ely-vanguardsoldier-kerwinatienza_diffuse_3.png";
 	std::string texture4 = "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Models/GLTF/Enemies/Ely/ely-vanguardsoldier-kerwinatienza_diffuse_4.png";
 
-	enemy = new Enemy(glm::vec3(-290.0f, 0.0f, -228.0f), glm::vec3(3.0f), &enemyShader, &enemyShadowMapShader, true, this, gameGrid, texture, 0, GetEventManager(), *player);
+	enemy = new Enemy(glm::vec3(-120.0f, -20.0f, -28.0f), glm::vec3(3.0f), &enemyShader, &enemyShadowMapShader, true, this, gameGrid, texture, 0, GetEventManager(), *player);
 	enemy->SetAABBShader(&aabbShader);
 	enemy->SetUpAABB();
 
-	enemy2 = new Enemy(glm::vec3(-285.0f, 0.0f, -238.0f), glm::vec3(3.0f), &enemyShader, &enemyShadowMapShader, true, this, gameGrid, texture2, 1, GetEventManager(), *player);
+	enemy2 = new Enemy(glm::vec3(-100.0f, 0.0f, -38.0f), glm::vec3(3.0f), &enemyShader, &enemyShadowMapShader, true, this, gameGrid, texture2, 1, GetEventManager(), *player);
 	enemy2->SetAABBShader(&aabbShader);
 	enemy2->SetUpAABB();
 
-	enemy3 = new Enemy(glm::vec3(-280.0f, 0.0f, -218.0f), glm::vec3(3.0f), &enemyShader, &enemyShadowMapShader, true, this, gameGrid, texture3, 2, GetEventManager(), *player);
+	enemy3 = new Enemy(glm::vec3(-110.0f, 0.0f, -45.0f), glm::vec3(3.0f), &enemyShader, &enemyShadowMapShader, true, this, gameGrid, texture3, 2, GetEventManager(), *player);
 	enemy3->SetAABBShader(&aabbShader);
 	enemy3->SetUpAABB();
 
-	enemy4 = new Enemy(glm::vec3(-299.0f, 0.0f, -230.0f), glm::vec3(3.0f), &enemyShader, &enemyShadowMapShader, true, this, gameGrid, texture4, 3, GetEventManager(), *player);
+	enemy4 = new Enemy(glm::vec3(-129.0f, 0.0f, -30.0f), glm::vec3(3.0f), &enemyShader, &enemyShadowMapShader, true, this, gameGrid, texture4, 3, GetEventManager(), *player);
 	enemy4->SetAABBShader(&aabbShader);
 	enemy4->SetUpAABB();
 

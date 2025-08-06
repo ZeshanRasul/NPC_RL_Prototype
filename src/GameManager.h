@@ -427,7 +427,7 @@ private:
 	std::vector<float> hfnavRenderMeshVertices;
 	std::vector<unsigned int> hfnavRenderMeshIndices; 
 
-	glm::vec3 mapScale = glm::vec3(0.1f);
+	glm::vec3 mapScale = glm::vec3(1.0f);
 	glm::vec3 mapPos = glm::vec3(8, -90.f, 20.0f);
 };
 
