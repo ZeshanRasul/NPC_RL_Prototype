@@ -18,7 +18,8 @@ glm::vec3 dirLightPBRColour = glm::vec3(10.f, 10.0f, 10.0f);
 bool GameManager::BuildTile(int tx, int ty, float* bmin, float* bmax,  rcConfig cfg, unsigned char*& navData, int* navDataSize, dtNavMeshParams parameters)
 {
 	// Compute tile bounds
-	float tileBMin[3], tileBMax[3];
+	float tileBMin[3];
+	float tileBMax[3];
 	tileBMin[0] = parameters.orig[0] + tx * tileWorldSize;
 	tileBMin[1] = bmin[1];
 	tileBMin[2] = parameters.orig[2] + ty * tileWorldSize;
@@ -246,10 +247,18 @@ bool GameManager::BuildTile(int tx, int ty, float* bmin, float* bmax,  rcConfig 
 
 	params.tileX = tx;
 	params.tileY = ty;
+	params.tileLayer = 0;
 
-	if (!dtCreateNavMeshData(&params, &navData, navDataSize))
+	Logger::log(1, "Params before dtCreateNavMeshData: bmin(%.2f %.2f %.2f) bmax(%.2f %.2f %.2f)\n",
+		params.bmin[0], params.bmin[1], params.bmin[2],
+		params.bmax[0], params.bmax[1], params.bmax[2]);
+
+
+	dtStatus status = dtCreateNavMeshData(&params, &navData, navDataSize);
+
+	if (dtStatusFailed(status))
 	{
-		Logger::log(1, "%s error: Could not create navmesh data\n", __FUNCTION__);
+		Logger::log(1, "Create Nav Mesh Data failed: %u\n", status, __FUNCTION__);
 		return false;
 	}
 
@@ -258,17 +267,7 @@ bool GameManager::BuildTile(int tx, int ty, float* bmin, float* bmax,  rcConfig 
 	contourSets.push_back(cset);
 	polyMeshes.push_back(pmesh);
 	Logger::log(1, "PolyMeshes count: %d\n", polyMeshes.size());
-
 	polyMeshDetails.push_back(dmesh);
-
-	// Add tile to Detour navmesh
-	dtStatus status = navMesh->addTile(navData, *navDataSize, DT_TILE_FREE_DATA, 0, nullptr);
-	if (dtStatusFailed(status))
-	{
-		Logger::log(1, "Error: Could not add tile to navmesh\n",__FUNCTION__);
-		return false;
-	}
-
 
 	return true;
 }
@@ -1073,7 +1072,13 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 
 			if (BuildTile(x, y, cfg.bmin, cfg.bmax, cfg, navData, &navDataSize, params))
 			{
-				navMesh->addTile(navData, navDataSize, DT_TILE_FREE_DATA, 0, nullptr);
+				// Add tile to Detour navmesh
+				dtStatus status = navMesh->addTile(navData, navDataSize, DT_TILE_FREE_DATA, 0, nullptr);
+			
+				if (dtStatusFailed(status))
+				{
+					Logger::log(1, "Error: Could not add tile to navmesh\n", __FUNCTION__);
+				}
 			}
 		}
 	}
