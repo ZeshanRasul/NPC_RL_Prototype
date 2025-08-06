@@ -1047,6 +1047,7 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 		const float cs = polyMesh->cs;
 		const float ch = polyMesh->ch;
 		const float* orig = polyMesh->bmin;
+		size_t baseVertexIndex = navRenderMeshVertices.size() / 3;
 
 		for (int i = 0, j = polyMesh->nverts - 1; i < polyMesh->nverts; j = i++)
 		{
@@ -1068,9 +1069,9 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 				if (p[j] == RC_MESH_NULL_IDX) break;
 				// Skip degenerate triangles
 				if (p[0] == p[j - 1] || p[0] == p[j] || p[j - 1] == p[j]) continue;
-				navRenderMeshIndices.push_back(p[0]);      // Triangle vertex 1
-				navRenderMeshIndices.push_back(p[j - 1]); // Triangle vertex 2
-				navRenderMeshIndices.push_back(p[j]);     // Triangle vertex 3
+				navRenderMeshIndices.push_back(baseVertexIndex + p[0]);      // Triangle vertex 1
+				navRenderMeshIndices.push_back(baseVertexIndex + p[j - 1]); // Triangle vertex 2
+				navRenderMeshIndices.push_back(baseVertexIndex + p[j]);     // Triangle vertex 3
 			}
 		}
 	}
