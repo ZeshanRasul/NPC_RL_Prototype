@@ -783,7 +783,7 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 	cfg.walkableSlopeAngle = WALKABLE_SLOPE;     // Steeper slopes allowed
 	cfg.walkableHeight = (int)ceilf(2.0f / cfg.ch);          // Min agent height
 	cfg.walkableClimb = (int)floorf(0.4f / cfg.ch);           // Step height
-	cfg.walkableRadius = (int)ceilf(0.4f / cfg.cs);          // Agent radius
+	cfg.walkableRadius = (int)ceilf(0.8f / cfg.cs);          // Agent radius
 	cfg.maxEdgeLen = (int)(12.0f / cfg.cs);                // Longer edges for smoother polys
 	cfg.minRegionArea = rcSqr(12);              // Retain smaller regions
 	cfg.mergeRegionArea = rcSqr(30);           // Merge small regions
@@ -936,7 +936,7 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 	enemy4MuzzleFlashQuad->LoadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/muzzleflash.png");
 
 
-	player = new Player(glm::vec3(12.0f, 53.3f, 29.0f), glm::vec3(3.0f), &playerShader, &playerShadowMapShader, true, this);
+	player = new Player(glm::vec3(31.0f, 51.523170f, 129.0f), glm::vec3(3.0f), &playerShader, &playerShadowMapShader, true, this);
 	//player = new Player( (glm::vec3(23.0f, 0.0f, 37.0f)), glm::vec3(3.0f), &playerShader, &playerShadowMapShader, true, this);
 
 	player->aabbShader = &aabbShader;
@@ -946,19 +946,19 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 	std::string texture3 = "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Models/GLTF/Enemies/Ely/ely-vanguardsoldier-kerwinatienza_diffuse_3.png";
 	std::string texture4 = "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Models/GLTF/Enemies/Ely/ely-vanguardsoldier-kerwinatienza_diffuse_4.png";
 
-	enemy = new Enemy(glm::vec3(-12.0f, 53.3f, -28.0f), glm::vec3(3.0f), &enemyShader, &enemyShadowMapShader, true, this, gameGrid, texture, 0, GetEventManager(), *player);
+	enemy = new Enemy(glm::vec3(22.0f, 51.523170f, 168.0f), glm::vec3(3.0f), &enemyShader, &enemyShadowMapShader, true, this, gameGrid, texture, 0, GetEventManager(), *player);
 	enemy->SetAABBShader(&aabbShader);
 	enemy->SetUpAABB();
 
-	enemy2 = new Enemy(glm::vec3(-10.0f, 53.3f, 22.0f), glm::vec3(3.0f), &enemyShader, &enemyShadowMapShader, true, this, gameGrid, texture2, 1, GetEventManager(), *player);
+	enemy2 = new Enemy(glm::vec3(20.0f, 51.523170f, 142.0f), glm::vec3(3.0f), &enemyShader, &enemyShadowMapShader, true, this, gameGrid, texture2, 1, GetEventManager(), *player);
 	enemy2->SetAABBShader(&aabbShader);
 	enemy2->SetUpAABB();
 
-	enemy3 = new Enemy(glm::vec3(-13.0f, 53.3f, 45.0f), glm::vec3(3.0f), &enemyShader, &enemyShadowMapShader, true, this, gameGrid, texture3, 2, GetEventManager(), *player);
+	enemy3 = new Enemy(glm::vec3(13.0f, 51.523170f, 115.0f), glm::vec3(3.0f), &enemyShader, &enemyShadowMapShader, true, this, gameGrid, texture3, 2, GetEventManager(), *player);
 	enemy3->SetAABBShader(&aabbShader);
 	enemy3->SetUpAABB();
 
-	enemy4 = new Enemy(glm::vec3(29.0f, 53.3f, 30.0f), glm::vec3(3.0f), &enemyShader, &enemyShadowMapShader, true, this, gameGrid, texture4, 3, GetEventManager(), *player);
+	enemy4 = new Enemy(glm::vec3(26.0f, 51.523170f, 130.0f), glm::vec3(3.0f), &enemyShader, &enemyShadowMapShader, true, this, gameGrid, texture4, 3, GetEventManager(), *player);
 	enemy4->SetAABBShader(&aabbShader);
 	enemy4->SetUpAABB();
 
@@ -1161,11 +1161,18 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 	{
 		dtCrowdAgentParams ap;
 		memset(&ap, 0, sizeof(ap));
-		ap.radius = 0.4f;
+		ap.radius = 0.8f;
 		ap.height = 2.0f;
 		ap.maxSpeed = 3.5f;
 		ap.maxAcceleration = 8.0f; // Meters per second squared
-		ap.collisionQueryRange = ap.radius * 12.0f;
+		ap.collisionQueryRange = ap.radius * 2.0f;
+		ap.updateFlags =
+			DT_CROWD_ANTICIPATE_TURNS |
+			DT_CROWD_OPTIMIZE_VIS |
+			DT_CROWD_OPTIMIZE_TOPO |
+			DT_CROWD_SEPARATION;
+
+		ap.separationWeight = 2.0f;
 
 
 		float startingPos[3] = { enem->getPosition().x, enem->getPosition().y, enem->getPosition().z };
@@ -1670,6 +1677,10 @@ void GameManager::update(float deltaTime)
 		targetPos[1] = 0.0f;
 		targetPos[2] = .0f;*/
 
+		float offset = 5.0f;
+		targetPos[0] += (e->GetID() % 3 - 1) * offset;
+		targetPos[2] += ((e->GetID() / 3) % 3 - 1) * offset;
+
 		dtPolyRef playerPoly;		
 		float targetPlayerPosOnNavMesh[3];
 		filter.setIncludeFlags(0xFFFF); // Include all polygons for testing
@@ -1697,8 +1708,8 @@ void GameManager::update(float deltaTime)
 			Logger::log(1, "%s error: NavMeshQuery is null\n", __FUNCTION__);
 		}
 		dtStatus status;
-			if (navMeshQuery)
-				status = navMeshQuery->findNearestPoly(targetPos, halfExtents, &filter, &playerPoly, targetPlayerPosOnNavMesh);
+		if (navMeshQuery)
+			status = navMeshQuery->findNearestPoly(targetPos, halfExtents, &filter, &targetPoly, targetPlayerPosOnNavMesh);
 
 		Logger::log(1, "Player position: %f %f %f\n", player->getPosition().x, player->getPosition().y, player->getPosition().z);
 		Logger::log(1, "Target position on nav mesh after query: %f, %f, %f\n", targetPlayerPosOnNavMesh[0], targetPlayerPosOnNavMesh[1], targetPlayerPosOnNavMesh[2]);
@@ -1714,7 +1725,7 @@ void GameManager::update(float deltaTime)
 			Logger::log(1, "findNearestPoly succeeded: PolyRef = %u, Pos = %f %f %f\n", playerPoly, targetPlayerPosOnNavMesh[0], targetPlayerPosOnNavMesh[1], targetPlayerPosOnNavMesh[2]);
 		}
 
-		status = crowd->requestMoveTarget(e->GetID(), playerPoly, targetPlayerPosOnNavMesh);
+		status = crowd->requestMoveTarget(e->GetID(), targetPoly, targetPlayerPosOnNavMesh);
 
 		if (dtStatusFailed(status))
 		{
@@ -1740,6 +1751,9 @@ void GameManager::update(float deltaTime)
 		Logger::log(1, "%s: Crowd Agent %d position: %f %f %f\n", __FUNCTION__, e->GetID(), agent->npos[0], agent->npos[1], agent->npos[2]);
 		e->Update(false, speedDivider, blendFac);
 		e->setPosition(glm::vec3(agentPos[0], agentPos[1], agentPos[2]));
+		Logger::log(1, "Agent %d state: %d\n", e->GetID(), agent->state);
+		Logger::log(1, "Agent %d npos: %f %f %f\n", e->GetID(), agent->npos[0], agent->npos[1], agent->npos[2]);
+		Logger::log(1, "Agent %d targetPos: %f %f %f\n", e->GetID(), agent->targetPos[0], agent->targetPos[1], agent->targetPos[2]);
 	}
 
 	mAudioManager->Update(deltaTime);
