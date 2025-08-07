@@ -1674,11 +1674,9 @@ void GameManager::update(float deltaTime)
 		//float offset = 5.0f;
 		//targetPos[0] += (e->GetID() % 3 - 1) * offset;
 		//targetPos[2] += ((e->GetID() / 3) % 3 - 1) * offset;
-		float halfExtents2[3] = { 100.0f, 100.0f, 100.0f };
+		float halfExtents2[3] = { 1000.0f, 100.0f, 1000.0f };
 		dtPolyRef playerPoly;		
 		float targetPlayerPosOnNavMesh[3];
-		filter.setIncludeFlags(0xFFFF); // Include all polygons for testing
-		filter.setExcludeFlags(0);      // Exclude no polygons
 
 		Logger::log(1, "Target position on nav mesh before query: %f, %f, %f\n", targetPos[0], targetPos[1], targetPos[2]);
 		navMeshQuery->findNearestPoly(targetPos, halfExtents2, &filter, &playerPoly, targetPlayerPosOnNavMesh);
