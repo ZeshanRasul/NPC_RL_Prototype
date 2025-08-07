@@ -797,7 +797,7 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 
 	rcCalcGridSize(cfg.bmin, cfg.bmax, cfg.cs, &cfg.width, &cfg.height);
 
-	cfg.borderSize = cfg.walkableRadius + 5; // needed for padding around tile edges
+	cfg.borderSize = cfg.walkableRadius + 3; // needed for padding around tile edges
 
 	int tileWidth, tileHeight;
 	tileWidth = (cfg.width + cfg.tileSize - 1) / cfg.tileSize;
@@ -949,11 +949,11 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 	std::string texture3 = "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Models/GLTF/Enemies/Ely/ely-vanguardsoldier-kerwinatienza_diffuse_3.png";
 	std::string texture4 = "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Models/GLTF/Enemies/Ely/ely-vanguardsoldier-kerwinatienza_diffuse_4.png";
 
-	enemy = new Enemy(glm::vec3(22.0f, 51.523170f, 168.0f), glm::vec3(3.0f), &enemyShader, &enemyShadowMapShader, true, this, gameGrid, texture, 0, GetEventManager(), *player);
+	enemy = new Enemy(glm::vec3(3.0f, 51.523170f, 168.0f), glm::vec3(3.0f), &enemyShader, &enemyShadowMapShader, true, this, gameGrid, texture, 0, GetEventManager(), *player);
 	enemy->SetAABBShader(&aabbShader);
 	enemy->SetUpAABB();
 
-	enemy2 = new Enemy(glm::vec3(20.0f, 51.523170f, 142.0f), glm::vec3(3.0f), &enemyShader, &enemyShadowMapShader, true, this, gameGrid, texture2, 1, GetEventManager(), *player);
+	enemy2 = new Enemy(glm::vec3(40.0f, 51.523170f, 142.0f), glm::vec3(3.0f), &enemyShader, &enemyShadowMapShader, true, this, gameGrid, texture2, 1, GetEventManager(), *player);
 	enemy2->SetAABBShader(&aabbShader);
 	enemy2->SetUpAABB();
 
@@ -961,7 +961,7 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 	enemy3->SetAABBShader(&aabbShader);
 	enemy3->SetUpAABB();
 
-	enemy4 = new Enemy(glm::vec3(26.0f, 51.523170f, 130.0f), glm::vec3(3.0f), &enemyShader, &enemyShadowMapShader, true, this, gameGrid, texture4, 3, GetEventManager(), *player);
+	enemy4 = new Enemy(glm::vec3(86.0f, 51.523170f, 130.0f), glm::vec3(3.0f), &enemyShader, &enemyShadowMapShader, true, this, gameGrid, texture4, 3, GetEventManager(), *player);
 	enemy4->SetAABBShader(&aabbShader);
 	enemy4->SetUpAABB();
 
@@ -1168,7 +1168,7 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 		ap.height = 2.0f;
 		ap.maxSpeed = 3.5f;
 		ap.maxAcceleration = 8.0f; // Meters per second squared
-		ap.collisionQueryRange = ap.radius * 2.0f;
+		ap.collisionQueryRange = ap.radius * 24.0f;
 		ap.updateFlags =
 			DT_CROWD_ANTICIPATE_TURNS |
 			DT_CROWD_OPTIMIZE_VIS |
@@ -1287,7 +1287,7 @@ void GameManager::setupCamera(unsigned int width, unsigned int height)
 	cubemapView = glm::mat4(glm::mat3(camera->GetViewMatrixPlayerFollow(player->getPosition(), glm::vec3(0.0f, 1.0f, 0.0f))));
 
 	projection = glm::perspective(glm::radians(camera->Zoom), (float)width / (float)height, 0.1f, 300.0f);
-
+	u
 	minimapView = minimapCamera->GetViewMatrix();
 	minimapProjection = glm::perspective(glm::radians(camera->Zoom), (float)width / (float)height, 0.1f, 300.0f);
 
@@ -1661,17 +1661,17 @@ void GameManager::update(float deltaTime)
 
 		e->SetDeltaTime(deltaTime);
 
-		if (!useEDBT)
-		{
-			if (training)
-			{
-				e->EnemyDecision(enemyStates[e->GetID()], e->GetID(), squadActions, deltaTime, mEnemyStateQTable);
-			}
-			else
-			{
-				e->EnemyDecisionPrecomputedQ(enemyStates[e->GetID()], e->GetID(), squadActions, deltaTime, mEnemyStateQTable);
-			}
-		}
+		//if (!useEDBT)
+		//{
+		//	if (training)
+		//	{
+		//		e->EnemyDecision(enemyStates[e->GetID()], e->GetID(), squadActions, deltaTime, mEnemyStateQTable);
+		//	}
+		//	else
+		//	{
+		//		e->EnemyDecisionPrecomputedQ(enemyStates[e->GetID()], e->GetID(), squadActions, deltaTime, mEnemyStateQTable);
+		//	}
+		//}
 //		e->Update(useEDBT, speedDivider, blendFac);
 
 		float targetPos[3] = { player->getPosition().x, player->getPosition().y, player->getPosition().z };
@@ -1680,9 +1680,9 @@ void GameManager::update(float deltaTime)
 		targetPos[1] = 0.0f;
 		targetPos[2] = .0f;*/
 
-		float offset = 5.0f;
-		targetPos[0] += (e->GetID() % 3 - 1) * offset;
-		targetPos[2] += ((e->GetID() / 3) % 3 - 1) * offset;
+		//float offset = 5.0f;
+		//targetPos[0] += (e->GetID() % 3 - 1) * offset;
+		//targetPos[2] += ((e->GetID() / 3) % 3 - 1) * offset;
 
 		dtPolyRef playerPoly;		
 		float targetPlayerPosOnNavMesh[3];
@@ -1698,7 +1698,7 @@ void GameManager::update(float deltaTime)
 		
 		float enemyPosition[3] = { e->getPosition().x, e->getPosition().y, e->getPosition().z };
 
-		DebugNavmeshConnectivity(navMeshQuery, navMesh, filter, targetPos, enemyPosition);
+		//DebugNavmeshConnectivity(navMeshQuery, navMesh, filter, targetPos, enemyPosition);
 
 
 		dtPolyRef targetPoly;
@@ -1731,27 +1731,38 @@ void GameManager::update(float deltaTime)
 		{
 			Logger::log(1, "Agent %d currentPoly: %llu, targetPoly: %llu\n", e->GetID(), agent->corridor.getFirstPoly(), targetPoly);
 
+			float stoppingDistance = agent->params.radius + 0.2f;
+			float minMoveDistSq = stoppingDistance * stoppingDistance;
 			float distSq = dtVdistSqr(agent->npos, targetPlayerPosOnNavMesh);
-			float minMoveDistSq = 0.01f; // 10 cm squared
 
 			if (distSq > minMoveDistSq)
 			{
-				dtStatus moveStatus = crowd->requestMoveTarget(e->GetID(), targetPoly, targetPlayerPosOnNavMesh);
-				
-				if (agent->corridor.getPathCount() == 0)
+				dtStatus moveStatus; 
+
+				if (agent->targetRef != targetPoly || dtVdist2DSqr(agent->targetPos, targetPlayerPosOnNavMesh) > 1.0f)
 				{
-					Logger::log(1, "Agent %d has no path after request\n", e->GetID());
+					moveStatus = crowd->requestMoveTarget(e->GetID(), targetPoly, targetPlayerPosOnNavMesh);
 				}
 
-				if (dtStatusFailed(moveStatus))
-				{
-					Logger::log(1, "%s error: Could not set move target for enemy %d\n", __FUNCTION__, e->GetID());
-				}
-				else
-				{
-					Logger::log(1, "%s: Move target set for enemy %d %f, %f, %f\n", __FUNCTION__, e->GetID(),
-						targetPlayerPosOnNavMesh[0], targetPlayerPosOnNavMesh[1], targetPlayerPosOnNavMesh[2]);
-				}
+				//dtStatus moveStatus = crowd->requestMoveTarget(e->GetID(), targetPoly, targetPlayerPosOnNavMesh);
+				//
+				//if (agent->corridor.getPathCount() == 0)
+				//{
+				//	Logger::log(1, "Agent %d has no path after request\n", e->GetID());
+				//} else
+				//{
+				//	Logger::log(1, "Agent %d has path with %d points after request\n", e->GetID(), agent->corridor.getPathCount());
+				//}
+				//
+				//if (dtStatusFailed(moveStatus))
+				//{
+				//	Logger::log(1, "%s error: Could not set move target for enemy %d\n", __FUNCTION__, e->GetID());
+				//}
+				//else
+				//{
+				//	Logger::log(1, "%s: Move target set for enemy %d %f, %f, %f\n", __FUNCTION__, e->GetID(),
+				//		targetPlayerPosOnNavMesh[0], targetPlayerPosOnNavMesh[1], targetPlayerPosOnNavMesh[2]);
+				//}
 			}
 			else
 			{
@@ -1773,7 +1784,7 @@ void GameManager::update(float deltaTime)
 		dtVcopy(agentPos, agent->npos);
 		Logger::log(1, "%s: Agent %d position: %f %f %f\n", __FUNCTION__, e->GetID(), agentPos[0], agentPos[1], agentPos[2]);
 		Logger::log(1, "%s: Crowd Agent %d position: %f %f %f\n", __FUNCTION__, e->GetID(), agent->npos[0], agent->npos[1], agent->npos[2]);
-		e->Update(false, speedDivider, blendFac);
+	//	e->Update(false, speedDivider, blendFac);
 		e->setPosition(glm::vec3(agentPos[0], agentPos[1], agentPos[2]));
 		Logger::log(1, "Agent %d state: %d\n", e->GetID(), agent->state);
 		Logger::log(1, "Agent %d npos: %f %f %f\n", e->GetID(), agent->npos[0], agent->npos[1], agent->npos[2]);
