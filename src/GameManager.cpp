@@ -13,6 +13,8 @@ DirLight dirLight = {
 		glm::vec3(0.8f, 0.9f, 1.0f)
 };
 
+const float AGENT_RADIUS = 0.2f;
+
 glm::vec3 dirLightPBRColour = glm::vec3(10.f, 10.0f, 10.0f);
 
 bool GameManager::BuildTile(int tx, int ty, float* bmin, float* bmax,  rcConfig cfg, unsigned char*& navData, int* navDataSize, dtNavMeshParams parameters)
@@ -361,7 +363,8 @@ void DebugNavmeshConnectivity(
 	float playpos[3] = { playerPos[0], playerPos[1], playerPos[2] };
 	float snapped[3];
 
-	dtPolyRef playerPoly = FindNearestPolyWithPreferredY(navQuery, filter, extents, playpos[0], snapped, -300.0f, 500.0f );
+	dtPolyRef playerPoly = 0;
+	dtStatus playerStatus = navQuery->findNearestPoly(playpos, extents, &filter, &playerPoly, snapped);
 	//dtStatus playerStatus = navQuery->findNearestPoly(playerPos, extents, &filter, &playerPoly, nullptr);
 
 	if (!playerPoly)
@@ -783,7 +786,7 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 	cfg.walkableSlopeAngle = WALKABLE_SLOPE;     // Steeper slopes allowed
 	cfg.walkableHeight = (int)ceilf(2.0f / cfg.ch);          // Min agent height
 	cfg.walkableClimb = (int)floorf(0.4f / cfg.ch);           // Step height
-	cfg.walkableRadius = (int)ceilf(0.8f / cfg.cs);          // Agent radius
+	cfg.walkableRadius = (int)ceilf(AGENT_RADIUS / cfg.cs);          // Agent radius
 	cfg.maxEdgeLen = (int)(12.0f / cfg.cs);                // Longer edges for smoother polys
 	cfg.minRegionArea = rcSqr(12);              // Retain smaller regions
 	cfg.mergeRegionArea = rcSqr(30);           // Merge small regions
@@ -1161,7 +1164,7 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 	{
 		dtCrowdAgentParams ap;
 		memset(&ap, 0, sizeof(ap));
-		ap.radius = 0.8f;
+		ap.radius = AGENT_RADIUS;
 		ap.height = 2.0f;
 		ap.maxSpeed = 3.5f;
 		ap.maxAcceleration = 8.0f; // Meters per second squared
@@ -1695,13 +1698,11 @@ void GameManager::update(float deltaTime)
 		
 		float enemyPosition[3] = { e->getPosition().x, e->getPosition().y, e->getPosition().z };
 
-		//DebugNavmeshConnectivity(navMeshQuery, navMesh, filter, targetPos, enemyPosition);
+		DebugNavmeshConnectivity(navMeshQuery, navMesh, filter, targetPos, enemyPosition);
 
 
 		dtPolyRef targetPoly;
 		float targetPosOnNavMesh[3];
-		filter.setIncludeFlags(0xFFFF); // Include all polygons for testing
-		filter.setExcludeFlags(0);      // Exclude no polygons
 
 		if (!navMeshQuery)
 		{
@@ -1725,16 +1726,39 @@ void GameManager::update(float deltaTime)
 			Logger::log(1, "findNearestPoly succeeded: PolyRef = %u, Pos = %f %f %f\n", playerPoly, targetPlayerPosOnNavMesh[0], targetPlayerPosOnNavMesh[1], targetPlayerPosOnNavMesh[2]);
 		}
 
-		status = crowd->requestMoveTarget(e->GetID(), targetPoly, targetPlayerPosOnNavMesh);
+		const dtCrowdAgent* agent = crowd->getAgent(e->GetID());
+		if (agent && agent->active)
+		{
+			Logger::log(1, "Agent %d currentPoly: %llu, targetPoly: %llu\n", e->GetID(), agent->corridor.getFirstPoly(), targetPoly);
 
-		if (dtStatusFailed(status))
-		{
-			Logger::log(1, "%s error: Could not set move target for enemy %d\n", __FUNCTION__, e->GetID());
+			float distSq = dtVdistSqr(agent->npos, targetPlayerPosOnNavMesh);
+			float minMoveDistSq = 0.01f; // 10 cm squared
+
+			if (distSq > minMoveDistSq)
+			{
+				dtStatus moveStatus = crowd->requestMoveTarget(e->GetID(), targetPoly, targetPlayerPosOnNavMesh);
+				
+				if (agent->corridor.getPathCount() == 0)
+				{
+					Logger::log(1, "Agent %d has no path after request\n", e->GetID());
+				}
+
+				if (dtStatusFailed(moveStatus))
+				{
+					Logger::log(1, "%s error: Could not set move target for enemy %d\n", __FUNCTION__, e->GetID());
+				}
+				else
+				{
+					Logger::log(1, "%s: Move target set for enemy %d %f, %f, %f\n", __FUNCTION__, e->GetID(),
+						targetPlayerPosOnNavMesh[0], targetPlayerPosOnNavMesh[1], targetPlayerPosOnNavMesh[2]);
+				}
+			}
+			else
+			{
+				Logger::log(1, "Enemy %d: Target too close to current position. Skipping move update.\n", e->GetID());
+			}
 		}
-		else
-		{
-			Logger::log(1, "%s: Move target set for enemy %d %f, %f, %f\n", __FUNCTION__, e->GetID(), targetPlayerPosOnNavMesh[0], targetPlayerPosOnNavMesh[1], targetPlayerPosOnNavMesh[2]);
-		}
+
 
 
 	}
