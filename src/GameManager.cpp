@@ -932,7 +932,7 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 	enemy4MuzzleFlashQuad->LoadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/muzzleflash.png");
 
 
-	player = new Player(glm::vec3(12.0f, -16.0f, 29.0f), glm::vec3(3.0f), &playerShader, &playerShadowMapShader, true, this);
+	player = new Player(glm::vec3(12.0f, -19.076317f, 29.0f), glm::vec3(3.0f), &playerShader, &playerShadowMapShader, true, this);
 	//player = new Player( (glm::vec3(23.0f, 0.0f, 37.0f)), glm::vec3(3.0f), &playerShader, &playerShadowMapShader, true, this);
 
 	player->aabbShader = &aabbShader;
@@ -942,19 +942,19 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 	std::string texture3 = "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Models/GLTF/Enemies/Ely/ely-vanguardsoldier-kerwinatienza_diffuse_3.png";
 	std::string texture4 = "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Models/GLTF/Enemies/Ely/ely-vanguardsoldier-kerwinatienza_diffuse_4.png";
 
-	enemy = new Enemy(glm::vec3(-12.0f, -19.0f, -28.0f), glm::vec3(3.0f), &enemyShader, &enemyShadowMapShader, true, this, gameGrid, texture, 0, GetEventManager(), *player);
+	enemy = new Enemy(glm::vec3(-12.0f, -19.076317f, -28.0f), glm::vec3(3.0f), &enemyShader, &enemyShadowMapShader, true, this, gameGrid, texture, 0, GetEventManager(), *player);
 	enemy->SetAABBShader(&aabbShader);
 	enemy->SetUpAABB();
 
-	enemy2 = new Enemy(glm::vec3(-10.0f, -19.0f, 22.0f), glm::vec3(3.0f), &enemyShader, &enemyShadowMapShader, true, this, gameGrid, texture2, 1, GetEventManager(), *player);
+	enemy2 = new Enemy(glm::vec3(-10.0f, -19.076317f, 22.0f), glm::vec3(3.0f), &enemyShader, &enemyShadowMapShader, true, this, gameGrid, texture2, 1, GetEventManager(), *player);
 	enemy2->SetAABBShader(&aabbShader);
 	enemy2->SetUpAABB();
 
-	enemy3 = new Enemy(glm::vec3(-13.0f, -19.0f, 45.0f), glm::vec3(3.0f), &enemyShader, &enemyShadowMapShader, true, this, gameGrid, texture3, 2, GetEventManager(), *player);
+	enemy3 = new Enemy(glm::vec3(-13.0f, -19.076317f, 45.0f), glm::vec3(3.0f), &enemyShader, &enemyShadowMapShader, true, this, gameGrid, texture3, 2, GetEventManager(), *player);
 	enemy3->SetAABBShader(&aabbShader);
 	enemy3->SetUpAABB();
 
-	enemy4 = new Enemy(glm::vec3(29.0f, -19.0f, 30.0f), glm::vec3(3.0f), &enemyShader, &enemyShadowMapShader, true, this, gameGrid, texture4, 3, GetEventManager(), *player);
+	enemy4 = new Enemy(glm::vec3(29.0f, -19.076317f, 30.0f), glm::vec3(3.0f), &enemyShader, &enemyShadowMapShader, true, this, gameGrid, texture4, 3, GetEventManager(), *player);
 	enemy4->SetAABBShader(&aabbShader);
 	enemy4->SetUpAABB();
 
@@ -1169,6 +1169,8 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 		dtPolyRef startPoly;
 		navMeshQuery->findNearestPoly(startingPos, halfExtents, &filter, &startPoly, snappedPos);
 		enemyAgentIDs.push_back(crowd->addAgent(snappedPos, &ap));
+		Logger::log(1, "[Spawn] Enemy spawned as agent %d at (%.2f, %.2f, %.2f)\n",
+			enemyAgentIDs.back(), snappedPos[0], snappedPos[1], snappedPos[2]);
 	}
 
 	//for (auto& enem : enemies)
@@ -1637,104 +1639,104 @@ void GameManager::update(float deltaTime)
 
 	player->Update(deltaTime);
 
-//	int enemyID = 0;
-//	for (Enemy* e : enemies)
-//	{
-//		if (e == nullptr || e->isDestroyed)
-//			continue;
-//
-//		e->SetDeltaTime(deltaTime);
-//
-//		if (!useEDBT)
-//		{
-//			if (training)
-//			{
-//				e->EnemyDecision(enemyStates[e->GetID()], e->GetID(), squadActions, deltaTime, mEnemyStateQTable);
-//			}
-//			else
-//			{
-//				e->EnemyDecisionPrecomputedQ(enemyStates[e->GetID()], e->GetID(), squadActions, deltaTime, mEnemyStateQTable);
-//			}
-//		}
-////		e->Update(useEDBT, speedDivider, blendFac);
-//
-//		float targetPos[3] = { player->getPosition().x, player->getPosition().y, player->getPosition().z };
-//
-//	/*	targetPos[0] = 0.0f;
-//		targetPos[1] = 0.0f;
-//		targetPos[2] = .0f;*/
-//
-//		dtPolyRef playerPoly;		
-//		float targetPlayerPosOnNavMesh[3];
-//		filter.setIncludeFlags(0xFFFF); // Include all polygons for testing
-//		filter.setExcludeFlags(0);      // Exclude no polygons
-//
-//		Logger::log(1, "Target position on nav mesh before query: %f, %f, %f\n", targetPos[0], targetPos[1], targetPos[2]);
-//		navMeshQuery->findNearestPoly(targetPos, halfExtents, &filter, &playerPoly, targetPlayerPosOnNavMesh);
-//	//	Logger::log(1, "Player position: %f %f %f\n", player->getPosition().x, player->getPosition().y, player->getPosition().z);
-//		Logger::log(1, "Target position on nav mesh after query: %f, %f, %f\n", targetPlayerPosOnNavMesh[0], targetPlayerPosOnNavMesh[1], targetPlayerPosOnNavMesh[2]);
-//
-//		std::vector<float* [3]> enemPos;
-//		
-//		float enemyPosition[3] = { e->getPosition().x, e->getPosition().y, e->getPosition().z };
-//
-//		//DebugNavmeshConnectivity(navMeshQuery, navMesh, filter, targetPos, enemyPosition);
-//
-//
-//		dtPolyRef targetPoly;
-//		float targetPosOnNavMesh[3];
-//		filter.setIncludeFlags(0xFFFF); // Include all polygons for testing
-//		filter.setExcludeFlags(0);      // Exclude no polygons
-//
-//		if (!navMeshQuery)
-//		{
-//			Logger::log(1, "%s error: NavMeshQuery is null\n", __FUNCTION__);
-//		}
-//		dtStatus status;
-//			if (navMeshQuery)
-//				status = navMeshQuery->findNearestPoly(targetPos, halfExtents, &filter, &playerPoly, targetPlayerPosOnNavMesh);
-//
-//		Logger::log(1, "Player position: %f %f %f\n", player->getPosition().x, player->getPosition().y, player->getPosition().z);
-//		Logger::log(1, "Target position on nav mesh after query: %f, %f, %f\n", targetPlayerPosOnNavMesh[0], targetPlayerPosOnNavMesh[1], targetPlayerPosOnNavMesh[2]);
-//
-//		if (dtStatusFailed(status))
-//		{
-//			Logger::log(1, "%s error: Could not find nearest poly enemy %d\n", __FUNCTION__, e->GetID());
-//			Logger::log(1, "findNearestPoly failed: %u\n", status);
-//		}
-//		else
-//		{
-//			Logger::log(1, "%s: Found nearest poly enemy %d\n", __FUNCTION__, e->GetID());
-//			Logger::log(1, "findNearestPoly succeeded: PolyRef = %u, Pos = %f %f %f\n", playerPoly, targetPlayerPosOnNavMesh[0], targetPlayerPosOnNavMesh[1], targetPlayerPosOnNavMesh[2]);
-//		}
-//
-//		status = crowd->requestMoveTarget(e->GetID(), playerPoly, targetPlayerPosOnNavMesh);
-//
-//		if (dtStatusFailed(status))
-//		{
-//			Logger::log(1, "%s error: Could not set move target for enemy %d\n", __FUNCTION__, e->GetID());
-//		}
-//		else
-//		{
-//			Logger::log(1, "%s: Move target set for enemy %d %f, %f, %f\n", __FUNCTION__, e->GetID(), targetPlayerPosOnNavMesh[0], targetPlayerPosOnNavMesh[1], targetPlayerPosOnNavMesh[2]);
-//		}
-//
-//
-//	}
-//	crowd->update(deltaTime, nullptr);
-//
-//
-//	for (Enemy* e : enemies)
-//	{
-//
-//		const dtCrowdAgent* agent = crowd->getAgent(e->GetID());
-//		float agentPos[3];
-//		dtVcopy(agentPos, agent->npos);
-//		Logger::log(1, "%s: Agent %d position: %f %f %f\n", __FUNCTION__, e->GetID(), agentPos[0], agentPos[1], agentPos[2]);
-//		Logger::log(1, "%s: Crowd Agent %d position: %f %f %f\n", __FUNCTION__, e->GetID(), agent->npos[0], agent->npos[1], agent->npos[2]);
-//		e->Update(false, speedDivider, blendFac);
-//		e->setPosition(glm::vec3(agentPos[0], agentPos[1], agentPos[2]));
-//	}
+	int enemyID = 0;
+	for (Enemy* e : enemies)
+	{
+		if (e == nullptr || e->isDestroyed)
+			continue;
+
+		e->SetDeltaTime(deltaTime);
+
+		if (!useEDBT)
+		{
+			if (training)
+			{
+				e->EnemyDecision(enemyStates[e->GetID()], e->GetID(), squadActions, deltaTime, mEnemyStateQTable);
+			}
+			else
+			{
+				e->EnemyDecisionPrecomputedQ(enemyStates[e->GetID()], e->GetID(), squadActions, deltaTime, mEnemyStateQTable);
+			}
+		}
+//		e->Update(useEDBT, speedDivider, blendFac);
+
+		float targetPos[3] = { player->getPosition().x, player->getPosition().y, player->getPosition().z };
+
+	/*	targetPos[0] = 0.0f;
+		targetPos[1] = 0.0f;
+		targetPos[2] = .0f;*/
+
+		dtPolyRef playerPoly;		
+		float targetPlayerPosOnNavMesh[3];
+		filter.setIncludeFlags(0xFFFF); // Include all polygons for testing
+		filter.setExcludeFlags(0);      // Exclude no polygons
+
+		Logger::log(1, "Target position on nav mesh before query: %f, %f, %f\n", targetPos[0], targetPos[1], targetPos[2]);
+		navMeshQuery->findNearestPoly(targetPos, halfExtents, &filter, &playerPoly, targetPlayerPosOnNavMesh);
+	//	Logger::log(1, "Player position: %f %f %f\n", player->getPosition().x, player->getPosition().y, player->getPosition().z);
+		Logger::log(1, "Target position on nav mesh after query: %f, %f, %f\n", targetPlayerPosOnNavMesh[0], targetPlayerPosOnNavMesh[1], targetPlayerPosOnNavMesh[2]);
+
+		std::vector<float* [3]> enemPos;
+		
+		float enemyPosition[3] = { e->getPosition().x, e->getPosition().y, e->getPosition().z };
+
+		//DebugNavmeshConnectivity(navMeshQuery, navMesh, filter, targetPos, enemyPosition);
+
+
+		dtPolyRef targetPoly;
+		float targetPosOnNavMesh[3];
+		filter.setIncludeFlags(0xFFFF); // Include all polygons for testing
+		filter.setExcludeFlags(0);      // Exclude no polygons
+
+		if (!navMeshQuery)
+		{
+			Logger::log(1, "%s error: NavMeshQuery is null\n", __FUNCTION__);
+		}
+		dtStatus status;
+			if (navMeshQuery)
+				status = navMeshQuery->findNearestPoly(targetPos, halfExtents, &filter, &playerPoly, targetPlayerPosOnNavMesh);
+
+		Logger::log(1, "Player position: %f %f %f\n", player->getPosition().x, player->getPosition().y, player->getPosition().z);
+		Logger::log(1, "Target position on nav mesh after query: %f, %f, %f\n", targetPlayerPosOnNavMesh[0], targetPlayerPosOnNavMesh[1], targetPlayerPosOnNavMesh[2]);
+
+		if (dtStatusFailed(status))
+		{
+			Logger::log(1, "%s error: Could not find nearest poly enemy %d\n", __FUNCTION__, e->GetID());
+			Logger::log(1, "findNearestPoly failed: %u\n", status);
+		}
+		else
+		{
+			Logger::log(1, "%s: Found nearest poly enemy %d\n", __FUNCTION__, e->GetID());
+			Logger::log(1, "findNearestPoly succeeded: PolyRef = %u, Pos = %f %f %f\n", playerPoly, targetPlayerPosOnNavMesh[0], targetPlayerPosOnNavMesh[1], targetPlayerPosOnNavMesh[2]);
+		}
+
+		status = crowd->requestMoveTarget(e->GetID(), playerPoly, targetPlayerPosOnNavMesh);
+
+		if (dtStatusFailed(status))
+		{
+			Logger::log(1, "%s error: Could not set move target for enemy %d\n", __FUNCTION__, e->GetID());
+		}
+		else
+		{
+			Logger::log(1, "%s: Move target set for enemy %d %f, %f, %f\n", __FUNCTION__, e->GetID(), targetPlayerPosOnNavMesh[0], targetPlayerPosOnNavMesh[1], targetPlayerPosOnNavMesh[2]);
+		}
+
+
+	}
+	crowd->update(deltaTime, nullptr);
+
+
+	for (Enemy* e : enemies)
+	{
+
+		const dtCrowdAgent* agent = crowd->getAgent(e->GetID());
+		float agentPos[3];
+		dtVcopy(agentPos, agent->npos);
+		Logger::log(1, "%s: Agent %d position: %f %f %f\n", __FUNCTION__, e->GetID(), agentPos[0], agentPos[1], agentPos[2]);
+		Logger::log(1, "%s: Crowd Agent %d position: %f %f %f\n", __FUNCTION__, e->GetID(), agent->npos[0], agent->npos[1], agent->npos[2]);
+		e->Update(false, speedDivider, blendFac);
+		e->setPosition(glm::vec3(agentPos[0], agentPos[1], agentPos[2]));
+	}
 
 	mAudioManager->Update(deltaTime);
 	audioSystem->Update(deltaTime);
