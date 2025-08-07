@@ -13,32 +13,37 @@ DirLight dirLight = {
 		glm::vec3(0.8f, 0.9f, 1.0f)
 };
 
-const float AGENT_RADIUS = 1.2f;
+const float AGENT_RADIUS = 0.6f;
 
 glm::vec3 dirLightPBRColour = glm::vec3(10.f, 10.0f, 10.0f);
 
 bool GameManager::BuildTile(int tx, int ty, float* bmin, float* bmax,  rcConfig cfg, unsigned char*& navData, int* navDataSize, dtNavMeshParams parameters)
 {
-	// Compute tile bounds
-	float tileBMin[3];
-	float tileBMax[3];
-	tileBMin[0] = parameters.orig[0] + tx * tileWorldSize;
-	tileBMin[1] = bmin[1];
-	tileBMin[2] = parameters.orig[2] + ty * tileWorldSize;
+	rcConfig config = cfg;
 
-	tileBMax[0] = parameters.orig[0] + (tx + 1) * tileWorldSize;
-	tileBMax[1] = bmax[1];
-	tileBMax[2] = parameters.orig[2] + (ty + 1) * tileWorldSize;
+	const float tileWorldSize = cfg.tileSize * cfg.cs;
+
+	// Compute tile bounds
+	float tileBMin[3] = {
+			parameters.orig[0] + tx * tileWorldSize,
+			bmin[1],
+			parameters.orig[2] + ty * tileWorldSize
+	};
+	float tileBMax[3] = {
+		parameters.orig[0] + (tx + 1) * tileWorldSize,
+		bmax[1],
+		parameters.orig[2] + (ty + 1) * tileWorldSize
+	};
+
+	config.borderSize = config.walkableRadius + 3; // cells
+	config.width = config.tileSize + config.borderSize * 2;
+	config.height = config.tileSize + config.borderSize * 2;
+
 
 	// Expand by border size
-	float border = cfg.borderSize * cfg.cs;
-	float tbmin[3], tbmax[3];
-	rcVcopy(tbmin, tileBMin);
-	rcVcopy(tbmax, tileBMax);
-	tbmin[0] -= border; 
-	tbmin[2] -= border;
-	tbmax[0] += border; 
-	tbmax[2] += border;
+	float border = config.borderSize * config.cs;
+	float tbmin[3] = { tileBMin[0] - border, tileBMin[1], tileBMin[2] - border };
+	float tbmax[3] = { tileBMax[0] + border, tileBMax[1], tileBMax[2] + border };
 
 	//rcContext ctx;
 
@@ -94,7 +99,7 @@ bool GameManager::BuildTile(int tx, int ty, float* bmin, float* bmax,  rcConfig 
 		tileAreas.push_back(RC_WALKABLE_AREA); // Mark triangle as walkable
 	}
 	rcHeightfield* heightField = rcAllocHeightfield();
-	if (!rcCreateHeightfield(&ctx, *heightField, cfg.width, cfg.height, tbmin, tbmax, cfg.cs, cfg.ch)) 
+	if (!rcCreateHeightfield(&ctx, *heightField, config.width, config.height, tbmin, tbmax, config.cs, config.ch))
 	{
 		Logger::log(1, "%s error: Could not create heightfield\n", __FUNCTION__);
 		return false;
@@ -104,13 +109,10 @@ bool GameManager::BuildTile(int tx, int ty, float* bmin, float* bmax,  rcConfig 
 		Logger::log(1, "%s: Heightfield successfully created\n", __FUNCTION__);
 	}
 
-	rcFilterWalkableLowHeightSpans(&ctx, cfg.walkableHeight, *heightField);
-	rcFilterLedgeSpans(&ctx, cfg.walkableHeight, cfg.walkableClimb, *heightField);
-	rcFilterLowHangingWalkableObstacles(&ctx, cfg.walkableHeight, *heightField);
 
 	int triangleCount = navMeshIndices.size() / 3;
 
-	if (!rcRasterizeTriangles(&ctx, tileVerts.data(), tileVerts.size() / 3, tileIndices.data(), tileAreas.data(), tileIndices.size() / 3, *heightField, cfg.walkableClimb))
+	if (!rcRasterizeTriangles(&ctx, tileVerts.data(), tileVerts.size() / 3, tileIndices.data(), tileAreas.data(), tileIndices.size() / 3, *heightField, config.walkableClimb))
 	{
 		Logger::log(1, "%s error: Could not rasterize triangles\n", __FUNCTION__);
 	}
@@ -118,6 +120,11 @@ bool GameManager::BuildTile(int tx, int ty, float* bmin, float* bmax,  rcConfig 
 	{
 		Logger::log(1, "%s: rasterize triangles successfully created\n", __FUNCTION__);
 	};
+
+	rcFilterWalkableLowHeightSpans(&ctx, cfg.walkableHeight, *heightField);
+	rcFilterLedgeSpans(&ctx, cfg.walkableHeight, cfg.walkableClimb, *heightField);
+	rcFilterLowHangingWalkableObstacles(&ctx, cfg.walkableHeight, *heightField);
+
 
 	rcCompactHeightfield* chf = rcAllocCompactHeightfield();
 	if (!rcBuildCompactHeightfield(&ctx, cfg.walkableHeight, cfg.walkableClimb, *heightField, *chf))
@@ -128,6 +135,7 @@ bool GameManager::BuildTile(int tx, int ty, float* bmin, float* bmax,  rcConfig 
 	{
 		Logger::log(1, "%s: compact heightfield successfully created\n", __FUNCTION__);
 	}
+
 
 	rcErodeWalkableArea(&ctx, cfg.walkableRadius, *chf);
 	rcBuildDistanceField(&ctx, *chf);
@@ -164,6 +172,14 @@ bool GameManager::BuildTile(int tx, int ty, float* bmin, float* bmax,  rcConfig 
 		Logger::log(1, "%s: polymesh detail successfully created\n", __FUNCTION__);
 	};
 
+	if (pmesh->npolys == 0 || pmesh == nullptr || dmesh == nullptr || chf == nullptr || cset == nullptr || heightField == nullptr)
+	{
+		navData = nullptr;
+		navDataSize = 0;
+		Logger::log(1, "%s error: One of the mesh components is null\n", __FUNCTION__);
+		return true;
+	}
+
 	Logger::log(1, "NavMesh vertices count: %d\n", tileVerts.size());
 	Logger::log(1, "NavMesh indices count: %d\n", tileIndices.size());
 	Logger::log(1, "Heightfield span count: %d\n", heightField->width * heightField->height);
@@ -179,13 +195,17 @@ bool GameManager::BuildTile(int tx, int ty, float* bmin, float* bmax,  rcConfig 
 		Logger::log(1, "NavMesh Vert %d: %.2f %.2f %.2f\n", i / 3,
 			tileVerts[i], tileVerts[i + 1], tileVerts[i + 2]);
 	}
-
+	static const unsigned short DT_POLYFLAGS_WALK = 0x01;
 	dtNavMeshCreateParams params = {};
 	params.verts = pmesh->verts;
 	params.vertCount = pmesh->nverts;
 	params.polys = pmesh->polys;
 	params.polyAreas = pmesh->areas;
-	static const unsigned short DT_POLYFLAGS_WALK = 0x01;
+
+	rcVcopy(params.bmin, tileBMin);
+	rcVcopy(params.bmax, tileBMax);
+	Logger::log(1, "Tile (%d,%d) bmin: %.2f %.2f %.2f  bmax: %.2f %.2f %.2f\n",
+		tx, ty, tbmin[0], tbmin[1], tbmin[2], tbmax[0], tbmax[1], tbmax[2]);
 
 	for (int i = 0; i < pmesh->npolys; ++i)
 	{
@@ -198,21 +218,15 @@ bool GameManager::BuildTile(int tx, int ty, float* bmin, float* bmax,  rcConfig 
 			pmesh->flags[i] = 0;
 		}
 		params.polyAreas = pmesh->areas;
-	};
-
-	rcVcopy(params.bmin, tbmin);
-	rcVcopy(params.bmax, tbmax);
-	Logger::log(1, "Tile (%d,%d) bmin: %.2f %.2f %.2f  bmax: %.2f %.2f %.2f\n",
-		tx, ty, tbmin[0], tbmin[1], tbmin[2], tbmax[0], tbmax[1], tbmax[2]);
-
+	};	params.polyFlags = pmesh->flags;
 	params.polyFlags = pmesh->flags;
 
 
 	params.polyCount = pmesh->npolys;
 	params.nvp = pmesh->nvp;
-	params.walkableHeight = cfg.walkableHeight;
-	params.walkableRadius = cfg.walkableRadius;
-	params.walkableClimb = cfg.walkableClimb;
+	params.walkableHeight = config.walkableHeight * config.ch;
+	params.walkableRadius = config.walkableRadius * config.cs;
+	params.walkableClimb = config.walkableClimb * config.ch;
 	params.detailMeshes = dmesh->meshes;
 	params.detailVerts = dmesh->verts;
 	params.detailVertsCount = dmesh->nverts;
@@ -225,8 +239,8 @@ bool GameManager::BuildTile(int tx, int ty, float* bmin, float* bmax,  rcConfig 
 	params.offMeshConFlags = nullptr;
 	params.offMeshConUserID = nullptr;
 	params.offMeshConCount = 0;
-	params.cs = cfg.cs;
-	params.ch = cfg.ch;
+	params.cs = config.cs;
+	params.ch = config.ch;
 	params.buildBvTree = true;
 
 	params.tileX = tx;
@@ -793,15 +807,26 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 	cfg.maxSimplificationError = 0.1f;  // Less aggressive simplification
 	cfg.detailSampleDist = cfg.cs * 6;  // Balanced detail
 	cfg.maxVertsPerPoly = 6;            // Max verts per poly
-	cfg.tileSize = 32;                  // Tile size
+	cfg.tileSize = 248;                  // Tile size
 
 	rcCalcGridSize(cfg.bmin, cfg.bmax, cfg.cs, &cfg.width, &cfg.height);
 
-	cfg.borderSize = cfg.walkableRadius + 3; // needed for padding around tile edges
+	cfg.borderSize = (int)ceil(cfg.walkableRadius / cfg.cs);
+#
+	rcCalcBounds(navMeshVertices.data(), navMeshVertices.size() / 3, cfg.bmin, cfg.bmax);
 
-	int tileWidth, tileHeight;
-	tileWidth = (cfg.width + cfg.tileSize - 1) / cfg.tileSize;
-	tileHeight = (cfg.height + cfg.tileSize - 1) / cfg.tileSize;
+	//cfg.width = (int)((cfg.bmax[0] - cfg.bmin[0]) / cfg.cs + 0.5f);
+	//cfg.height = (int)((cfg.bmax[2] - cfg.bmin[2]) / cfg.cs + 0.5f);
+
+	int mapVoxelsX = int((cfg.bmax[0] - cfg.bmin[0]) / cfg.cs + 0.5f);
+	int mapVoxelsZ = int((cfg.bmax[2] - cfg.bmin[2]) / cfg.cs + 0.5f);
+
+	int tileCountX = (mapVoxelsX + cfg.tileSize - 1) / cfg.tileSize;
+	int tileCountY = (mapVoxelsZ + cfg.tileSize - 1) / cfg.tileSize;
+
+	//int tileWidth, tileHeight;
+	//tileWidth = (cfg.width + cfg.tileSize - 1) / cfg.tileSize;
+	//tileHeight = (cfg.height + cfg.tileSize - 1) / cfg.tileSize;
 
 	Logger::log(1, "Num verts %zu", navMeshVertices.size());
 
@@ -821,25 +846,19 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 
 	//rcCalcBounds(navMeshVertices.data(), navMeshVertices.size() / 3, cfg.bmin, cfg.bmax);
 
-	rcCalcBounds(navMeshVertices.data(), navMeshVertices.size() / 3, cfg.bmin, cfg.bmax);
-
-	cfg.width = (int)((cfg.bmax[0] - cfg.bmin[0]) / cfg.cs + 0.5f);
-	cfg.height = (int)((cfg.bmax[2] - cfg.bmin[2]) / cfg.cs + 0.5f);
 
 
-	dtNavMeshParams params = {};
+
 	tileWorldSize = cfg.tileSize * cfg.cs;
 
-	int tileCountX = (cfg.width + cfg.tileSize - 1) / cfg.tileSize;
-	int tileCountY = (cfg.height + cfg.tileSize - 1) / cfg.tileSize;
-
-
+	dtNavMeshParams params = {};
+	float tileWorldSize = cfg.tileSize * cfg.cs;
 	params.orig[0] = floor(cfg.bmin[0] / tileWorldSize) * tileWorldSize;
 	params.orig[1] = cfg.bmin[1];
 	params.orig[2] = floor(cfg.bmin[2] / tileWorldSize) * tileWorldSize;
-	params.tileWidth = cfg.tileSize * cfg.cs;
-	params.tileHeight = cfg.tileSize * cfg.cs;
-	params.maxTiles = tileCountX * tileCountY;
+	params.tileWidth = tileWorldSize;
+	params.tileHeight = tileWorldSize;
+	params.maxTiles = tileCountX * tileCountY;   // now > 1
 	params.maxPolys = 2048; // Set a reasonable limit for the number of polygons per tile
 	Logger::log(1, "Navmesh origin: %.2f %.2f %.2f\n", params.orig[0], params.orig[1], params.orig[2]);
 
@@ -874,7 +893,7 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 
 	navMeshQuery = dtAllocNavMeshQuery();
 
-	dtStatus status = navMeshQuery->init(navMesh, 10);
+	dtStatus status = navMeshQuery->init(navMesh, 4096);
 	if (dtStatusFailed(status))
 	{
 		Logger::log(1, "%s error: Could not init Detour navMeshQuery\n", __FUNCTION__);
@@ -949,7 +968,7 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 	std::string texture3 = "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Models/GLTF/Enemies/Ely/ely-vanguardsoldier-kerwinatienza_diffuse_3.png";
 	std::string texture4 = "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Models/GLTF/Enemies/Ely/ely-vanguardsoldier-kerwinatienza_diffuse_4.png";
 
-	enemy = new Enemy(glm::vec3(-38.0f, -54.6f, 13.0f), glm::vec3(1.0f), &enemyShader, &enemyShadowMapShader, true, this, gameGrid, texture, 0, GetEventManager(), *player);
+	enemy = new Enemy(glm::vec3(-30.0f, -54.6f, 8.0f), glm::vec3(1.0f), &enemyShader, &enemyShadowMapShader, true, this, gameGrid, texture, 0, GetEventManager(), *player);
 	enemy->SetAABBShader(&aabbShader);
 	enemy->SetUpAABB();
 
@@ -957,11 +976,11 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 	enemy2->SetAABBShader(&aabbShader);
 	enemy2->SetUpAABB();
 
-	enemy3 = new Enemy(glm::vec3(-40.0f, -54.6f, 15.0f), glm::vec3(1.0f), &enemyShader, &enemyShadowMapShader, true, this, gameGrid, texture3, 2, GetEventManager(), *player);
+	enemy3 = new Enemy(glm::vec3(-44.0f, -54.6f, 18.0f), glm::vec3(1.0f), &enemyShader, &enemyShadowMapShader, true, this, gameGrid, texture3, 2, GetEventManager(), *player);
 	enemy3->SetAABBShader(&aabbShader);
 	enemy3->SetUpAABB();
 
-	enemy4 = new Enemy(glm::vec3(-41.0f, -54.6f, 16.0f), glm::vec3(1.0f), &enemyShader, &enemyShadowMapShader, true, this, gameGrid, texture4, 3, GetEventManager(), *player);
+	enemy4 = new Enemy(glm::vec3(-50.0f, -54.6f, 123.0f), glm::vec3(1.0f), &enemyShader, &enemyShadowMapShader, true, this, gameGrid, texture4, 3, GetEventManager(), *player);
 	enemy4->SetAABBShader(&aabbShader);
 	enemy4->SetUpAABB();
 
@@ -1142,7 +1161,7 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 	
 
 	crowd = dtAllocCrowd();
-	crowd->init(50, 4.0f, navMesh);
+	crowd->init(50, AGENT_RADIUS, navMesh);
 
 	//for (auto& enem : enemies)
 	//{
@@ -1168,7 +1187,13 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 		ap.height = 1.0f;
 		ap.maxSpeed = 4.0f;
 		ap.maxAcceleration = 12.0f;
-
+		ap.collisionQueryRange = AGENT_RADIUS * 6.0f;
+		ap.pathOptimizationRange = AGENT_RADIUS * 15.0f;
+		ap.updateFlags = DT_CROWD_ANTICIPATE_TURNS
+			| DT_CROWD_OPTIMIZE_VIS
+			| DT_CROWD_OPTIMIZE_TOPO
+			| DT_CROWD_SEPARATION;
+		ap.separationWeight = 0.5f;
 		float startingPos[3] = { enem->getPosition().x, enem->getPosition().y, enem->getPosition().z };
 		float snappedPos[3];
 		dtPolyRef startPoly;
@@ -1605,6 +1630,33 @@ void GameManager::ResetGame()
 
 }
 
+static float frand() {
+	return static_cast<float>(rand()) / static_cast<float>(RAND_MAX);
+}
+
+bool findRandomNavMeshPoint(dtNavMeshQuery* navQuery, dtQueryFilter* filter, float outPos[3], dtPolyRef* outRef)
+{
+	if (!navQuery || !filter || !outPos || !outRef)
+		return false;
+
+	dtPolyRef startRef;
+	float startPos[3];
+
+	// 1. Find a starting point somewhere on the navmesh
+	float center[3] = { 0.0f, 0.0f, 0.0f }; // Change to center of your map
+	float extents[3] = { 500.0f, 100.0f, 500.0f }; // Generous search extents
+	dtStatus status = navQuery->findNearestPoly(center, extents, filter, &startRef, startPos);
+
+	if (dtStatusFailed(status)) {
+		return false;
+	}
+
+	// 2. Generate a truly random point from that reference
+	status = navQuery->findRandomPoint(filter, frand, outRef, outPos);
+
+	return dtStatusSucceed(status);
+}
+
 void GameManager::ShowCameraControlWindow(Camera& cam)
 {
 	ImGui::Begin("Camera Control");
@@ -1644,6 +1696,10 @@ void GameManager::update(float deltaTime)
 
 	player->Update(deltaTime);
 
+
+
+	float targetPos[3] = { player->getPosition().x, player->getPosition().y, player->getPosition().z };
+
 	int enemyID = 0;
 	for (Enemy* e : enemies)
 	{
@@ -1665,7 +1721,6 @@ void GameManager::update(float deltaTime)
 		//}
 //		e->Update(useEDBT, speedDivider, blendFac);
 
-		float targetPos[3] = { player->getPosition().x, player->getPosition().y, player->getPosition().z};
 
 	/*	targetPos[0] = 0.0f;
 		targetPos[1] = 0.0f;
@@ -1674,7 +1729,7 @@ void GameManager::update(float deltaTime)
 		//float offset = 5.0f;
 		//targetPos[0] += (e->GetID() % 3 - 1) * offset;
 		//targetPos[2] += ((e->GetID() / 3) % 3 - 1) * offset;
-		float halfExtents2[3] = { 1000.0f, 100.0f, 1000.0f };
+		float halfExtents2[3] = { 50.0f, 10.0f, 50.0f };
 		dtPolyRef playerPoly;		
 		float targetPlayerPosOnNavMesh[3];
 
@@ -1689,9 +1744,28 @@ void GameManager::update(float deltaTime)
 
 		//DebugNavmeshConnectivity(navMeshQuery, navMesh, filter, targetPos, enemyPosition);
 
+		float randPos[3];
+		dtPolyRef randRef;
+
+		if (findRandomNavMeshPoint(navMeshQuery, &filter, randPos, &randRef)) {
+			std::cout << "Random pos: " << randPos[0] << ", " << randPos[1] << ", " << randPos[2] << "\n";
+			// You can move an enemy here or use it as a patrol target
+		}
+		else {
+			std::cout << "Failed to find random position on navmesh\n";
+		}
 
 		dtPolyRef targetPoly;
 		float targetPosOnNavMesh[3];
+
+		float jitterX = ((rand() % 100) / 100.0f - 0.5f) * 10.0f; 
+		float jitterZ = ((rand() % 100) / 100.0f - 0.5f) * 10.0f;
+
+		float target[3] = {
+			targetPlayerPosOnNavMesh[0] + jitterX,
+			targetPlayerPosOnNavMesh[1],
+			targetPlayerPosOnNavMesh[2] + jitterZ
+		};
 
 		if (!navMeshQuery)
 		{
@@ -1706,7 +1780,12 @@ void GameManager::update(float deltaTime)
 			continue;
 		}
 
-		dtStatus moveStatus = crowd->requestMoveTarget(e->GetID(), targetPoly, targetPlayerPosOnNavMesh);
+		bool moveStatus = crowd->requestMoveTarget(e->GetID(), targetPoly, targetPlayerPosOnNavMesh);
+
+		if (!moveStatus) {
+			Logger::log(1, "Enemy %d: requestMoveTarget failed\n", e->GetID());
+			continue;
+		}
 
 
 	}
@@ -1720,6 +1799,10 @@ void GameManager::update(float deltaTime)
 		float agentPos[3];
 		dtVcopy(agentPos, agent->npos);
 	//	e->Update(false, speedDivider, blendFac);
+		if ((agent->npos - targetPos) < glm::abs(32.0f)) {
+			// stop steering and switch to idle/attack state
+			crowd->resetMoveTarget(e->GetID());
+		}
 		e->setPosition(glm::vec3(agentPos[0], agentPos[1], agentPos[2]));
 	}
 
