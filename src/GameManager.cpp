@@ -36,12 +36,12 @@ bool GameManager::BuildTile(int tx, int ty, float* bmin, float* bmax,  rcConfig 
 	};
 
 	config.borderSize = config.walkableRadius + 3; // cells
+	const float border = config.borderSize * config.cs; // meters
+
 	config.width = config.tileSize + config.borderSize * 2;
 	config.height = config.tileSize + config.borderSize * 2;
 
-
 	// Expand by border size
-	float border = config.borderSize * config.cs;
 	float tbmin[3] = { tileBMin[0] - border, tileBMin[1], tileBMin[2] - border };
 	float tbmax[3] = { tileBMax[0] + border, tileBMax[1], tileBMax[2] + border };
 
@@ -121,9 +121,9 @@ bool GameManager::BuildTile(int tx, int ty, float* bmin, float* bmax,  rcConfig 
 		Logger::log(1, "%s: rasterize triangles successfully created\n", __FUNCTION__);
 	};
 
-	rcFilterWalkableLowHeightSpans(&ctx, cfg.walkableHeight, *heightField);
-	rcFilterLedgeSpans(&ctx, cfg.walkableHeight, cfg.walkableClimb, *heightField);
-	rcFilterLowHangingWalkableObstacles(&ctx, cfg.walkableHeight, *heightField);
+	rcFilterWalkableLowHeightSpans(&ctx, config.walkableHeight, *heightField);
+	rcFilterLedgeSpans(&ctx, cfg.walkableHeight, config.walkableClimb, *heightField);
+	rcFilterLowHangingWalkableObstacles(&ctx, config.walkableHeight, *heightField);
 
 
 	rcCompactHeightfield* chf = rcAllocCompactHeightfield();
@@ -137,12 +137,12 @@ bool GameManager::BuildTile(int tx, int ty, float* bmin, float* bmax,  rcConfig 
 	}
 
 
-	rcErodeWalkableArea(&ctx, cfg.walkableRadius, *chf);
+	rcErodeWalkableArea(&ctx, config.walkableRadius, *chf);
 	rcBuildDistanceField(&ctx, *chf);
-	rcBuildRegions(&ctx, *chf, cfg.borderSize, cfg.minRegionArea, cfg.mergeRegionArea);
+	rcBuildRegions(&ctx, *chf, config.borderSize, config.minRegionArea, config.mergeRegionArea);
 
 	rcContourSet* cset = rcAllocContourSet();
-	if (!rcBuildContours(&ctx, *chf, cfg.maxSimplificationError, cfg.maxEdgeLen, *cset))
+	if (!rcBuildContours(&ctx, *chf, config.maxSimplificationError, config.maxEdgeLen, *cset))
 	{
 		Logger::log(1, "%s error: Could not build contours\n", __FUNCTION__);
 	}
@@ -163,7 +163,7 @@ bool GameManager::BuildTile(int tx, int ty, float* bmin, float* bmax,  rcConfig 
 	};
 
 	rcPolyMeshDetail* dmesh = rcAllocPolyMeshDetail();
-	if (!rcBuildPolyMeshDetail(&ctx, *pmesh, *chf, cfg.detailSampleDist, cfg.detailSampleMaxError, *dmesh))
+	if (!rcBuildPolyMeshDetail(&ctx, *pmesh, *chf, config.detailSampleDist, config.detailSampleMaxError, *dmesh))
 	{
 		Logger::log(1, "%s error: Could not build polymesh detail\n", __FUNCTION__);
 	}
@@ -810,6 +810,7 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 	cfg.tileSize = 248;                  // Tile size
 
 	rcCalcGridSize(cfg.bmin, cfg.bmax, cfg.cs, &cfg.width, &cfg.height);
+	cfg.borderSize = cfg.walkableRadius + 3;      // cells (important)
 
 	cfg.borderSize = (int)ceil(cfg.walkableRadius / cfg.cs);
 #
