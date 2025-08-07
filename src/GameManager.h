@@ -408,7 +408,7 @@ private:
 	std::vector<int> enemyAgentIDs;
 	float* targetPosOnNavMesh;
 	dtQueryFilter filter;
-	const float halfExtents[3] = { 1000.0f, 1000.0f, 1000.0f };
+	const float halfExtents[3] = { 5.0f, 5.0f, 5.0f };
 
 	dtNavMesh* navMesh;
 	dtNavMeshQuery* navMeshQuery;
@@ -427,7 +427,7 @@ private:
 	std::vector<float> hfnavRenderMeshVertices;
 	std::vector<unsigned int> hfnavRenderMeshIndices; 
 
-	glm::vec3 mapScale = glm::vec3(2.0f);
+	glm::vec3 mapScale = glm::vec3(0.5f);
 	glm::vec3 mapPos = glm::vec3(8, -90.f, 20.0f);
 };
 
