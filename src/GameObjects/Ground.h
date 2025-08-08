@@ -9,7 +9,7 @@ public:
 	{
 		mapModel = new tinygltf::Model;
 
-		std::string modelFilename = "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Models/New/Updated/Aviary final Model1.gltf";
+		std::string modelFilename = "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Models/New/Updated/Aviary final Model4.gltf";
 
 
 		tinygltf::TinyGLTF gltfLoader;
@@ -35,9 +35,9 @@ public:
 				modelFilename.c_str());
 		}
 
-		setupGLTFMeshes(mapModel);
+		SetupGLTFMeshes(mapModel);
 
-		for (int texID : loadGLTFTextures(mapModel))
+		for (int texID : LoadGLTFTextures(mapModel))
 			glTextures.push_back(texID);
 
 		mTex.loadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Models/New/Updated/Atlas_00001.png", false);
@@ -64,6 +64,10 @@ public:
 
 	void HasDealtDamage() override {};
 	void HasKilledPlayer() override {};
+
+	void DrawGLTFModel(glm::mat4 viewMat, glm::mat4 projMat);
+
+
 	Texture mTex;
 	tinygltf::Model* mapModel;
 
@@ -86,7 +90,7 @@ public:
 
 	std::vector<GLTFMesh> meshData;
 
-	void setupGLTFMeshes(tinygltf::Model* model) {
+	void SetupGLTFMeshes(tinygltf::Model* model) {
 		meshData.resize(model->meshes.size());
 
 		for (size_t meshIndex = 0; meshIndex < model->meshes.size(); ++meshIndex) {
@@ -226,123 +230,10 @@ public:
 		}
 	}
 
-	std::vector<GLuint> loadGLTFTextures(tinygltf::Model* model) {
-		std::vector<GLuint> textureIDs(model->images.size(), 0);
-
-		for (size_t i = 0; i < model->images.size(); ++i) {
-			const tinygltf::Image& image = model->images[i];
-
-			GLuint texID;
-			glGenTextures(1, &texID);
-			glBindTexture(GL_TEXTURE_2D, texID);
-
-			GLenum format = GL_RGBA;
-			if (image.component == 1) format = GL_RED;
-			else if (image.component == 2) format = GL_RG;
-			else if (image.component == 3) format = GL_RGB;
-			else if (image.component == 4) format = GL_RGBA;
-
-			GLenum type = (image.bits == 16) ? GL_UNSIGNED_SHORT : GL_UNSIGNED_BYTE;
-
-			glTexImage2D(GL_TEXTURE_2D,
-				0,
-				format,
-				image.width,
-				image.height,
-				0,
-				format,
-				type,
-				image.image.data());
-
-			glGenerateMipmap(GL_TEXTURE_2D);
-
-			// Set default sampler parameters
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-			textureIDs[i] = texID;
-		}
-
-		glBindTexture(GL_TEXTURE_2D, 0);
-		return textureIDs;
-	}
-
 	std::vector<GLuint> glTextures;
 
-	
 
-	void drawGLTFModel(glm::mat4 viewMat, glm::mat4 projMat) {
-		glDisable(GL_CULL_FACE);
-		
-		int texIndex = 0;
-		for (size_t meshIndex = 0; meshIndex < meshData.size(); ++meshIndex) {
-			for (size_t primIndex = 0; primIndex < meshData[meshIndex].primitives.size(); ++primIndex) {
-				const GLTFPrimitive& prim = meshData[meshIndex].primitives[primIndex];
-
-
-				shader->use();
-				glm::mat4 modelMat = glm::mat4(1.0f);
-				modelMat = glm::translate(modelMat, position);
-				//modelMat = glm::rotate(modelMat, glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-				modelMat = glm::scale(modelMat, scale);
-				std::vector<glm::mat4> matrixData;
-				matrixData.push_back(viewMat);
-				matrixData.push_back(projMat);
-				matrixData.push_back(modelMat);
-				mUniformBuffer.uploadUboData(matrixData, 0);
-
-				glBindVertexArray(prim.vao);
-				int matIndex = prim.material;
-				if (matIndex >= 0 && matIndex < mapModel->materials.size()) {
-					const tinygltf::Material& mat = mapModel->materials[matIndex];
-					if (mat.pbrMetallicRoughness.baseColorTexture.index >= 0) {
-						texIndex = mat.pbrMetallicRoughness.baseColorTexture.index;
-					}
-					// You can add more checks for other texture types if needed
-
-					if (texIndex >= 0 && texIndex < glTextures.size() && mat.pbrMetallicRoughness.baseColorTexture.index >= 0) {
-						glActiveTexture(GL_TEXTURE0);
-						glBindTexture(GL_TEXTURE_2D, glTextures[texIndex]);
-						shader->setInt("tex", 0); // Use location 0 for GL_TEXTURE0
-					}
-					else {
-
-						glActiveTexture(GL_TEXTURE0);
-						glBindTexture(GL_TEXTURE_2D, mTex.getTexID());
-						shader->setInt("tex", 0);
-					}
-				}
-	
-
-
-				//int matIndex = prim.material;
-				//const tinygltf::Material& mat = mapModel->materials[texIndex];
-				//
-				//if (mat.pbrMetallicRoughness.baseColorTexture.index >= 0)
-				//{
-			//		texIndex = mat.pbrMetallicRoughness.baseColorTexture.index;
-			//		
-				//}
-		
-
-
-				if (prim.indexBuffer) {
-					glDrawElements(GL_TRIANGLES, prim.indexCount, GL_UNSIGNED_INT , 0);
-				}
-				else {
-					glDrawArrays(prim.mode, 0, prim.vertexCount);
-				}
-
-				glBindVertexArray(0);
-
-			}
-
-			//if (texIndex < glTextures.size())
-			//	texIndex += 1;
-		}
-	}
+	std::vector<GLuint> LoadGLTFTextures(tinygltf::Model* model);
 
 	static const void* getDataPointer(tinygltf::Model* model, const tinygltf::Accessor& accessor) {
 		const tinygltf::BufferView& bufferView = model->bufferViews[accessor.bufferView];

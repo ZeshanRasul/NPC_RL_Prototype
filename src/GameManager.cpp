@@ -1734,10 +1734,8 @@ void GameManager::update(float deltaTime)
 		dtPolyRef playerPoly;		
 		float targetPlayerPosOnNavMesh[3];
 
-		Logger::log(1, "Target position on nav mesh before query: %f, %f, %f\n", targetPos[0], targetPos[1], targetPos[2]);
 		navMeshQuery->findNearestPoly(targetPos, halfExtents2, &filter, &playerPoly, targetPlayerPosOnNavMesh);
 	//	Logger::log(1, "Player position: %f %f %f\n", player->getPosition().x, player->getPosition().y, player->getPosition().z);
-		Logger::log(1, "Target position on nav mesh after query: %f, %f, %f\n", targetPlayerPosOnNavMesh[0] + e->GetID(), targetPlayerPosOnNavMesh[1], targetPlayerPosOnNavMesh[2] + e->GetID());
 
 		std::vector<float* [3]> enemPos;
 		
@@ -1748,13 +1746,7 @@ void GameManager::update(float deltaTime)
 		float randPos[3];
 		dtPolyRef randRef;
 
-		if (findRandomNavMeshPoint(navMeshQuery, &filter, randPos, &randRef)) {
-			std::cout << "Random pos: " << randPos[0] << ", " << randPos[1] << ", " << randPos[2] << "\n";
-			// You can move an enemy here or use it as a patrol target
-		}
-		else {
-			std::cout << "Failed to find random position on navmesh\n";
-		}
+//		findRandomNavMeshPoint(navMeshQuery, &filter, randPos, &randRef);
 
 		dtPolyRef targetPoly;
 		float targetPosOnNavMesh[3];
@@ -1770,21 +1762,18 @@ void GameManager::update(float deltaTime)
 
 		if (!navMeshQuery)
 		{
-			Logger::log(1, "%s error: NavMeshQuery is null\n", __FUNCTION__);
 		}
 
 		dtStatus status = navMeshQuery->findNearestPoly(
 			targetPos, halfExtents2, &filter, &targetPoly, targetPlayerPosOnNavMesh
 		);
 		if (dtStatusFailed(status)) {
-			Logger::log(1, "Enemy %d: findNearestPoly failed\n", e->GetID());
 			continue;
 		}
 
 		bool moveStatus = crowd->requestMoveTarget(e->GetID(), targetPoly, targetPlayerPosOnNavMesh);
 
 		if (!moveStatus) {
-			Logger::log(1, "Enemy %d: requestMoveTarget failed\n", e->GetID());
 			continue;
 		}
 
