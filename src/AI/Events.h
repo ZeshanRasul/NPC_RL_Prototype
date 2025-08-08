@@ -4,31 +4,39 @@
 class PlayerDetectedEvent : public Event
 {
 public:
-	PlayerDetectedEvent(int id) : npcID(id) {}
+	PlayerDetectedEvent(int id) : m_npcId(id)
+	{
+	}
 
-	int npcID;
+	int m_npcId;
 };
 
 class NPCDamagedEvent : public Event
 {
 public:
-	NPCDamagedEvent(int id) : npcID(id) {}
+	NPCDamagedEvent(int id) : m_npcId(id)
+	{
+	}
 
-	int npcID;
+	int m_npcId;
 };
 
 class NPCTakingCoverEvent : public Event
 {
 public:
-	NPCTakingCoverEvent(int id) : npcID(id) {}
+	NPCTakingCoverEvent(int id) : m_npcId(id)
+	{
+	}
 
-	int npcID;
+	int m_npcId;
 };
 
 class NPCDiedEvent : public Event
 {
 public:
-	NPCDiedEvent(int id) : npcID(id) {}
+	NPCDiedEvent(int id) : m_npcId(id)
+	{
+	}
 
-	int npcID;
+	int m_npcId;
 };

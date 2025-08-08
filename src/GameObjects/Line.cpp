@@ -2,37 +2,37 @@
 
 void Line::LoadMesh()
 {
-	glGenVertexArrays(1, &mVAO);
-	glBindVertexArray(mVAO);
+	glGenVertexArrays(1, &m_vao);
+	glBindVertexArray(m_vao);
 	CreateAndUploadVertexBuffer();
 	glBindVertexArray(0);
 }
 
-void Line::DrawLine(glm::mat4 viewMat, glm::mat4 proj, glm::vec3 lineColor, glm::mat4 lightSpaceMat, GLuint shadowMapTexture, bool shadowMap, float lifetime)
+void Line::DrawLine(glm::mat4 viewMat, glm::mat4 proj, glm::vec3 lineColor, glm::mat4 lightSpaceMat,
+                    GLuint shadowMapTexture, bool shadowMap, float lifetime)
 {
 	if (shadowMap)
 	{
-		shadowShader->use();
-		shadowShader->setMat4("view", viewMat);
-		shadowShader->setMat4("projection", proj);
-		shadowShader->setVec3("lineColor", lineColor);
-		shadowShader->setFloat("lifetime", lifetime);
-
+		m_shadowShader->Use();
+		m_shadowShader->SetMat4("view", viewMat);
+		m_shadowShader->SetMat4("projection", proj);
+		m_shadowShader->SetVec3("lineColor", lineColor);
+		m_shadowShader->SetFloat("lifetime", lifetime);
 	}
 	else
 	{
-		shader->use();
-		shader->setMat4("view", viewMat);
-		shader->setMat4("projection", proj);
-		shader->setVec3("lineColor", lineColor);
-		shader->setMat4("lightSpaceMatrix", lightSpaceMat);
-		shader->setFloat("lifetime", lifetime);
+		m_shader->Use();
+		m_shader->SetMat4("view", viewMat);
+		m_shader->SetMat4("projection", proj);
+		m_shader->SetVec3("lineColor", lineColor);
+		m_shader->SetMat4("lightSpaceMatrix", lightSpaceMat);
+		m_shader->SetFloat("lifetime", lifetime);
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, shadowMapTexture);
-		shader->setInt("shadowMap", 0);
+		m_shader->SetInt("shadowMap", 0);
 	}
 
-	glBindVertexArray(mVAO);
+	glBindVertexArray(m_vao);
 	glDrawArrays(GL_LINES, 0, 2);
 	glBindVertexArray(0);
 }
@@ -43,29 +43,29 @@ void Line::ComputeAudioWorldTransform()
 
 void Line::CreateAndUploadVertexBuffer()
 {
-	glBindVertexArray(mVAO);
-	glGenBuffers(1, &mVBO);
-	glBindBuffer(GL_ARRAY_BUFFER, mVBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_DYNAMIC_DRAW);
+	glBindVertexArray(m_vao);
+	glGenBuffers(1, &m_vbo);
+	glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(m_vertices), m_vertices, GL_DYNAMIC_DRAW);
 
-	// position attribute
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+	// m_position attribute
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), static_cast<void*>(nullptr));
 	glEnableVertexAttribArray(0);
 	glBindVertexArray(0);
 }
 
 void Line::UpdateVertexBuffer(glm::vec3 rayOrigin, glm::vec3 rayEnd)
 {
-	vertices[0] = rayOrigin.x;
-	vertices[1] = rayOrigin.y;
-	vertices[2] = rayOrigin.z;
-	vertices[3] = rayEnd.x;
-	vertices[4] = rayEnd.y;
-	vertices[5] = rayEnd.z;
+	m_vertices[0] = rayOrigin.x;
+	m_vertices[1] = rayOrigin.y;
+	m_vertices[2] = rayOrigin.z;
+	m_vertices[3] = rayEnd.x;
+	m_vertices[4] = rayEnd.y;
+	m_vertices[5] = rayEnd.z;
 
-	glBindVertexArray(mVAO);
-	glBindBuffer(GL_ARRAY_BUFFER, mVBO);
-	glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices);
+	glBindVertexArray(m_vao);
+	glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
+	glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(m_vertices), m_vertices);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
 }

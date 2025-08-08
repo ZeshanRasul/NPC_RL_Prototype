@@ -5,16 +5,16 @@
 class Logger {
 public:
 	template <typename... Args>
-	static void log(unsigned int logLevel, Args ... args) {
-		if (logLevel <= mLogLevel) {
+	static void Log(unsigned int logLevel, Args ... args) {
+		if (logLevel <= m_logLevel) {
 			std::printf(args ...);
 		}
 	}
 
-	static void setLogLevel(unsigned int inLogLevel) {
-		inLogLevel <= 9 ? mLogLevel = inLogLevel : mLogLevel = 9;
+	static void SetLogLevel(unsigned int inLogLevel) {
+		inLogLevel <= 9 ? m_logLevel = inLogLevel : m_logLevel = 9;
 	}
 
 private:
-	static unsigned int mLogLevel;
+	static unsigned int m_logLevel;
 };

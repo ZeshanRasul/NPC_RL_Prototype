@@ -24,11 +24,11 @@ class CompositeNode : public BTNode
 public:
 	void AddChild(BTNodePtr child)
 	{
-		children_.push_back(child);
+		m_children.push_back(child);
 	}
 
 protected:
-	std::vector<BTNodePtr> children_;
+	std::vector<BTNodePtr> m_children;
 };
 
 class SequenceNode : public CompositeNode
@@ -36,7 +36,7 @@ class SequenceNode : public CompositeNode
 public:
 	NodeStatus Tick() override
 	{
-		for (auto& child : children_)
+		for (auto& child : m_children)
 		{
 			NodeStatus status = child->Tick();
 			if (status != NodeStatus::Success)
@@ -53,7 +53,7 @@ class SelectorNode : public CompositeNode
 public:
 	NodeStatus Tick() override
 	{
-		for (auto& child : children_)
+		for (auto& child : m_children)
 		{
 			NodeStatus status = child->Tick();
 			if (status != NodeStatus::Failure)

@@ -1,7 +1,9 @@
 #include "GltfAnimationChannel.h"
 
-void GltfAnimationChannel::loadChannelData(std::shared_ptr<tinygltf::Model> model, tinygltf::Animation anim, tinygltf::AnimationChannel channel) {
-	mTargetNode = channel.target_node;
+void GltfAnimationChannel::LoadChannelData(std::shared_ptr<tinygltf::Model> model, tinygltf::Animation anim,
+                                           tinygltf::AnimationChannel channel)
+{
+	m_targetNode = channel.target_node;
 
 	const tinygltf::Accessor& inputAccessor = model->accessors.at(anim.samplers.at(channel.sampler).input);
 	const tinygltf::BufferView& inputBufferView = model->bufferViews.at(inputAccessor.bufferView);
@@ -11,282 +13,321 @@ void GltfAnimationChannel::loadChannelData(std::shared_ptr<tinygltf::Model> mode
 	timings.resize(inputAccessor.count);
 
 	std::memcpy(timings.data(), &inputBuffer.data.at(0) + inputBufferView.byteOffset, inputBufferView.byteLength);
-	setTimings(timings);
+	SetTimings(timings);
 
 	const tinygltf::AnimationSampler sampler = anim.samplers.at(channel.sampler);
-	if (sampler.interpolation.compare("STEP") == 0) {
-		mInterType = EInterpolationType::STEP;
+	if (sampler.interpolation.compare("STEP") == 0)
+	{
+		m_interType = EInterpolationType::STEP;
 	}
-	else if (sampler.interpolation.compare("LINEAR") == 0) {
-		mInterType = EInterpolationType::LINEAR;
+	else if (sampler.interpolation.compare("LINEAR") == 0)
+	{
+		m_interType = EInterpolationType::LINEAR;
 	}
-	else {
-		mInterType = EInterpolationType::CUBICSPLINE;
+	else
+	{
+		m_interType = EInterpolationType::CUBICSPLINE;
 	}
 
 	const tinygltf::Accessor& outputAccessor = model->accessors.at(anim.samplers.at(channel.sampler).output);
 	const tinygltf::BufferView& outputBufferView = model->bufferViews.at(outputAccessor.bufferView);
 	const tinygltf::Buffer& outputBuffer = model->buffers.at(outputBufferView.buffer);
 
-	if (channel.target_path.compare("rotation") == 0) {
-		mTargetPath = ETargetPath::ROTATION;
+	if (channel.target_path.compare("rotation") == 0)
+	{
+		m_targetPath = ETargetPath::ROTATION;
 		std::vector<glm::quat> rotations;
 		rotations.resize(outputAccessor.count);
 
-		std::memcpy(rotations.data(), &outputBuffer.data.at(0) + outputBufferView.byteOffset, outputBufferView.byteLength);
-		setRotations(rotations);
+		std::memcpy(rotations.data(), &outputBuffer.data.at(0) + outputBufferView.byteOffset,
+		            outputBufferView.byteLength);
+		SetRotations(rotations);
 	}
-	else if (channel.target_path.compare("translation") == 0) {
-		mTargetPath = ETargetPath::TRANSLATION;
+	else if (channel.target_path.compare("translation") == 0)
+	{
+		m_targetPath = ETargetPath::TRANSLATION;
 		std::vector<glm::vec3> translations;
 		translations.resize(outputAccessor.count);
 
-		std::memcpy(translations.data(), &outputBuffer.data.at(0) + outputBufferView.byteOffset, outputBufferView.byteLength);
-		setTranslations(translations);
+		std::memcpy(translations.data(), &outputBuffer.data.at(0) + outputBufferView.byteOffset,
+		            outputBufferView.byteLength);
+		SetTranslations(translations);
 	}
-	else {
-		mTargetPath = ETargetPath::SCALE;
+	else
+	{
+		m_targetPath = ETargetPath::SCALE;
 		std::vector<glm::vec3> scale;
 		scale.resize(outputAccessor.count);
 
 		std::memcpy(scale.data(), &outputBuffer.data.at(0) + outputBufferView.byteOffset, outputBufferView.byteLength);
-		setScalings(scale);
+		SetScalings(scale);
 	}
 }
 
-void GltfAnimationChannel::setTimings(std::vector<float> timinings) {
-	mTimings = timinings;
+void GltfAnimationChannel::SetTimings(std::vector<float> timings)
+{
+	m_timings = timings;
 }
 
-void GltfAnimationChannel::setScalings(std::vector<glm::vec3> scalings) {
-	mScaling = scalings;
+void GltfAnimationChannel::SetScalings(std::vector<glm::vec3> scalings)
+{
+	m_scaling = scalings;
 }
 
-void GltfAnimationChannel::setTranslations(std::vector<glm::vec3> tranlations) {
-	mTranslations = tranlations;
+void GltfAnimationChannel::SetTranslations(std::vector<glm::vec3> translations)
+{
+	m_translations = translations;
 }
 
-void GltfAnimationChannel::setRotations(std::vector<glm::quat> rotations) {
-	mRotations = rotations;
+void GltfAnimationChannel::SetRotations(std::vector<glm::quat> rotations)
+{
+	m_rotations = rotations;
 }
 
-int GltfAnimationChannel::getTargetNode() {
-	return mTargetNode;
+int GltfAnimationChannel::GetTargetNode()
+{
+	return m_targetNode;
 }
 
-ETargetPath GltfAnimationChannel::getTargetPath() {
-	return mTargetPath;
+ETargetPath GltfAnimationChannel::GetTargetPath()
+{
+	return m_targetPath;
 }
 
-glm::vec3 GltfAnimationChannel::getScaling(float time) {
-	if (mScaling.size() == 0) {
+glm::vec3 GltfAnimationChannel::GetScaling(float time)
+{
+	if (m_scaling.size() == 0)
+	{
 		return glm::vec3(1.0f);
 	}
 
-	if (time < mTimings.at(0)) {
-		return mScaling.at(0);
+	if (time < m_timings.at(0))
+	{
+		return m_scaling.at(0);
 	}
-	if (time > mTimings.at(mTimings.size() - 1)) {
-		return mScaling.at(mScaling.size() - 1);
+	if (time > m_timings.at(m_timings.size() - 1))
+	{
+		return m_scaling.at(m_scaling.size() - 1);
 	}
 
 	int prevTimeIndex = 0;
 	int nextTimeIndex = 0;
-	for (int i = 0; i < mTimings.size(); ++i) {
-		if (mTimings.at(i) > time) {
+	for (int i = 0; i < m_timings.size(); ++i)
+	{
+		if (m_timings.at(i) > time)
+		{
 			nextTimeIndex = i;
 			break;
 		}
 		prevTimeIndex = i;
 	}
 
-	if (prevTimeIndex == nextTimeIndex) {
-		return mScaling.at(prevTimeIndex);
+	if (prevTimeIndex == nextTimeIndex)
+	{
+		return m_scaling.at(prevTimeIndex);
 	}
 
-	glm::vec3 finalScale = glm::vec3(1.0f);
-	switch (mInterType) {
+	auto finalScale = glm::vec3(1.0f);
+	switch (m_interType)
+	{
 	case EInterpolationType::STEP:
-		finalScale = mScaling.at(prevTimeIndex);
+		finalScale = m_scaling.at(prevTimeIndex);
 		break;
 	case EInterpolationType::LINEAR:
-	{
-		float interpolatedTime = (time - mTimings.at(prevTimeIndex)) /
-			(mTimings.at(nextTimeIndex) - mTimings.at(prevTimeIndex));
+		{
+			float interpolatedTime = (time - m_timings.at(prevTimeIndex)) /
+				(m_timings.at(nextTimeIndex) - m_timings.at(prevTimeIndex));
 
-		glm::vec3 prevScale = mScaling.at(prevTimeIndex);
-		glm::vec3 nextScale = mScaling.at(nextTimeIndex);
+			glm::vec3 prevScale = m_scaling.at(prevTimeIndex);
+			glm::vec3 nextScale = m_scaling.at(nextTimeIndex);
 
-		finalScale = prevScale + interpolatedTime * (nextScale - prevScale);
-	}
-	break;
+			finalScale = prevScale + interpolatedTime * (nextScale - prevScale);
+		}
+		break;
 	case EInterpolationType::CUBICSPLINE:
-	{
-		/* scale tangents */
-		float deltaTime = mTimings.at(nextTimeIndex) - mTimings.at(prevTimeIndex);
-		glm::vec3 prevTangent = deltaTime * mScaling.at(prevTimeIndex * 3 + 2);
-		glm::vec3 nextTangent = deltaTime * mScaling.at(nextTimeIndex * 3);
+		{
+			/* scale tangents */
+			float deltaTime = m_timings.at(nextTimeIndex) - m_timings.at(prevTimeIndex);
+			glm::vec3 prevTangent = deltaTime * m_scaling.at(prevTimeIndex * 3 + 2);
+			glm::vec3 nextTangent = deltaTime * m_scaling.at(nextTimeIndex * 3);
 
-		float interpolatedTime = (time - mTimings.at(prevTimeIndex)) /
-			(mTimings.at(nextTimeIndex) - mTimings.at(prevTimeIndex));
-		float interpolatedTimeSq = interpolatedTime * interpolatedTime;
-		float interpolatedTimeCub = interpolatedTimeSq * interpolatedTime;
+			float interpolatedTime = (time - m_timings.at(prevTimeIndex)) /
+				(m_timings.at(nextTimeIndex) - m_timings.at(prevTimeIndex));
+			float interpolatedTimeSq = interpolatedTime * interpolatedTime;
+			float interpolatedTimeCub = interpolatedTimeSq * interpolatedTime;
 
-		glm::vec3 prevPoint = mScaling.at(prevTimeIndex * 3 + 1);
-		glm::vec3 nextPoint = mScaling.at(nextTimeIndex * 3 + 1);
+			glm::vec3 prevPoint = m_scaling.at(prevTimeIndex * 3 + 1);
+			glm::vec3 nextPoint = m_scaling.at(nextTimeIndex * 3 + 1);
 
-		finalScale =
-			(2 * interpolatedTimeCub - 3 * interpolatedTimeSq + 1) * prevPoint +
-			(interpolatedTimeCub - 2 * interpolatedTimeSq + interpolatedTime) * prevTangent +
-			(-2 * interpolatedTimeCub + 3 * interpolatedTimeSq) * nextPoint +
-			(interpolatedTimeCub - interpolatedTimeSq) * nextTangent;
-	}
-	break;
+			finalScale =
+				(2 * interpolatedTimeCub - 3 * interpolatedTimeSq + 1) * prevPoint +
+				(interpolatedTimeCub - 2 * interpolatedTimeSq + interpolatedTime) * prevTangent +
+				(-2 * interpolatedTimeCub + 3 * interpolatedTimeSq) * nextPoint +
+				(interpolatedTimeCub - interpolatedTimeSq) * nextTangent;
+		}
+		break;
 	}
 
 	return finalScale;
 }
 
-glm::vec3 GltfAnimationChannel::getTranslation(float time) {
-	if (mTranslations.size() == 0) {
+glm::vec3 GltfAnimationChannel::GetTranslation(float time)
+{
+	if (m_translations.size() == 0)
+	{
 		return glm::vec3(0.0f);
 	}
 
-	if (time < mTimings.at(0)) {
-		return mTranslations.at(0);
+	if (time < m_timings.at(0))
+	{
+		return m_translations.at(0);
 	}
-	if (time > mTimings.at(mTimings.size() - 1)) {
-		return mTranslations.at(mTranslations.size() - 1);
+	if (time > m_timings.at(m_timings.size() - 1))
+	{
+		return m_translations.at(m_translations.size() - 1);
 	}
 
 	int prevTimeIndex = 0;
 	int nextTimeIndex = 0;
-	for (int i = 0; i < mTimings.size(); ++i) {
-		if (mTimings.at(i) > time) {
+	for (int i = 0; i < m_timings.size(); ++i)
+	{
+		if (m_timings.at(i) > time)
+		{
 			nextTimeIndex = i;
 			break;
 		}
 		prevTimeIndex = i;
 	}
 
-	if (prevTimeIndex == nextTimeIndex) {
-		return mTranslations.at(prevTimeIndex);
+	if (prevTimeIndex == nextTimeIndex)
+	{
+		return m_translations.at(prevTimeIndex);
 	}
 
-	glm::vec3 finalTranslate = glm::vec3(0.0f);
-	switch (mInterType) {
+	auto finalTranslate = glm::vec3(0.0f);
+	switch (m_interType)
+	{
 	case EInterpolationType::STEP:
-		finalTranslate = mTranslations.at(prevTimeIndex);
+		finalTranslate = m_translations.at(prevTimeIndex);
 		break;
 
 	case EInterpolationType::LINEAR:
-	{
-		float interpolatedTime = (time - mTimings.at(prevTimeIndex)) /
-			(mTimings.at(nextTimeIndex) - mTimings.at(prevTimeIndex));
+		{
+			float interpolatedTime = (time - m_timings.at(prevTimeIndex)) /
+				(m_timings.at(nextTimeIndex) - m_timings.at(prevTimeIndex));
 
-		glm::vec3 prevTranslate = mTranslations.at(prevTimeIndex);
-		glm::vec3 nextTranslate = mTranslations.at(nextTimeIndex);
+			glm::vec3 prevTranslate = m_translations.at(prevTimeIndex);
+			glm::vec3 nextTranslate = m_translations.at(nextTimeIndex);
 
-		finalTranslate = prevTranslate + interpolatedTime *
-			(nextTranslate - prevTranslate);
-	}
-	break;
+			finalTranslate = prevTranslate + interpolatedTime *
+				(nextTranslate - prevTranslate);
+		}
+		break;
 	case EInterpolationType::CUBICSPLINE:
-	{
-		/* scale tangents */
-		float deltaTime = mTimings.at(nextTimeIndex) - mTimings.at(prevTimeIndex);
-		glm::vec3 prevTangent = deltaTime * mTranslations.at(prevTimeIndex * 3 + 2);
-		glm::vec3 nextTangent = deltaTime * mTranslations.at(nextTimeIndex * 3);
+		{
+			/* scale tangents */
+			float deltaTime = m_timings.at(nextTimeIndex) - m_timings.at(prevTimeIndex);
+			glm::vec3 prevTangent = deltaTime * m_translations.at(prevTimeIndex * 3 + 2);
+			glm::vec3 nextTangent = deltaTime * m_translations.at(nextTimeIndex * 3);
 
-		float interpolatedTime = (time - mTimings.at(prevTimeIndex)) /
-			(mTimings.at(nextTimeIndex) - mTimings.at(prevTimeIndex));
-		float interpolatedTimeSq = interpolatedTime * interpolatedTime;
-		float interpolatedTimeCub = interpolatedTimeSq * interpolatedTime;
+			float interpolatedTime = (time - m_timings.at(prevTimeIndex)) /
+				(m_timings.at(nextTimeIndex) - m_timings.at(prevTimeIndex));
+			float interpolatedTimeSq = interpolatedTime * interpolatedTime;
+			float interpolatedTimeCub = interpolatedTimeSq * interpolatedTime;
 
-		glm::vec3 prevPoint = mTranslations.at(prevTimeIndex * 3 + 1);
-		glm::vec3 nextPoint = mTranslations.at(nextTimeIndex * 3 + 1);
+			glm::vec3 prevPoint = m_translations.at(prevTimeIndex * 3 + 1);
+			glm::vec3 nextPoint = m_translations.at(nextTimeIndex * 3 + 1);
 
-		finalTranslate =
-			(2 * interpolatedTimeCub - 3 * interpolatedTimeSq + 1) * prevPoint +
-			(interpolatedTimeCub - 2 * interpolatedTimeSq + interpolatedTime) * prevTangent +
-			(-2 * interpolatedTimeCub + 3 * interpolatedTimeSq) * nextPoint +
-			(interpolatedTimeCub - interpolatedTimeSq) * nextTangent;
-	}
-	break;
+			finalTranslate =
+				(2 * interpolatedTimeCub - 3 * interpolatedTimeSq + 1) * prevPoint +
+				(interpolatedTimeCub - 2 * interpolatedTimeSq + interpolatedTime) * prevTangent +
+				(-2 * interpolatedTimeCub + 3 * interpolatedTimeSq) * nextPoint +
+				(interpolatedTimeCub - interpolatedTimeSq) * nextTangent;
+		}
+		break;
 	}
 
 	return finalTranslate;
 }
 
-glm::quat GltfAnimationChannel::getRotation(float time) {
-	if (mRotations.size() == 0) {
+glm::quat GltfAnimationChannel::GetRotation(float time)
+{
+	if (m_rotations.size() == 0)
+	{
 		return glm::identity<glm::quat>();
 	}
 
-	if (time < mTimings.at(0)) {
-		return mRotations.at(0);
+	if (time < m_timings.at(0))
+	{
+		return m_rotations.at(0);
 	}
-	if (time > mTimings.at(mTimings.size() - 1)) {
-		return mRotations.at(mRotations.size() - 1);
+	if (time > m_timings.at(m_timings.size() - 1))
+	{
+		return m_rotations.at(m_rotations.size() - 1);
 	}
 
 	int prevTimeIndex = 0;
 	int nextTimeIndex = 0;
-	for (int i = 0; i < mTimings.size(); ++i) {
-		if (mTimings.at(i) > time) {
+	for (int i = 0; i < m_timings.size(); ++i)
+	{
+		if (m_timings.at(i) > time)
+		{
 			nextTimeIndex = i;
 			break;
 		}
 		prevTimeIndex = i;
 	}
 
-	if (prevTimeIndex == nextTimeIndex) {
-		return mRotations.at(prevTimeIndex);
+	if (prevTimeIndex == nextTimeIndex)
+	{
+		return m_rotations.at(prevTimeIndex);
 	}
 
-	glm::quat finalRotate = glm::quat(1.0f, 0.0f, 0.0f, 0.0f);
-	switch (mInterType) {
+	auto finalRotate = glm::quat(1.0f, 0.0f, 0.0f, 0.0f);
+	switch (m_interType)
+	{
 	case EInterpolationType::STEP:
-		finalRotate = mRotations.at(prevTimeIndex);
+		finalRotate = m_rotations.at(prevTimeIndex);
 		break;
 	case EInterpolationType::LINEAR:
-	{
-		float interpolatedTime = (time - mTimings.at(prevTimeIndex)) /
-			(mTimings.at(nextTimeIndex) - mTimings.at(prevTimeIndex));
+		{
+			float interpolatedTime = (time - m_timings.at(prevTimeIndex)) /
+				(m_timings.at(nextTimeIndex) - m_timings.at(prevTimeIndex));
 
-		glm::quat prevRotate = mRotations.at(prevTimeIndex);
-		glm::quat nextRotate = mRotations.at(nextTimeIndex);
+			glm::quat prevRotate = m_rotations.at(prevTimeIndex);
+			glm::quat nextRotate = m_rotations.at(nextTimeIndex);
 
-		finalRotate = glm::slerp(prevRotate, nextRotate, interpolatedTime);
-	}
-	break;
+			finalRotate = slerp(prevRotate, nextRotate, interpolatedTime);
+		}
+		break;
 	case EInterpolationType::CUBICSPLINE:
-	{
-		/* scale tangents */
-		float deltaTime = mTimings.at(nextTimeIndex) - mTimings.at(prevTimeIndex);
-		glm::quat prevTangent = deltaTime * mRotations.at(prevTimeIndex * 3 + 2);
-		glm::quat nextTangent = deltaTime * mRotations.at(nextTimeIndex * 3);
+		{
+			/* scale tangents */
+			float deltaTime = m_timings.at(nextTimeIndex) - m_timings.at(prevTimeIndex);
+			glm::quat prevTangent = deltaTime * m_rotations.at(prevTimeIndex * 3 + 2);
+			glm::quat nextTangent = deltaTime * m_rotations.at(nextTimeIndex * 3);
 
-		float interpolatedTime = (time - mTimings.at(prevTimeIndex)) /
-			(mTimings.at(nextTimeIndex) - mTimings.at(prevTimeIndex));
-		float interpolatedTimeSq = interpolatedTime * interpolatedTime;
-		float interpolatedTimeCub = interpolatedTimeSq * interpolatedTime;
+			float interpolatedTime = (time - m_timings.at(prevTimeIndex)) /
+				(m_timings.at(nextTimeIndex) - m_timings.at(prevTimeIndex));
+			float interpolatedTimeSq = interpolatedTime * interpolatedTime;
+			float interpolatedTimeCub = interpolatedTimeSq * interpolatedTime;
 
-		glm::quat prevPoint = mRotations.at(prevTimeIndex * 3 + 1);
-		glm::quat nextPoint = mRotations.at(nextTimeIndex * 3 + 1);
+			glm::quat prevPoint = m_rotations.at(prevTimeIndex * 3 + 1);
+			glm::quat nextPoint = m_rotations.at(nextTimeIndex * 3 + 1);
 
-		finalRotate =
-			(2 * interpolatedTimeCub - 3 * interpolatedTimeSq + 1) * prevPoint +
-			(interpolatedTimeCub - 2 * interpolatedTimeSq + interpolatedTime) * prevTangent +
-			(-2 * interpolatedTimeCub + 3 * interpolatedTimeSq) * nextPoint +
-			(interpolatedTimeCub - interpolatedTimeSq) * nextTangent;
-	}
-	break;
+			finalRotate =
+				(2 * interpolatedTimeCub - 3 * interpolatedTimeSq + 1) * prevPoint +
+				(interpolatedTimeCub - 2 * interpolatedTimeSq + interpolatedTime) * prevTangent +
+				(-2 * interpolatedTimeCub + 3 * interpolatedTimeSq) * nextPoint +
+				(interpolatedTimeCub - interpolatedTimeSq) * nextTangent;
+		}
+		break;
 	}
 
 	return finalRotate;
 }
 
-float GltfAnimationChannel::getMaxTime() {
-	return mTimings.at(mTimings.size() - 1);
+float GltfAnimationChannel::GetMaxTime()
+{
+	return m_timings.at(m_timings.size() - 1);
 }

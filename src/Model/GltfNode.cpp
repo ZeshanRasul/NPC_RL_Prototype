@@ -3,91 +3,97 @@
 #include "GltfNode.h"
 #include "Logger.h"
 
-std::shared_ptr<GltfNode> GltfNode::createRoot(int rootNodeNum)
+std::shared_ptr<GltfNode> GltfNode::CreateRoot(int rootNodeNum)
 {
-	std::shared_ptr<GltfNode> mParentNode = std::make_shared<GltfNode>();
-	mParentNode->mNodeNum = rootNodeNum;
+	auto mParentNode = std::make_shared<GltfNode>();
+	mParentNode->m_nodeNum = rootNodeNum;
 	return mParentNode;
 }
 
-void GltfNode::addChilds(std::vector<int> childNodes)
+void GltfNode::AddChilds(std::vector<int> childNodes)
 {
-	for (const int childNode : childNodes) {
-		std::shared_ptr<GltfNode> child = std::make_shared<GltfNode>();
-		child->mNodeNum = childNode;
+	for (const int childNode : childNodes)
+	{
+		auto child = std::make_shared<GltfNode>();
+		child->m_nodeNum = childNode;
 
-		mChildNodes.push_back(child);
+		m_childNodes.push_back(child);
 	}
 }
 
-std::vector<std::shared_ptr<GltfNode>> GltfNode::getChilds()
+std::vector<std::shared_ptr<GltfNode>> GltfNode::GetChilds()
 {
-	return mChildNodes;
+	return m_childNodes;
 }
 
-int GltfNode::getNodeNum()
+int GltfNode::GetNodeNum()
 {
-	return mNodeNum;
+	return m_nodeNum;
 }
 
-void GltfNode::setNodeName(std::string name)
+void GltfNode::SetNodeName(std::string name)
 {
-	mNodeName = name;
+	m_nodeName = name;
 }
 
-std::string GltfNode::getNodeName() {
-	return mNodeName;
-}
-
-void GltfNode::setScale(glm::vec3 scale)
+std::string GltfNode::GetNodeName()
 {
-	mScale = scale;
-	mBlendScale = scale;
+	return m_nodeName;
 }
 
-void GltfNode::setTranslation(glm::vec3 translation)
+void GltfNode::SetScale(glm::vec3 scale)
 {
-	mTranslation = translation;
-	mBlendTranslation = translation;
+	m_scale = scale;
+	m_blendScale = scale;
 }
 
-void GltfNode::setRotation(glm::quat rotation)
+void GltfNode::SetTranslation(glm::vec3 translation)
 {
-	mRotation = rotation;
-	mBlendRotation = rotation;
+	m_translation = translation;
+	m_blendTranslation = translation;
 }
 
-void GltfNode::blendScale(glm::vec3 scale, float blendFactor) {
+void GltfNode::SetRotation(glm::quat rotation)
+{
+	m_rotation = rotation;
+	m_blendRotation = rotation;
+}
+
+void GltfNode::BlendScale(glm::vec3 scale, float blendFactor)
+{
 	float factor = std::clamp(blendFactor, 0.0f, 1.0f);
-	mBlendScale = scale * factor + mScale * (1.0f - factor);
+	m_blendScale = scale * factor + m_scale * (1.0f - factor);
 }
 
-void GltfNode::blendTranslation(glm::vec3 translation, float blendFactor) {
+void GltfNode::BlendTranslation(glm::vec3 translation, float blendFactor)
+{
 	float factor = std::clamp(blendFactor, 0.0f, 1.0f);
-	mBlendTranslation = translation * factor + mTranslation * (1.0f - factor);
+	m_blendTranslation = translation * factor + m_translation * (1.0f - factor);
 }
-void GltfNode::blendRotation(glm::quat rotation, float blendFactor) {
+
+void GltfNode::BlendRotation(glm::quat rotation, float blendFactor)
+{
 	float factor = std::clamp(blendFactor, 0.0f, 1.0f);
-	mBlendRotation = glm::slerp(mRotation, rotation, factor);
+	m_blendRotation = slerp(m_rotation, rotation, factor);
 }
 
-void GltfNode::calculateLocalTRSMatrix()
+void GltfNode::CalculateLocalTrsMatrix()
 {
-	glm::mat4 sMatrix = glm::scale(glm::mat4(1.0f), mBlendScale);
-	glm::mat4 rMatrix = glm::mat4_cast(mBlendRotation);
-	glm::mat4 tMatrix = glm::translate(glm::mat4(1.0f), mBlendTranslation);
+	glm::mat4 sMatrix = scale(glm::mat4(1.0f), m_blendScale);
+	glm::mat4 rMatrix = mat4_cast(m_blendRotation);
+	glm::mat4 tMatrix = translate(glm::mat4(1.0f), m_blendTranslation);
 
-	mLocalTRSMatrix = tMatrix * rMatrix * sMatrix;
+	m_localTrsMatrix = tMatrix * rMatrix * sMatrix;
 }
 
-void GltfNode::calculateNodeMatrix(glm::mat4 parentNodeMatrix)
+void GltfNode::CalculateNodeMatrix(glm::mat4 parentNodeMatrix)
 {
-	mNodeMatrix = parentNodeMatrix * mLocalTRSMatrix;
+	m_nodeMatrix = parentNodeMatrix * m_localTrsMatrix;
 }
 
-glm::mat4 GltfNode::getNodeMatrix()
+glm::mat4 GltfNode::GetNodeMatrix()
 {
-	return mNodeMatrix;
+	return m_nodeMatrix;
 }
 
 void GltfNode::printTree() {
@@ -99,16 +105,19 @@ void GltfNode::printTree() {
 	//Logger::log(1, "%s: -- end tree --\n", __FUNCTION__);
 }
 
-void GltfNode::printNodes(std::shared_ptr<GltfNode> node, int indent) {
+void GltfNode::PrintNodes(std::shared_ptr<GltfNode> node, int indent)
+{
 	std::string indendString = "";
-	for (int i = 0; i < indent; ++i) {
+	for (int i = 0; i < indent; ++i)
+	{
 		indendString += " ";
 	}
 	indendString += "-";
 	//Logger::log(1, "%s: %s child : %i (%s)\n", __FUNCTION__,
 //		indendString.c_str(), node->mNodeNum, node->mNodeName.c_str());
 
-	for (const auto& childNode : node->mChildNodes) {
-		GltfNode::printNodes(childNode, indent + 1);
+	for (const auto& childNode : node->m_childNodes)
+	{
+		PrintNodes(childNode, indent + 1);
 	}
 }

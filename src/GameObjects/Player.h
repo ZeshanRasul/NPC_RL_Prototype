@@ -11,80 +11,95 @@
 #include "Physics/AABB.h"
 #include "Components/AudioComponent.h"
 
-enum PlayerState {
+enum PlayerState
+{
 	MOVING,
 	AIMING,
 	SHOOTING,
 	PLAYER_STATE_COUNT
 };
 
-class Player : public GameObject {
+class Player : public GameObject
+{
 public:
-	Player(glm::vec3 pos, glm::vec3 scale, Shader* shdr, Shader* shadowMapShader, bool applySkinning, GameManager* gameMgr, float yaw = -90.0f)
+	Player(glm::vec3 pos, glm::vec3 scale, Shader* shdr, Shader* shadowMapShader, bool applySkinning,
+	       GameManager* gameMgr, float yaw = -90.0f)
 		: GameObject(pos, scale, yaw, shdr, shadowMapShader, applySkinning, gameMgr)
 	{
-		initialPos = pos;
-		initialYaw = yaw;
+		SetInitialPos(pos);
+		m_initialYaw = yaw;
 
-		model = std::make_shared<GltfModel>();
+		m_model = std::make_shared<GltfModel>();
 
-		std::string modelFilename = "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Models/GLTF/SwatPlayer/Swat.gltf";
-		std::string modelTextureFilename = "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Models/GLTF/SwatPlayer/Swat_Ch15_body_BaseColor.png";
+		std::string modelFilename =
+			"src/Assets/Models/GLTF/SwatPlayer/Swat.gltf";
+		std::string modelTextureFilename =
+			"src/Assets/Models/GLTF/SwatPlayer/Swat_Ch15_body_BaseColor.png";
 
-		if (!model->loadModel(modelFilename)) {
-			Logger::log(1, "%s: loading glTF model '%s' failed\n", __FUNCTION__, modelFilename.c_str());
+		if (!m_model->LoadModel(modelFilename))
+		{
+			Logger::Log(1, "%s: loading glTF m_model '%s' failed\n", __FUNCTION__, modelFilename.c_str());
 		}
 
-		mTex = model->loadTexture(modelTextureFilename, false);
+		m_tex = m_model->LoadTexture(modelTextureFilename, false);
 
-		mNormal.loadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Models/GLTF/SwatPlayer/Swat_Ch15_body_Normal.png");
-		mMetallic.loadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Models/GLTF/SwatPlayer/Swat_Ch15_body_Metallic.png");
-		mRoughness.loadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Models/GLTF/SwatPlayer/Swat_Ch15_body_Roughness.png");
-		mAO.loadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Models/GLTF/SwatPlayer/Swat_Ch15_body_AO.png");
+		m_normal.LoadTexture(
+			"src/Assets/Models/GLTF/SwatPlayer/Swat_Ch15_body_Normal.png");
+		m_metallic.LoadTexture(
+			"src/Assets/Models/GLTF/SwatPlayer/Swat_Ch15_body_Metallic.png");
+		m_roughness.LoadTexture(
+			"src/Assets/Models/GLTF/SwatPlayer/Swat_Ch15_body_Roughness.png");
+		m_ao.LoadTexture(
+			"src/Assets/Models/GLTF/SwatPlayer/Swat_Ch15_body_AO.png");
 
-		model->uploadIndexBuffer();
-		Logger::log(1, "%s: glTF model '%s' succesfully loaded\n", __FUNCTION__, modelFilename.c_str());
+		m_model->UploadIndexBuffer();
+		Logger::Log(1, "%s: glTF m_model '%s' successfully loaded\n", __FUNCTION__, modelFilename.c_str());
 
-		size_t playerModelJointDualQuatBufferSize = model->getJointDualQuatsSize() *
+		size_t playerModelJointDualQuatBufferSize = m_model->GetJointDualQuatsSize() *
 			sizeof(glm::mat2x4);
-		mPlayerDualQuatSSBuffer.init(playerModelJointDualQuatBufferSize);
-		Logger::log(1, "%s: glTF joint dual quaternions shader storage buffer (size %i bytes) successfully created\n", __FUNCTION__, playerModelJointDualQuatBufferSize);
+		m_playerDualQuatSsBuffer.Init(playerModelJointDualQuatBufferSize);
+		Logger::Log(1, "%s: glTF joint dual quaternions shader storage buffer (size %i bytes) successfully created\n",
+		            __FUNCTION__, playerModelJointDualQuatBufferSize);
 
-		takeDamageAC = new AudioComponent(this);
-		deathAC = new AudioComponent(this);
-		shootAC = new AudioComponent(this);
+		m_takeDamageAc = new AudioComponent(this);
+		m_deathAc = new AudioComponent(this);
+		m_shootAc = new AudioComponent(this);
 
 		ComputeAudioWorldTransform();
 
 		UpdatePlayerVectors();
-		PlayerAimFront = PlayerFront;
-		PlayerAimRight = PlayerRight;
-		PlayerAimUp = PlayerUp;
+		SetPlayerAimFront(GetPlayerFront());
+		m_playerAimRight = GetPlayerRight();
+		SetPlayerAimUp(m_playerUp);
 	}
 
 	~Player()
 	{
-		model->cleanup();
+		m_model->Cleanup();
 	}
 
-	void drawObject(glm::mat4 viewMat, glm::mat4 proj, bool shadowMap, glm::mat4 lightSpaceMat, GLuint shadowMapTexture, glm::vec3 camPos) override;
+	void DrawObject(glm::mat4 viewMat, glm::mat4 proj, bool shadowMap, glm::mat4 lightSpaceMat, GLuint shadowMapTexture,
+	                glm::vec3 camPos) override;
 
-	void Update(float dt);
+	void Update(float dt, bool isPaused, bool isTimeScaled);
 
-	glm::vec3 getPosition() {
-		return position;
+	glm::vec3 GetPosition()
+	{
+		return m_position;
 	}
 
-	void setPosition(glm::vec3 newPos) {
-		position = newPos;
-		mRecomputeWorldTransform = true;
+	void SetPosition(glm::vec3 newPos)
+	{
+		m_position = newPos;
+		m_recomputeWorldTransform = true;
 	}
 
-	float GetInitialYaw() const { return initialYaw; }
+	float GetInitialYaw() const { return m_initialYaw; }
 
-	void SetYaw(float newYaw) {
-		yaw = newYaw;
-		mRecomputeWorldTransform = true;
+	void SetYaw(float newYaw)
+	{
+		m_yaw = newYaw;
+		m_recomputeWorldTransform = true;
 	};
 
 	void ComputeAudioWorldTransform() override;
@@ -95,66 +110,75 @@ public:
 	void PlayerProcessKeyboard(CameraMovement direction, float deltaTime);
 	void PlayerProcessMouseMovement(float xOffset);
 
-	//void Speak(const std::string& clipName, float priority, float cooldown);
+	float GetVelocity() const { return m_velocity; }
+	void SetVelocity(float newVelocity) { m_velocity = newVelocity; }
 
-	float GetVelocity() const { return mVelocity; }
-	void SetVelocity(float newVelocity) { mVelocity = newVelocity; }
-
-	PlayerState GetPlayerState() const { return mPlayerState; }
+	PlayerState GetPlayerState() const { return m_playerState; }
 	void SetPlayerState(PlayerState newState);
 
-	glm::vec3 GetShootPos() { return getPosition() + glm::vec3(0.0f, 4.5f, 0.0f) + (4.5f * PlayerAimFront) + (-0.5f * PlayerAimRight); }
-	float GetShootDistance() const { return shootDistance; }
-	glm::vec3 GetPlayerHitPoint() const { return playerShootHitPoint; }
+	glm::vec3 GetShootPos()
+	{
+		return GetPosition() + glm::vec3(0.0f, 4.5f, 0.0f) + (4.5f * m_playerAimFront) + (-0.5f * m_playerAimRight);
+	}
+
+	float GetShootDistance() const { return m_shootDistance; }
+	glm::vec3 GetPlayerHitPoint() const { return m_playerShootHitPoint; }
 
 	void Shoot();
 
-	void SetCameraMatrices(glm::mat4 viewMat, glm::mat4 proj) {
-		view = viewMat;
-		projection = proj;
+	void SetCameraMatrices(glm::mat4 viewMat, glm::mat4 proj)
+	{
+		m_view = viewMat;
+		m_projection = proj;
 	}
 
-	void updateAABB() {
-		glm::mat4 modelMatrix = glm::translate(glm::mat4(1.0f), position) *
-			glm::rotate(glm::mat4(1.0f), glm::radians(-yaw + 180.0f), glm::vec3(0.0f, 1.0f, 0.0f)) *
-			glm::scale(glm::mat4(1.0f), scale);
-		aabb->update(modelMatrix);
+	void SetUpAABB();
+	void SetAABBShader(Shader* aabbShdr) { m_aabbShader = aabbShdr; }
+	void UpdateAabb()
+	{
+		glm::mat4 modelMatrix = translate(glm::mat4(1.0f), m_position) *
+			rotate(glm::mat4(1.0f), glm::radians(-m_yaw + 180.0f), glm::vec3(0.0f, 1.0f, 0.0f)) *
+			glm::scale(glm::mat4(1.0f), m_scale);
+		m_aabb->Update(modelMatrix);
 	}
 
-	AABB* GetAABB() const { return aabb; }
-	void renderAABB(glm::mat4 proj, glm::mat4 viewMat, glm::mat4 model, Shader* aabbSdr);
-	void setAABBColor(glm::vec3 color) { aabbColor = color; }
+	AABB* GetAABB() const { return m_aabb; }
+	void SetAabbColor(glm::vec3 color) { m_aabbColor = color; }
 
 	void OnHit() override;
-	void OnMiss() override {
+
+	void OnMiss() override
+	{
 		std::cout << "Player was missed!" << std::endl;
-		setAABBColor(glm::vec3(1.0f, 1.0f, 1.0f));
+		SetAabbColor(glm::vec3(1.0f, 1.0f, 1.0f));
 	};
 
-	AABB* aabb;
-	glm::vec3 aabbColor = glm::vec3(0.0f, 0.0f, 1.0f);
 
 	void OnDeath();
 
-	float GetHealth() const { return health; }
-	void SetHealth(float newHealth) { health = newHealth; }
+	float GetHealth() const { return m_health; }
+	void SetHealth(float newHealth) { m_health = newHealth; }
 
-	void TakeDamage(float damage) {
-		/*takeDamageAC->PlayEvent("event:/PlayerTakeDamage");*/
+	void TakeDamage(float damage)
+	{
+		/*m_takeDamageAc->PlayEvent("event:/PlayerTakeDamage");*/
 		SetHealth(GetHealth() - damage);
-		if (GetHealth() <= 0.0f) {
+		if (GetHealth() <= 0.0f)
+		{
 			OnDeath();
 		}
 	}
 
-	int GetAnimNum() const { return animNum; }
-	int GetSourceAnimNum() const { return sourceAnim; }
-	int GetDestAnimNum() const { return destAnim; }
-	void SetAnimNum(int newAnimNum) { animNum = newAnimNum; }
-	void SetSourceAnimNum(int newSrcAnim) { sourceAnim = newSrcAnim; }
-	void SetDestAnimNum(int newDestAnim) {
-		destAnim = newDestAnim;
-		destAnimSet = true;
+	int GetAnimNum() const { return m_animNum; }
+	int GetSourceAnimNum() const { return m_sourceAnim; }
+	int GetDestAnimNum() const { return m_destAnim; }
+	void SetAnimNum(int newAnimNum) { m_animNum = newAnimNum; }
+	void SetSourceAnimNum(int newSrcAnim) { m_sourceAnim = newSrcAnim; }
+
+	void SetDestAnimNum(int newDestAnim)
+	{
+		m_destAnim = newDestAnim;
+		m_destAnimSet = true;
 	}
 
 	void SetAnimation(int animNum, float speedDivider, float blendFactor, bool playAnimBackwards);
@@ -163,63 +187,94 @@ public:
 
 	void ResetGame();
 
-	void HasDealtDamage() override {};
-	void HasKilledPlayer() override {};
+	void HasDealtDamage() override
+	{
+	};
 
-	CameraMovement prevDirection;
+	void HasKilledPlayer() override
+	{
+	};
 
-public:
-	float PlayerYaw;
-	glm::vec3 PlayerFront;
-	glm::vec3 PlayerRight;
-	glm::vec3 PlayerUp;
-	glm::vec3 PlayerAimFront;
-	glm::vec3 PlayerAimRight;
-	glm::vec3 PlayerAimUp;
+	float GetPlayerYaw() const { return m_playerYaw; }
+	void SetPlayerYaw(float val) { m_playerYaw = val; }
 
-	glm::mat4 view = glm::mat4(1.0f);
-	glm::mat4 projection = glm::mat4(1.0f);
+	float GetAimPitch() const { return m_aimPitch; }
+	void SetAimPitch(float val) { m_aimPitch = val; }
 
-	Texture mNormal{};
-	Texture mMetallic{};
-	Texture mRoughness{};
-	Texture mAO{};
+	CameraMovement GetPrevDirection() const { return m_prevDirection; }
+	void SetPrevDirection(CameraMovement val) { m_prevDirection = val; }
 
-	AudioComponent* takeDamageAC;
-	AudioComponent* shootAC;
-	AudioComponent* deathAC;
+	glm::vec3 GetPlayerFront() const { return m_playerFront; }
+	void SetPlayerFront(glm::vec3 val) { m_playerFront = val; }
 
-	float aimPitch = 0.0f;
+	glm::vec3 GetPlayerRight() const { return m_playerRight; }
+	void SetPlayerRight(glm::vec3 val) { m_playerRight = val; }
 
-	float initialYaw = -90.0f;
+	glm::vec3 GetPlayerAimFront() const { return m_playerAimFront; }
+	void SetPlayerAimFront(glm::vec3 val) { m_playerAimFront = val; }
 
-	glm::vec3 mShootStartPos = getPosition() + (glm::vec3(0.0f, 2.5f, 0.0f));
-	float shootDistance = 100000.0f;
-	glm::vec3 playerShootHitPoint = glm::vec3(0.0f);
+	glm::vec3 GetPlayerAimUp() const { return m_playerAimUp; }
+	void SetPlayerAimUp(glm::vec3 val) { m_playerAimUp = val; }
 
-	float MovementSpeed = 10.5f;
-	float mVelocity = 0.0f;
+	glm::vec3 GetInitialPos() const { return m_initialPos; }
+	void SetInitialPos(glm::vec3 val) { m_initialPos = val; }
+private:
+	CameraMovement m_prevDirection = STATIONARY;
 
-	bool uploadVertexBuffer = true;
-	ShaderStorageBuffer mPlayerDualQuatSSBuffer{};
+	float m_playerYaw;
+	glm::vec3 m_playerFront;
+	glm::vec3 m_playerRight;
+	glm::vec3 m_playerUp;
+	glm::vec3 m_playerAimFront;
+	glm::vec3 m_playerAimRight;
+	glm::vec3 m_playerAimUp;
+	float m_aimPitch = 0.0f;
+	float m_initialYaw = -90.0f;
 
-	PlayerState mPlayerState = MOVING;
+	glm::mat4 m_view = glm::mat4(1.0f);
+	glm::mat4 m_projection = glm::mat4(1.0f);
 
-	Shader* aabbShader;
-	float health = 100.0f;
+	Texture m_normal{};
+	Texture m_metallic{};
+	Texture m_roughness{};
+	Texture m_ao{};
 
-	int animNum = 0;
-	int sourceAnim = 0;
-	int destAnim = 0;
-	bool destAnimSet = false;
-	float blendSpeed = 10.0f;
-	float blendFactor = 0.0f;
-	bool blendAnim = false;
-	bool resetBlend = false;
+	AudioComponent* m_takeDamageAc;
+	AudioComponent* m_shootAc;
+	AudioComponent* m_deathAc;
 
-	glm::vec3 initialPos = glm::vec3(0.0f, 0.0f, 0.0f);
 
-	bool playGameStartAudio = true;
-	float playGameStartAudioTimer = 3.0f;
-	float playerShootAudioCooldown = 2.0f;
+
+	glm::vec3 m_shootStartPos = GetPosition() + (glm::vec3(0.0f, 2.5f, 0.0f));
+	float m_shootDistance = 100000.0f;
+	glm::vec3 m_playerShootHitPoint = glm::vec3(0.0f);
+
+	float m_movementSpeed = 10.5f;
+	float m_velocity = 0.0f;
+
+	bool m_uploadVertexBuffer = true;
+	ShaderStorageBuffer m_playerDualQuatSsBuffer{};
+
+	PlayerState m_playerState = MOVING;
+
+	Shader* m_aabbShader;
+	float m_health = 100.0f;
+
+	int m_animNum = 0;
+	int m_sourceAnim = 0;
+	int m_destAnim = 0;
+	bool m_destAnimSet = true;
+	float m_blendSpeed = 10.0f;
+	float m_blendFactor = 0.0f;
+	bool m_blendAnim = false;
+	bool m_resetBlend = false;
+
+	glm::vec3 m_initialPos = glm::vec3(0.0f, 0.0f, 0.0f);
+
+	bool m_playGameStartAudio = true;
+	float m_playGameStartAudioTimer = 3.0f;
+	float m_playerShootAudioCooldown = 2.0f;
+
+	AABB* m_aabb;
+	glm::vec3 m_aabbColor = glm::vec3(0.0f, 0.0f, 1.0f);
 };

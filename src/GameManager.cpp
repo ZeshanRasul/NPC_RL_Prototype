@@ -517,26 +517,26 @@ bool AddAgentToCrowd(dtCrowd* crowd,
 
 
 GameManager::GameManager(Window* window, unsigned int width, unsigned int height)
-	: window(window), screenWidth(width), screenHeight(height)
+	: m_window(window), m_screenWidth(width), m_screenHeight(height)
 {
-	inputManager = new InputManager();
-	audioSystem = new AudioSystem(this);
+	m_inputManager = new InputManager();
+	m_audioSystem = new AudioSystem(this);
 
-	if (!audioSystem->Initialize())
+	if (!m_audioSystem->Initialize())
 	{
-		Logger::log(1, "%s error: AudioSystem init error\n", __FUNCTION__);
-		audioSystem->Shutdown();
-		delete audioSystem;
-		audioSystem = nullptr;
+		Logger::Log(1, "%s error: AudioSystem init error\n", __FUNCTION__);
+		m_audioSystem->Shutdown();
+		delete m_audioSystem;
+		m_audioSystem = nullptr;
 	}
 
-	mAudioManager = new AudioManager(this);
+	m_audioManager = new AudioManager(this);
 
-	window->setInputManager(inputManager);
+	window->SetInputManager(m_inputManager);
 
-	renderer = window->getRenderer();
-	renderer->SetUpMinimapFBO(width, height);
-	renderer->SetUpShadowMapFBO(SHADOW_WIDTH, SHADOW_HEIGHT);
+	m_renderer = window->GetRenderer();
+	m_renderer->SetUpMinimapFBO(width, height);
+	m_renderer->SetUpShadowMapFBO(SHADOW_WIDTH, SHADOW_HEIGHT);
 
 	playerShader.loadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/vertex_gpu_dquat_player.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/pbr_fragment.glsl");
 	groundShader.loadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/vertex2.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/fragment2.glsl");
@@ -557,34 +557,47 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 	navMeshShader.loadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/navmesh_vert.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/navmesh_frag.glsl");
 	hfnavMeshShader.loadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/hf_vert.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/hf_frag.glsl");
 
-	physicsWorld = new PhysicsWorld();
+	m_crosshairShader.LoadShaders("src/Shaders/crosshair_vert.glsl", "src/Shaders/crosshair_frag.glsl");
+	m_lineShader.LoadShaders("src/Shaders/line_vert.glsl", "src/Shaders/line_frag.glsl");
+	m_aabbShader.LoadShaders("src/Shaders/aabb_vert.glsl", "src/Shaders/aabb_frag.glsl");
+	m_cubeShader.LoadShaders("src/Shaders/pbr_vertex.glsl", "src/Shaders/pbr_fragment_emissive.glsl");
+	m_cubemapShader.LoadShaders("src/Shaders/cubemap_vertex.glsl", "src/Shaders/cubemap_fragment.glsl");
+	m_minimapShader.LoadShaders("src/Shaders/quad_vertex.glsl", "src/Shaders/quad_fragment.glsl");
+	m_shadowMapShader.LoadShaders("src/Shaders/shadow_map_vertex.glsl", "src/Shaders/shadow_map_fragment.glsl");
+	m_playerShadowMapShader.LoadShaders("src/Shaders/shadow_map_player_vertex.glsl", "src/Shaders/shadow_map_fragment.glsl");
+	m_enemyShadowMapShader.LoadShaders("src/Shaders/shadow_map_enemy_vertex.glsl", "src/Shaders/shadow_map_fragment.glsl");
+	m_shadowMapQuadShader.LoadShaders("src/Shaders/shadow_map_quad_vertex.glsl", "src/Shaders/shadow_map_quad_fragment.glsl");
+	m_playerMuzzleFlashShader.LoadShaders("src/Shaders/muzzle_flash_vertex.glsl", "src/Shaders/muzzle_flash_fragment.glsl");
+	m_playerTracerShader.LoadShaders("src/Shaders/muzzle_flash_vertex.glsl", "src/Shaders/muzzle_flash_fragment.glsl");
 
-	cubemapFaces = {
-		"C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/Skybox/right.png",
-		"C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/Skybox/left.png",
-		"C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/Skybox/top.png",
-		"C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/Skybox/bottom.png",
-		"C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/Skybox/front.png",
-		"C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/Skybox/back.png"
+	m_physicsWorld = new PhysicsWorld();
+
+	m_cubemapFaces = {
+		"src/Assets/Textures/Skybox/T3Nebula/right.png",
+		"src/Assets/Textures/Skybox/T3Nebula/left.png",
+		"src/Assets/Textures/Skybox/T3Nebula/top.png",
+		"src/Assets/Textures/Skybox/T3Nebula/bottom.png",
+		"src/Assets/Textures/Skybox/T3Nebula/front.png",
+		"src/Assets/Textures/Skybox/T3Nebula/back.png"
 	};
 
-	cubemap = new Cubemap(&cubemapShader);
-	cubemap->LoadMesh();
-	cubemap->LoadCubemap(cubemapFaces);
+	m_cubemap = new Cubemap(&m_cubemapShader);
+	m_cubemap->LoadMesh();
+	m_cubemap->LoadCubemap(m_cubemapFaces);
 
-	cell = new Cell();
-	cell->SetUpVAO();
-	//    cell->LoadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/Ground.png", cell->mTex);
-	std::string cubeTexFilename = "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/Cover.png";
+	m_cell = new Cell();
+	m_cell->SetUpVAO();
+	//    m_cell->LoadTexture("src/Assets/Textures/Ground.png", m_cell->m_tex);
+	std::string cubeTexFilename = "src/Assets/Textures/Cover.png";
 
-	gameGrid = new Grid();
+	m_gameGrid = new Grid();
 
-	for (glm::vec3 coverPos : gameGrid->coverPositions)
+	for (glm::vec3 coverPos : m_gameGrid->GetCoverPositions())
 	{
 		Cube* cover = new Cube((coverPos), glm::vec3((float)gameGrid->GetCellSize()), &cubeShader, &shadowMapShader, false, this, cubeTexFilename);
 		cover->SetAABBShader(&aabbShader);
 		cover->LoadMesh();
-		coverSpots.push_back(cover);
+		m_coverSpots.push_back(cover);
 	}
 
 	ground = new Ground(mapPos, mapScale, &groundShader, &groundShadowShader, false, this);
@@ -727,7 +740,7 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 	}
 
 
-	// Slope threshold (in degrees) – typical value for shooters is 45
+	// Slope threshold (in degrees) ï¿½ typical value for shooters is 45
 	const float WALKABLE_SLOPE = 45.0f;
 	ctx = new rcContext();
 
@@ -869,7 +882,7 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 
 	if (dtStatusFailed(navInitStatus))
 	{
-		Logger::log(1, "%s error: Could not init Detour navMesh\n", __FUNCTION__);
+		m_gameObjects.push_back(coverSpot);
 	}
 
 	for (int y = 0; y < tileCountY; ++y)
@@ -1036,19 +1049,19 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 		for (auto& enem : enemies)
 		{
 			int enemyID = enem->GetID();
-			Logger::log(1, "%s Initializing Q Table for Enemy %d\n", __FUNCTION__, enemyID);
-			InitializeQTable(mEnemyStateQTable[enemyID]);
-			Logger::log(1, "%s Initialized Q Table for Enemy %d\n", __FUNCTION__, enemyID);
+			Logger::Log(1, "%s Initializing Q Table for Enemy %d\n", __FUNCTION__, enemyID);
+			InitializeQTable(m_enemyStateQTable[enemyID]);
+			Logger::Log(1, "%s Initialized Q Table for Enemy %d\n", __FUNCTION__, enemyID);
 		}
 	}
-	else if (loadQTable)
+	else if (m_loadQTable)
 	{
-		for (auto& enem : enemies)
+		for (auto& enem : m_enemies)
 		{
 			int enemyID = enem->GetID();
-			Logger::log(1, "%s Loading Q Table for Enemy %d\n", __FUNCTION__, enemyID);
-			LoadQTable(mEnemyStateQTable[enemyID], std::to_string(enemyID) + mEnemyStateFilename);
-			Logger::log(1, "%s Loaded Q Table for Enemy %d\n", __FUNCTION__, enemyID);
+			Logger::Log(1, "%s Loading Q Table for Enemy %d\n", __FUNCTION__, enemyID);
+			LoadQTable(m_enemyStateQTable[enemyID], std::to_string(enemyID) + m_enemyStateFilename);
+			Logger::Log(1, "%s Loaded Q Table for Enemy %d\n", __FUNCTION__, enemyID);
 		}
 	}
 
@@ -1246,7 +1259,7 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 	////	{
 	////		Logger::log(1, "findNearestPoly failed: no polygon found near %.2f %.2f %.2f\n",
 	////			85.0f, 0.0f, 25.0f);
-	////		return; // stop here, don’t use snappedPos
+	////		return; // stop here, donï¿½t use snappedPos
 	////	}
 
 	////	float meshheight = 0.0f;
@@ -1258,75 +1271,133 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 	//}
 }
 
-
-
-void GameManager::setupCamera(unsigned int width, unsigned int height)
+void GameManager::SetupCamera(unsigned int width, unsigned int height, float deltaTime)
 {
-	camera->Zoom = 45.0f;
-	if (camera->Mode == PLAYER_FOLLOW)
-	{
-		camera->Pitch = 45.0f;
-		camera->FollowTarget(player->getPosition() + (player->PlayerFront * camera->playerPosOffset), player->PlayerFront, camera->playerCamRearOffset, camera->playerCamHeightOffset);
-		view = camera->GetViewMatrixPlayerFollow(player->getPosition() + (player->PlayerFront * camera->playerPosOffset), glm::vec3(0.0f, 1.0f, 0.0f));
-	}
-	else if (camera->Mode == ENEMY_FOLLOW)
-	{
-		if (enemy->isDestroyed)
-		{
-			camera->Mode = FLY;
-			return;
-		}
-		camera->FollowTarget(enemy->getPosition(), enemy->GetEnemyFront(), camera->enemyCamRearOffset, camera->enemyCamHeightOffset);
-		view = camera->GetViewMatrixEnemyFollow(enemy->getPosition(), glm::vec3(0.0f, 1.0f, 0.0f));
-	}
-	else if (camera->Mode == FLY)
-	{
-		if (firstFlyCamSwitch)
-		{
-			camera->FollowTarget(player->getPosition(), player->PlayerFront, camera->playerCamRearOffset, camera->playerCamHeightOffset);
-			firstFlyCamSwitch = false;
-			return;
-		}
-		view = camera->GetViewMatrix();
-	}
-	else if (camera->Mode == PLAYER_AIM)
-	{
-		camera->Zoom = 40.0f;
-		if (camera->Pitch > 16.0f)
-			camera->Pitch = 16.0f;
+	m_camera->SetZoom(45.0f);
 
-		camera->FollowTarget(player->getPosition() + (player->PlayerFront * camera->playerPosOffset) + (player->PlayerRight * camera->playerAimRightOffset), player->PlayerAimFront, camera->playerCamRearOffset, camera->playerCamHeightOffset);
-		glm::vec3 target = player->getPosition() + (player->PlayerFront * camera->playerPosOffset);
+	if (m_camera->GetMode() == PLAYER_FOLLOW)
+	{
+		if (m_camera->isBlending)
+		{
+			m_camera->SetPitch(45.0f);
+			glm::vec3 camPos = m_camera->GetPosition();
+			if (camPos.y < 0.0f)
+			{
+				camPos.y = m_camera->GetPlayerCamHeightOffset();
+				m_camera->SetPosition(camPos);
+			}
+			m_view = m_camera->UpdateCameraLerp(m_camera->GetPosition() + (glm::vec3(0.0f, 1.0f, 0.0f) * m_camera->GetPlayerCamHeightOffset()), m_player->GetPosition() + (m_player->GetPlayerFront() * m_camera->GetPlayerPosOffset()), m_player->GetPlayerFront(), glm::vec3(0.0f, 1.0f, 0.0f), deltaTime);
+
+		} else {
+			m_camera->SetPitch(45.0f);
+			m_camera->FollowTarget(m_player->GetPosition() + (m_player->GetPlayerFront() * m_camera->GetPlayerPosOffset()), m_player->GetPlayerFront(), m_camera->GetPlayerCamRearOffset(), m_camera->GetPlayerCamHeightOffset());
+			if (m_camera->HasSwitched())
+				m_camera->StorePrevCam(m_camera->GetPosition() + (glm::vec3(0.0f, 1.0f, 0.0f) * m_camera->GetPlayerCamHeightOffset()), m_player->GetPosition() + (m_player->GetPlayerFront() * m_camera->GetPlayerPosOffset()));
+
+			glm::vec3 camPos = m_camera->GetPosition();
+			if (camPos.y < 0.0f)
+			{
+				camPos.y = m_camera->GetPlayerCamHeightOffset();
+				m_camera->SetPosition(camPos);
+			}
+
+			m_view = m_camera->GetViewMatrixPlayerFollow(m_player->GetPosition() + (m_player->GetPlayerFront() * m_camera->GetPlayerPosOffset()), glm::vec3(0.0f, 1.0f, 0.0f));
+		}
+
+	}
+	else if (m_camera->GetMode() == ENEMY_FOLLOW)
+	{
+		if (m_enemy->IsDestroyed())
+		{
+			m_camera->SetMode(FLY);
+			return;
+		}
+		m_camera->FollowTarget(m_enemy->GetPosition(), m_enemy->GetEnemyFront(), m_camera->GetEnemyCamRearOffset(), m_camera->GetEnemyCamHeightOffset());
+		m_view = m_camera->GetViewMatrixEnemyFollow(m_enemy->GetPosition(), glm::vec3(0.0f, 1.0f, 0.0f));
+	}
+	else if (m_camera->GetMode() == FLY)
+	{
+		if (m_firstFlyCamSwitch)
+		{
+			m_camera->FollowTarget(m_player->GetPosition(), m_player->GetPlayerFront(), m_camera->GetPlayerCamRearOffset(), m_camera->GetPlayerCamHeightOffset());
+			m_firstFlyCamSwitch = false;
+			return;
+		}
+		m_view = m_camera->GetViewMatrix();
+	}
+	else if (m_camera->GetMode() == PLAYER_AIM)
+	{
+
+		glm::vec3 target = m_player->GetPosition() + (m_player->GetPlayerAimFront() * m_camera->GetPlayerPosOffset()) + (m_player->GetPlayerRight() * m_camera->GetPlayerAimRightOffset());
 		if (target.y < 0.0f)
 			target.y = 0.0f;
-		view = camera->GetViewMatrixPlayerFollow(target, player->PlayerAimUp);
+
+		m_camera->SetZoom(40.0f);
+
+		if (m_camera->isBlending)
+		{
+			glm::vec3 newPos =
+				m_player->GetPosition() +
+				(m_player->GetPlayerFront() * m_camera->GetPlayerPosOffset()) +
+				(m_player->GetPlayerRight() * m_camera->GetPlayerAimRightOffset());
+			
+			glm::vec3 camPos = m_camera->GetPosition();
+			if (camPos.y <= 0.02f)
+			{
+				camPos.y = m_camera->GetPlayerCamHeightOffset();
+				m_camera->SetPosition(camPos);
+			}
+			m_view = m_camera->UpdateCameraLerp(newPos, m_player->GetPosition() + (m_player->GetPlayerFront() * m_camera->GetPlayerPosOffset()) + (m_player->GetPlayerRight() * m_camera->GetPlayerAimRightOffset()), m_player->GetPlayerAimFront(), m_player->GetPlayerAimUp(), deltaTime);	
+		
+		} else {
+
+			glm::vec3 camPos = m_camera->GetPosition();
+
+			m_camera->FollowTarget(m_player->GetPosition() + (m_player->GetPlayerFront() * m_camera->GetPlayerPosOffset()) + (m_player->GetPlayerRight() * m_camera->GetPlayerAimRightOffset()), m_player->GetPlayerFront(), m_camera->GetPlayerCamRearOffset(), m_camera->GetPlayerCamHeightOffset());
+			
+			if (m_camera->HasSwitched())
+				m_camera->StorePrevCam(m_camera->GetPosition() + m_player->GetPlayerAimUp() * m_camera->GetPlayerCamHeightOffset(), m_player->GetPosition() + (m_player->GetPlayerFront() * m_camera->GetPlayerPosOffset()) + (m_player->GetPlayerRight() * m_camera->GetPlayerAimRightOffset()) + (m_player->GetPlayerAimUp() * m_camera->GetPlayerCamHeightOffset()));
+
+			camPos = m_camera->GetPosition();
+
+			if (camPos.y <= 0.02f)
+			{
+				camPos.y = m_camera->GetPlayerCamHeightOffset();
+				m_camera->SetPosition(camPos);
+			}
+			m_view = m_camera->GetViewMatrixPlayerFollow(target, m_player->GetPlayerAimUp());
+		}
+
 	}
-	cubemapView = glm::mat4(glm::mat3(camera->GetViewMatrixPlayerFollow(player->getPosition(), glm::vec3(0.0f, 1.0f, 0.0f))));
 
-	projection = glm::perspective(glm::radians(camera->Zoom), (float)width / (float)height, 0.1f, 300.0f);
-	
-	minimapView = minimapCamera->GetViewMatrix();
-	minimapProjection = glm::perspective(glm::radians(camera->Zoom), (float)width / (float)height, 0.1f, 300.0f);
+	m_cubemapView = glm::mat4(glm::mat3(m_camera->GetViewMatrixPlayerFollow(m_player->GetPosition(), glm::vec3(0.0f, 1.0f, 0.0f))));
 
-	player->SetCameraMatrices(view, projection);
+	m_projection = glm::perspective(glm::radians(m_camera->GetZoom()), (float)width / (float)height, 0.1f, 500.0f);
 
-	audioSystem->SetListener(view);
+	m_minimapView = m_minimapCamera->GetViewMatrix();
+	m_minimapProjection = glm::perspective(glm::radians(m_camera->GetZoom()), (float)width / (float)height, 0.1f, 500.0f);
+
+	m_player->SetCameraMatrices(m_view, m_projection);
+
+	m_audioSystem->SetListener(m_view);
 }
 
-void GameManager::setSceneData()
+void GameManager::SetSceneData()
 {
-	renderer->setScene(view, projection, cubemapView, dirLight);
+	m_renderer->SetScene(m_view, m_projection, m_cubemapView, dirLight);
 }
 
-void GameManager::setUpDebugUI()
+void GameManager::SetUpDebugUi()
 {
 	ImGui_ImplOpenGL3_NewFrame();
 	ImGui_ImplGlfw_NewFrame();
 	ImGui::NewFrame();
 }
 
-void GameManager::showDebugUI()
+void GameManager::ShowDebugUi()
 {
+#ifdef DEBUG
+	ShowCameraControlWindow(*m_camera);
 	ShowLightControlWindow(dirLight);
 	ShowCameraControlWindow(*camera);
 
@@ -1345,16 +1416,15 @@ void GameManager::showDebugUI()
 	ShowAnimationControlWindow();
 
 	ShowPerformanceWindow();
-	ShowEnemyStateWindow();
+#endif
+
+	if (!m_useEdbt)
+	{
+		ShowEnemyStateWindow();
+	}
 }
 
-void GameManager::renderDebugUI()
-{
-	ImGui::Render();
-	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-}
-
-void GameManager::ShowLightControlWindow(DirLight& light)
+void GameManager::ShowCameraControlWindow(Camera& cam)
 {
 	ImGui::Begin("Map Settings");
 
@@ -1372,96 +1442,71 @@ void GameManager::ShowLightControlWindow(DirLight& light)
 
 	ImGui::Begin("Directional Light Control");
 
-	ImGui::Text("Light Direction");
-	ImGui::DragFloat3("Direction", (float*)&light.direction, dirLight.direction.x, dirLight.direction.y, dirLight.direction.z);
+	std::string modeText = "";
 
-	ImGui::ColorEdit4("Ambient", (float*)&light.ambient);
+	if (cam.GetMode() == FLY)
+	{
+		modeText = "Flycam";
 
-	ImGui::ColorEdit4("Diffuse", (float*)&light.diffuse);
-	ImGui::ColorEdit4("PBR Color", (float*)&dirLightPBRColour);
 
-	ImGui::ColorEdit4("Specular", (float*)&light.specular);
+		cam.UpdateCameraVectors();
+	}
+	else if (cam.GetMode() == PLAYER_FOLLOW)
+		modeText = "Player Follow";
+	else if (cam.GetMode() == ENEMY_FOLLOW)
+		modeText = "Enemy Follow";
+	else if (cam.GetMode() == PLAYER_AIM)
+		modeText = "Player Aim"
+		;
+	ImGui::Text(modeText.c_str());
 
-	ImGui::DragFloat("Ortho Left", (float*)&orthoLeft);
-	ImGui::DragFloat("Ortho Right", (float*)&orthoRight);
-	ImGui::DragFloat("Ortho Bottom", (float*)&orthoBottom);
-	ImGui::DragFloat("Ortho Top", (float*)&orthoTop);
-	ImGui::DragFloat("Near Plane", (float*)&near_plane);
-	ImGui::DragFloat("Far Plane", (float*)&far_plane);
+	ImGui::InputFloat3("Position", (float*)&cam.m_position);
+
+	ImGui::InputFloat("Pitch", (float*)&cam.m_pitch);
+	ImGui::InputFloat("Yaw", (float*)&cam.m_yaw);
+	ImGui::InputFloat("Zoom", (float*)&cam.m_zoom);
 
 	ImGui::End();
 }
 
-void GameManager::ShowAnimationControlWindow()
+void GameManager::RenderDebugUi()
 {
-	ImGui::Begin("Player Animation Control");
+	ImGui::Render();
+	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+}
 
-	ImGui::Checkbox("Blending Type: ", &playerCrossBlend);
-	ImGui::SameLine();
-	if (playerCrossBlend)
-	{
-		ImGui::Text("Cross");
-	}
-	else
-	{
-		ImGui::Text("Single");
-	}
+void GameManager::ShowLightControlWindow(DirLight& light)
+{
+	ImGui::Begin("Directional Light Control");
 
-	if (playerCrossBlend)
-		ImGui::BeginDisabled();
+	ImGui::Text("Light Direction");
+	ImGui::DragFloat3("Direction", (float*)&light.m_direction, dirLight.m_direction.x, dirLight.m_direction.y, dirLight.m_direction.z);
 
-	ImGui::Text("Player Blend Factor");
-	ImGui::SameLine();
-	ImGui::SliderFloat("##PlayerBlendFactor", &playerAnimBlendFactor, 0.0f, 1.0f);
+	ImGui::ColorEdit4("Ambient", (float*)&light.m_ambient);
 
-	if (playerCrossBlend)
-		ImGui::EndDisabled();
+	ImGui::ColorEdit4("Diffuse", (float*)&light.m_diffuse);
+	ImGui::ColorEdit4("PBR Color", (float*)&dirLightPBRColour);
 
-	if (!playerCrossBlend)
-		ImGui::BeginDisabled();
+	ImGui::ColorEdit4("Specular", (float*)&light.m_specular);
 
-	ImGui::Text("Source Clip   ");
-	ImGui::SameLine();
-	ImGui::SliderInt("##SourceClip", &playerCrossBlendSourceClip, 0, player->model->getAnimClipsSize() - 1);
-
-
-	ImGui::Text("Dest Clip   ");
-	ImGui::SameLine();
-	ImGui::SliderInt("##DestClip", &playerCrossBlendDestClip, 0, player->model->getAnimClipsSize() - 1);
-
-	ImGui::Text("Cross Blend ");
-	ImGui::SameLine();
-	ImGui::SliderFloat("##CrossBlendFactor", &playerAnimCrossBlendFactor, 0.0f, 1.0f);
-
-	ImGui::Checkbox("Additive Blending", &playerAdditiveBlend);
-
-	if (!playerAdditiveBlend) {
-		ImGui::BeginDisabled();
-	}
-	ImGui::Text("Split Node  ");
-	ImGui::SameLine();
-	ImGui::SliderInt("##SplitNode", &playerSkeletonSplitNode, 0, player->model->getNodeCount() - 1);
-	ImGui::Text("Split Node Name: %s", playerSkeletonSplitNodeName.c_str());
-
-	if (!playerAdditiveBlend) {
-		ImGui::EndDisabled();
-	}
-
-	if (!playerCrossBlend)
-		ImGui::EndDisabled();
+	ImGui::DragFloat("Ortho Left", (float*)&m_orthoLeft);
+	ImGui::DragFloat("Ortho Right", (float*)&m_orthoRight);
+	ImGui::DragFloat("Ortho Bottom", (float*)&m_orthoBottom);
+	ImGui::DragFloat("Ortho Top", (float*)&m_orthoTop);
+	ImGui::DragFloat("Near Plane", (float*)&m_nearPlane);
+	ImGui::DragFloat("Far Plane", (float*)&m_farPlane);
 
 	ImGui::End();
-
 }
 
 void GameManager::ShowPerformanceWindow()
 {
 	ImGui::Begin("Performance");
 
-	ImGui::Text("FPS: %.1f", fps);
-	ImGui::Text("Avg FPS: %.1f", avgFPS);
-	ImGui::Text("Frame Time: %.1f ms", frameTime);
-	ImGui::Text("Elapsed Time: %.1f s", elapsedTime);
+	ImGui::Text("FPS: %.1f", m_fps);
+	ImGui::Text("Avg FPS: %.1f", m_avgFps);
+	ImGui::Text("Frame Time: %.1f ms", m_frameTime);
+	ImGui::Text("Elapsed Time: %.1f s", m_elapsedTime);
 
 	ImGui::End();
 }
@@ -1470,20 +1515,15 @@ void GameManager::ShowEnemyStateWindow()
 {
 	ImGui::Begin("Game States");
 
-	ImGui::Checkbox("Use EDBT", &useEDBT);
+	ImGui::Checkbox("Use EDBT", &m_useEdbt);
 
-	ImGui::InputFloat("Speed Divider", &speedDivider);
-	ImGui::InputFloat("Blend Factor", &blendFac);
+	ImGui::Text("Player Health: %d", (int)m_player->GetHealth());
 
-	ImGui::Text("Player Velocity %s", std::to_string(player->GetVelocity()));
-
-	ImGui::Text("Player Health: %d", (int)player->GetHealth());
-
-	for (Enemy* e : enemies)
+	for (Enemy* e : m_enemies)
 	{
-		if (e == nullptr || e->isDestroyed)
+		if (e == nullptr || e->IsDestroyed())
 			continue;
-		ImTextureID texID = (void*)(intptr_t)e->mTex.getTexID();
+		ImTextureID texID = (void*)(intptr_t)e->GetTexture().GetTexId();
 		ImGui::Image(texID, ImVec2(100, 100));
 		ImGui::SameLine();
 		ImGui::Text("Enemy %d", e->GetID());
@@ -1497,23 +1537,23 @@ void GameManager::ShowEnemyStateWindow()
 	ImGui::End();
 }
 
-void GameManager::calculatePerformance(float deltaTime)
+void GameManager::CalculatePerformance(float deltaTime)
 {
-	fps = 1.0f / deltaTime;
+	m_fps = 1.0f / deltaTime;
 
-	fpsSum += fps;
-	frameCount++;
+	m_fpsSum += m_fps;
+	m_frameCount++;
 
-	if (frameCount == numFramesAvg)
+	if (m_frameCount == m_numFramesAvg)
 	{
-		avgFPS = fpsSum / numFramesAvg;
-		fpsSum = 0.0f;
-		frameCount = 0;
+		m_avgFps = m_fpsSum / m_numFramesAvg;
+		m_fpsSum = 0.0f;
+		m_frameCount = 0;
 	}
 
-	frameTime = deltaTime * 1000.0f;
+	m_frameTime = deltaTime * 1000.0f;
 
-	elapsedTime += deltaTime;
+	m_elapsedTime += deltaTime;
 }
 
 void GameManager::SetUpAndRenderNavMesh()
@@ -1523,109 +1563,64 @@ void GameManager::SetUpAndRenderNavMesh()
 
 void GameManager::CreateLightSpaceMatrices()
 {
-	float gridWidth = gameGrid->GetCellSize() * gameGrid->GetGridSize();
+	int gridWidth = m_gameGrid->GetCellSize() * m_gameGrid->GetGridSize();
 	glm::vec3 sceneCenter = glm::vec3(gridWidth / 2.0f, 0.0f, gridWidth / 2.0f);
 
-	glm::vec3 lightDir = glm::normalize(dirLight.direction);
+	glm::vec3 lightDir = glm::normalize(dirLight.m_direction);
 
-	float sceneDiagonal = glm::sqrt(gridWidth * gridWidth + gridWidth * gridWidth);
+	float sceneDiagonal = (float)glm::sqrt(gridWidth * gridWidth + gridWidth * gridWidth);
 
-	//orthoLeft = -gridWidth * 2.0f;
-	//orthoRight = gridWidth * 2.0f;
-	//orthoBottom = -gridWidth * 2.0f;
-	//orthoTop = gridWidth * 2.0f;
-//	near_plane = 1.0f;
-//	far_plane = 150.0f;
-	lightSpaceProjection = glm::ortho(orthoLeft, orthoRight, orthoBottom, orthoTop, near_plane, far_plane);
+	m_lightSpaceProjection = glm::ortho(m_orthoLeft, m_orthoRight, m_orthoBottom, m_orthoTop, m_nearPlane, m_farPlane);
 
 	glm::vec3 lightPos = sceneCenter - lightDir * sceneDiagonal;
-	//lightPos.y += 50.0f;
 
-	lightSpaceView = glm::lookAt(lightPos, sceneCenter, glm::vec3(0.0f, -1.0f, 0.0f));
-	lightSpaceMatrix = lightSpaceProjection * lightSpaceView;
+	m_lightSpaceView = glm::lookAt(lightPos, sceneCenter, glm::vec3(0.0f, -1.0f, 0.0f));
+	m_lightSpaceMatrix = m_lightSpaceProjection * m_lightSpaceView;
 }
 
-void GameManager::RemoveDestroyedGameObjects()
+void GameManager::CheckGameOver()
 {
-	//for (auto it = gameObjects.begin(); it != gameObjects.end(); ) {
-	//    if ((*it)->isDestroyed) {
-	//        if ((*it)->isEnemy)
-	//        {
-				//for (auto it2 = enemies.begin(); it2 != enemies.end(); )
-				//{
-				//	if ((*it2) == (*it))
-				//	{
-				//		delete* it2;
-				//		*it2 = nullptr;
-				//		it2 = enemies.erase(it2);
-				//	}
-				//	else
-				//	{
-				//		++it2;
-				//	}
-				//}
-	//        }
-	//        else
-	//        {
-	//            delete* it; 
-	//            *it = nullptr;
-	//        }
-	//        it = gameObjects.erase(it); 
-	//    }
-	//    else {
-	//        ++it;
-	//    }
-	//}
-
-	if ((enemy->isDestroyed && enemy2->isDestroyed && enemy3->isDestroyed && enemy4->isDestroyed) || player->isDestroyed)
+	if ((m_enemy->IsDestroyed() && m_enemy2->IsDestroyed() && m_enemy3->IsDestroyed() && m_enemy4->IsDestroyed()) || m_player->IsDestroyed())
 		ResetGame();
 }
 
 void GameManager::ResetGame()
 {
-	camera->SetMode(PLAYER_FOLLOW);
-	mAudioManager->ClearQueue();
-	player->setPosition(player->initialPos);
-	player->SetYaw(player->GetInitialYaw());
-	player->SetAnimNum(0);
-	player->isDestroyed = false;
-	player->SetHealth(100.0f);
-	player->UpdatePlayerVectors();
-	player->UpdatePlayerAimVectors();
-	player->SetPlayerState(PlayerState::MOVING);
-	player->aabbColor = glm::vec3(0.0f, 0.0f, 1.0f);
-	enemy->isDestroyed = false;
-	enemy2->isDestroyed = false;
-	enemy3->isDestroyed = false;
-	enemy4->isDestroyed = false;
-	enemy->isDead_ = false;
-	enemy2->isDead_ = false;
-	enemy3->isDead_ = false;
-	enemy4->isDead_ = false;
-	enemy->setPosition(enemy->getInitialPosition());
-	enemy2->setPosition(enemy2->getInitialPosition());
-	enemy3->setPosition(enemy3->getInitialPosition());
-	enemy4->setPosition(enemy4->getInitialPosition());
-	enemyStates = {
+	m_camera->SetMode(PLAYER_FOLLOW);
+	m_audioManager->ClearQueue();
+	m_player->SetPosition(m_player->GetInitialPos());
+	m_player->SetYaw(m_player->GetInitialYaw());
+	m_player->SetAnimNum(0);
+	m_player->SetIsDestroyed(false);
+	m_player->SetHealth(100.0f);
+	m_player->UpdatePlayerVectors();
+	m_player->UpdatePlayerAimVectors();
+	m_player->SetPlayerState(PlayerState::MOVING);
+	m_player->SetAabbColor(glm::vec3(0.0f, 0.0f, 1.0f));
+	m_enemy->SetIsDestroyed(false);
+	m_enemy2->SetIsDestroyed(false);
+	m_enemy3->SetIsDestroyed(false);
+	m_enemy4->SetIsDestroyed(false);
+	m_enemy->SetIsDead(false);
+	m_enemy2->SetIsDead(false);
+	m_enemy3->SetIsDead(false);
+	m_enemy4->SetIsDead(false);
+	m_enemy->SetPosition(m_enemy->GetInitialPosition());
+	m_enemy2->SetPosition(m_enemy2->GetInitialPosition());
+	m_enemy3->SetPosition(m_enemy3->GetInitialPosition());
+	m_enemy4->SetPosition(m_enemy4->GetInitialPosition());
+	m_enemyStates = {
 		{ false, false, 100.0f, 100.0f, false },
 		{ false, false, 100.0f, 100.0f, false },
 		{ false, false, 100.0f, 100.0f, false },
 		{ false, false, 100.0f, 100.0f, false }
 	};
-	//enemies.push_back(enemy);
-	//enemies.push_back(enemy2);
-	//enemies.push_back(enemy3);
-	//enemies.push_back(enemy4);
-	//gameObjects.push_back(enemy);
-	//gameObjects.push_back(enemy2);
-	//gameObjects.push_back(enemy3);
-	//gameObjects.push_back(enemy4);
 
-	for (Enemy* emy : enemies)
+	for (Enemy* emy : m_enemies)
 	{
 		emy->ResetState();
-		physicsWorld->addCollider(emy->GetAABB());
-		physicsWorld->addEnemyCollider(emy->GetAABB());
+		m_physicsWorld->AddCollider(emy->GetAABB());
+		m_physicsWorld->AddEnemyCollider(emy->GetAABB());
 		emy->SetHealth(100.0f);
 	}
 
@@ -1660,42 +1655,64 @@ bool findRandomNavMeshPoint(dtNavMeshQuery* navQuery, dtQueryFilter* filter, flo
 
 void GameManager::ShowCameraControlWindow(Camera& cam)
 {
-	ImGui::Begin("Camera Control");
-
-	std::string modeText = "";
-
-	if (cam.Mode == FLY)
+	for (auto& enem : m_enemies)
 	{
-		modeText = "Flycam";
+		if (!enem->IsDestroyed())
+		{
+			glm::vec3 enemyTracerEnd = glm::vec3(0.0f);
 
+			int enemyID = enem->GetID();
 
-		cam.UpdateCameraVectors();
-	}
-	else if (cam.Mode == PLAYER_FOLLOW)
-		modeText = "Player Follow";
-	else if (cam.Mode == ENEMY_FOLLOW)
-		modeText = "Enemy Follow";
-	else if (cam.Mode == PLAYER_AIM)
-		modeText = "Player Aim"
-		;
-	ImGui::Text(modeText.c_str());
+			if (enem->GetEnemyHasShot())
+			{
+				float enemyMuzzleCurrentTime = (float)glfwGetTime();
 
-	ImGui::InputFloat3("Position", (float*)&cam.Position);
+				if (m_renderEnemyMuzzleFlash.at(enemyID) && m_enemyMuzzleFlashStartTimes.at(enemyID) + m_enemyMuzzleFlashDurations.at(enemyID) > enemyMuzzleCurrentTime)
+				{
+					m_renderEnemyMuzzleFlash.at(enemyID) = false;
+				}
+				else
+				{
+					m_renderEnemyMuzzleFlash.at(enemyID) = true;
+					m_enemyMuzzleFlashStartTimes.at(enemyID) = enemyMuzzleCurrentTime;
+				}
 
-	ImGui::InputFloat("Pitch", (float*)&cam.Pitch);
-	ImGui::InputFloat("Yaw", (float*)&cam.Yaw);
-	ImGui::InputFloat("Zoom", (float*)&cam.Zoom);
+				if (m_renderEnemyMuzzleFlash.at(enemyID) && isMainPass)
+				{
+					m_enemyMuzzleTimesSinceStart.at(enemyID) = enemyMuzzleCurrentTime - m_enemyMuzzleFlashStartTimes.at(enemyID);
+					m_enemyMuzzleAlphas.at(enemyID) = glm::max(0.0f, 1.0f - (m_enemyMuzzleTimesSinceStart.at(enemyID) / m_enemyMuzzleFlashDurations.at(enemyID)));
+					m_enemyMuzzleFlashScales.at(enemyID) = 1.0f + (0.5f * m_enemyMuzzleAlphas.at(enemyID));
 
-	ImGui::End();
-}
+					m_enemyMuzzleModelMatrices.at(enemyID) = glm::mat4(1.0f);
 
-void GameManager::update(float deltaTime)
-{
-	inputManager->processInput(window->getWindow(), deltaTime);
-	player->UpdatePlayerVectors();
-	player->UpdatePlayerAimVectors();
+					m_enemyMuzzleModelMatrices.at(enemyID) = glm::translate(m_enemyMuzzleModelMatrices.at(enemyID), enem->GetEnemyShootPos(m_muzzleOffset));
+					m_enemyMuzzleModelMatrices.at(enemyID) = glm::rotate(m_enemyMuzzleModelMatrices.at(enemyID), enem->GetYaw(), glm::vec3(0.0f, 1.0f, 0.0f));
+					m_enemyMuzzleModelMatrices.at(enemyID) = glm::scale(m_enemyMuzzleModelMatrices.at(enemyID), glm::vec3(m_enemyMuzzleFlashScales.at(enemyID), m_enemyMuzzleFlashScales.at(enemyID), 1.0f));
+					m_enemyMuzzleFlashQuad->Draw3D(m_enemyMuzzleFlashTints.at(enemyID), m_enemyMuzzleAlphas.at(enemyID), m_projection, m_view, m_enemyMuzzleModelMatrices.at(enemyID));
+				}
 
-	player->Update(deltaTime);
+				if (enem->GetEnemyHasShot() && enem->GetEnemyDebugRayRenderTimer() > 0.0f)
+				{
+					if (enem->GetEnemyHasHit())
+					{
+						enemyTracerEnd = enem->GetEnemyHitPoint();
+					}
+					else
+					{
+						enemyTracerEnd = enem->GetEnemyShootPos(m_muzzleOffset) + enem->GetEnemyShootDir() * enem->GetEnemyShootDistance();
+					}
+
+					float enemyTracerCurrentTime = (float)glfwGetTime();
+
+					if (m_renderEnemyTracer.at(enemyID) && m_enemyTracerStartTimes.at(enemyID) + m_enemyTracerDurations.at(enemyID) > enemyTracerCurrentTime)
+					{
+						m_renderEnemyTracer.at(enemyID) = false;
+					}
+					else
+					{
+						m_renderEnemyTracer.at(enemyID) = true;
+						m_enemyTracerStartTimes.at(enemyID) = enemyTracerCurrentTime;
+					}
 
 
 
@@ -1707,7 +1724,7 @@ void GameManager::update(float deltaTime)
 		if (e == nullptr || e->isDestroyed)
 			continue;
 
-		e->SetDeltaTime(deltaTime);
+						m_enemyTracerModelMatrices.at(enemyID) = glm::mat4(1.0f);
 
 		//if (!useEDBT)
 		//{
@@ -1799,26 +1816,27 @@ void GameManager::update(float deltaTime)
 	mAudioManager->Update(deltaTime);
 	audioSystem->Update(deltaTime);
 
-	calculatePerformance(deltaTime);
+			}
+		}
+	}
 }
 
-void GameManager::render(bool isMinimapRenderPass, bool isShadowMapRenderPass, bool isMainRenderPass)
+void GameManager::RenderPlayerCrosshairAndMuzzleFlash(bool isMainPass)
 {
 	glEnable(GL_DEPTH_TEST);
 	glDisable(GL_BLEND);
 	//glEnable(GL_CULL_FACE);
 	if (!isShadowMapRenderPass)
 	{
-		renderer->ResetViewport(screenWidth, screenHeight);
-		renderer->clear();
-	}
+		m_renderer->RemoveDepthAndSetBlending();
 
-	if (isMinimapRenderPass)
-		renderer->bindMinimapFBO(screenWidth, screenHeight);
+		glm::vec3 rayO = m_player->GetShootPos();
+		glm::vec3 rayD = glm::normalize(m_player->GetPlayerAimFront());
+		float dist = m_player->GetShootDistance();
 
-	if (isShadowMapRenderPass)
-		renderer->bindShadowMapFBO(SHADOW_WIDTH, SHADOW_HEIGHT);
+		glm::vec3 rayEnd = rayO + rayD * dist;
 
+		glm::vec3 lineColor = glm::vec3(1.0f, 0.0f, 0.0f);
 
 
 
@@ -1827,17 +1845,7 @@ void GameManager::render(bool isMinimapRenderPass, bool isShadowMapRenderPass, b
 			continue;
 		if (isMinimapRenderPass)
 		{
-			renderer->draw(obj, minimapView, minimapProjection, camera->Position, false, lightSpaceMatrix);
-		}
-		else if (isShadowMapRenderPass)
-		{
-			renderer->draw(obj, lightSpaceView, lightSpaceProjection, camera->Position, true, lightSpaceMatrix);
-		}
-		else
-		{
-			renderer->draw(obj, view, projection, camera->Position, false, lightSpaceMatrix);
-		}
-	}
+			lineColor = glm::vec3(0.0f, 1.0f, 0.0f);
 
 	if (isShadowMapRenderPass)
 	{
@@ -1936,308 +1944,56 @@ void GameManager::render(bool isMinimapRenderPass, bool isShadowMapRenderPass, b
 
 			if (renderEnemyMuzzleFlash && enemyMuzzleFlashStartTime + enemyMuzzleFlashDuration > enemyMuzzleCurrentTime)
 			{
-				renderEnemyMuzzleFlash = false;
+				m_renderPlayerMuzzleFlash = false;
 			}
 			else
 			{
-				renderEnemyMuzzleFlash = true;
-				enemyMuzzleFlashStartTime = enemyMuzzleCurrentTime;
-			}
-
-			if (renderEnemyMuzzleFlash && isMainRenderPass)
-			{
-				enemyMuzzleTimeSinceStart = enemyMuzzleCurrentTime - enemyMuzzleFlashStartTime;
-				enemyMuzzleAlpha = glm::max(0.0f, 1.0f - (enemyMuzzleTimeSinceStart / enemyMuzzleFlashDuration));
-				enemyMuzzleFlashScale = 1.0f + (0.5f * enemyMuzzleAlpha);
-
-				enemyMuzzleModel = glm::mat4(1.0f);
-
-				enemyMuzzleModel = glm::translate(enemyMuzzleModel, enemy->GetEnemyShootPos());
-				enemyMuzzleModel = glm::rotate(enemyMuzzleModel, enemy->yaw, glm::vec3(0.0f, 1.0f, 0.0f));
-				enemyMuzzleModel = glm::scale(enemyMuzzleModel, glm::vec3(enemyMuzzleFlashScale, enemyMuzzleFlashScale, 1.0f));
-				enemyMuzzleFlashQuad->Draw3D(enemyMuzzleTint, enemyMuzzleAlpha, projection, view, enemyMuzzleModel);
-			}
-		}
-
-		if (enemy->GetEnemyHasShot() && enemy->GetEnemyDebugRayRenderTimer() > 0.0f)
-		{
-			glm::vec3 enemyLineColor = glm::vec3(0.2f, 0.2f, 0.2f);
-
-			if (enemy->GetEnemyHasHit())
-			{
-				enemyRayEnd = enemy->GetEnemyHitPoint();
-			}
-			else
-			{
-				enemyRayEnd = enemy->GetEnemyShootPos() + enemy->GetEnemyShootDir() * enemy->GetEnemyShootDistance();
-			}
-
-			glm::vec3 enemyRayEnd = enemy->GetEnemyShootPos() + enemy->GetEnemyShootDir() * enemy->GetEnemyShootDistance();
-			enemyLine->UpdateVertexBuffer(enemy->GetEnemyShootPos(), enemyRayEnd);
-			if (isMinimapRenderPass)
-			{
-				enemyLine->DrawLine(minimapView, minimapProjection, enemyLineColor, lightSpaceMatrix, renderer->GetShadowMapTexture(), false, enemy->GetEnemyDebugRayRenderTimer());
-			}
-			else if (isShadowMapRenderPass)
-			{
-				enemyLine->DrawLine(lightSpaceView, lightSpaceProjection, enemyLineColor, lightSpaceMatrix, renderer->GetShadowMapTexture(), true, enemy->GetEnemyDebugRayRenderTimer());
-			}
-			else
-			{
-				enemyLine->DrawLine(view, projection, enemyLineColor, lightSpaceMatrix, renderer->GetShadowMapTexture(), false, enemy->GetEnemyDebugRayRenderTimer());
-			}
-		}
-	}
-
-	if (!enemy2->isDestroyed)
-	{
-		glm::vec3 enemy2RayEnd = glm::vec3(0.0f);
-
-		if (enemy2->GetEnemyHasShot())
-		{
-			float enemy2MuzzleCurrentTime = glfwGetTime();
-
-			if (renderEnemy2MuzzleFlash && enemy2MuzzleFlashStartTime + enemy2MuzzleFlashDuration > enemy2MuzzleCurrentTime)
-			{
-				renderEnemy2MuzzleFlash = false;
-			}
-			else
-			{
-				renderEnemy2MuzzleFlash = true;
-				enemy2MuzzleFlashStartTime = enemy2MuzzleCurrentTime;
-			}
-
-			if (renderEnemy2MuzzleFlash && isMainRenderPass)
-			{
-				enemy2MuzzleTimeSinceStart = enemy2MuzzleCurrentTime - enemy2MuzzleFlashStartTime;
-				enemy2MuzzleAlpha = glm::max(0.0f, 1.0f - (enemy2MuzzleTimeSinceStart / enemy2MuzzleFlashDuration));
-				enemy2MuzzleFlashScale = 1.0f + (0.5f * enemy2MuzzleAlpha);
-
-				enemy2MuzzleModel = glm::mat4(1.0f);
-
-				enemy2MuzzleModel = glm::translate(enemy2MuzzleModel, enemy2->GetEnemyShootPos());
-				enemy2MuzzleModel = glm::rotate(enemy2MuzzleModel, enemy2->yaw, glm::vec3(0.0f, 1.0f, 0.0f));
-				enemy2MuzzleModel = glm::scale(enemy2MuzzleModel, glm::vec3(enemy2MuzzleFlashScale, enemy2MuzzleFlashScale, 1.0f));
-				enemy2MuzzleFlashQuad->Draw3D(enemy2MuzzleTint, enemy2MuzzleAlpha, projection, view, enemy2MuzzleModel);
-			}
-		}
-
-		if (enemy2->GetEnemyHasShot() && enemy2->GetEnemyDebugRayRenderTimer() > 0.0f)
-		{
-			glm::vec3 enemy2LineColor = glm::vec3(0.2f, 0.2f, 0.2f);
-			if (enemy2->GetEnemyHasHit())
-			{
-				enemy2RayEnd = enemy2->GetEnemyHitPoint();
-			}
-			else
-			{
-				enemy2RayEnd = enemy2->GetEnemyShootPos() + enemy2->GetEnemyShootDir() * enemy2->GetEnemyShootDistance();
-			}
-
-			enemy2Line->UpdateVertexBuffer(enemy2->GetEnemyShootPos(), enemy2RayEnd);
-			if (isMinimapRenderPass)
-			{
-				enemy2Line->DrawLine(minimapView, minimapProjection, enemy2LineColor, lightSpaceMatrix, renderer->GetShadowMapTexture(), false, enemy2->GetEnemyDebugRayRenderTimer());
-			}
-			else if (isShadowMapRenderPass)
-			{
-				enemy2Line->DrawLine(lightSpaceView, lightSpaceProjection, enemy2LineColor, lightSpaceMatrix, renderer->GetShadowMapTexture(), true, enemy2->GetEnemyDebugRayRenderTimer());
-			}
-			else
-			{
-				enemy2Line->DrawLine(view, projection, enemy2LineColor, lightSpaceMatrix, renderer->GetShadowMapTexture(), false, enemy2->GetEnemyDebugRayRenderTimer());
-			}
-		}
-	}
-
-	if (!enemy3->isDestroyed)
-	{
-		glm::vec3 enemy3RayEnd = glm::vec3(0.0f);
-
-		if (enemy3->GetEnemyHasShot())
-		{
-			float enemy3MuzzleCurrentTime = glfwGetTime();
-
-			if (renderEnemy3MuzzleFlash && enemy3MuzzleFlashStartTime + enemy3MuzzleFlashDuration > enemy3MuzzleCurrentTime)
-			{
-				renderEnemy3MuzzleFlash = false;
-			}
-			else
-			{
-				renderEnemy3MuzzleFlash = true;
-				enemy3MuzzleFlashStartTime = enemy3MuzzleCurrentTime;
-			}
-
-			if (renderEnemy3MuzzleFlash && isMainRenderPass)
-			{
-				enemy3MuzzleTimeSinceStart = enemy3MuzzleCurrentTime - enemy3MuzzleFlashStartTime;
-				enemy3MuzzleAlpha = glm::max(0.0f, 1.0f - (enemy3MuzzleTimeSinceStart / enemy3MuzzleFlashDuration));
-				enemy3MuzzleFlashScale = 1.0f + (0.5f * enemy3MuzzleAlpha);
-
-				enemy3MuzzleModel = glm::mat4(1.0f);
-
-				enemy3MuzzleModel = glm::translate(enemy3MuzzleModel, enemy3->GetEnemyShootPos());
-				enemy3MuzzleModel = glm::rotate(enemy3MuzzleModel, enemy3->yaw, glm::vec3(0.0f, 1.0f, 0.0f));
-				enemy3MuzzleModel = glm::scale(enemy3MuzzleModel, glm::vec3(enemy3MuzzleFlashScale, enemy3MuzzleFlashScale, 1.0f));
-				enemy3MuzzleFlashQuad->Draw3D(enemy3MuzzleTint, enemy3MuzzleAlpha, projection, view, enemy3MuzzleModel);
-			}
-		}
-
-		if (enemy3->GetEnemyHasShot() && enemy3->GetEnemyDebugRayRenderTimer() > 0.0f)
-		{
-			glm::vec3 enemy3LineColor = glm::vec3(0.2f, 0.2f, 0.2f);
-
-			if (enemy3->GetEnemyHasHit())
-			{
-				enemy3RayEnd = enemy3->GetEnemyHitPoint();
-			}
-			else
-			{
-				enemy3RayEnd = enemy3->GetEnemyShootPos() + enemy3->GetEnemyShootDir() * enemy3->GetEnemyShootDistance();
-			}
-
-			enemy3Line->UpdateVertexBuffer(enemy3->GetEnemyShootPos(), enemy3RayEnd);
-			if (isMinimapRenderPass)
-			{
-				enemy3Line->DrawLine(minimapView, minimapProjection, enemy3LineColor, lightSpaceMatrix, renderer->GetShadowMapTexture(), false, enemy3->GetEnemyDebugRayRenderTimer());
-			}
-			else if (isShadowMapRenderPass)
-			{
-				enemy3Line->DrawLine(lightSpaceView, lightSpaceProjection, enemy3LineColor, lightSpaceMatrix, renderer->GetShadowMapTexture(), true, enemy3->GetEnemyDebugRayRenderTimer());
-			}
-			else
-			{
-				enemy3Line->DrawLine(view, projection, enemy3LineColor, lightSpaceMatrix, renderer->GetShadowMapTexture(), false, enemy3->GetEnemyDebugRayRenderTimer());
-			}
-		}
-	}
-
-	if (!enemy4->isDestroyed)
-	{
-		glm::vec3 enemy4RayEnd = glm::vec3(0.0f);
-
-		if (enemy4->GetEnemyHasShot())
-		{
-			float enemy4MuzzleCurrentTime = glfwGetTime();
-
-			if (renderEnemy4MuzzleFlash && enemy4MuzzleFlashStartTime + enemy4MuzzleFlashDuration > enemy4MuzzleCurrentTime)
-			{
-				renderEnemy4MuzzleFlash = false;
-			}
-			else
-			{
-				renderEnemy4MuzzleFlash = true;
-				enemy4MuzzleFlashStartTime = enemy4MuzzleCurrentTime;
-			}
-
-			if (renderEnemy4MuzzleFlash && isMainRenderPass)
-			{
-				enemy4MuzzleTimeSinceStart = enemy4MuzzleCurrentTime - enemy4MuzzleFlashStartTime;
-				enemy4MuzzleAlpha = glm::max(0.0f, 1.0f - (enemy4MuzzleTimeSinceStart / enemy4MuzzleFlashDuration));
-				enemy4MuzzleFlashScale = 1.0f + (0.5f * enemy4MuzzleAlpha);
-
-				enemy4MuzzleModel = glm::mat4(1.0f);
-
-				enemy4MuzzleModel = glm::translate(enemy4MuzzleModel, enemy4->GetEnemyShootPos());
-				enemy4MuzzleModel = glm::rotate(enemy4MuzzleModel, enemy4->yaw, glm::vec3(0.0f, 1.0f, 0.0f));
-				enemy4MuzzleModel = glm::scale(enemy4MuzzleModel, glm::vec3(enemy4MuzzleFlashScale, enemy4MuzzleFlashScale, 1.0f));
-				enemy4MuzzleFlashQuad->Draw3D(enemy4MuzzleTint, enemy4MuzzleAlpha, projection, view, enemy4MuzzleModel);
-			}
-		}
-
-		if (enemy4->GetEnemyHasShot() && enemy4->GetEnemyDebugRayRenderTimer() > 0.0f)
-		{
-			glm::vec3 enemy4LineColor = glm::vec3(0.2f, 0.2f, 0.2f);
-			if (enemy3->GetEnemyHasHit())
-			{
-				enemy4RayEnd = enemy4->GetEnemyHitPoint();
-			}
-			else
-			{
-				enemy4RayEnd = enemy4->GetEnemyShootPos() + enemy4->GetEnemyShootDir() * enemy4->GetEnemyShootDistance();
-			}
-
-			enemy4Line->UpdateVertexBuffer(enemy4->GetEnemyShootPos(), enemy4RayEnd);
-			if (isMinimapRenderPass)
-			{
-				enemy4Line->DrawLine(minimapView, minimapProjection, enemy4LineColor, lightSpaceMatrix, renderer->GetShadowMapTexture(), false, enemy4->GetEnemyDebugRayRenderTimer());
-			}
-			else if (isShadowMapRenderPass)
-			{
-				enemy4Line->DrawLine(lightSpaceView, lightSpaceProjection, enemy4LineColor, lightSpaceMatrix, renderer->GetShadowMapTexture(), true, enemy4->GetEnemyDebugRayRenderTimer());
-			}
-			else
-			{
-				enemy4Line->DrawLine(view, projection, enemy4LineColor, lightSpaceMatrix, renderer->GetShadowMapTexture(), false, enemy4->GetEnemyDebugRayRenderTimer());
-			}
-		}
-	}
-	//	renderer->setScene(view, projection, dirLight);
-	renderer->drawCubemap(cubemap);
-	if ((player->GetPlayerState() == AIMING || player->GetPlayerState() == SHOOTING) && camSwitchedToAim == false && isMainRenderPass)
-	{
-		glDisable(GL_DEPTH_TEST);
-		glEnable(GL_BLEND);
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-		glm::vec3 rayO = player->GetShootPos();
-		glm::vec3 rayD = glm::normalize(player->PlayerAimFront);
-		float dist = player->GetShootDistance();
-
-		glm::vec3 rayEnd = rayO + rayD * dist;
-
-		glm::vec3 lineColor = glm::vec3(1.0f, 0.0f, 0.0f);
-
-		glm::vec3 hitPoint;
-
-		if (player->GetPlayerState() == SHOOTING)
-		{
-			lineColor = glm::vec3(0.0f, 1.0f, 0.0f);
-
-			float currentTime = glfwGetTime();
-
-			if (renderPlayerMuzzleFlash && playerMuzzleFlashStartTime + playerMuzzleFlashDuration > currentTime)
-			{
-				renderPlayerMuzzleFlash = false;
-			}
-			else
-			{
-				renderPlayerMuzzleFlash = true;
-				playerMuzzleFlashStartTime = currentTime;
+				m_renderPlayerMuzzleFlash = true;
+				m_playerMuzzleFlashStartTime = currentTime;
 			}
 
 
-			if (renderPlayerMuzzleFlash)
+			if (m_renderPlayerMuzzleFlash)
 
 			{
-				playerMuzzleTimeSinceStart = currentTime - playerMuzzleFlashStartTime;
-				playerMuzzleAlpha = glm::max(0.0f, 1.0f - (playerMuzzleTimeSinceStart / playerMuzzleFlashDuration));
-				playerMuzzleFlashScale = 1.0f + (0.5f * playerMuzzleAlpha);
+				m_playerMuzzleTimeSinceStart = currentTime - m_playerMuzzleFlashStartTime;
+				m_playerMuzzleAlpha = glm::max(0.0f, 1.0f - (m_playerMuzzleTimeSinceStart / m_playerMuzzleFlashDuration));
+				m_playerMuzzleFlashScale = 1.0f + (0.5f * m_playerMuzzleAlpha);
 
-				playerMuzzleModel = glm::mat4(1.0f);
+				m_playerMuzzleModel = glm::mat4(1.0f);
 
-				playerMuzzleModel = glm::translate(playerMuzzleModel, player->GetShootPos());
-				playerMuzzleModel = glm::rotate(playerMuzzleModel, (-player->yaw + 180.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-				playerMuzzleModel = glm::scale(playerMuzzleModel, glm::vec3(playerMuzzleFlashScale, playerMuzzleFlashScale, 1.0f));
-				playerMuzzleFlashQuad->Draw3D(playerMuzzleTint, playerMuzzleAlpha, projection, view, playerMuzzleModel);
+				m_playerMuzzleModel = glm::translate(m_playerMuzzleModel, m_player->GetShootPos());
+				m_playerMuzzleModel = glm::rotate(m_playerMuzzleModel, (-m_player->GetYaw() + 90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+				m_playerMuzzleModel = glm::scale(m_playerMuzzleModel, glm::vec3(m_playerMuzzleFlashScale, m_playerMuzzleFlashScale, 1.0f));
+				m_playerMuzzleFlashQuad->Draw3D(m_playerMuzzleTint, m_playerMuzzleAlpha, m_projection, m_view, m_playerMuzzleModel);
 			}
 		}
 
 
 		glm::vec4 rayEndWorldSpace = glm::vec4(rayEnd, 1.0f);
-		glm::vec4 rayEndCameraSpace = view * rayEndWorldSpace;
-		glm::vec4 rayEndNDC = projection * rayEndCameraSpace;
+		glm::vec4 rayEndCameraSpace = m_view * rayEndWorldSpace;
+		glm::vec4 rayEndNDC = m_projection * rayEndCameraSpace;
 
 		glm::vec4 targetNDC(0.0f, 0.5f, rayEndNDC.z / rayEndNDC.w, 1.0f);
-		glm::vec4 targetCameraSpace = glm::inverse(projection) * targetNDC;
-		glm::vec4 targetWorldSpace = glm::inverse(view) * targetCameraSpace;
+		glm::vec4 targetCameraSpace = glm::inverse(m_projection) * targetNDC;
+		glm::vec4 targetWorldSpace = glm::inverse(m_view) * targetCameraSpace;
 
 		rayEnd = glm::vec3(targetWorldSpace) / targetWorldSpace.w;
 
 		glm::vec3 crosshairHitpoint;
 		glm::vec3 crosshairCol;
 
-		if (physicsWorld->rayEnemyCrosshairIntersect(rayO, glm::normalize(rayEnd - rayO), crosshairHitpoint))
+		auto clipCoords = glm::vec4(0.15f, 0.5f, 1.0f, 1.0f);
+
+		glm::vec4 cameraCoords = inverse(m_projection) * clipCoords;
+		cameraCoords /= cameraCoords.w;
+
+		glm::vec4 worldCoords = inverse(m_view) * cameraCoords;
+		rayEnd = glm::vec3(worldCoords) / worldCoords.w;
+
+		rayD = normalize(rayEnd - rayO);
+
+		if (m_physicsWorld->RayEnemyCrosshairIntersect(rayO, rayD, crosshairHitpoint))
 		{
 			crosshairCol = glm::vec3(1.0f, 0.0f, 0.0f);
 		}
@@ -2246,55 +2002,152 @@ void GameManager::render(bool isMinimapRenderPass, bool isShadowMapRenderPass, b
 			crosshairCol = glm::vec3(1.0f, 1.0f, 1.0f);
 		}
 
-		glm::vec2 ndcPos = crosshair->CalculateCrosshairPosition(rayEnd, window->GetWidth(), window->GetHeight(), projection, view);
+		glm::vec2 ndcPos = m_crosshair->CalculateCrosshairPosition(rayEnd, m_window->GetWidth(), m_window->GetHeight(), m_projection, m_view);
 
-		float ndcX = (ndcPos.x / window->GetWidth()) * 2.0f - 1.0f;
-		float ndcY = (ndcPos.y / window->GetHeight()) * 2.0f - 1.0f;
+		float ndcX = (ndcPos.x / m_window->GetWidth()) * 2.0f - 1.0f;
+		float ndcY = (ndcPos.y / m_window->GetHeight()) * 2.0f - 1.0f;
 
-		if (isMainRenderPass)
-			crosshair->DrawCrosshair(glm::vec2(0.0f, 0.5f), crosshairCol);
+		if (isMainPass)
+			m_crosshair->DrawCrosshair(glm::vec2(0.0f, 0.5f), crosshairCol);
 
-
-		//line->UpdateVertexBuffer(rayO, rayEnd);
-
-		//if (minimap)
-		//{
-		//	line->DrawLine(minimapView, minimapProjection, lineColor, lightSpaceMatrix, renderer->GetShadowMapTexture(), false);
-		//}
-		//else if (shadowMap)
-		//{
-		//	line->DrawLine(lightSpaceView, lightSpaceProjection, lineColor, lightSpaceMatrix, renderer->GetShadowMapTexture(), true);
-		//}
-		//else
-		//{
-		//	line->DrawLine(view, projection, lineColor, lightSpaceMatrix, renderer->GetShadowMapTexture(), false);
-		//}
-
-		glEnable(GL_DEPTH_TEST);
-		glDisable(GL_BLEND);
-
+		m_renderer->ResetRenderStates();
 	}
+}
+
+void GameManager::Update(float deltaTime)
+{
+	m_inputManager->ProcessInput(m_window->GetWindow(), deltaTime);
+	float pauseFactor = m_inputManager->GetPauseFactor();
+	float timeScaleFactor = m_inputManager->GetTimeScaleFacotr();
+
+	float scaledDeltaTime = deltaTime;
+
+	bool isPaused = m_inputManager->GetIsPaused();
+	bool isTimeScaled = m_inputManager->GetIsTimeScaled();
+
+	if (isPaused)
+		scaledDeltaTime *= pauseFactor;
+
+	if (isTimeScaled)
+		scaledDeltaTime *= timeScaleFactor;
+
+	m_player->UpdatePlayerVectors();
+	m_player->UpdatePlayerAimVectors();
+
+	m_player->Update(scaledDeltaTime, isPaused, isTimeScaled);
+
+	m_dt = scaledDeltaTime;
+
+	int enemyID = 0;
+	for (Enemy* e : m_enemies)
+	{
+		if (e == nullptr || e->IsDestroyed())
+			continue;
+
+		e->SetDeltaTime(scaledDeltaTime);
+
+		if (!m_useEdbt)
+		{
+			if (m_training)
+			{
+				e->EnemyDecision(m_enemyStates[e->GetID()], e->GetID(), m_squadActions, scaledDeltaTime, m_enemyStateQTable);
+			}
+			else
+			{
+				e->EnemyDecisionPrecomputedQ(m_enemyStates[e->GetID()], e->GetID(), m_squadActions, scaledDeltaTime, m_enemyStateQTable);
+			}
+		}
+
+		e->Update(m_useEdbt, isPaused, isTimeScaled);
+	}
+
+	m_audioManager->Update(scaledDeltaTime);
+	m_audioSystem->Update(scaledDeltaTime);
+
+	CalculatePerformance(deltaTime);
+}
+
+void GameManager::Render(bool isMinimapRenderPass, bool isShadowMapRenderPass, bool isMainRenderPass)
+{
+
+	m_renderer->ResetRenderStates();
+
+
+	if (!isShadowMapRenderPass)
+	{
+		m_renderer->ResetViewport(m_screenWidth, m_screenHeight);
+		m_renderer->Clear();
+	}
+
+	if (isMinimapRenderPass)
+		m_renderer->BindMinimapFbo(m_screenWidth, m_screenHeight);
+
+	if (isShadowMapRenderPass)
+		m_renderer->BindShadowMapFbo(SHADOW_WIDTH, SHADOW_HEIGHT);
+
+
+
+	for (auto obj : m_gameObjects) {
+		if (obj->IsDestroyed())
+			continue;
+		if (isMinimapRenderPass)
+		{
+			m_renderer->Draw(obj, m_minimapView, m_minimapProjection, m_camera->GetPosition(), false, m_lightSpaceMatrix);
+		}
+		else if (isShadowMapRenderPass)
+		{
+			m_renderer->Draw(obj, m_lightSpaceView, m_lightSpaceProjection, m_camera->GetPosition(), true, m_lightSpaceMatrix);
+		}
+		else
+		{
+			m_renderer->Draw(obj, m_view, m_projection, m_camera->GetPosition(), false, m_lightSpaceMatrix);
+		}
+	}
+
+	if (isMinimapRenderPass)
+	{
+		m_gameGrid->DrawGrid(m_gridShader, m_minimapView, m_minimapProjection, m_camera->GetPosition(), false, m_lightSpaceMatrix, m_renderer->GetShadowMapTexture(),
+			dirLight.m_direction, dirLight.m_ambient, dirLight.m_diffuse, dirLight.m_specular);
+	}
+	else if (isShadowMapRenderPass)
+	{
+		m_gameGrid->DrawGrid(m_shadowMapShader, m_lightSpaceView, m_lightSpaceProjection, m_camera->GetPosition(), true, m_lightSpaceMatrix, m_renderer->GetShadowMapTexture(),
+			dirLight.m_direction, dirLight.m_ambient, dirLight.m_diffuse, dirLight.m_specular);
+	}
+	else
+	{
+		m_gameGrid->DrawGrid(m_gridShader, m_view, m_projection, m_camera->GetPosition(), false, m_lightSpaceMatrix, m_renderer->GetShadowMapTexture(),
+			dirLight.m_direction, dirLight.m_ambient, dirLight.m_diffuse, dirLight.m_specular);
+	}
+
+	if (m_camSwitchedToAim)
+		m_camSwitchedToAim = false;
+
+	RenderEnemyLineAndMuzzleFlash(isMainRenderPass, isMinimapRenderPass, isShadowMapRenderPass);
+
+	m_renderer->DrawCubemap(m_cubemap);
+
+	RenderPlayerCrosshairAndMuzzleFlash(isMainRenderPass);
 
 	if (isMainRenderPass)
 	{
-		renderer->drawMinimap(minimapQuad, &minimapShader);
-
+		m_renderer->DrawMinimap(m_minimapQuad, &m_minimapShader);
 	}
 
 #ifdef _DEBUG
 	if (isMainRenderPass)
 	{
-		renderer->drawShadowMap(shadowMapQuad, &shadowMapQuadShader);
+		m_renderer->DrawShadowMap(m_shadowMapQuad, &m_shadowMapQuadShader);
 	}
 #endif
 
 	if (isMinimapRenderPass)
 	{
-		renderer->unbindMinimapFBO();
+		m_renderer->UnbindMinimapFbo();
 	}
 	else if (isShadowMapRenderPass)
 	{
-		renderer->unbindShadowMapFBO();
+		m_renderer->UnbindShadowMapFbo();
 	}
 
 

@@ -1,74 +1,86 @@
 #include <vector>
 #include <iostream>
 #include <fstream>
-#include <cerrno>  
-#include <cstring> 
+#include <cerrno>
+#include <cstring>
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
 #include "Shader.h"
 #include "src/Tools/Logger.h"
 
-bool Shader::loadShaders(std::string vertexShaderFileName, std::string fragmentShaderFileName) {
-	Logger::log(1, "%s: loading vertex shader '%s' and fragment shader '%s'\n", __FUNCTION__, vertexShaderFileName.c_str(), fragmentShaderFileName.c_str());
+bool Shader::LoadShaders(std::string vertexShaderFileName, std::string fragmentShaderFileName)
+{
+	Logger::Log(1, "%s: loading vertex shader '%s' and fragment shader '%s'\n", __FUNCTION__,
+	            vertexShaderFileName.c_str(), fragmentShaderFileName.c_str());
 
-	if (!createShaderProgram(vertexShaderFileName, fragmentShaderFileName)) {
-		Logger::log(1, "%s error: shader program creation failed\n", __FUNCTION__);
+	if (!CreateShaderProgram(vertexShaderFileName, fragmentShaderFileName))
+	{
+		Logger::Log(1, "%s error: shader program creation failed\n", __FUNCTION__);
 		return false;
 	}
 
 	return true;
 }
 
-void Shader::cleanup() const {
-	glDeleteProgram(mShaderProgram);
+void Shader::Cleanup() const
+{
+	glDeleteProgram(m_shaderProgram);
 }
 
-void Shader::use() const {
-	glUseProgram(mShaderProgram);
+void Shader::Use() const
+{
+	glUseProgram(m_shaderProgram);
 }
 
-GLuint Shader::loadShader(std::string shaderFileName, GLuint shaderType) {
+GLuint Shader::LoadShader(std::string shaderFileName, GLuint shaderType)
+{
 	std::string shaderAsText;
-	shaderAsText = loadFileToString(shaderFileName);
-	Logger::log(4, "%s: loaded shader file '%s', size %i\n", __FUNCTION__, shaderFileName.c_str(), shaderAsText.size());
+	shaderAsText = LoadFileToString(shaderFileName);
+	Logger::Log(4, "%s: loaded shader file '%s', size %i\n", __FUNCTION__, shaderFileName.c_str(), shaderAsText.size());
 
 	const char* shaderSource = shaderAsText.c_str();
 	GLuint shader = glCreateShader(shaderType);
-	glShaderSource(shader, 1, (const GLchar**)&shaderSource, 0);
+	glShaderSource(shader, 1, &shaderSource, nullptr);
 	glCompileShader(shader);
 
-	if (!checkCompileStats(shaderFileName, shader)) {
-		Logger::log(1, "%s error: compiling shader '%s' failed\n", __FUNCTION__, shaderFileName.c_str());
+	if (!CheckCompileStats(shaderFileName, shader))
+	{
+		Logger::Log(1, "%s error: compiling shader '%s' failed\n", __FUNCTION__, shaderFileName.c_str());
 		return 0;
 	}
 
-	Logger::log(1, "%s: shader %#x loaded and compiled\n", __FUNCTION__, shader);
+	Logger::Log(1, "%s: shader %#x loaded and compiled\n", __FUNCTION__, shader);
 	return shader;
 }
 
-bool Shader::createShaderProgram(std::string vertexShaderFileName, std::string fragmentShaderFileName) {
-	GLuint vertexShader = loadShader(vertexShaderFileName, GL_VERTEX_SHADER);
-	if (!vertexShader) {
-		Logger::log(1, "%s: loading of vertex shader '%s' failed\n", __FUNCTION__, vertexShaderFileName.c_str());
+bool Shader::CreateShaderProgram(std::string vertexShaderFileName, std::string fragmentShaderFileName)
+{
+	GLuint vertexShader = LoadShader(vertexShaderFileName, GL_VERTEX_SHADER);
+	if (!vertexShader)
+	{
+		Logger::Log(1, "%s: loading of vertex shader '%s' failed\n", __FUNCTION__, vertexShaderFileName.c_str());
 		return false;
 	}
 
-	GLuint fragmentShader = loadShader(fragmentShaderFileName, GL_FRAGMENT_SHADER);
-	if (!fragmentShader) {
-		Logger::log(1, "%s: loading of fragment shader '%s' failed\n", __FUNCTION__, fragmentShaderFileName.c_str());
+	GLuint fragmentShader = LoadShader(fragmentShaderFileName, GL_FRAGMENT_SHADER);
+	if (!fragmentShader)
+	{
+		Logger::Log(1, "%s: loading of fragment shader '%s' failed\n", __FUNCTION__, fragmentShaderFileName.c_str());
 		return false;
 	}
 
-	mShaderProgram = glCreateProgram();
+	m_shaderProgram = glCreateProgram();
 
-	glAttachShader(mShaderProgram, vertexShader);
-	glAttachShader(mShaderProgram, fragmentShader);
+	glAttachShader(m_shaderProgram, vertexShader);
+	glAttachShader(m_shaderProgram, fragmentShader);
 
-	glLinkProgram(mShaderProgram);
+	glLinkProgram(m_shaderProgram);
 
-	if (!checkLinkStats(vertexShaderFileName, fragmentShaderFileName, mShaderProgram)) {
-		Logger::log(1, "%s error: program linking from vertex shader '%s' / fragment shader '%s' failed\n", __FUNCTION__, vertexShaderFileName.c_str(), fragmentShaderFileName.c_str());
+	if (!CheckLinkStats(vertexShaderFileName, fragmentShaderFileName, m_shaderProgram))
+	{
+		Logger::Log(1, "%s error: program linking from vertex shader '%s' / fragment shader '%s' failed\n",
+		            __FUNCTION__, vertexShaderFileName.c_str(), fragmentShaderFileName.c_str());
 
 		glDeleteShader(vertexShader);
 		glDeleteShader(fragmentShader);
@@ -80,53 +92,61 @@ bool Shader::createShaderProgram(std::string vertexShaderFileName, std::string f
 	glDeleteShader(vertexShader);
 	glDeleteShader(fragmentShader);
 
-	Logger::log(1, "%s: shader program %#x successfully compiled from vertex shader '%s' and fragment shader '%s'\n", __FUNCTION__, mShaderProgram, vertexShaderFileName.c_str(), fragmentShaderFileName.c_str());
+	Logger::Log(1, "%s: shader program %#x successfully compiled from vertex shader '%s' and fragment shader '%s'\n",
+	            __FUNCTION__, m_shaderProgram, vertexShaderFileName.c_str(), fragmentShaderFileName.c_str());
 	return true;
 }
 
-bool Shader::checkCompileStats(std::string shaderFileName, GLuint shader) {
+bool Shader::CheckCompileStats(std::string shaderFileName, GLuint shader)
+{
 	GLint isShaderCompiled;
 	int logMessageLength;
 	std::vector<char> shaderLog;
 
 	glGetShaderiv(shader, GL_COMPILE_STATUS, &isShaderCompiled);
-	if (!isShaderCompiled) {
+	if (!isShaderCompiled)
+	{
 		glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &logMessageLength);
 		shaderLog = std::vector<char>(logMessageLength + 1);
 		glGetShaderInfoLog(shader, logMessageLength, &logMessageLength, shaderLog.data());
 		shaderLog.at(logMessageLength) = '\0';
-		Logger::log(1, "%s error: shader compile of shader '%s' failed\n", __FUNCTION__, shaderFileName.c_str());
-		Logger::log(1, "%s compile log:\n%s\n", __FUNCTION__, shaderLog.data());
+		Logger::Log(1, "%s error: shader compile of shader '%s' failed\n", __FUNCTION__, shaderFileName.c_str());
+		Logger::Log(1, "%s compile Log:\n%s\n", __FUNCTION__, shaderLog.data());
 		return false;
 	}
 
 	return true;
 }
 
-bool Shader::checkLinkStats(std::string vertexShaderFileName, std::string fragmentShaderFileName, GLuint shaderProgram) {
+bool Shader::CheckLinkStats(std::string vertexShaderFileName, std::string fragmentShaderFileName, GLuint shaderProgram)
+{
 	GLint isProgramLinked;
 	int logMessageLength;
 	std::vector<char> programLog;
 
 	glGetProgramiv(shaderProgram, GL_LINK_STATUS, &isProgramLinked);
-	if (!isProgramLinked) {
+	if (!isProgramLinked)
+	{
 		glGetProgramiv(shaderProgram, GL_INFO_LOG_LENGTH, &logMessageLength);
 		programLog = std::vector<char>(logMessageLength + 1);
 		glGetProgramInfoLog(shaderProgram, logMessageLength, &logMessageLength, programLog.data());
 		programLog.at(logMessageLength) = '\0';
-		Logger::log(1, "%s error: program linking of shaders '%s' and '%s' failed\n", __FUNCTION__, vertexShaderFileName.c_str(), fragmentShaderFileName.c_str());
-		Logger::log(1, "%s compile log:\n%s\n", __FUNCTION__, programLog.data());
+		Logger::Log(1, "%s error: program linking of shaders '%s' and '%s' failed\n", __FUNCTION__,
+		            vertexShaderFileName.c_str(), fragmentShaderFileName.c_str());
+		Logger::Log(1, "%s compile Log:\n%s\n", __FUNCTION__, programLog.data());
 		return false;
 	}
 
 	return true;
 }
 
-std::string Shader::loadFileToString(std::string fileName) {
+std::string Shader::LoadFileToString(std::string fileName)
+{
 	std::ifstream inFile(fileName);
 	std::string str;
 
-	if (inFile.is_open()) {
+	if (inFile.is_open())
+	{
 		str.clear();
 		// allocate string data (no slower realloc)
 		inFile.seekg(0, std::ios::end);
@@ -134,58 +154,59 @@ std::string Shader::loadFileToString(std::string fileName) {
 		inFile.seekg(0, std::ios::beg);
 
 		str.assign((std::istreambuf_iterator<char>(inFile)),
-			std::istreambuf_iterator<char>());
+		           std::istreambuf_iterator<char>());
 		inFile.close();
 	}
-	else {
-		Logger::log(1, "%s error: could not open file %s\n", __FUNCTION__, fileName.c_str());
+	else
+	{
+		Logger::Log(1, "%s error: could not open file %s\n", __FUNCTION__, fileName.c_str());
 		// TODO:   Logger::log(1, "%s error: system says '%s'\n", __FUNCTION__, strerror(errno));
 		return std::string();
 	}
 
-	if (inFile.bad() || inFile.fail()) {
-		Logger::log(1, "%s error: error while reading file %s\n", __FUNCTION__, fileName.c_str());
+	if (inFile.bad() || inFile.fail())
+	{
+		Logger::Log(1, "%s error: error while reading file %s\n", __FUNCTION__, fileName.c_str());
 		inFile.close();
 		return std::string();
 	}
 
 	inFile.close();
-	Logger::log(1, "%s: file %s successfully read to string\n", __FUNCTION__, fileName.c_str());
+	Logger::Log(1, "%s: file %s successfully read to string\n", __FUNCTION__, fileName.c_str());
 	return str;
 }
 
-void Shader::setBool(const std::string& name, bool value) const
+void Shader::SetBool(const std::string& name, bool value) const
 {
-	glUniform1i(glGetUniformLocation(mShaderProgram, name.c_str()), int(value));
+	glUniform1i(glGetUniformLocation(m_shaderProgram, name.c_str()), static_cast<int>(value));
 }
 
-void Shader::setInt(const std::string& name, int value) const
+void Shader::SetInt(const std::string& name, int value) const
 {
-	glUniform1i(glGetUniformLocation(mShaderProgram, name.c_str()), value);
+	glUniform1i(glGetUniformLocation(m_shaderProgram, name.c_str()), value);
 }
 
-void Shader::setFloat(const std::string& name, float value) const
+void Shader::SetFloat(const std::string& name, float value) const
 {
-	glUniform1f(glGetUniformLocation(mShaderProgram, name.c_str()), value);
+	glUniform1f(glGetUniformLocation(m_shaderProgram, name.c_str()), value);
 }
 
-void Shader::setMat4(const std::string& name, glm::mat4 value) const
+void Shader::SetMat4(const std::string& name, glm::mat4 value) const
 {
-	glUniformMatrix4fv(glGetUniformLocation(mShaderProgram, name.c_str()), 1, GL_FALSE, value_ptr(value));
+	glUniformMatrix4fv(glGetUniformLocation(m_shaderProgram, name.c_str()), 1, GL_FALSE, value_ptr(value));
 }
 
-void Shader::setVec3(const std::string& name, glm::vec3& value) const
+void Shader::SetVec3(const std::string& name, glm::vec3& value) const
 {
-	glUniform3fv(glGetUniformLocation(mShaderProgram, name.c_str()), 1, &value[0]);
+	glUniform3fv(glGetUniformLocation(m_shaderProgram, name.c_str()), 1, &value[0]);
 }
 
-void Shader::setVec3(const std::string& name, float x, float y, float z) const
+void Shader::SetVec3(const std::string& name, float x, float y, float z) const
 {
-	glUniform3f(glGetUniformLocation(mShaderProgram, name.c_str()), x, y, z);
+	glUniform3f(glGetUniformLocation(m_shaderProgram, name.c_str()), x, y, z);
 }
 
-void Shader::setVec2(const std::string& name, float x, float y) const
+void Shader::SetVec2(const std::string& name, float x, float y) const
 {
-	glUniform2f(glGetUniformLocation(mShaderProgram, name.c_str()), x, y);
-
+	glUniform2f(glGetUniformLocation(m_shaderProgram, name.c_str()), x, y);
 }

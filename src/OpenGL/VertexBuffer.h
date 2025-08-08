@@ -6,17 +6,18 @@
 
 #include "src/OpenGL/RenderData.h"
 
-class VertexBuffer {
+class VertexBuffer
+{
 public:
-	void init();
-	void uploadData(Mesh vertexData);
-	void bind();
-	void unbind();
-	void draw(GLuint mode, unsigned int start, unsigned int num);
-	void bindAndDraw(GLuint mode, unsigned int start, unsigned int num);
-	void cleanup();
+	void Init();
+	void UploadData(Mesh vertexData);
+	void Bind();
+	void Unbind();
+	void Draw(GLuint mode, unsigned int start, unsigned int num);
+	void BindAndDraw(GLuint mode, unsigned int start, unsigned int num);
+	void Cleanup();
 
 private:
-	GLuint mVAO = 0;
-	GLuint mVertexVBO = 0;
+	GLuint m_vao = 0;
+	GLuint m_vertexVbo = 0;
 };

@@ -2,9 +2,11 @@
 
 #include "GameObject.h"
 
-class Ground : public GameObject {
+class Ground : public GameObject
+{
 public:
-	Ground(glm::vec3 pos, glm::vec3 scale, Shader* shdr, Shader* shadowMapShader, bool applySkinning, GameManager* gameMgr, float yaw = 0.0f)
+	Ground(glm::vec3 pos, glm::vec3 scale, Shader* shdr, Shader* shadowMapShader, bool applySkinning,
+	       GameManager* gameMgr, float yaw = 0.0f)
 		: GameObject(pos, scale, yaw, shdr, shadowMapShader, applySkinning, gameMgr)
 	{
 		mapModel = new tinygltf::Model;
@@ -59,11 +61,13 @@ public:
 
 	void ComputeAudioWorldTransform() override;
 
-	void OnHit() override {};
-	void OnMiss() override {};
+	void OnHit() override
+	{
+	};
 
-	void HasDealtDamage() override {};
-	void HasKilledPlayer() override {};
+	void OnMiss() override
+	{
+	};
 
 	void DrawGLTFModel(glm::mat4 viewMat, glm::mat4 projMat);
 

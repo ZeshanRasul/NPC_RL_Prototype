@@ -6,48 +6,48 @@
 #endif
 
 App::App(unsigned int screenWidth, unsigned int screenHeight)
-	: width(screenWidth), height(screenHeight)
+	: m_width(screenWidth), m_height(screenHeight)
 {
-	mWindow = new Window();
+	m_window = new Window();
 
-	if (!mWindow->init(screenWidth, screenHeight, "NPC AI System")) {
-		Logger::log(1, "%s error: Window init error\n", __FUNCTION__);
+	if (!m_window->Init(screenWidth, screenHeight, "NPC AI System")) {
+		Logger::Log(1, "%s error: Window init error\n", __FUNCTION__);
 	}
 
-	mGameManager = new GameManager(mWindow, width, height);
+	m_gameManager = new GameManager(m_window, m_width, m_height);
 }
 
 
 
 App::~App()
 {
-	mWindow->cleanup();
-	delete mGameManager;
+	m_window->Cleanup();
+	delete m_gameManager;
 }
 
-void App::run()
+void App::Run()
 {
-	while (mWindow->isOpen()) {
-		mGameManager->RemoveDestroyedGameObjects();
+	while (m_window->IsOpen()) {
+		m_gameManager->CheckGameOver();
 
-		currentFrame = (float)glfwGetTime();
-		deltaTime = currentFrame - lastFrame;
-		lastFrame = currentFrame;
+		m_currentFrame = (float)glfwGetTime();
+		m_deltaTime = m_currentFrame - m_lastFrame;
+		m_lastFrame = m_currentFrame;
 
-		mGameManager->setUpDebugUI();
-		mGameManager->showDebugUI();
-		mWindow->clear();
+		m_gameManager->SetUpDebugUi();
+		m_gameManager->ShowDebugUi();
+		m_window->Clear();
 
-		mGameManager->setSceneData();
-		mGameManager->update(deltaTime);
-		mGameManager->CreateLightSpaceMatrices();
-		mGameManager->setupCamera(width, height);
-		mGameManager->render(false, true, false);
-		mGameManager->render(true, false, false);
-		mGameManager->render(false, false, true);
+		m_gameManager->SetSceneData();
+		m_gameManager->Update(m_deltaTime);
+		m_gameManager->CreateLightSpaceMatrices();
+		m_gameManager->SetupCamera(m_width, m_height, m_deltaTime);
+		m_gameManager->Render(false, true, false);
+		m_gameManager->Render(true, false, false);
+		m_gameManager->Render(false, false, true);
 
-		mGameManager->renderDebugUI();
-		mWindow->mainLoop();
+		m_gameManager->RenderDebugUi();
+		m_window->MainLoop();
 
 #ifdef TRACY_ENABLE
 		FrameMark;

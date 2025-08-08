@@ -6,40 +6,48 @@
 #include "GameObjects/GameObject.h"
 #include "Shader.h"
 
-class AABB {
+class AABB
+{
 public:
 	AABB();
 	AABB(const glm::vec3& min, const glm::vec3& max);
 
-	void calculateAABB(const std::vector<glm::vec3>& vertices);
+	void CalculateAABB(const std::vector<glm::vec3>& vertices);
 
-	void setShader(Shader* sdr) { shader = sdr; }
-	void setUpMesh();
-	void render(glm::mat4 viewMat, glm::mat4 proj, glm::mat4 model, glm::vec3 aabbColor);
+	void SetShader(Shader* sdr) { m_shader = sdr; }
+	void SetUpMesh();
+	void Render(glm::mat4 viewMat, glm::mat4 proj, glm::mat4 model, glm::vec3 aabbColor);
 
-	glm::vec3 getMin() const { return mMin; }
-	glm::vec3 getMax() const { return mMax; }
-	glm::vec3 getCenter() const { return (mMin + mMax) * 0.5f; }
-	glm::vec3 getSize() const { return mMax - mMin; }
+	glm::vec3 GetMin() const { return m_min; }
+	glm::vec3 GetMax() const { return m_max; }
+	glm::vec3 GetCenter() const { return (m_min + m_max) * 0.5f; }
+	glm::vec3 getSize() const { return m_max - m_min; }
 
-	void update(const glm::mat4& modelMatrix);
+	void Update(const glm::mat4& modelMatrix);
 
-	glm::vec3 getTransformedMin()   const { return transformedMin; }
-	glm::vec3 getTransformedMax()   const { return transformedMax; }
+	glm::vec3 GetTransformedMin() const { return m_transformedMin; }
+	glm::vec3 GetTransformedMax() const { return m_transformedMax; }
 
-	glm::vec3 transformedMin = glm::vec3(1.0f);
-	glm::vec3 transformedMax = glm::vec3(1.0f);
-	GameObject* owner = nullptr;
-
-	bool isPlayer = false;
-	bool isEnemy = false;
+	GameObject* GetOwner() const { return m_owner; }
+	void SetOwner(GameObject* val) { m_owner = val; }
+	bool GetIsPlayer() const { return m_isPlayer; }
+	void SetIsPlayer(bool val) { m_isPlayer = val; }
+	bool GetIsEnemy() const { return m_isEnemy; }
+	void SetIsEnemy(bool val) { m_isEnemy = val; }
 
 private:
-	glm::vec3 mMin;
-	glm::vec3 mMax;
-	GLuint VAO;
-	GLuint VBO;
+	glm::vec3 m_transformedMin = glm::vec3(1.0f);
+	glm::vec3 m_transformedMax = glm::vec3(1.0f);
 
-	std::vector<glm::vec3> lineVertices;
-	Shader* shader;
+	GameObject* m_owner = nullptr;
+	bool m_isPlayer = false;
+	bool m_isEnemy = false;
+
+	glm::vec3 m_min;
+	glm::vec3 m_max;
+	GLuint m_vao;
+	GLuint m_vbo;
+
+	std::vector<glm::vec3> m_lineVertices;
+	Shader* m_shader;
 };

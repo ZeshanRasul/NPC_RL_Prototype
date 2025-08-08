@@ -3,19 +3,20 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
-class Texture {
+class Texture
+{
 public:
-	bool loadTexture(std::string textureFilename, bool flipImage = true);
-	void bind(int texIndex = 0);
-	void unbind();
-	void cleanup();
+	bool LoadTexture(std::string textureFilename, bool flipImage = true);
+	void Bind(int texIndex = 0);
+	void Unbind();
+	void Cleanup();
 
-	int getTexID() const { return mTexture; }
+	int GetTexId() const { return m_texture; }
 
 private:
-	GLuint mTexture = 0;
-	int mTexWidth = 0;
-	int mTexHeight = 0;
-	int mNumberOfChannels = 0;
-	std::string mTextureName;
+	GLuint m_texture = 0;
+	int m_texWidth = 0;
+	int m_texHeight = 0;
+	int m_numberOfChannels = 0;
+	std::string m_textureName;
 };

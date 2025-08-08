@@ -7,48 +7,61 @@
 
 class InputManager {
 public:
-	static void mouse_callback(GLFWwindow* window, double xPosIn, double yPosIn) {
+	static void MouseCallback(GLFWwindow* window, double xPosIn, double yPosIn) {
 		// Retrieve the InputManager instance
 		InputManager* inputManager = static_cast<InputManager*>(glfwGetWindowUserPointer(window));
 
 		if (inputManager) {
-			inputManager->handleMouseMovement(xPosIn, yPosIn);
+			inputManager->HandleMouseMovement(xPosIn, yPosIn);
 		}
 	}
 
-	static void scroll_callback(GLFWwindow* window, double xOffset, double yOffset)
+	static void ScrollCallback(GLFWwindow* window, double xOffset, double yOffset)
 	{
 		// Retrieve the InputManager instance
 		InputManager* inputManager = static_cast<InputManager*>(glfwGetWindowUserPointer(window));
 
 		if (inputManager) {
-			inputManager->handleMouseScroll(xOffset, yOffset);
+			inputManager->HandleMouseScroll(xOffset, yOffset);
 		}
 	}
 
-	void handleMouseMovement(double xpos, double ypos);
-	void handleMouseScroll(double xOffset, double yOffset);
-	void processInput(GLFWwindow* window, float deltaTime);
-	void handlePlayerMovement(GLFWwindow* window, Player& player, Camera& camera, float deltaTime);
+	void HandleMouseMovement(double xpos, double ypos);
+	void HandleMouseScroll(double xOffset, double yOffset);
+	void ProcessInput(GLFWwindow* window, float deltaTime);
+	void HandlePlayerMovement(GLFWwindow* window, Player& player, Camera& camera, float deltaTime);
+	float GetPauseFactor() const { return pauseFactor; }
+	float GetTimeScaleFacotr() const { return timeScaleFactor; }
+	bool GetIsPaused() const { return isPaused; }
+	bool GetIsTimeScaled() const { return isTimeScaled; }
 
-
-	void setContext(Camera* cam, Player* plyr, Enemy* enmy, unsigned int width, unsigned int height);
+	void SetContext(Camera* cam, Player* plyr, Enemy* enmy, unsigned int width, unsigned int height);
 
 private:
-	Camera* camera;
-	Player* player;
-	Enemy* enemy;
+	Camera* m_camera;
+	Player* m_player;
+	Enemy* m_enemy;
 
-	float lastX = 0;
-	float lastY = 0;
-	bool firstMouse = true;
+	float m_lastX = 0;
+	float m_lastY = 0;
+	bool m_firstMouse = true;
 
-	bool controlCamera = true;
-	bool isTabPressed = false;
-	bool tabBeenPressed = false;
-	bool spaceKeyPressed = false;
-	bool shiftKeyPressed = false;
-	bool leftClickPressed = false;
-	bool rKeyBeenPressed = false;
-	bool rKeyPressed = false;
+	float pauseFactor = 1.0f;
+	float timeScaleFactor = 1.0f;
+	bool isPaused = false;
+	bool isTimeScaled = false;
+
+
+	bool m_controlCamera = true;
+	bool m_isTabPressed = false;
+	bool m_ctrlBeenPressed = false;
+	bool m_spaceKeyPressed = false;
+	bool m_shiftKeyPressed = false;
+	bool m_leftClickPressed = false;
+	bool m_rKeyBeenPressed = false;
+	bool m_rKeyPressed = false;
+	bool m_pausePressed = false;
+	bool m_pauseKeyBeenPressed = false;
+	bool m_zKeyPressed = false;
+	bool m_zKeyBeenPressed = false;
 };

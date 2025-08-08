@@ -119,17 +119,17 @@ void Ground::drawObject(glm::mat4 viewMat, glm::mat4 proj, bool shadowMap, glm::
 
 void Ground::ComputeAudioWorldTransform()
 {
-	if (mRecomputeWorldTransform)
+	if (m_recomputeWorldTransform)
 	{
-		mRecomputeWorldTransform = false;
-		glm::mat4 worldTransform = glm::mat4(1.0f);
+		m_recomputeWorldTransform = false;
+		auto worldTransform = glm::mat4(1.0f);
 		// Scale, then rotate, then translate
-		audioWorldTransform = glm::scale(worldTransform, scale);
-		audioWorldTransform = glm::rotate(worldTransform, glm::radians(0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-		audioWorldTransform = glm::translate(worldTransform, position);
+		m_audioWorldTransform = glm::scale(worldTransform, m_scale);
+		m_audioWorldTransform = rotate(worldTransform, glm::radians(0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		m_audioWorldTransform = translate(worldTransform, m_position);
 
 		// Inform components world transform updated
-		for (auto comp : mComponents)
+		for (auto comp : m_components)
 		{
 			comp->OnUpdateWorldTransform();
 		}

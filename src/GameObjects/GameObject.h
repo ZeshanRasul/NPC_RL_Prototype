@@ -5,7 +5,6 @@
 #include <glm/gtc/type_ptr.hpp>
 
 #include "src/OpenGL/Shader.h"
-#include "../Primitives.h"
 #include "Model/GltfModel.h"
 #include "RenderData.h"
 #include "UniformBuffer.h"
@@ -13,42 +12,55 @@
 #include "Components/Component.h"
 #include "Logger.h"
 
-class GameObject {
+class GameObject
+{
 public:
-	GameObject(glm::vec3 pos, glm::vec3 scale, float yaw, Shader* shdr, Shader* shadowMapShader, bool applySkinning, class GameManager* gameMgr)
-		: position(pos), scale(scale), yaw(yaw), shader(shdr), shadowShader(shadowMapShader), toSkin(applySkinning), mGameManager(gameMgr)
+	GameObject(glm::vec3 pos, glm::vec3 scale, float yaw, Shader* shdr, Shader* shadowMapShader, bool applySkinning,
+	           class GameManager* gameMgr)
+		: m_yaw(yaw), m_position(pos), m_scale(scale), m_toSkin(applySkinning), m_shader(shdr), m_shadowShader(shadowMapShader),
+		  m_gameManager(gameMgr)
 	{
 		size_t uniformMatrixBufferSize = 4 * sizeof(glm::mat4);
-		mUniformBuffer.init(uniformMatrixBufferSize);
-		Logger::log(1, "%s: matrix uniform buffer (size %i bytes) successfully created\n", __FUNCTION__, uniformMatrixBufferSize);
+		m_uniformBuffer.Init(uniformMatrixBufferSize);
+		Logger::Log(1, "%s: matrix uniform buffer (size %i bytes) successfully created\n", __FUNCTION__,
+		            uniformMatrixBufferSize);
 	}
 
-	bool isSkinned() const { return toSkin; }
+	bool IsSkinned() const { return m_toSkin; }
+	bool IsDestroyed() const { return m_isDestroyed; }
 
-	virtual void Draw(glm::mat4 viewMat, glm::mat4 proj, bool shadowMap, glm::mat4 lightSpaceMat, GLuint shadowMapTexture) {
+	float GetYaw() const { return m_yaw; }
+	void SetIsDestroyed(bool newValue) { m_isDestroyed = newValue; }
+
+	virtual void Draw(glm::mat4 viewMat, glm::mat4 proj, bool shadowMap, glm::mat4 lightSpaceMat,
+	                  GLuint shadowMapTexture)
+	{
 		if (shadowMap)
 		{
-			shadowShader->use();
+			m_shadowShader->Use();
 		}
 		else
 		{
-			shader->use();
+			m_shader->Use();
 		}
 
-		drawObject(viewMat, proj, shadowMap, lightSpaceMat, shadowMapTexture);
+		DrawObject(viewMat, proj, shadowMap, lightSpaceMat, shadowMapTexture);
 	}
 
-	virtual Shader* GetShader() const { return shader; }
+	Texture GetTexture() const { return m_tex; }
 
-	virtual Shader* GetShadowShader() const { return shadowShader; }
+	virtual Shader* GetShader() const { return m_shader; }
 
-	virtual void AddComponent(Component* component) {
+	virtual Shader* GetShadowShader() const { return m_shadowShader; }
+
+	virtual void AddComponent(Component* component)
+	{
 		// Find the insertion point in the sorted vector
 		// (The first element with a order higher than me)
 		int myOrder = component->GetUpdateOrder();
-		auto iter = mComponents.begin();
+		auto iter = m_components.begin();
 		for (;
-			iter != mComponents.end();
+			iter != m_components.end();
 			++iter)
 		{
 			if (myOrder < (*iter)->GetUpdateOrder())
@@ -57,21 +69,23 @@ public:
 			}
 		}
 
-		// Inserts element before position of iterator
-		mComponents.insert(iter, component);
+		// Inserts element before m_position of iterator
+		m_components.insert(iter, component);
 	}
 	;
-	virtual void RemoveComponent(Component* component) {
-		auto iter = std::find(mComponents.begin(), mComponents.end(), component);
-		if (iter != mComponents.end())
+
+	virtual void RemoveComponent(Component* component)
+	{
+		auto iter = std::find(m_components.begin(), m_components.end(), component);
+		if (iter != m_components.end())
 		{
-			mComponents.erase(iter);
+			m_components.erase(iter);
 		}
 	};
 
 	virtual void UpdateComponents(float deltaTime)
 	{
-		for (auto comp : mComponents)
+		for (auto comp : m_components)
 		{
 			comp->Update(deltaTime);
 		}
@@ -79,42 +93,42 @@ public:
 
 	virtual void ComputeAudioWorldTransform() {};
 
-	GameManager* GetGameManager() const { return mGameManager; }
+	GameManager* GetGameManager() const { return m_gameManager; }
 
-	glm::mat4 GetAudioWorldTransform() const { return audioWorldTransform; }
+	glm::mat4 GetAudioWorldTransform() const { return m_audioWorldTransform; }
 
 	virtual void OnHit() {};
 
 	virtual void OnMiss() {};
 
-	std::shared_ptr<GltfModel> model = nullptr;;
-	float yaw;
-
-	glm::vec3 position;
-
-	bool isDestroyed = false;
-	bool isEnemy = false;
-
-	Texture mTex{};
-
 	virtual void HasDealtDamage() = 0;
 	virtual void HasKilledPlayer() = 0;
 
 protected:
-	virtual void drawObject(glm::mat4 viewMat, glm::mat4 proj, bool shadowMap, glm::mat4 lightSpaceMatrix, GLuint shadowMapTexture, glm::vec3 camPos = glm::vec3(0.0f, 0.0f, 0.0f)) = 0;
+	virtual void DrawObject(glm::mat4 viewMat, glm::mat4 proj, bool shadowMap, glm::mat4 lightSpaceMatrix,
+	                        GLuint shadowMapTexture, glm::vec3 camPos = glm::vec3(0.0f, 0.0f, 0.0f)) = 0;
 
-	glm::vec3 scale;
-	bool mRecomputeWorldTransform = true;
-	glm::mat4 audioWorldTransform;
+	std::shared_ptr<GltfModel> m_model = nullptr;;
+	Texture m_tex{};
 
-	bool toSkin;
-	Shader* shader = nullptr;
-	Shader* shadowShader = nullptr;
-	RenderData renderData;
+	bool m_isEnemy = false;
+	bool m_isDestroyed = false;
 
-	class GameManager* mGameManager = nullptr;
+	glm::vec3 m_position;
+	float m_yaw;
 
-	UniformBuffer mUniformBuffer{};
+	glm::vec3 m_scale;
+	bool m_recomputeWorldTransform = true;
+	glm::mat4 m_audioWorldTransform;
 
-	std::vector<Component*> mComponents;
+	bool m_toSkin;
+	Shader* m_shader = nullptr;
+	Shader* m_shadowShader = nullptr;
+	RenderData m_renderData;
+
+	class GameManager* m_gameManager = nullptr;
+
+	UniformBuffer m_uniformBuffer{};
+
+	std::vector<Component*> m_components;
 };

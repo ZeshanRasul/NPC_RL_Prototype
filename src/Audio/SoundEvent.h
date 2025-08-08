@@ -19,12 +19,14 @@ public:
 	float GetParameter(const std::string& name);
 	bool Is3D() const;
 	void Set3DAttributes(const glm::mat4& worldTrans);
+
 protected:
 	// Make this constructor protected and AudioSystem a friend
 	// so that only AudioSystem can access this constructor.
 	friend class AudioSystem;
 	SoundEvent(class AudioSystem* system, unsigned int id);
+
 private:
-	class AudioSystem* mSystem;
-	unsigned int mID;
+	class AudioSystem* m_system;
+	unsigned int m_id;
 };

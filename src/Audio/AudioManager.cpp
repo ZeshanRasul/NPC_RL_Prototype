@@ -3,25 +3,31 @@
 
 void AudioManager::SubmitAudioRequest(int enemyId, const std::string& eventName, float priority, float cooldown)
 {
-	bool isHighPriority = (priority >= priorityThreshold);
+	bool isHighPriority = (priority >= m_priorityThreshold);
 
-	if (isHighPriority || (enemyCooldowns[enemyId] <= 0.0f && globalCooldownTimer <= 0.0f))
+	if (isHighPriority || (m_enemyCooldowns[enemyId] <= 0.0f && m_globalCooldownTimer <= 0.0f))
 	{
-		AudioRequest request{ enemyId, eventName, priority, cooldown };
-		audioQueue.push(request);
+		AudioRequest request{enemyId, eventName, priority, cooldown};
+		m_enemySpeakTime[enemyId] = 0.0f;
+		m_audioQueue.push(request);
 	}
 }
 
 void AudioManager::Update(float deltaTime)
 {
-	globalCooldownTimer -= deltaTime;
+	m_globalCooldownTimer -= deltaTime;
 
-	for (auto& [enemyId, cooldown] : enemyCooldowns)
+	for (auto& [enemyId, cooldown] : m_enemyCooldowns)
 	{
 		cooldown -= deltaTime;
 	}
 
-	if (!audioQueue.empty() && globalCooldownTimer <= 0.0f)
+	for (auto& [enemyId, timeSinceRequest] : m_enemySpeakTime)
+	{
+		timeSinceRequest += deltaTime;
+	}
+
+	if (!m_audioQueue.empty() && m_globalCooldownTimer <= 0.0f)
 	{
 		ProcessNextAudioRequest();
 	}
@@ -29,28 +35,28 @@ void AudioManager::Update(float deltaTime)
 
 void AudioManager::ClearQueue()
 {
-	while (!audioQueue.empty())
+	while (!m_audioQueue.empty())
 	{
-		audioQueue.pop();
+		m_audioQueue.pop();
 	}
 }
 
 void AudioManager::ProcessNextAudioRequest()
 {
-	AudioRequest request = audioQueue.top();
-	audioQueue.pop();
+	AudioRequest request = m_audioQueue.top();
+	m_audioQueue.pop();
 
-	Enemy* enemy = gameManager->GetEnemyByID(request.enemyId);
-	if (enemy)
+	Enemy* enemy = m_gameManager->GetEnemyByID(request.m_enemyId);
+	if (enemy && !enemy->IsDestroyed() && m_enemySpeakTime[request.m_enemyId] < 2.0f)
 	{
 		AudioComponent* audioComp = enemy->GetAudioComponent();
 		if (audioComp)
 		{
-			audioComp->PlayEvent(request.eventName);
+			audioComp->PlayEvent(request.m_eventName);
 		}
 	}
 
-	globalCooldownTimer = globalCooldown;
-	enemyCooldowns[request.enemyId] = request.cooldown;
-
+	m_globalCooldownTimer = m_globalCooldown;
+	m_enemyCooldowns[request.m_enemyId] = request.m_cooldown;
+	m_enemySpeakTime[request.m_enemyId] = 0.0f;
 }

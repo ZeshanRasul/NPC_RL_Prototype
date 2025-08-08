@@ -6,26 +6,27 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-class Shader {
+class Shader
+{
 public:
-	bool loadShaders(std::string vertexShaderFileName, std::string fragmentShaderFileName);
-	void use() const;
-	void cleanup() const;
+	bool LoadShaders(std::string vertexShaderFileName, std::string fragmentShaderFileName);
+	void Use() const;
+	void Cleanup() const;
 
-	void setBool(const std::string& name, bool value) const;
-	void setInt(const std::string& name, int value) const;
-	void setFloat(const std::string& name, float value) const;
-	void setMat4(const std::string& name, glm::mat4 value) const;
-	void setVec3(const std::string& name, glm::vec3& value) const;
-	void setVec3(const std::string& name, float x, float y, float z) const;
-	void setVec2(const std::string& name, float x, float y) const;
+	void SetBool(const std::string& name, bool value) const;
+	void SetInt(const std::string& name, int value) const;
+	void SetFloat(const std::string& name, float value) const;
+	void SetMat4(const std::string& name, glm::mat4 value) const;
+	void SetVec3(const std::string& name, glm::vec3& value) const;
+	void SetVec3(const std::string& name, float x, float y, float z) const;
+	void SetVec2(const std::string& name, float x, float y) const;
 
 private:
-	GLuint mShaderProgram = 0;
+	GLuint m_shaderProgram = 0;
 
-	bool createShaderProgram(std::string vertexShaderFileName, std::string fragmentShaderFileName);
-	GLuint loadShader(std::string shaderFileName, GLuint shaderType);
-	std::string loadFileToString(std::string filename);
-	bool checkCompileStats(std::string shaderFileName, GLuint shader);
-	bool checkLinkStats(std::string vertexShaderFileName, std::string fragmentShaderFileName, GLuint shaderProgram);
+	bool CreateShaderProgram(std::string vertexShaderFileName, std::string fragmentShaderFileName);
+	GLuint LoadShader(std::string shaderFileName, GLuint shaderType);
+	std::string LoadFileToString(std::string filename);
+	bool CheckCompileStats(std::string shaderFileName, GLuint shader);
+	bool CheckLinkStats(std::string vertexShaderFileName, std::string fragmentShaderFileName, GLuint shaderProgram);
 };

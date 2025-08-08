@@ -4,25 +4,27 @@
 #include "AABB.h"
 #include <glm/glm.hpp>
 
-class PhysicsWorld {
+class PhysicsWorld
+{
 public:
 	PhysicsWorld();
 
-	void addCollider(AABB* collider);
-	void addEnemyCollider(AABB* collider);
-	void removeCollider(AABB* collider);
-	void removeEnemyCollider(AABB* collider);
+	void AddCollider(AABB* collider);
+	void AddEnemyCollider(AABB* collider);
+	void RemoveCollider(AABB* collider);
+	void RemoveEnemyCollider(AABB* collider);
 
-	bool rayIntersect(const glm::vec3& rayOrigin, const glm::vec3& rayDirection, glm::vec3& hitPoint, AABB* selfAABB);
-	bool rayEnemyIntersect(const glm::vec3& rayOrigin, const glm::vec3& rayDirection, glm::vec3& hitPoint);
-	bool rayEnemyCrosshairIntersect(const glm::vec3& rayOrigin, const glm::vec3& rayDirection, glm::vec3& hitPoint);
-	bool rayPlayerIntersect(const glm::vec3& rayOrigin, const glm::vec3& rayDirection, glm::vec3& hitPoint, AABB* selfAABB);
-	bool checkPlayerVisibility(const glm::vec3& rayOrigin, const glm::vec3& rayDirection, glm::vec3& hitPoint, AABB* selfAABB);
+	bool RayIntersect(const glm::vec3& rayOrigin, const glm::vec3& rayDirection, glm::vec3& hitPoint, AABB* selfAABB);
+	bool RayEnemyIntersect(const glm::vec3& rayOrigin, const glm::vec3& rayDirection, glm::vec3& hitPoint);
+	bool RayEnemyCrosshairIntersect(const glm::vec3& rayOrigin, const glm::vec3& rayDirection, glm::vec3& hitPoint);
+	bool RayPlayerIntersect(const glm::vec3& rayOrigin, const glm::vec3& rayDirection, glm::vec3& hitPoint,
+	                        AABB* selfAABB);
+	bool CheckPlayerVisibility(const glm::vec3& rayOrigin, const glm::vec3& rayDirection, glm::vec3& hitPoint,
+	                           AABB* selfAABB);
 
 private:
-	std::vector<AABB*> colliders;
-	std::vector<AABB*> enemyColliders;
+	std::vector<AABB*> m_colliders;
+	std::vector<AABB*> m_enemyColliders;
 
-	bool rayAABBIntersect(const glm::vec3& rayOrigin, const glm::vec3& rayDirection, AABB* aabb, glm::vec3& hitPoint);
+	bool RayAABBIntersect(const glm::vec3& rayOrigin, const glm::vec3& rayDirection, AABB* aabb, glm::vec3& hitPoint);
 };
-

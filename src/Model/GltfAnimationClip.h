@@ -7,18 +7,20 @@
 #include "GltfNode.h"
 #include "GltfAnimationChannel.h"
 
-class GltfAnimationClip {
+class GltfAnimationClip
+{
 public:
 	GltfAnimationClip(std::string name);
-	void addChannel(std::shared_ptr<tinygltf::Model> model, tinygltf::Animation anim, tinygltf::AnimationChannel channel);
-	void setAnimationFrame(std::vector<std::shared_ptr<GltfNode>> nodes, std::vector<bool> additiveMask, float time);
-	void blendAnimationFrame(std::vector<std::shared_ptr<GltfNode>> nodes, std::vector<bool> additiveMask, float time,
-		float blendFactor);
-	float getClipEndTime();
-	std::string getClipName();
+	void AddChannel(std::shared_ptr<tinygltf::Model> model, tinygltf::Animation anim,
+	                tinygltf::AnimationChannel channel);
+	void SetAnimationFrame(std::vector<std::shared_ptr<GltfNode>> nodes, std::vector<bool> additiveMask, float time);
+	void BlendAnimationFrame(std::vector<std::shared_ptr<GltfNode>> nodes, std::vector<bool> additiveMask, float time,
+	                         float blendFactor);
+	float GetClipEndTime();
+	std::string GetClipName();
 
 private:
-	std::vector<std::shared_ptr<GltfAnimationChannel>> mAnimationChannels{};
+	std::vector<std::shared_ptr<GltfAnimationChannel>> m_animationChannels{};
 
-	std::string mClipName;
+	std::string m_clipName;
 };

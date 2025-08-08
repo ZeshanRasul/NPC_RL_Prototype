@@ -4,17 +4,30 @@
 #include "Physics/AABB.h"
 #include "Components/AudioComponent.h"
 
-class Cube : public GameObject {
+class Cube : public GameObject
+{
 public:
-	Cube(glm::vec3 pos, glm::vec3 scale, Shader* shdr, Shader* shadowMapShader, bool applySkinning, GameManager* gameMgr, std::string texFilename, float yaw = 0.0f)
+	Cube(glm::vec3 pos, glm::vec3 scale, Shader* shdr, Shader* shadowMapShader, bool applySkinning,
+	     GameManager* gameMgr, std::string texFilename, float yaw = 0.0f)
 		: GameObject(pos, scale, yaw, shdr, shadowMapShader, applySkinning, gameMgr)
 	{
-		LoadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/Wall/TCom_SciFiPanels09_4K_albedo.png", &mTex);
-		LoadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/Wall/TCom_SciFiPanels09_4K_normal.png", &mNormal);
-		LoadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/Wall/TCom_SciFiPanels09_4K_metallic.png", &mMetallic);
-		LoadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/Wall/TCom_SciFiPanels09_4K_roughness.png", &mRoughness);
-		LoadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/Wall/TCom_SciFiPanels09_4K_ao.png", &mAO);
-		LoadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/Wall/TCom_SciFiPanels09_4K_emissive.png", &mEmissive);
+		LoadTexture(
+			"src/Assets/Textures/Wall/TCom_SciFiPanels09_4K_albedo.png",
+			&m_tex);
+		LoadTexture(
+			"src/Assets/Textures/Wall/TCom_SciFiPanels09_4K_normal.png",
+			&m_normal);
+		LoadTexture(
+			"src/Assets/Textures/Wall/TCom_SciFiPanels09_4K_metallic.png",
+			&m_metallic);
+		LoadTexture(
+			"src/Assets/Textures/Wall/TCom_SciFiPanels09_4K_roughness.png",
+			&m_roughness);
+		LoadTexture("src/Assets/Textures/Wall/TCom_SciFiPanels09_4K_ao.png",
+		            &m_ao);
+		LoadTexture(
+			"src/Assets/Textures/Wall/TCom_SciFiPanels09_4K_emissive.png",
+			&m_emissive);
 
 		bulletHitAC = new AudioComponent(this);
 
@@ -24,72 +37,73 @@ public:
 	void LoadMesh();
 	bool LoadTexture(std::string textureFilename, Texture* tex);
 
-	void drawObject(glm::mat4 viewMat, glm::mat4 proj, bool shadowMap, glm::mat4 lightSpaceMat, GLuint shadowMapTexture, glm::vec3 camPos) override;
+	void DrawObject(glm::mat4 viewMat, glm::mat4 proj, bool shadowMap, glm::mat4 lightSpaceMat, GLuint shadowMapTexture,
+	                glm::vec3 camPos) override;
 
-	void ComputeAudioWorldTransform() override {
-
-		if (mRecomputeWorldTransform)
+	void ComputeAudioWorldTransform() override
+	{
+		if (m_recomputeWorldTransform)
 		{
-			mRecomputeWorldTransform = false;
-			glm::mat4 worldTransform = glm::mat4(1.0f);
+			m_recomputeWorldTransform = false;
+			auto worldTransform = glm::mat4(1.0f);
 			// Scale, then rotate, then translate
-			audioWorldTransform = glm::translate(worldTransform, position);
-			//	audioWorldTransform = glm::rotate(worldTransform, glm::radians(-yaw + 180.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-			audioWorldTransform = glm::scale(worldTransform, scale);
+			m_audioWorldTransform = translate(worldTransform, m_position);
+			//	m_audioWorldTransform = glm::rotate(worldTransform, glm::radians(-m_yaw + 180.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+			m_audioWorldTransform = glm::scale(worldTransform, m_scale);
 
 			// Inform components world transform updated
-			for (auto comp : mComponents)
+			for (auto comp : m_components)
 			{
 				comp->OnUpdateWorldTransform();
 			}
 		}
-
 	};
 
 	void CreateAndUploadVertexBuffer();
 
-	void OnHit() override {
-		Logger::log(1, "Cover was hit!\n", __FUNCTION__);
-		setAABBColor(glm::vec3(1.0f, 0.0f, 1.0f));
-		/*takeDamageAC->PlayEvent("event:/PlayerTakeDamage");*/
+	void OnHit() override
+	{
+		Logger::Log(1, "Cover was hit!\n", __FUNCTION__);
+		SetAabbColor(glm::vec3(1.0f, 0.0f, 1.0f));
+		/*m_takeDamageAc->PlayEvent("event:/PlayerTakeDamage");*/
 		bulletHitAC->PlayEvent("event:/Metal_hit");
 	};
-	void OnMiss() override {
-		setAABBColor(glm::vec3(1.0f, 1.0f, 1.0f));
+
+	void OnMiss() override
+	{
+		SetAabbColor(glm::vec3(1.0f, 1.0f, 1.0f));
 	};
 
-	void updateAABB() {
-		glm::mat4 modelMatrix = glm::translate(glm::mat4(1.0f), position) *
-			glm::rotate(glm::mat4(1.0f), glm::radians(yaw), glm::vec3(0.0f, 1.0f, 0.0f)) *
-			glm::scale(glm::mat4(1.0f), scale);
-		aabb->update(modelMatrix);
+	void UpdateAabb()
+	{
+		glm::mat4 modelMatrix = translate(glm::mat4(1.0f), m_position) *
+			rotate(glm::mat4(1.0f), glm::radians(m_yaw), glm::vec3(0.0f, 1.0f, 0.0f)) *
+			glm::scale(glm::mat4(1.0f), m_scale);
+		aabb->Update(modelMatrix);
 	};
 
 	void SetUpAABB();
 
 	AABB* GetAABB() const { return aabb; }
 
-	void setAABBColor(glm::vec3 color) { aabbColor = color; }
+	void SetAabbColor(glm::vec3 color) { aabbColor = color; }
 
 	void SetAABBShader(Shader* shdr) { aabbShader = shdr; }
 
-	void HasDealtDamage() override {};
-	void HasKilledPlayer() override {};
+	void HasDealtDamage() override
+	{
+	};
 
 	std::vector<glm::vec3> GetPositionVertices()
 	{
-		for (int i = 0; i < 192; i = i + 8)
-		{
-			glm::mat4 modelMatrix = glm::translate(glm::mat4(1.0f), position) *
-				glm::rotate(glm::mat4(1.0f), glm::radians(yaw), glm::vec3(0.0f, 1.0f, 0.0f)) *
-				glm::scale(glm::mat4(1.0f), scale);
+	};
 
 			posVertices.push_back(glm::vec3(modelMatrix * glm::vec4(vertices[i], vertices[i + 1], vertices[i + 2], 1.0f)));
 		}
 		return posVertices;
 	};
 
-	GLuint indices[36] = {
+	GLuint m_indices[36] = {
 		// Back face
 		0, 1, 2,  2, 3, 0,
 
@@ -158,11 +172,11 @@ private:
 	GLuint mVBO;
 	GLuint mEBO;
 
-	Texture mNormal{};
-	Texture mMetallic{};
-	Texture mRoughness{};
-	Texture mAO{};
-	Texture mEmissive{};
+	Texture m_normal{};
+	Texture m_metallic{};
+	Texture m_roughness{};
+	Texture m_ao{};
+	Texture m_emissive{};
 
 	AABB* aabb;
 	Shader* aabbShader;

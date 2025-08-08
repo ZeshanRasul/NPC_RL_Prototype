@@ -8,43 +8,48 @@
 
 #include <GLFW/glfw3.h>
 
-class Renderer {
+class Renderer
+{
 public:
 	Renderer(GLFWwindow* window);
 
-	bool init(unsigned int width, unsigned int height);
+	bool Init(unsigned int width, unsigned int height);
 	void SetUpMinimapFBO(unsigned int width, unsigned int height);
 	void SetUpShadowMapFBO(unsigned int width, unsigned int height);
 
-	void setScene(glm::mat4 viewMat, glm::mat4 proj, glm::mat4 cmapView, DirLight light);
-	void draw(GameObject* gameObj, glm::mat4 viewMat, glm::mat4 proj, glm::vec3 camPos, bool shadowMap, glm::mat4 lightSpaceMat);
-	void drawCubemap(Cubemap* cubemap);
-	void drawMinimap(Quad* minimapQuad, Shader* minimapShader);
-	void drawShadowMap(Quad* shadowMapQuad, Shader* shadowMapShader);
+	void SetScene(glm::mat4 viewMat, glm::mat4 proj, glm::mat4 cmapView, DirLight light);
+	void Draw(GameObject* gameObj, glm::mat4 viewMat, glm::mat4 proj, glm::vec3 camPos, bool shadowMap,
+	          glm::mat4 lightSpaceMat);
+	void DrawCubemap(Cubemap* cubemap);
+	void DrawMinimap(Quad* minimapQuad, Shader* minimapShader);
+	void DrawShadowMap(Quad* shadowMapQuad, Shader* shadowMapShader);
 
-	void bindMinimapFBO(unsigned int width, unsigned int height);
-	void unbindMinimapFBO();
-	void bindShadowMapFBO(unsigned int width, unsigned int height);
-	void unbindShadowMapFBO();
+	void BindMinimapFbo(unsigned int width, unsigned int height);
+	void UnbindMinimapFbo();
+	void BindShadowMapFbo(unsigned int width, unsigned int height);
+	void UnbindShadowMapFbo();
 
-	GLuint GetShadowMapTexture() { return shadowMapTex; }
+	GLuint GetShadowMapTexture() { return m_shadowMapTex; }
+
+	void ResetRenderStates();
+	void RemoveDepthAndSetBlending();
 
 	void ResetViewport(unsigned int width, unsigned int height);
-	void clear();
+	void Clear();
 
-	void cleanup();
+	void Cleanup();
 
 private:
-	RenderData mRenderData{};
+	RenderData m_renderData{};
 
-	glm::mat4 view = glm::mat4(1.0f);
-	glm::mat4 projection = glm::mat4(1.0f);
-	glm::mat4 cubemapView = glm::mat4(1.0f);
+	glm::mat4 m_view = glm::mat4(1.0f);
+	glm::mat4 m_projection = glm::mat4(1.0f);
+	glm::mat4 m_cubemapView = glm::mat4(1.0f);
 
-	DirLight sun;
-	GLuint minimapFBO;
-	GLuint minimapColorTex;
-	GLuint minimapRBO;
-	GLuint shadowMapFBO;
-	GLuint shadowMapTex;
+	DirLight m_sun;
+	GLuint m_minimapFbo;
+	GLuint m_minimapColorTex;
+	GLuint m_minimapRbo;
+	GLuint m_shadowMapFbo;
+	GLuint m_shadowMapTex;
 };

@@ -3,14 +3,15 @@
 #include <glm/glm.hpp>
 #include <glad/glad.h>
 
-class UniformBuffer {
+class UniformBuffer
+{
 public:
-	void init(size_t bufferSize);
-	void uploadUboData(std::vector<glm::mat4> bufferData, int bindingPoint);
-	void uploadColorUboData(std::vector<glm::vec3> bufferData, int bindingPoint);
-	void cleanup();
+	void Init(size_t bufferSize);
+	void UploadUboData(std::vector<glm::mat4> bufferData, int bindingPoint);
+	void UploadColorUboData(std::vector<glm::vec3> bufferData, int bindingPoint);
+	void Cleanup();
 
 private:
-	size_t mBufferSize;
-	GLuint mUboBuffer = 0;
+	size_t m_bufferSize;
+	GLuint m_uboBuffer = 0;
 };
