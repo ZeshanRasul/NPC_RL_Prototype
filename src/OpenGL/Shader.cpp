@@ -160,7 +160,7 @@ std::string Shader::LoadFileToString(std::string fileName)
 	else
 	{
 		Logger::Log(1, "%s error: could not open file %s\n", __FUNCTION__, fileName.c_str());
-		// TODO:   Logger::log(1, "%s error: system says '%s'\n", __FUNCTION__, strerror(errno));
+		// TODO:   Logger::Log(1, "%s error: system says '%s'\n", __FUNCTION__, strerror(errno));
 		return std::string();
 	}
 

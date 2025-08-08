@@ -104,6 +104,7 @@ public:
 	virtual void HasDealtDamage() = 0;
 	virtual void HasKilledPlayer() = 0;
 
+	glm::vec3 m_position;
 protected:
 	virtual void DrawObject(glm::mat4 viewMat, glm::mat4 proj, bool shadowMap, glm::mat4 lightSpaceMatrix,
 	                        GLuint shadowMapTexture, glm::vec3 camPos = glm::vec3(0.0f, 0.0f, 0.0f)) = 0;
@@ -114,7 +115,6 @@ protected:
 	bool m_isEnemy = false;
 	bool m_isDestroyed = false;
 
-	glm::vec3 m_position;
 	float m_yaw;
 
 	glm::vec3 m_scale;

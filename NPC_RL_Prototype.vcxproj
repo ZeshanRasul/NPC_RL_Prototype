@@ -271,7 +271,6 @@
     <ClCompile Include="src\Components\Component.cpp" />
     <ClCompile Include="src\GameManager.cpp" />
     <ClCompile Include="src\GameObjects\Crosshair.cpp" />
-    <ClCompile Include="src\GameObjects\Cube.cpp" />
     <ClCompile Include="src\GameObjects\Enemy.cpp" />
     <ClCompile Include="src\GameObjects\Ground.cpp" />
     <ClCompile Include="src\GameObjects\Line.cpp" />
@@ -290,8 +289,6 @@
     <ClCompile Include="src\OpenGL\Texture.cpp" />
     <ClCompile Include="src\OpenGL\UniformBuffer.cpp" />
     <ClCompile Include="src\OpenGL\VertexBuffer.cpp" />
-    <ClCompile Include="src\Pathfinding\Grid.cpp" />
-    <ClCompile Include="src\Pathfinding\Grid.h" />
     <ClCompile Include="src\Physics\AABB.cpp" />
     <ClCompile Include="src\Physics\PhysicsWorld.cpp" />
     <ClCompile Include="src\tinygltf\tiny_gltf.cc" />
@@ -342,9 +339,7 @@
     <ClInclude Include="src\Components\AudioComponent.h" />
     <ClInclude Include="src\Components\Component.h" />
     <ClInclude Include="src\GameManager.h" />
-    <ClInclude Include="src\GameObjects\Cell.h" />
     <ClInclude Include="src\GameObjects\Crosshair.h" />
-    <ClInclude Include="src\GameObjects\Cube.h" />
     <ClInclude Include="src\GameObjects\Enemy.h" />
     <ClInclude Include="src\GameObjects\GameObject.h" />
     <ClInclude Include="src\GameObjects\Ground.h" />

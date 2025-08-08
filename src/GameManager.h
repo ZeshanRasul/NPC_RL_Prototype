@@ -28,11 +28,9 @@
 #include "GameObjects/Enemy.h"
 #include "GameObjects/Crosshair.h"
 #include "GameObjects/Line.h"
-#include "GameObjects/Cube.h"
 #include "GameObjects/Quad.h"
 #include "GameObjects/Ground.h"
 #include "Model/GltfModel.h"
-#include "src/Pathfinding/Grid.h"
 
 #include "AI/Event.h"
 #include "AI/Events.h"
@@ -263,12 +261,9 @@ private:
 	Crosshair* m_crosshair;
 	Line* m_playerLine;
 	std::vector<Line*> m_enemyLines;
-	Cell* m_cell;
-	Grid* m_gameGrid;
 
 	std::vector<GameObject*> m_gameObjects;
 	std::vector<Enemy*> m_enemies;
-	std::vector<Cube*> m_coverSpots;
 
 	Quad* m_minimapQuad;
 	Quad* m_shadowMapQuad;
@@ -405,16 +400,8 @@ private:
 	glm::mat4 lightSpaceMatrix = glm::mat4(1.0f);
 
 
-	Cell* cell;
-	Grid* gameGrid;
-
 	std::vector<std::string> cubemapFaces;
 	Cubemap* cubemap;
-
-	Waypoint* waypoint1;
-	Waypoint* waypoint2;
-	Waypoint* waypoint3;
-	Waypoint* waypoint4;
 
 	int currentStateIndex = 0;
 

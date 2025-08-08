@@ -1,7 +1,6 @@
 #include <random>
 
 #include "Enemy.h"
-#include "src/Pathfinding/Grid.h"
 #include "GameManager.h"
 #include "src/Tools/Logger.h"
 
@@ -10,8 +9,8 @@
 #endif
 
 Enemy::Enemy(glm::vec3 pos, glm::vec3 scale, Shader* sdr, Shader* shadowMapShader, bool applySkinning,
-	GameManager* gameMgr, Grid* grd, std::string texFilename, int id, EventManager& eventManager, Player& player,
-	float yaw) : GameObject(pos, scale, yaw, sdr, shadowMapShader, applySkinning, gameMgr), m_grid(grd), m_player(player),
+	GameManager* gameMgr, std::string texFilename, int id, EventManager& eventManager, Player& player,
+	float yaw) : GameObject(pos, scale, yaw, sdr, shadowMapShader, applySkinning, gameMgr),m_player(player),
 	m_initialPosition(pos), m_id(id), m_eventManager(eventManager),
 	m_health(100.0f), m_isPlayerDetected(false), m_isPlayerVisible(false), m_isPlayerInRange(false),
 	m_isTakingDamage(false), m_isDead(false), m_isInCover(false), m_isSeekingCover(false), m_isTakingCover(false)
@@ -59,7 +58,6 @@ Enemy::Enemy(glm::vec3 pos, glm::vec3 scale, Shader* sdr, Shader* shadowMapShade
 	std::mt19937 gen{ rd() };
 	std::uniform_int_distribution<> distrib(0, (int)m_waypointPositions.size() - 1);
 	int randomIndex = distrib(gen);
-	m_currentWaypoint = m_waypointPositions[randomIndex];
 	m_takeDamageAc = new AudioComponent(this);
 	m_deathAc = new AudioComponent(this);
 	m_shootAc = new AudioComponent(this);
@@ -76,14 +74,14 @@ void Enemy::SetUpModel()
 {
 	if (m_uploadVertexBuffer)
 	{
-		m_model->UploadEnemyVertexBuffers();
+		m_model->uploadEnemyVertexBuffers();
 		m_uploadVertexBuffer = false;
 	}
 
-	m_model->UploadIndexBuffer();
+	m_model->uploadIndexBuffer();
 	Logger::Log(1, "%s: glTF m_model '%s' successfully loaded\n", __FUNCTION__, m_model->GetFilename().c_str());
 
-	size_t enemyModelJointDualQuatBufferSize = m_model->GetJointDualQuatsSize() *
+	size_t enemyModelJointDualQuatBufferSize = m_model->getJointDualQuatsSize() *
 		sizeof(glm::mat2x4);
 	m_enemyDualQuatSsBuffer.Init(enemyModelJointDualQuatBufferSize);
 	Logger::Log(1, "%s: glTF joint dual quaternions shader storage buffer (size %i bytes) successfully created\n",
@@ -107,14 +105,14 @@ void Enemy::DrawObject(glm::mat4 viewMat, glm::mat4 proj, bool shadowMap, glm::m
 	if (shadowMap)
 	{
 		m_shadowShader->Use();
-		m_enemyDualQuatSsBuffer.UploadSsboData(m_model->GetJointDualQuats(), 2);
-		m_model->Draw(m_tex);
+		m_enemyDualQuatSsBuffer.UploadSsboData(m_model->getJointDualQuats(), 2);
+		m_model->draw(m_tex);
 	}
 	else
 	{
 		GetShader()->Use();
 		m_shader->SetVec3("cameraPos", m_gameManager->GetCamera()->GetPosition().x, m_gameManager->GetCamera()->GetPosition().y, m_gameManager->GetCamera()->GetPosition().z);
-		m_enemyDualQuatSsBuffer.UploadSsboData(m_model->GetJointDualQuats(), 2);
+		m_enemyDualQuatSsBuffer.UploadSsboData(m_model->getJointDualQuats(), 2);
 
 		m_tex.Bind();
 		m_shader->SetInt("albedoMap", 0);
@@ -131,7 +129,7 @@ void Enemy::DrawObject(glm::mat4 viewMat, glm::mat4 proj, bool shadowMap, glm::m
 		glActiveTexture(GL_TEXTURE6);
 		glBindTexture(GL_TEXTURE_2D, shadowMapTexture);
 		m_shader->SetInt("shadowMap", 6);
-		m_model->Draw(m_tex);
+		m_model->draw(m_tex);
 #ifdef _DEBUG
 		m_aabb->Render(viewMat, proj, modelMat, m_aabbColor);
 #endif
@@ -177,7 +175,7 @@ void Enemy::Update(bool shouldUseEDBT, bool isPaused, bool isTimeScaled)
 //		}
 //
 //	}
-		if (isDestroyed)
+		if (m_isDestroyed)
 		{
 			GetGameManager()->GetPhysicsWorld()->RemoveCollider(GetAABB());
 			GetGameManager()->GetPhysicsWorld()->RemoveEnemyCollider(GetAABB());
@@ -375,7 +373,7 @@ void Enemy::MoveEnemy(const std::vector<glm::ivec2>& path, float deltaTime, floa
 	//}
 
 	//if (pathIndex_ >= path.size()) {
-	//	Logger::log(1, "%s success: Agent has reached its destination.\n", __FUNCTION__);
+	//	Logger::Log(1, "%s success: Agent has reached its destination.\n", __FUNCTION__);
 	//	grid_->VacateCell(path[pathIndex_ - 1].x, path[pathIndex_ - 1].y, id_);
 
 	//	if (IsPatrolling() || EDBTState == "Patrol" || EDBTState == "PATROL")
@@ -611,12 +609,12 @@ void Enemy::SetUpAABB()
 	m_aabb = new AABB();
 	m_aabb->CalculateAABB(m_model->GetVertices());
 	m_aabb->SetShader(m_aabbShader);
-	UpdateAABB();
 	m_aabb->SetUpMesh();
 	m_aabb->SetOwner(this);
 	m_aabb->SetIsEnemy(true);
 	m_gameManager->GetPhysicsWorld()->AddCollider(GetAABB());
 	m_gameManager->GetPhysicsWorld()->AddEnemyCollider(GetAABB());
+	UpdateAABB();
 }
 
 void Enemy::Speak(const std::string& clipName, float priority, float cooldown)
@@ -726,39 +724,6 @@ void Enemy::UpdateAABB()
 void Enemy::ScoreCoverLocations(Player& player)
 {
 	float bestScore = -100000.0f;
-
-	Grid::Cover* bestCover = m_selectedCover;
-
-	for (Grid::Cover* cover : m_grid->GetCoverLocations())
-	{
-		float score = 0.0f;
-
-		//float distanceToPlayer = distance(cover->m_worldPosition, player.GetPosition());
-		//score += distanceToPlayer * 0.1f;
-
-		float distanceToEnemy = distance(cover->m_worldPosition, GetPosition());
-		score += (1.0f / (distanceToEnemy * distanceToEnemy + 1.0f)) * 2.0f;
-
-		glm::vec3 rayOrigin = cover->m_worldPosition + glm::vec3(0.0f, 2.5f, 0.0f);
-		glm::vec3 rayDirection = normalize(player.GetPosition() - rayOrigin);
-		auto hitPoint = glm::vec3(0.0f);
-
-		bool visibleToPlayer = m_gameManager->GetPhysicsWorld()->CheckPlayerVisibility(
-			rayOrigin, rayDirection, hitPoint, m_aabb);
-		if (!visibleToPlayer)
-		{
-			score += 20.0f;
-		}
-
-		if (m_grid->GetGrid()[cover->m_gridX][cover->m_gridZ].IsOccupied())
-			continue;
-
-		if (score > bestScore)
-		{
-			bestScore = score;
-			m_selectedCover = cover;
-		}
-	}
 }
 
 
@@ -1027,42 +992,10 @@ void Enemy::EnemyDecision(State& currentState, int enemyId, std::vector<Action>&
 	if (chosenAction == ADVANCE)
 	{
 		m_state = "ADVANCE";
-		m_currentPath = m_grid->FindPath(
-			glm::ivec2(GetPosition().x / m_grid->GetCellSize(), GetPosition().z / m_grid->GetCellSize()),
-			glm::ivec2(m_player.GetPosition().x / m_grid->GetCellSize(), m_player.GetPosition().z / m_grid->GetCellSize()),
-			m_grid->GetGrid(),
-			enemyId
-		);
-
-		VacatePreviousCell();
-
-		MoveEnemy(m_currentPath, deltaTime, 1.0f, false);
-
-		nextState.playerDetected = IsPlayerDetected();
-		nextState.distanceToPlayer = distance(GetPosition(), m_player.GetPosition());
-		nextState.playerVisible = IsPlayerVisible();
-		nextState.health = GetHealth();
-		nextState.isSuppressionFire = isSuppressionFire;
-	}
+			}
 	else if (chosenAction == RETREAT)
 	{
 		m_state = "RETREAT";
-
-		if (!m_selectedCover || m_grid->GetGrid()[m_selectedCover->m_gridX][m_selectedCover->m_gridZ].IsOccupied())
-		{
-			ScoreCoverLocations(m_player);
-		}
-
-		glm::vec3 snappedCurrentPos = m_grid->SnapToGrid(GetPosition());
-		glm::vec3 snappedCoverPos = m_grid->SnapToGrid(m_selectedCover->m_worldPosition);
-
-
-		m_currentPath = m_grid->FindPath(
-			glm::ivec2(GetPosition().x / m_grid->GetCellSize(), GetPosition().z / m_grid->GetCellSize()),
-			glm::ivec2(m_selectedCover->m_gridX, m_selectedCover->m_gridZ),
-			m_grid->GetGrid(),
-			m_id
-		);
 
 		VacatePreviousCell();
 
@@ -1097,28 +1030,13 @@ void Enemy::EnemyDecision(State& currentState, int enemyId, std::vector<Action>&
 
 		if (m_reachedDestination == false)
 		{
-			m_currentPath = m_grid->FindPath(
-				glm::ivec2(static_cast<int>(GetPosition().x / m_grid->GetCellSize()),
-				           static_cast<int>(GetPosition().z / m_grid->GetCellSize())),
-				glm::ivec2(m_currentWaypoint.x / m_grid->GetCellSize(), m_currentWaypoint.z / m_grid->GetCellSize()),
-				m_grid->GetGrid(),
-				m_id
-			);
-
+			
 			VacatePreviousCell();
 
 			MoveEnemy(m_currentPath, m_dt, 1.0f, false);
 		}
 		else
 		{
-			m_currentWaypoint = SelectRandomWaypoint(m_currentWaypoint, m_waypointPositions);
-
-			m_currentPath = m_grid->FindPath(
-				glm::ivec2(GetPosition().x / m_grid->GetCellSize(), GetPosition().z / m_grid->GetCellSize()),
-				glm::ivec2(m_currentWaypoint.x / m_grid->GetCellSize(), m_currentWaypoint.z / m_grid->GetCellSize()),
-				m_grid->GetGrid(),
-				m_id
-			);
 
 			VacatePreviousCell();
 
@@ -1248,13 +1166,6 @@ void Enemy::EnemyDecisionPrecomputedQ(State& currentState, int enemyId, std::vec
 	if (m_chosenAction == ADVANCE)
 	{
 		m_state = "ADVANCE";
-		m_currentPath = m_grid->FindPath(
-			glm::ivec2(GetPosition().x / m_grid->GetCellSize(), GetPosition().z / m_grid->GetCellSize()),
-			glm::ivec2(m_player.GetPosition().x / m_grid->GetCellSize(), m_player.GetPosition().z / m_grid->GetCellSize()),
-			m_grid->GetGrid(),
-			enemyId
-		);
-
 		VacatePreviousCell();
 
 		//for (glm::ivec2& cell : m_currentPath)
@@ -1279,23 +1190,6 @@ void Enemy::EnemyDecisionPrecomputedQ(State& currentState, int enemyId, std::vec
 	else if (m_chosenAction == RETREAT)
 	{
 		m_state = "RETREAT";
-
-		if (!m_selectedCover || m_grid->GetGrid()[m_selectedCover->m_gridX][m_selectedCover->m_gridZ].IsOccupied())
-		{
-			ScoreCoverLocations(m_player);
-		}
-
-		glm::vec3 snappedCurrentPos = m_grid->SnapToGrid(GetPosition());
-		glm::vec3 snappedCoverPos = m_grid->SnapToGrid(m_selectedCover->m_worldPosition);
-
-
-		m_currentPath = m_grid->FindPath(
-			glm::ivec2(GetPosition().x / m_grid->GetCellSize(), GetPosition().z / m_grid->GetCellSize()),
-			glm::ivec2(m_selectedCover->m_worldPosition.x / m_grid->GetCellSize(),
-			           m_selectedCover->m_worldPosition.z / m_grid->GetCellSize()),
-			m_grid->GetGrid(),
-			m_id
-		);
 
 		VacatePreviousCell();
 
@@ -1340,14 +1234,7 @@ void Enemy::EnemyDecisionPrecomputedQ(State& currentState, int enemyId, std::vec
 
 		if (m_reachedDestination == false)
 		{
-			m_currentPath = m_grid->FindPath(
-				glm::ivec2(static_cast<int>(GetPosition().x / m_grid->GetCellSize()),
-				           static_cast<int>(GetPosition().z / m_grid->GetCellSize())),
-				glm::ivec2(m_currentWaypoint.x / m_grid->GetCellSize(), m_currentWaypoint.z / m_grid->GetCellSize()),
-				m_grid->GetGrid(),
-				m_id
-			);
-
+		
 			VacatePreviousCell();
 
 			//for (glm::ivec2& cell : m_currentPath)
@@ -1365,15 +1252,7 @@ void Enemy::EnemyDecisionPrecomputedQ(State& currentState, int enemyId, std::vec
 		}
 		else
 		{
-			m_currentWaypoint = SelectRandomWaypoint(m_currentWaypoint, m_waypointPositions);
-
-			m_currentPath = m_grid->FindPath(
-				glm::ivec2(GetPosition().x / m_grid->GetCellSize(), GetPosition().z / m_grid->GetCellSize()),
-				glm::ivec2(m_currentWaypoint.x / m_grid->GetCellSize(), m_currentWaypoint.z / m_grid->GetCellSize()),
-				m_grid->GetGrid(),
-				m_id
-			);
-
+			
 			VacatePreviousCell();
 
 			m_reachedDestination = false;
@@ -1459,7 +1338,6 @@ void Enemy::ResetState()
 
 	m_numDeadAllies = 0;
 
-	m_selectedCover = nullptr;
 
 	m_takingDamage = false;
 	m_damageTimer = 0.0f;
@@ -1492,20 +1370,7 @@ void Enemy::ResetState()
 
 void Enemy::VacatePreviousCell()
 {
-	if (m_prevPath.empty())
-	{
-		m_prevPathIndex = m_pathIndex;
-		m_prevPath = m_currentPath;
-	}
-	else if (m_prevPath != m_currentPath)
-	{
-		for (size_t i = 0; i < m_prevPath.size(); i++)
-		{
-			m_grid->VacateCell(m_prevPath[i].x, m_prevPath[i].y, m_id);
-		}
-		m_prevPathIndex = m_pathIndex;
-		m_prevPath = m_currentPath;
-	}
+
 }
 
 void Enemy::BuildBehaviorTree()
@@ -1860,14 +1725,6 @@ NodeStatus Enemy::AttackChasePlayer()
 {
 	m_state = "Chasing Player";
 
-	m_currentPath = m_grid->FindPath(
-		glm::ivec2(GetPosition().x / m_grid->GetCellSize(), GetPosition().z / m_grid->GetCellSize()),
-		glm::ivec2(m_player.GetPosition().x / m_grid->GetCellSize(), m_player.GetPosition().z / m_grid->GetCellSize()),
-		m_grid->GetGrid(),
-		m_id
-	);
-
-	VacatePreviousCell();
 
 	m_isAttacking = true;
 
@@ -1971,17 +1828,6 @@ NodeStatus Enemy::TakeCover()
 	//	ScoreCoverLocations(m_player);
 	//}
 
-	glm::vec3 snappedCurrentPos = m_grid->SnapToGrid(GetPosition());
-	glm::vec3 snappedCoverPos = m_grid->SnapToGrid(m_selectedCover->m_worldPosition);
-
-
-	m_currentPath = m_grid->FindPath(
-		glm::ivec2(GetPosition().x / m_grid->GetCellSize(), GetPosition().z / m_grid->GetCellSize()),
-		glm::ivec2(m_selectedCover->m_worldPosition.x / m_grid->GetCellSize(),
-		           m_selectedCover->m_worldPosition.z / m_grid->GetCellSize()),
-		m_grid->GetGrid(),
-		m_id
-	);
 
 	VacatePreviousCell();
 
@@ -2043,14 +1889,7 @@ NodeStatus Enemy::Patrol()
 
 	if (m_reachedDestination == false)
 	{
-		m_currentPath = m_grid->FindPath(
-			glm::ivec2(static_cast<int>(GetPosition().x / m_grid->GetCellSize()),
-			           static_cast<int>(GetPosition().z / m_grid->GetCellSize())),
-			glm::ivec2(m_currentWaypoint.x / m_grid->GetCellSize(), m_currentWaypoint.z / m_grid->GetCellSize()),
-			m_grid->GetGrid(),
-			m_id
-		);
-
+		
 		VacatePreviousCell();
 
 		//for (glm::ivec2& cell : m_currentPath)
@@ -2069,15 +1908,7 @@ NodeStatus Enemy::Patrol()
 	}
 	else
 	{
-		m_currentWaypoint = SelectRandomWaypoint(m_currentWaypoint, m_waypointPositions);
-
-		m_currentPath = m_grid->FindPath(
-			glm::ivec2(GetPosition().x / m_grid->GetCellSize(), GetPosition().z / m_grid->GetCellSize()),
-			glm::ivec2(m_currentWaypoint.x / m_grid->GetCellSize(), m_currentWaypoint.z / m_grid->GetCellSize()),
-			m_grid->GetGrid(),
-			m_id
-		);
-
+		
 		VacatePreviousCell();
 
 		m_reachedDestination = false;

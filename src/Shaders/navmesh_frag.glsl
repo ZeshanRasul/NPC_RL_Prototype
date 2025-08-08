@@ -3,5 +3,5 @@ out vec4 FragColor;
 
 void main()
 {
-    FragColor = vec4(0.0, 0.0, 1.0, 1.0); // Blue for navmesh
+    FragColor = vec4(0.0, 0.0, 0.76, 1.0); // Blue for navmesh
 }

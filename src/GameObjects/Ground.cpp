@@ -56,16 +56,16 @@ void Ground::DrawGLTFModel(glm::mat4 viewMat, glm::mat4 projMat) {
 			const GLTFPrimitive& prim = meshData[meshIndex].primitives[primIndex];
 
 
-			shader->use();
+			m_shader->Use();
 			glm::mat4 modelMat = glm::mat4(1.0f);
-			modelMat = glm::translate(modelMat, position);
+			modelMat = glm::translate(modelMat, m_position);
 			//modelMat = glm::rotate(modelMat, glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-			modelMat = glm::scale(modelMat, scale);
+			modelMat = glm::scale(modelMat, m_scale);
 			std::vector<glm::mat4> matrixData;
 			matrixData.push_back(viewMat);
 			matrixData.push_back(projMat);
 			matrixData.push_back(modelMat);
-			mUniformBuffer.uploadUboData(matrixData, 0);
+			m_uniformBuffer.UploadUboData(matrixData, 0);
 
 			bool hasTexture = false;
 			glBindVertexArray(prim.vao);
@@ -82,17 +82,17 @@ void Ground::DrawGLTFModel(glm::mat4 viewMat, glm::mat4 projMat) {
 					texIndex = mat.pbrMetallicRoughness.baseColorTexture.index;
 					glActiveTexture(GL_TEXTURE0);
 					glBindTexture(GL_TEXTURE_2D, glTextures[texIndex]);
-					shader->setInt("tex", 0);
-					shader->setBool("useTexture", mat.pbrMetallicRoughness.baseColorTexture.index >= 0);
-					shader->setVec3("color", 1.0f, 1.0f, 1.0f);
+					m_shader->SetInt("tex", 0);
+					m_shader->SetBool("useTexture", mat.pbrMetallicRoughness.baseColorTexture.index >= 0);
+					m_shader->SetVec3("color", 1.0f, 1.0f, 1.0f);
 				}
 				else {
 					glm::vec3 baseColor = glm::vec3(mat.pbrMetallicRoughness.baseColorFactor[0], mat.pbrMetallicRoughness.baseColorFactor[1], mat.pbrMetallicRoughness.baseColorFactor[2]);
 					glActiveTexture(GL_TEXTURE0);
-					glBindTexture(GL_TEXTURE_2D, mTex.getTexID());
-					shader->setInt("tex", 0);
-					shader->setBool("useTexture", mat.pbrMetallicRoughness.baseColorTexture.index >= 0);
-					shader->setVec3("color", baseColor);
+					glBindTexture(GL_TEXTURE_2D, mTex.GetTexId());
+					m_shader->SetInt("tex", 0);
+					m_shader->SetBool("useTexture", mat.pbrMetallicRoughness.baseColorTexture.index >= 0);
+					m_shader->SetVec3("color", baseColor);
 				}
 			}
 
@@ -112,7 +112,7 @@ void Ground::DrawGLTFModel(glm::mat4 viewMat, glm::mat4 projMat) {
 	}
 }
 
-void Ground::drawObject(glm::mat4 viewMat, glm::mat4 proj, bool shadowMap, glm::mat4 lightSpaceMat, GLuint shadowMapTexture, glm::vec3 camPos)
+void Ground::DrawObject(glm::mat4 viewMat, glm::mat4 proj, bool shadowMap, glm::mat4 lightSpaceMat, GLuint shadowMapTexture, glm::vec3 camPos)
 {
 	DrawGLTFModel(viewMat, proj);
 }	

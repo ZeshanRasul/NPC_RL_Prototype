@@ -16,6 +16,9 @@ uniform DirLight dirLight;
 
 uniform sampler2D tex;
 
+uniform vec3 color;
+uniform bool useTexture;
+
 vec3 CalcDirLight(DirLight light, vec3 normal);
 
 void main() {
@@ -33,9 +36,18 @@ vec3 CalcDirLight(DirLight light, vec3 normal)
 	// diffuse
 	float diff = max(dot(normal, lightDir), 0.0);
 
+	vec3 ambient;
+	vec3 diffuse;	
+
 	// combine results
- 	vec3 ambient = light.ambient * vec3(texture(tex, texCoord));
- 	vec3 diffuse = light.diffuse * diff * vec3(texture(tex, texCoord));
+	if (useTexture == true) {
+ 		ambient = light.ambient * vec3(texture(tex, texCoord));
+ 		diffuse = light.diffuse * diff * vec3(texture(tex, texCoord));
+	} 
+	else {
+		ambient = light.ambient * color;
+		diffuse = light.diffuse * diff * color;
+	}
 
 	return (ambient + diffuse);
 }

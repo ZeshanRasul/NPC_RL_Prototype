@@ -15,11 +15,11 @@ void Player::DrawObject(glm::mat4 viewMat, glm::mat4 proj, bool shadowMap, glm::
 	matrixData.push_back(lightSpaceMat);
 	m_uniformBuffer.UploadUboData(matrixData, 0);
 
-	m_playerDualQuatSsBuffer.UploadSsboData(m_model->GetJointDualQuats(), 2);
+	m_playerDualQuatSsBuffer.UploadSsboData(m_model->getJointDualQuats(), 2);
 
 	if (m_uploadVertexBuffer)
 	{
-		m_model->UploadVertexBuffers();
+		m_model->uploadVertexBuffers();
 		GameManager* gameMgr = GetGameManager();
 		gameMgr->GetPhysicsWorld()->AddCollider(GetAABB());
 		m_uploadVertexBuffer = false;
@@ -28,7 +28,7 @@ void Player::DrawObject(glm::mat4 viewMat, glm::mat4 proj, bool shadowMap, glm::
 	if (shadowMap)
 	{
 		m_shadowShader->Use();
-		m_model->Draw(m_tex);
+		m_model->draw(m_tex);
 	}
 	else
 	{
@@ -46,7 +46,7 @@ void Player::DrawObject(glm::mat4 viewMat, glm::mat4 proj, bool shadowMap, glm::
 		glActiveTexture(GL_TEXTURE5);
 		glBindTexture(GL_TEXTURE_2D, shadowMapTexture);
 		m_shader->SetInt("shadowMap", 5);
-		m_model->Draw(m_tex);
+		m_model->draw(m_tex);
 
 #ifdef _DEBUG
 		m_aabb->Render(viewMat, proj, modelMat, m_aabbColor);

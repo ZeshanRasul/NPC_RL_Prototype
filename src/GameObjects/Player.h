@@ -52,10 +52,10 @@ public:
 		m_ao.LoadTexture(
 			"src/Assets/Models/GLTF/SwatPlayer/Swat_Ch15_body_AO.png");
 
-		m_model->UploadIndexBuffer();
+		m_model->uploadIndexBuffer();
 		Logger::Log(1, "%s: glTF m_model '%s' successfully loaded\n", __FUNCTION__, modelFilename.c_str());
 
-		size_t playerModelJointDualQuatBufferSize = m_model->GetJointDualQuatsSize() *
+		size_t playerModelJointDualQuatBufferSize = m_model->getJointDualQuatsSize() *
 			sizeof(glm::mat2x4);
 		m_playerDualQuatSsBuffer.Init(playerModelJointDualQuatBufferSize);
 		Logger::Log(1, "%s: glTF joint dual quaternions shader storage buffer (size %i bytes) successfully created\n",
@@ -75,7 +75,7 @@ public:
 
 	~Player()
 	{
-		m_model->Cleanup();
+		m_model->cleanup();
 	}
 
 	void DrawObject(glm::mat4 viewMat, glm::mat4 proj, bool shadowMap, glm::mat4 lightSpaceMat, GLuint shadowMapTexture,
@@ -218,7 +218,7 @@ public:
 
 	glm::vec3 GetInitialPos() const { return m_initialPos; }
 	void SetInitialPos(glm::vec3 val) { m_initialPos = val; }
-private:
+	Shader* m_aabbShader;
 	CameraMovement m_prevDirection = STATIONARY;
 
 	float m_playerYaw;
@@ -231,6 +231,7 @@ private:
 	float m_aimPitch = 0.0f;
 	float m_initialYaw = -90.0f;
 
+private:
 	glm::mat4 m_view = glm::mat4(1.0f);
 	glm::mat4 m_projection = glm::mat4(1.0f);
 
@@ -257,7 +258,6 @@ private:
 
 	PlayerState m_playerState = MOVING;
 
-	Shader* m_aabbShader;
 	float m_health = 100.0f;
 
 	int m_animNum = 0;

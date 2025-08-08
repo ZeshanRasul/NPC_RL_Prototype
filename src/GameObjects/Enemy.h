@@ -4,7 +4,6 @@
 
 #include "GameObject.h"
 #include "Player.h"
-#include "src/Pathfinding/Grid.h"
 #include "src/OpenGL/ShaderStorageBuffer.h"
 #include "Physics/AABB.h"
 #include "Components/AudioComponent.h"
@@ -13,6 +12,7 @@
 #include "AI/Events.h"
 #include "AI/ConditionNode.h"
 #include "AI/ActionNode.h"
+#include "Logger.h"
 
 enum Action
 {
@@ -59,58 +59,12 @@ class Enemy : public GameObject
 {
 public:
 	Enemy(glm::vec3 pos, glm::vec3 scale, Shader* sdr, Shader* shadowMapShader, bool applySkinning,
-		GameManager* gameMgr, Grid* grd, std::string texFilename, int id, EventManager& eventManager, Player& player,
+		GameManager* gameMgr, std::string texFilename, int id, EventManager& eventManager, Player& player,
 		float yaw = 0.0f);
-
-		id_ = id;
-
-		model = std::make_shared<GltfModel>();
-
-		std::string modelFilename = "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Models/GLTF/Enemies/Ely/EnemyEly.gltf";
-
-		if (!model->loadModel(modelFilename, true)) {
-			Logger::log(1, "%s: loading glTF model '%s' failed\n", __FUNCTION__, modelFilename.c_str());
-		}
-
-		if (!mTex.loadTexture(texFilename, false)) {
-			Logger::log(1, "%s: texture loading failed\n", __FUNCTION__);
-		}
-		//Logger::log(1, "%s: glTF model texture '%s' successfully loaded\n", __FUNCTION__, texFilename.c_str());
-
-		mNormal.loadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Models/GLTF/Enemies/Ely/EnemyEly_ely_vanguardsoldier_kerwinatienza_M2_Normal.png");
-		mMetallic.loadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Models/GLTF/Enemies/Ely/EnemyEly_ely_vanguardsoldier_kerwinatienza_M2_Metallic.png");
-		mRoughness.loadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Models/GLTF/Enemies/Ely/EnemyEly_ely_vanguardsoldier_kerwinatienza_M2_Roughness.png");
-		mAO.loadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Models/GLTF/Enemies/Ely/EnemyEly_ely_vanguardsoldier_kerwinatienza_M2_AO.png");
-		mEmissive.loadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Models/GLTF/Enemies/Ely/EnemyEly_ely_vanguardsoldier_kerwinatienza_M2_Emissive.png");
-
-
-		SetUpModel();
-
-		ComputeAudioWorldTransform();
-
-		UpdateEnemyCameraVectors();
-		UpdateEnemyVectors();
-
-		std::random_device rd;
-		std::mt19937 gen{ rd() };
-		std::uniform_int_distribution<> distrib(0, waypointPositions.size() - 1);
-		int randomIndex = distrib(gen);
-		currentWaypoint = waypointPositions[randomIndex];
-		takeDamageAC = new AudioComponent(this);
-		deathAC = new AudioComponent(this);
-		shootAC = new AudioComponent(this);
-
-		BuildBehaviorTree();
-
-		eventManager_.Subscribe<PlayerDetectedEvent>([this](const Event& e) { OnEvent(e); });
-		eventManager_.Subscribe<NPCDamagedEvent>([this](const Event& e) { OnEvent(e); });
-		eventManager_.Subscribe<NPCDiedEvent>([this](const Event& e) { OnEvent(e); });
-		eventManager_.Subscribe<NPCTakingCoverEvent>([this](const Event& e) { OnEvent(e); });
-	}
 
 	~Enemy()
 	{
-		m_model->Cleanup();
+		m_model->cleanup();
 	}
 
 	void SetUpModel();
@@ -282,13 +236,12 @@ private:
 	int m_id;
 	EventManager& m_eventManager;
 	BTNodePtr m_behaviorTree;
-	Grid* m_grid;
 
 	std::vector<glm::vec3> m_waypointPositions = {
-	m_grid->SnapToGrid(glm::vec3(0.0f, 0.0f, 0.0f)),
-	m_grid->SnapToGrid(glm::vec3(0.0f, 0.0f, 70.0f)),
-	m_grid->SnapToGrid(glm::vec3(40.0f, 0.0f, 0.0f)),
-	m_grid->SnapToGrid(glm::vec3(40.0f, 0.0f, 70.0f))
+	//m_grid->SnapToGrid(glm::vec3(0.0f, 0.0f, 0.0f)),
+	//m_grid->SnapToGrid(glm::vec3(0.0f, 0.0f, 70.0f)),
+	//m_grid->SnapToGrid(glm::vec3(40.0f, 0.0f, 0.0f)),
+	//m_grid->SnapToGrid(glm::vec3(40.0f, 0.0f, 70.0f))
 	};
 
 	float m_health = 100.0f;
@@ -314,7 +267,6 @@ private:
 
 	std::vector<glm::ivec2> m_currentPath;
 	float m_dt = 0.0f;
-	Grid::Cover* m_selectedCover = nullptr;
 	size_t m_pathIndex = 0;
 	size_t m_prevPathIndex = 0;
 	std::vector<glm::ivec2> m_prevPath = {};

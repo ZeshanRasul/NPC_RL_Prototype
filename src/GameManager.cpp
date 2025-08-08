@@ -101,12 +101,12 @@ bool GameManager::BuildTile(int tx, int ty, float* bmin, float* bmax,  rcConfig 
 	rcHeightfield* heightField = rcAllocHeightfield();
 	if (!rcCreateHeightfield(&ctx, *heightField, config.width, config.height, tbmin, tbmax, config.cs, config.ch))
 	{
-		Logger::log(1, "%s error: Could not create heightfield\n", __FUNCTION__);
+		Logger::Log(1, "%s error: Could not create heightfield\n", __FUNCTION__);
 		return false;
 	}
 	else
 	{
-		Logger::log(1, "%s: Heightfield successfully created\n", __FUNCTION__);
+		Logger::Log(1, "%s: Heightfield successfully created\n", __FUNCTION__);
 	}
 
 
@@ -114,11 +114,11 @@ bool GameManager::BuildTile(int tx, int ty, float* bmin, float* bmax,  rcConfig 
 
 	if (!rcRasterizeTriangles(&ctx, tileVerts.data(), tileVerts.size() / 3, tileIndices.data(), tileAreas.data(), tileIndices.size() / 3, *heightField, config.walkableClimb))
 	{
-		Logger::log(1, "%s error: Could not rasterize triangles\n", __FUNCTION__);
+		Logger::Log(1, "%s error: Could not rasterize triangles\n", __FUNCTION__);
 	}
 	else
 	{
-		Logger::log(1, "%s: rasterize triangles successfully created\n", __FUNCTION__);
+		Logger::Log(1, "%s: rasterize triangles successfully created\n", __FUNCTION__);
 	};
 
 	rcFilterWalkableLowHeightSpans(&ctx, config.walkableHeight, *heightField);
@@ -129,11 +129,11 @@ bool GameManager::BuildTile(int tx, int ty, float* bmin, float* bmax,  rcConfig 
 	rcCompactHeightfield* chf = rcAllocCompactHeightfield();
 	if (!rcBuildCompactHeightfield(&ctx, cfg.walkableHeight, cfg.walkableClimb, *heightField, *chf))
 	{
-		Logger::log(1, "%s error: Could not build compact heightfield\n", __FUNCTION__);
+		Logger::Log(1, "%s error: Could not build compact heightfield\n", __FUNCTION__);
 	}
 	else
 	{
-		Logger::log(1, "%s: compact heightfield successfully created\n", __FUNCTION__);
+		Logger::Log(1, "%s: compact heightfield successfully created\n", __FUNCTION__);
 	}
 
 
@@ -144,55 +144,55 @@ bool GameManager::BuildTile(int tx, int ty, float* bmin, float* bmax,  rcConfig 
 	rcContourSet* cset = rcAllocContourSet();
 	if (!rcBuildContours(&ctx, *chf, config.maxSimplificationError, config.maxEdgeLen, *cset))
 	{
-		Logger::log(1, "%s error: Could not build contours\n", __FUNCTION__);
+		Logger::Log(1, "%s error: Could not build contours\n", __FUNCTION__);
 	}
 	else
 	{
-		Logger::log(1, "%s: contours successfully created\n", __FUNCTION__);
-		Logger::log(1, "Contours count: %d\n", cset->nconts);
+		Logger::Log(1, "%s: contours successfully created\n", __FUNCTION__);
+		Logger::Log(1, "Contours count: %d\n", cset->nconts);
 	};
 
 	rcPolyMesh* pmesh = rcAllocPolyMesh();
 	if (!rcBuildPolyMesh(&ctx, *cset, cfg.maxVertsPerPoly, *pmesh))
 	{
-		Logger::log(1, "%s error: Could not build polymesh\n", __FUNCTION__);
+		Logger::Log(1, "%s error: Could not build polymesh\n", __FUNCTION__);
 	}
 	else
 	{
-		Logger::log(1, "%s: polymesh successfully created\n", __FUNCTION__);
+		Logger::Log(1, "%s: polymesh successfully created\n", __FUNCTION__);
 	};
 
 	rcPolyMeshDetail* dmesh = rcAllocPolyMeshDetail();
 	if (!rcBuildPolyMeshDetail(&ctx, *pmesh, *chf, config.detailSampleDist, config.detailSampleMaxError, *dmesh))
 	{
-		Logger::log(1, "%s error: Could not build polymesh detail\n", __FUNCTION__);
+		Logger::Log(1, "%s error: Could not build polymesh detail\n", __FUNCTION__);
 	}
 	else
 	{
-		Logger::log(1, "%s: polymesh detail successfully created\n", __FUNCTION__);
+		Logger::Log(1, "%s: polymesh detail successfully created\n", __FUNCTION__);
 	};
 
 	if (pmesh->npolys == 0 || pmesh == nullptr || dmesh == nullptr || chf == nullptr || cset == nullptr || heightField == nullptr)
 	{
 		navData = nullptr;
 		navDataSize = 0;
-		Logger::log(1, "%s error: One of the mesh components is null\n", __FUNCTION__);
+		Logger::Log(1, "%s error: One of the mesh components is null\n", __FUNCTION__);
 		return true;
 	}
 
-	Logger::log(1, "NavMesh vertices count: %d\n", tileVerts.size());
-	Logger::log(1, "NavMesh indices count: %d\n", tileIndices.size());
-	Logger::log(1, "Heightfield span count: %d\n", heightField->width * heightField->height);
-	Logger::log(1, "Compact heightfield span count: %d\n", chf->spanCount);
-	Logger::log(1, "PolyMesh vertices count: %d\n", pmesh->nverts);
-	Logger::log(1, "PolyMesh polygons count: %d\n", pmesh->npolys);
-	Logger::log(1, "PolyMeshDetail vertices count: %d\n", dmesh->nverts);
-	Logger::log(1, "PolyMesh bounds: Min(%.2f, %.2f, %.2f) Max(%.2f, %.2f, %.2f)\n",
+	Logger::Log(1, "NavMesh vertices count: %d\n", tileVerts.size());
+	Logger::Log(1, "NavMesh indices count: %d\n", tileIndices.size());
+	Logger::Log(1, "Heightfield span count: %d\n", heightField->width * heightField->height);
+	Logger::Log(1, "Compact heightfield span count: %d\n", chf->spanCount);
+	Logger::Log(1, "PolyMesh vertices count: %d\n", pmesh->nverts);
+	Logger::Log(1, "PolyMesh polygons count: %d\n", pmesh->npolys);
+	Logger::Log(1, "PolyMeshDetail vertices count: %d\n", dmesh->nverts);
+	Logger::Log(1, "PolyMesh bounds: Min(%.2f, %.2f, %.2f) Max(%.2f, %.2f, %.2f)\n",
 		pmesh->bmin[0], pmesh->bmin[1], pmesh->bmin[2],
 		pmesh->bmax[0], pmesh->bmax[1], pmesh->bmax[2]);
 
 	for (int i = 0; i < std::min(10, (int)navMeshVertices.size()); i += 3) {
-		Logger::log(1, "NavMesh Vert %d: %.2f %.2f %.2f\n", i / 3,
+		Logger::Log(1, "NavMesh Vert %d: %.2f %.2f %.2f\n", i / 3,
 			tileVerts[i], tileVerts[i + 1], tileVerts[i + 2]);
 	}
 	static const unsigned short DT_POLYFLAGS_WALK = 0x01;
@@ -204,7 +204,7 @@ bool GameManager::BuildTile(int tx, int ty, float* bmin, float* bmax,  rcConfig 
 
 	rcVcopy(params.bmin, tileBMin);
 	rcVcopy(params.bmax, tileBMax);
-	Logger::log(1, "Tile (%d,%d) bmin: %.2f %.2f %.2f  bmax: %.2f %.2f %.2f\n",
+	Logger::Log(1, "Tile (%d,%d) bmin: %.2f %.2f %.2f  bmax: %.2f %.2f %.2f\n",
 		tx, ty, tbmin[0], tbmin[1], tbmin[2], tbmax[0], tbmax[1], tbmax[2]);
 
 	for (int i = 0; i < pmesh->npolys; ++i)
@@ -247,7 +247,7 @@ bool GameManager::BuildTile(int tx, int ty, float* bmin, float* bmax,  rcConfig 
 	params.tileY = ty;
 	params.tileLayer = 0;
 
-	Logger::log(1, "Params before dtCreateNavMeshData: bmin(%.2f %.2f %.2f) bmax(%.2f %.2f %.2f)\n",
+	Logger::Log(1, "Params before dtCreateNavMeshData: bmin(%.2f %.2f %.2f) bmax(%.2f %.2f %.2f)\n",
 		params.bmin[0], params.bmin[1], params.bmin[2],
 		params.bmax[0], params.bmax[1], params.bmax[2]);
 
@@ -256,7 +256,7 @@ bool GameManager::BuildTile(int tx, int ty, float* bmin, float* bmax,  rcConfig 
 
 	if (dtStatusFailed(status))
 	{
-		Logger::log(1, "Create Nav Mesh Data failed: %u\n", status, __FUNCTION__);
+		Logger::Log(1, "Create Nav Mesh Data failed: %u\n", status, __FUNCTION__);
 		return false;
 	}
 
@@ -264,7 +264,7 @@ bool GameManager::BuildTile(int tx, int ty, float* bmin, float* bmax,  rcConfig 
 	compactHeightFields.push_back(chf);
 	contourSets.push_back(cset);
 	polyMeshes.push_back(pmesh);
-	Logger::log(1, "PolyMeshes count: %d\n", polyMeshes.size());
+	Logger::Log(1, "PolyMeshes count: %d\n", polyMeshes.size());
 	polyMeshDetails.push_back(dmesh);
 
 	return true;
@@ -383,11 +383,11 @@ void DebugNavmeshConnectivity(
 
 	if (!playerPoly)
 	{
-		Logger::log(1, "[DEBUG] Player is NOT on navmesh (no nearest poly found)\n");
+		Logger::Log(1, "[DEBUG] Player is NOT on navmesh (no nearest poly found)\n");
 		return;
 	}
 
-	Logger::log(1, "[DEBUG] Player nearest poly: %llu\n", (unsigned long long)playerPoly);
+	Logger::Log(1, "[DEBUG] Player nearest poly: %llu\n", (unsigned long long)playerPoly);
 
 	// Track islands by walking links in navmesh
 	const dtMeshTile* playerTile = nullptr;
@@ -395,7 +395,7 @@ void DebugNavmeshConnectivity(
 	navMesh->getTileAndPolyByRefUnsafe(playerPoly, &playerTile, &playerDtPoly);
 	unsigned short playerRegionId = playerDtPoly->getArea();
 
-	Logger::log(1, "[DEBUG] Player is in region ID: %d\n", playerRegionId);
+	Logger::Log(1, "[DEBUG] Player is in region ID: %d\n", playerRegionId);
 
 	// Now check each enemy
 	for (size_t i = 0; i < 4; i++)
@@ -405,7 +405,7 @@ void DebugNavmeshConnectivity(
 
 		if (dtStatusFailed(enemyStatus) || !enemyPoly)
 		{
-			Logger::log(1, "[DEBUG] Enemy %zu is NOT on navmesh (no nearest poly found)\n", i);
+			Logger::Log(1, "[DEBUG] Enemy %zu is NOT on navmesh (no nearest poly found)\n", i);
 			continue;
 		}
 
@@ -414,16 +414,16 @@ void DebugNavmeshConnectivity(
 		navMesh->getTileAndPolyByRefUnsafe(enemyPoly, &enemyTile, &enemyDtPoly);
 		unsigned short enemyRegionId = enemyDtPoly->getArea();
 
-		Logger::log(1, "[DEBUG] Enemy %zu nearest poly: %llu (region %d)\n", i,
+		Logger::Log(1, "[DEBUG] Enemy %zu nearest poly: %llu (region %d)\n", i,
 			(unsigned long long)enemyPoly, enemyRegionId);
 
 		if (enemyRegionId != playerRegionId)
 		{
-			Logger::log(1, "   Enemy %zu is in a DIFFERENT navmesh region (not connected)\n", i);
+			Logger::Log(1, "   Enemy %zu is in a DIFFERENT navmesh region (not connected)\n", i);
 		}
 		else
 		{
-			Logger::log(1, "   Enemy %zu is in the SAME navmesh region as player\n", i);
+			Logger::Log(1, "   Enemy %zu is in the SAME navmesh region as player\n", i);
 		}
 	}
 }
@@ -438,15 +438,15 @@ void ProbeNavmesh(dtNavMeshQuery* navQuery, dtQueryFilter* filter,
 	float snapped[3];
 
 	ref = FindNearestPolyWithPreferredY(navQuery, *filter, pos, y, halfExtents, *snapped);
-	Logger::log(1, "Probe at (%.2f, %.2f, %.2f): ", x, y, z);
+	Logger::Log(1, "Probe at (%.2f, %.2f, %.2f): ", x, y, z);
 
 	if (ref == 0)
 	{
-		Logger::log(1, "No polygon found.\n");
+		Logger::Log(1, "No polygon found.\n");
 	}
 	else
 	{
-		Logger::log(1, "Found polygon %llu at snapped position (%.2f, %.2f, %.2f)\n",
+		Logger::Log(1, "Found polygon %llu at snapped position (%.2f, %.2f, %.2f)\n",
 			(unsigned long long)ref,
 			snapped[0], snapped[1], snapped[2]);
 	}
@@ -471,25 +471,25 @@ bool AddAgentToCrowd(dtCrowd* crowd,
 	dtPolyRef startPoly = 0;
 	dtStatus status = navQuery->findNearestPoly(searchPos, halfExtents, filter, &startPoly, outSnappedPos);
 
-	Logger::log(1, "[CrowdSpawn] Query start(%.2f, %.2f, %.2f)\n",
+	Logger::Log(1, "[CrowdSpawn] Query start(%.2f, %.2f, %.2f)\n",
 		searchPos[0], searchPos[1], searchPos[2]);
 
 	if (dtStatusFailed(status))
 	{
-		Logger::log(1, "[CrowdSpawn] findNearestPoly FAILED (status=0x%X)\n", status);
+		Logger::Log(1, "[CrowdSpawn] findNearestPoly FAILED (status=0x%X)\n", status);
 		outAgentID = -1;
 		return false;
 	}
 
 	if (startPoly == 0)
 	{
-		Logger::log(1, "[CrowdSpawn] No polygon found near startPos (%.2f, %.2f, %.2f)\n",
+		Logger::Log(1, "[CrowdSpawn] No polygon found near startPos (%.2f, %.2f, %.2f)\n",
 			searchPos[0], searchPos[1], searchPos[2]);
 		outAgentID = -1;
 		return false;
 	}
 
-	Logger::log(1, "[CrowdSpawn] Found poly %llu, snapped to (%.2f, %.2f, %.2f)\n",
+	Logger::Log(1, "[CrowdSpawn] Found poly %llu, snapped to (%.2f, %.2f, %.2f)\n",
 		(unsigned long long)startPoly,
 		outSnappedPos[0], outSnappedPos[1], outSnappedPos[2]);
 
@@ -497,7 +497,7 @@ bool AddAgentToCrowd(dtCrowd* crowd,
 	outAgentID = crowd->addAgent(outSnappedPos, params);
 	if (outAgentID == -1)
 	{
-		Logger::log(1, "[CrowdSpawn] Crowd is full or agent failed to add!\n");
+		Logger::Log(1, "[CrowdSpawn] Crowd is full or agent failed to add!\n");
 		return false;
 	}
 
@@ -505,11 +505,11 @@ bool AddAgentToCrowd(dtCrowd* crowd,
 	const dtCrowdAgent* ag = crowd->getAgent(outAgentID);
 	if (!ag)
 	{
-		Logger::log(1, "[CrowdSpawn] Agent pointer null after addAgent.\n");
+		Logger::Log(1, "[CrowdSpawn] Agent pointer null after addAgent.\n");
 		return false;
 	}
 
-	Logger::log(1, "[CrowdSpawn] Agent %d added: state=%d (0=INVALID, 1=WALKING, 2=OFFMESH, 3=IDLE)\n",
+	Logger::Log(1, "[CrowdSpawn] Agent %d added: state=%d (0=INVALID, 1=WALKING, 2=OFFMESH, 3=IDLE)\n",
 		outAgentID, ag->state);
 
 	return (ag->state != DT_CROWDAGENT_STATE_INVALID);
@@ -538,24 +538,24 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 	m_renderer->SetUpMinimapFBO(width, height);
 	m_renderer->SetUpShadowMapFBO(SHADOW_WIDTH, SHADOW_HEIGHT);
 
-	playerShader.loadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/vertex_gpu_dquat_player.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/pbr_fragment.glsl");
-	groundShader.loadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/vertex2.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/fragment2.glsl");
-	enemyShader.loadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/vertex_gpu_dquat_enemy.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/pbr_fragment_emissive.glsl");
-	gridShader.loadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/pbr_vertex.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/pbr_fragment.glsl");
-	crosshairShader.loadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/crosshair_vert.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/crosshair_frag.glsl");
-	lineShader.loadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/line_vert.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/line_frag.glsl");
-	aabbShader.loadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/aabb_vert.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/aabb_frag.glsl");
-	cubeShader.loadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/pbr_vertex.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/pbr_fragment_emissive.glsl");
-	cubemapShader.loadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/cubemap_vertex.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/cubemap_fragment.glsl");
-	minimapShader.loadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/quad_vertex.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/quad_fragment.glsl");
-	shadowMapShader.loadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/shadow_map_vertex.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/shadow_map_fragment.glsl");
-	playerShadowMapShader.loadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/shadow_map_player_vertex.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/shadow_map_fragment.glsl");
-	groundShadowShader.loadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/shadow_map_vertex.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/shadow_map_fragment.glsl");
-	enemyShadowMapShader.loadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/shadow_map_enemy_vertex.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/shadow_map_fragment.glsl");
-	shadowMapQuadShader.loadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/shadow_map_quad_vertex.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/shadow_map_quad_fragment.glsl");
-	playerMuzzleFlashShader.loadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/muzzle_flash_vertex.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/muzzle_flash_fragment.glsl");
-	navMeshShader.loadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/navmesh_vert.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/navmesh_frag.glsl");
-	hfnavMeshShader.loadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/hf_vert.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/hf_frag.glsl");
+	playerShader.LoadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/vertex_gpu_dquat_player.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/pbr_fragment.glsl");
+	groundShader.LoadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/vertex2.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/fragment2.glsl");
+	enemyShader.LoadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/vertex_gpu_dquat_enemy.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/pbr_fragment_emissive.glsl");
+	gridShader.LoadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/pbr_vertex.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/pbr_fragment.glsl");
+	crosshairShader.LoadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/crosshair_vert.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/crosshair_frag.glsl");
+	lineShader.LoadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/line_vert.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/line_frag.glsl");
+	aabbShader.LoadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/aabb_vert.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/aabb_frag.glsl");
+	cubeShader.LoadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/pbr_vertex.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/pbr_fragment_emissive.glsl");
+	cubemapShader.LoadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/cubemap_vertex.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/cubemap_fragment.glsl");
+	minimapShader.LoadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/quad_vertex.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/quad_fragment.glsl");
+	shadowMapShader.LoadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/shadow_map_vertex.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/shadow_map_fragment.glsl");
+	playerShadowMapShader.LoadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/shadow_map_player_vertex.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/shadow_map_fragment.glsl");
+	groundShadowShader.LoadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/shadow_map_vertex.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/shadow_map_fragment.glsl");
+	enemyShadowMapShader.LoadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/shadow_map_enemy_vertex.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/shadow_map_fragment.glsl");
+	shadowMapQuadShader.LoadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/shadow_map_quad_vertex.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/shadow_map_quad_fragment.glsl");
+	playerMuzzleFlashShader.LoadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/muzzle_flash_vertex.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/muzzle_flash_fragment.glsl");
+	navMeshShader.LoadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/navmesh_vert.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/navmesh_frag.glsl");
+	hfnavMeshShader.LoadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/hf_vert.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/hf_frag.glsl");
 
 	m_crosshairShader.LoadShaders("src/Shaders/crosshair_vert.glsl", "src/Shaders/crosshair_frag.glsl");
 	m_lineShader.LoadShaders("src/Shaders/line_vert.glsl", "src/Shaders/line_frag.glsl");
@@ -584,21 +584,6 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 	m_cubemap = new Cubemap(&m_cubemapShader);
 	m_cubemap->LoadMesh();
 	m_cubemap->LoadCubemap(m_cubemapFaces);
-
-	m_cell = new Cell();
-	m_cell->SetUpVAO();
-	//    m_cell->LoadTexture("src/Assets/Textures/Ground.png", m_cell->m_tex);
-	std::string cubeTexFilename = "src/Assets/Textures/Cover.png";
-
-	m_gameGrid = new Grid();
-
-	for (glm::vec3 coverPos : m_gameGrid->GetCoverPositions())
-	{
-		Cube* cover = new Cube((coverPos), glm::vec3((float)gameGrid->GetCellSize()), &cubeShader, &shadowMapShader, false, this, cubeTexFilename);
-		cover->SetAABBShader(&aabbShader);
-		cover->LoadMesh();
-		m_coverSpots.push_back(cover);
-	}
 
 	ground = new Ground(mapPos, mapScale, &groundShader, &groundShadowShader, false, this);
 
@@ -673,11 +658,8 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 	//navMeshVertices.resize(1162447);
 	//navMeshIndices.resize(1162447);
 
-	gameGrid->initializeGrid();
 
-	std::vector<glm::vec3> gridVerts = gameGrid->GetWSVertices();
-
-	Logger::log(1, "Map vertices count: %i\n", mapVerts.size());
+	Logger::Log(1, "Map vertices count: %i\n", mapVerts.size());
 
 	int gridVertCount = 0;
 	//std::vector<glm::mat4> models = gameGrid->GetModels();
@@ -690,10 +672,10 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 
 	}
 
-	Logger::log(1, "navMeshVertices count: %zu\n", navMeshVertices.size());
+	Logger::Log(1, "navMeshVertices count: %zu\n", navMeshVertices.size());
 	for (size_t i = 0; i < std::min((size_t)10, navMeshVertices.size() / 3); ++i)
 	{
-		Logger::log(1, "Vertex %zu: %.2f %.2f %.2f\n",
+		Logger::Log(1, "Vertex %zu: %.2f %.2f %.2f\n",
 			i,
 			navMeshVertices[i * 3],
 			navMeshVertices[i * 3 + 1],
@@ -707,7 +689,7 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 	//}
 
 	int indexCount = (int)navMeshIndices.size();
-	Logger::log(1, "Index Count: %zu\n", (int)navMeshIndices.size());
+	Logger::Log(1, "Index Count: %zu\n", (int)navMeshIndices.size());
 
 	triIndices = new int[indexCount];
 
@@ -716,7 +698,7 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 		triIndices[i] = navMeshIndices[i];
 	}
 
-	Logger::log(1, "Index Count: %zu\n", indexCount);
+	Logger::Log(1, "Index Count: %zu\n", indexCount);
 
 
 
@@ -728,13 +710,13 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 	filter.setIncludeFlags(0xFFFF); // Include all polygons for testing
 	filter.setExcludeFlags(0);      // Exclude no polygons
 
-	Logger::log(1, "Tri Areas: %s", triAreas);
+	Logger::Log(1, "Tri Areas: %s", triAreas);
 
 	int vertexCount = navMeshVertices.size() / 3;
 
 	for (int i = 0; i < triangleCount * 3; i++) {
 		if (triIndices[i] < 0 || triIndices[i] >= vertexCount) {
-			Logger::log(1, "Invalid triangle index %d: %d (vertexCount=%d)\n",
+			Logger::Log(1, "Invalid triangle index %d: %d (vertexCount=%d)\n",
 				i, triIndices[i], vertexCount);
 		}
 	}
@@ -783,14 +765,14 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 			walkableCount++;
 	}
 
-	Logger::log(1, "[Recast] Triangles processed: %d\n", triangleCount);
-	Logger::log(1, "[Recast] Walkable triangles:  %d\n", walkableCount);
-	Logger::log(1, "[Recast] Non-walkable:        %d\n", triangleCount - walkableCount);
+	Logger::Log(1, "[Recast] Triangles processed: %d\n", triangleCount);
+	Logger::Log(1, "[Recast] Walkable triangles:  %d\n", walkableCount);
+	Logger::Log(1, "[Recast] Non-walkable:        %d\n", triangleCount - walkableCount);
 
 	// Optional sanity check: Print first few triangles and their walkable flag
 	for (int i = 0; i < std::min(triangleCount, 5); ++i)
 	{
-		Logger::log(1, "  Tri %d: %s\n", i,
+		Logger::Log(1, "  Tri %d: %s\n", i,
 			(triAreas[i] == RC_WALKABLE_AREA) ? "WALKABLE" : "NOT WALKABLE");
 	}
 	//for (int i = 0; i < triangleCount; ++i)
@@ -799,7 +781,7 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 	//}
 	for (int i = 0; i < std::min(triangleCount, 5); ++i)
 	{
-		Logger::log(1, "  Tri %d: %s\n", i,
+		Logger::Log(1, "  Tri %d: %s\n", i,
 			(triAreas[i] == RC_WALKABLE_AREA) ? "WALKABLE" : "NOT WALKABLE");
 	}
 
@@ -842,12 +824,12 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 	//tileWidth = (cfg.width + cfg.tileSize - 1) / cfg.tileSize;
 	//tileHeight = (cfg.height + cfg.tileSize - 1) / cfg.tileSize;
 
-	Logger::log(1, "Num verts %zu", navMeshVertices.size());
+	Logger::Log(1, "Num verts %zu", navMeshVertices.size());
 
-	Logger::log(1, "navMeshVertices count: %zu", navMeshVertices.size());
+	Logger::Log(1, "navMeshVertices count: %zu", navMeshVertices.size());
 	for (size_t i = 0; i < std::min((size_t)10, navMeshVertices.size() / 3); ++i)
 	{
-		Logger::log(1, "Vertex %zu: %.2f %.2f %.2f",
+		Logger::Log(1, "Vertex %zu: %.2f %.2f %.2f",
 			i,
 			navMeshVertices[i * 3],
 			navMeshVertices[i * 3 + 1],
@@ -874,16 +856,11 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 	params.tileHeight = tileWorldSize;
 	params.maxTiles = tileCountX * tileCountY;   // now > 1
 	params.maxPolys = 2048; // Set a reasonable limit for the number of polygons per tile
-	Logger::log(1, "Navmesh origin: %.2f %.2f %.2f\n", params.orig[0], params.orig[1], params.orig[2]);
+	Logger::Log(1, "Navmesh origin: %.2f %.2f %.2f\n", params.orig[0], params.orig[1], params.orig[2]);
 
 	navMesh = dtAllocNavMesh();
 
 	dtStatus navInitStatus = navMesh->init(&params);
-
-	if (dtStatusFailed(navInitStatus))
-	{
-		m_gameObjects.push_back(coverSpot);
-	}
 
 	for (int y = 0; y < tileCountY; ++y)
 	{
@@ -899,7 +876,7 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 			
 				if (dtStatusFailed(status))
 				{
-					Logger::log(1, "Error: Could not add tile to navmesh\n", __FUNCTION__);
+					Logger::Log(1, "Error: Could not add tile to navmesh\n", __FUNCTION__);
 				}
 			}
 		}
@@ -910,25 +887,25 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 	dtStatus status = navMeshQuery->init(navMesh, 4096);
 	if (dtStatusFailed(status))
 	{
-		Logger::log(1, "%s error: Could not init Detour navMeshQuery\n", __FUNCTION__);
+		Logger::Log(1, "%s error: Could not init Detour navMeshQuery\n", __FUNCTION__);
 	}
 	else
 	{
-		Logger::log(1, "%s: Detour navMeshQuery successfully initialized\n", __FUNCTION__);
+		Logger::Log(1, "%s: Detour navMeshQuery successfully initialized\n", __FUNCTION__);
 
 	}
 
 
 
 	const dtNavMeshParams* nmparams = navMesh->getParams();
-	Logger::log(1, "Navmesh origin: %.2f %.2f %.2f\n", nmparams->orig[0], nmparams->orig[1], nmparams->orig[2]);
+	Logger::Log(1, "Navmesh origin: %.2f %.2f %.2f\n", nmparams->orig[0], nmparams->orig[1], nmparams->orig[2]);
 
 	for (int y = 0; y < navMesh->getMaxTiles(); ++y) {
 		for (int x = 0; x < navMesh->getMaxTiles(); ++x) {
 			const dtMeshTile* tile = navMesh->getTileAt(x, y, 0);  // layer = 0
 			if (!tile || !tile->header) continue;
 
-			Logger::log(1, "Tile at (%d,%d): Bmin(%.2f %.2f %.2f) Bmax(%.2f %.2f %.2f)\n",
+			Logger::Log(1, "Tile at (%d,%d): Bmin(%.2f %.2f %.2f) Bmax(%.2f %.2f %.2f)\n",
 				x, y,
 				tile->header->bmin[0], tile->header->bmin[1], tile->header->bmin[2],
 				tile->header->bmax[0], tile->header->bmax[1], tile->header->bmax[2]);
@@ -937,116 +914,113 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 
 
 
-	camera = new Camera(glm::vec3(50.0f, 3.0f, 80.0f));
-	minimapCamera = new Camera(glm::vec3((gameGrid->GetCellSize() * gameGrid->GetGridSize()) / 2.0f, 140.0f, (gameGrid->GetCellSize() * gameGrid->GetGridSize()) / 2.0f), glm::vec3(0.0f, -1.0f, 0.0f), 0.0f, -90.0f, glm::vec3(0.0f, 0.0f, -1.0f));
+	m_camera = new Camera(glm::vec3(50.0f, 3.0f, 80.0f));
 
-	minimapQuad = new Quad();
-	minimapQuad->SetUpVAO(false);
+	m_minimapQuad = new Quad();
+	m_minimapQuad->SetUpVAO(false);
 
-	shadowMapQuad = new Quad();
-	shadowMapQuad->SetUpVAO(false);
+	m_shadowMapQuad = new Quad();
+	m_shadowMapQuad->SetUpVAO(false);
 
-	playerMuzzleFlashQuad = new Quad();
-	playerMuzzleFlashQuad->SetUpVAO(true);
-	playerMuzzleFlashQuad->SetShader(&playerMuzzleFlashShader);
-	playerMuzzleFlashQuad->LoadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/muzzleflash.png");
+	m_playerMuzzleFlashQuad = new Quad();
+	m_playerMuzzleFlashQuad->SetUpVAO(true);
+	m_playerMuzzleFlashQuad->SetShader(&playerMuzzleFlashShader);
+	m_playerMuzzleFlashQuad->LoadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/muzzleflash.png");
 
-	enemyMuzzleFlashQuad = new Quad();
-	enemyMuzzleFlashQuad->SetUpVAO(true);
-	enemyMuzzleFlashQuad->SetShader(&playerMuzzleFlashShader);
-	enemyMuzzleFlashQuad->LoadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/muzzleflash.png");
+	m_enemyMuzzleFlashQuad = new Quad();
+	m_enemyMuzzleFlashQuad->SetUpVAO(true);
+	m_enemyMuzzleFlashQuad->SetShader(&playerMuzzleFlashShader);
+	m_enemyMuzzleFlashQuad->LoadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/muzzleflash.png");
 
-	enemy2MuzzleFlashQuad = new Quad();
-	enemy2MuzzleFlashQuad->SetUpVAO(true);
-	enemy2MuzzleFlashQuad->SetShader(&playerMuzzleFlashShader);
-	enemy2MuzzleFlashQuad->LoadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/muzzleflash.png");
+	m_enemy2MuzzleFlashQuad = new Quad();
+	m_enemy2MuzzleFlashQuad->SetUpVAO(true);
+	m_enemy2MuzzleFlashQuad->SetShader(&playerMuzzleFlashShader);
+	m_enemy2MuzzleFlashQuad->LoadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/muzzleflash.png");
 
-	enemy3MuzzleFlashQuad = new Quad();
-	enemy3MuzzleFlashQuad->SetUpVAO(true);
-	enemy3MuzzleFlashQuad->SetShader(&playerMuzzleFlashShader);
-	enemy3MuzzleFlashQuad->LoadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/muzzleflash.png");
+	m_enemy3MuzzleFlashQuad = new Quad();
+	m_enemy3MuzzleFlashQuad->SetUpVAO(true);
+	m_enemy3MuzzleFlashQuad->SetShader(&playerMuzzleFlashShader);
+	m_enemy3MuzzleFlashQuad->LoadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/muzzleflash.png");
 
-	enemy4MuzzleFlashQuad = new Quad();
-	enemy4MuzzleFlashQuad->SetUpVAO(true);
-	enemy4MuzzleFlashQuad->SetShader(&playerMuzzleFlashShader);
-	enemy4MuzzleFlashQuad->LoadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/muzzleflash.png");
+	m_enemy4MuzzleFlashQuad = new Quad();
+	m_enemy4MuzzleFlashQuad->SetUpVAO(true);
+	m_enemy4MuzzleFlashQuad->SetShader(&playerMuzzleFlashShader);
+	m_enemy4MuzzleFlashQuad->LoadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/muzzleflash.png");
 
 
-	player = new Player(glm::vec3(-9.0f, 354.6f, 163.0f), glm::vec3(5.0f), &playerShader, &playerShadowMapShader, true, this);
+	m_player = new Player(glm::vec3(-9.0f, 354.6f, 163.0f), glm::vec3(5.0f), &playerShader, &playerShadowMapShader, true, this);
 	//player = new Player( (glm::vec3(23.0f, 0.0f, 37.0f)), glm::vec3(3.0f), &playerShader, &playerShadowMapShader, true, this);
 
-	player->aabbShader = &aabbShader;
+	m_player->SetAABBShader(&aabbShader);
+	m_player->SetUpAABB();
 
 	std::string texture = "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Models/GLTF/Enemies/Ely/EnemyEly_ely_vanguardsoldier_kerwinatienza_M2_BaseColor.png";
 	std::string texture2 = "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Models/GLTF/Enemies/Ely/ely-vanguardsoldier-kerwinatienza_diffuse_2.png";
 	std::string texture3 = "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Models/GLTF/Enemies/Ely/ely-vanguardsoldier-kerwinatienza_diffuse_3.png";
 	std::string texture4 = "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Models/GLTF/Enemies/Ely/ely-vanguardsoldier-kerwinatienza_diffuse_4.png";
 
-	enemy = new Enemy(glm::vec3(-30.0f, -54.6f, 8.0f), glm::vec3(5.0f), &enemyShader, &enemyShadowMapShader, true, this, gameGrid, texture, 0, GetEventManager(), *player);
-	enemy->SetAABBShader(&aabbShader);
-	enemy->SetUpAABB();
+	m_enemy = new Enemy(glm::vec3(-30.0f, -54.6f, 8.0f), glm::vec3(5.0f), &enemyShader, &enemyShadowMapShader, true, this, texture, 0, GetEventManager(), *m_player);
+	m_enemy->SetAABBShader(&aabbShader);
+	m_enemy->SetUpAABB();
 
-	enemy2 = new Enemy(glm::vec3(-37.0f, -54.6f, 14.0f), glm::vec3(5.0f), &enemyShader, &enemyShadowMapShader, true, this, gameGrid, texture2, 1, GetEventManager(), *player);
-	enemy2->SetAABBShader(&aabbShader);
-	enemy2->SetUpAABB();
+	m_enemy2 = new Enemy(glm::vec3(-37.0f, -54.6f, 14.0f), glm::vec3(5.0f), &enemyShader, &enemyShadowMapShader, true, this, texture2, 1, GetEventManager(), *m_player);
+	m_enemy2->SetAABBShader(&aabbShader);
+	m_enemy2->SetUpAABB();
 
-	enemy3 = new Enemy(glm::vec3(-44.0f, -54.6f, 18.0f), glm::vec3(5.0f), &enemyShader, &enemyShadowMapShader, true, this, gameGrid, texture3, 2, GetEventManager(), *player);
-	enemy3->SetAABBShader(&aabbShader);
-	enemy3->SetUpAABB();
+	m_enemy3 = new Enemy(glm::vec3(-44.0f, -54.6f, 18.0f), glm::vec3(5.0f), &enemyShader, &enemyShadowMapShader, true, this, texture3, 2, GetEventManager(), *m_player);
+	m_enemy3->SetAABBShader(&aabbShader);
+	m_enemy3->SetUpAABB();
 
-	enemy4 = new Enemy(glm::vec3(-50.0f, -54.6f, 123.0f), glm::vec3(5.0f), &enemyShader, &enemyShadowMapShader, true, this, gameGrid, texture4, 3, GetEventManager(), *player);
-	enemy4->SetAABBShader(&aabbShader);
-	enemy4->SetUpAABB();
+	m_enemy4 = new Enemy(glm::vec3(-50.0f, -54.6f, 123.0f), glm::vec3(5.0f), &enemyShader, &enemyShadowMapShader, true, this, texture4, 3, GetEventManager(), *m_player);
+	m_enemy4->SetAABBShader(&aabbShader);
+	m_enemy4->SetUpAABB();
 
-	crosshair = new Crosshair(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.3f), &crosshairShader, &shadowMapShader, false, this);
-	crosshair->LoadMesh();
-	crosshair->LoadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/Crosshair.png");
-	line = new Line(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f), &lineShader, &shadowMapShader, false, this);
-	line->LoadMesh();
+	m_crosshair = new Crosshair(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.3f), &crosshairShader, &shadowMapShader, false, this);
+	m_crosshair->LoadMesh();
+	m_crosshair->LoadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/Crosshair.png");
+	m_playerLine = new Line(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f), &lineShader, &shadowMapShader, false, this);
+	m_playerLine->LoadMesh();
 
-	enemyLine = new Line(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f), &lineShader, &shadowMapShader, false, this);
-	enemy2Line = new Line(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f), &lineShader, &shadowMapShader, false, this);
-	enemy3Line = new Line(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f), &lineShader, &shadowMapShader, false, this);
-	enemy4Line = new Line(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f), &lineShader, &shadowMapShader, false, this);
-	enemyLine->LoadMesh();
-	enemy2Line->LoadMesh();
-	enemy3Line->LoadMesh();
-	enemy4Line->LoadMesh();
+	for (auto& line : m_enemyLines)
+	{
+		line = new Line(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f), &lineShader, &shadowMapShader, false, this);
+		line->LoadMesh();
+	}
+
+
 
 	//ground = new Ground(mapPos, mapScale, &groundShader, &groundShadowShader, false, this);
 
-	AudioComponent* fireAudioComponent = new AudioComponent(enemy);
-	fireAudioComponent->PlayEvent("event:/FireLoop");
+	AudioComponent* fireAudioComponent = new AudioComponent(m_enemy);
 
 
-	inputManager->setContext(camera, player, enemy, width, height);
+
+	m_inputManager->SetContext(m_camera, m_player, m_enemy, width, height);
 
 	/* reset skeleton split */
-	playerSkeletonSplitNode = player->model->getNodeCount() - 1;
-	enemySkeletonSplitNode = enemy->model->getNodeCount() - 1;
 
 	std::srand(static_cast<unsigned int>(std::time(nullptr)));
 
-	gameObjects.push_back(player);
-	gameObjects.push_back(enemy);
-	gameObjects.push_back(enemy2);
-	gameObjects.push_back(enemy3);
-	gameObjects.push_back(enemy4);
-	gameObjects.push_back(ground);
+	m_gameObjects.push_back(m_player);
+	m_gameObjects.push_back(m_enemy);
+	m_gameObjects.push_back(m_enemy2);
+	m_gameObjects.push_back(m_enemy3);
+	m_gameObjects.push_back(m_enemy4);
+	m_gameObjects.push_back(ground);
 
 	/*for (Cube* coverSpot : coverSpots)
 	{
 		gameObjects.push_back(coverSpot);
 	}*/
 
-	enemies.push_back(enemy);
-	enemies.push_back(enemy2);
-	enemies.push_back(enemy3);
-	enemies.push_back(enemy4);
+	m_enemies.push_back(m_enemy);
+	m_enemies.push_back(m_enemy2);
+	m_enemies.push_back(m_enemy3);
+	m_enemies.push_back(m_enemy4);
 
-	if (initializeQTable)
+	if (m_initializeQTable)
 	{
-		for (auto& enem : enemies)
+		for (auto& enem : m_enemies)
 		{
 			int enemyID = enem->GetID();
 			Logger::Log(1, "%s Initializing Q Table for Enemy %d\n", __FUNCTION__, enemyID);
@@ -1117,8 +1091,8 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 	}
 
 
-	Logger::log(1, "Render NavMesh Vert Count: %zu", navRenderMeshVertices.size());
-	Logger::log(1, "Render NavMesh Index Count: %zu", navRenderMeshIndices.size());
+	Logger::Log(1, "Render NavMesh Vert Count: %zu", navRenderMeshVertices.size());
+	Logger::Log(1, "Render NavMesh Index Count: %zu", navRenderMeshIndices.size());
 
 	// Create VAO
 	glGenVertexArrays(1, &vao);
@@ -1167,11 +1141,11 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 
 	glBindVertexArray(0);
 
-	float playerStartingPos[3] = { player->getPosition().x, player->getPosition().y, player->getPosition().z };
+	float playerStartingPos[3] = { m_player->GetPosition().x, m_player->GetPosition().y, m_player->GetPosition().z };
 	float playerSnappedPos[3];
 	dtPolyRef playerStartPoly;
 	navMeshQuery->findNearestPoly(playerStartingPos, halfExtents, &filter, &playerStartPoly, playerSnappedPos);
-	player->setPosition(glm::vec3(playerSnappedPos[0], playerSnappedPos[1], playerSnappedPos[2]));
+	m_player->SetPosition(glm::vec3(playerSnappedPos[0], playerSnappedPos[1], playerSnappedPos[2]));
 	
 
 	crowd = dtAllocCrowd();
@@ -1193,7 +1167,7 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 
 	//};
 
-	for (auto& enem : enemies)
+	for (auto& enem : m_enemies)
 	{
 		dtCrowdAgentParams ap;
 		memset(&ap, 0, sizeof(ap));
@@ -1208,12 +1182,12 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 			| DT_CROWD_OPTIMIZE_TOPO
 			| DT_CROWD_SEPARATION;
 		ap.separationWeight = 0.5f;
-		float startingPos[3] = { enem->getPosition().x, enem->getPosition().y, enem->getPosition().z };
+		float startingPos[3] = { enem->GetPosition().x, enem->GetPosition().y, enem->GetPosition().z };
 		float snappedPos[3];
 		dtPolyRef startPoly;
 		navMeshQuery->findNearestPoly(startingPos, halfExtents, &filter, &startPoly, snappedPos);
 		enemyAgentIDs.push_back(crowd->addAgent(snappedPos, &ap));
-		Logger::log(1, "[Spawn] Enemy spawned as agent %d at (%.2f, %.2f, %.2f)\n",
+		Logger::Log(1, "[Spawn] Enemy spawned as agent %d at (%.2f, %.2f, %.2f)\n",
 			enemyAgentIDs.back(), snappedPos[0], snappedPos[1], snappedPos[2]);
 	}
 
@@ -1235,16 +1209,16 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 
 	//	if (added)
 	//	{
-	//		Logger::log(1, "[Spawn] Enemy spawned as agent %d at (%.2f, %.2f, %.2f)\n",
+	//		Logger::Log(1, "[Spawn] Enemy spawned as agent %d at (%.2f, %.2f, %.2f)\n",
 	//			agentID, snappedPos[0], snappedPos[1], snappedPos[2]);
 
 	//		enemyAgentIDs.push_back(agentID);
 	//	}
 	//	else
 	//	{
-	//		Logger::log(1, "[Spawn] Enemy spawn FAILED at (%.2f, %.2f, %.2f)\n",
+	//		Logger::Log(1, "[Spawn] Enemy spawn FAILED at (%.2f, %.2f, %.2f)\n",
 	//			startPos[0], startPos[1], startPos[2]);
-	//		Logger::log(1, "[Spawn] Enemy spawned as agent %d at (%.2f, %.2f, %.2f)\n",
+	//		Logger::Log(1, "[Spawn] Enemy spawned as agent %d at (%.2f, %.2f, %.2f)\n",
 	//			agentID, snappedPos[0], snappedPos[1], snappedPos[2]);
 	//	}
 
@@ -1257,7 +1231,7 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 
 	////	if (dtStatusFailed(newstatus) || polyref == 0)
 	////	{
-	////		Logger::log(1, "findNearestPoly failed: no polygon found near %.2f %.2f %.2f\n",
+	////		Logger::Log(1, "findNearestPoly failed: no polygon found near %.2f %.2f %.2f\n",
 	////			85.0f, 0.0f, 25.0f);
 	////		return; // stop here, don�t use snappedPos
 	////	}
@@ -1265,7 +1239,7 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 	////	float meshheight = 0.0f;
 	////	if (navMeshQuery->getPolyHeight(polyref, snappedPos, &meshheight) == DT_SUCCESS)
 	////	{
-	////		Logger::log(1, "Navmesh height at %.2f %.2f: %.2f\n", snappedPos[0], snappedPos[2], meshheight);
+	////		Logger::Log(1, "Navmesh height at %.2f %.2f: %.2f\n", snappedPos[0], snappedPos[2], meshheight);
 	////	}
 
 	//}
@@ -1274,6 +1248,11 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 void GameManager::SetupCamera(unsigned int width, unsigned int height, float deltaTime)
 {
 	m_camera->SetZoom(45.0f);
+
+	m_camera->SetPlayerCamHeightOffset(10.0f);
+	m_camera->SetPlayerCamRearOffset(30.0f);
+	m_camera->SetPlayerPosOffset(10.0f);
+	m_camera->SetPlayerAimRightOffset(5.0f);
 
 	if (m_camera->GetMode() == PLAYER_FOLLOW)
 	{
@@ -1374,7 +1353,7 @@ void GameManager::SetupCamera(unsigned int width, unsigned int height, float del
 
 	m_projection = glm::perspective(glm::radians(m_camera->GetZoom()), (float)width / (float)height, 0.1f, 500.0f);
 
-	m_minimapView = m_minimapCamera->GetViewMatrix();
+	m_minimapView = glm::mat4(1.0f);
 	m_minimapProjection = glm::perspective(glm::radians(m_camera->GetZoom()), (float)width / (float)height, 0.1f, 500.0f);
 
 	m_player->SetCameraMatrices(m_view, m_projection);
@@ -1396,26 +1375,25 @@ void GameManager::SetUpDebugUi()
 
 void GameManager::ShowDebugUi()
 {
-#ifdef DEBUG
 	ShowCameraControlWindow(*m_camera);
 	ShowLightControlWindow(dirLight);
-	ShowCameraControlWindow(*camera);
+	ShowCameraControlWindow(*m_camera);
 
 	ImGui::Begin("Player");
 
-	ImGui::InputFloat3("Position", &player->position[0]);
-	ImGui::InputFloat("Yaw", &player->PlayerYaw);
-	ImGui::InputFloat3("Player Front", &player->PlayerFront[0]);
-	ImGui::InputFloat3("Player Aim Front", &player->PlayerAimFront[0]);
-	ImGui::InputFloat("Player Aim Pitch", &player->aimPitch);
-	ImGui::InputFloat("Player Rear Offset", &camera->playerCamRearOffset);
-	ImGui::InputFloat("Player Height Offset", &camera->playerCamHeightOffset);
-	ImGui::InputFloat("Player Pos Offset", &camera->playerPosOffset);
-	ImGui::InputFloat("Player Aim Right Offset", &camera->playerAimRightOffset);
+	ImGui::InputFloat3("Position", &m_player->m_position[0]);
+	ImGui::InputFloat("Yaw", &m_player->m_playerYaw);
+	ImGui::InputFloat3("Player Front", &m_player->m_playerFront[0]);
+	ImGui::InputFloat3("Player Aim Front", &m_player->m_playerAimFront[0]);
+	ImGui::InputFloat("Player Aim Pitch", &m_player->m_aimPitch);
+	ImGui::InputFloat("Player Rear Offset", &m_camera->playerCamRearOffset);
+	ImGui::InputFloat("Player Height Offset", &m_camera->playerCamHeightOffset);
+	ImGui::InputFloat("Player Pos Offset", &m_camera->playerPosOffset);
+	ImGui::InputFloat("Player Aim Right Offset", &m_camera->playerAimRightOffset);
 	ImGui::End();
-	ShowAnimationControlWindow();
 
 	ShowPerformanceWindow();
+#ifdef DEBUG
 #endif
 
 	if (!m_useEdbt)
@@ -1563,12 +1541,13 @@ void GameManager::SetUpAndRenderNavMesh()
 
 void GameManager::CreateLightSpaceMatrices()
 {
-	int gridWidth = m_gameGrid->GetCellSize() * m_gameGrid->GetGridSize();
-	glm::vec3 sceneCenter = glm::vec3(gridWidth / 2.0f, 0.0f, gridWidth / 2.0f);
+	// TODO: Set up light space matrices for shadow mapping based on new model
+	
+	glm::vec3 sceneCenter = glm::vec3(500.0f / 2.0f, 0.0f, 500.0f / 2.0f);
 
 	glm::vec3 lightDir = glm::normalize(dirLight.m_direction);
 
-	float sceneDiagonal = (float)glm::sqrt(gridWidth * gridWidth + gridWidth * gridWidth);
+	float sceneDiagonal = (float)glm::sqrt(500.0f * 500.0f + 500.0f * 500.0f);
 
 	m_lightSpaceProjection = glm::ortho(m_orthoLeft, m_orthoRight, m_orthoBottom, m_orthoTop, m_nearPlane, m_farPlane);
 
@@ -1653,7 +1632,8 @@ bool findRandomNavMeshPoint(dtNavMeshQuery* navQuery, dtQueryFilter* filter, flo
 	return dtStatusSucceed(status);
 }
 
-void GameManager::ShowCameraControlWindow(Camera& cam)
+
+void GameManager::RenderEnemyLineAndMuzzleFlash(bool isMainPass, bool isMinimapPass, bool isShadowPass)
 {
 	for (auto& enem : m_enemies)
 	{
@@ -1714,107 +1694,26 @@ void GameManager::ShowCameraControlWindow(Camera& cam)
 						m_enemyTracerStartTimes.at(enemyID) = enemyTracerCurrentTime;
 					}
 
-
-
-	float targetPos[3] = { player->getPosition().x, player->getPosition().y, player->getPosition().z };
-
-	int enemyID = 0;
-	for (Enemy* e : enemies)
-	{
-		if (e == nullptr || e->isDestroyed)
-			continue;
+					if (m_renderEnemyTracer.at(enemyID) && isMainPass)
+					{
+						m_enemyTracerTimesSinceStart.at(enemyID) = enemyTracerCurrentTime - m_enemyTracerStartTimes.at(enemyID);
+						m_enemyTracerAlphas.at(enemyID) = glm::max(0.0f, 1.0f - (m_enemyTracerTimesSinceStart.at(enemyID) / m_enemyTracerDurations.at(enemyID)));
+						m_enemyTracerScales.at(enemyID) = 1.0f + (0.5f * m_enemyTracerAlphas.at(enemyID));
 
 						m_enemyTracerModelMatrices.at(enemyID) = glm::mat4(1.0f);
 
-		//if (!useEDBT)
-		//{
-		//	if (training)
-		//	{
-		//		e->EnemyDecision(enemyStates[e->GetID()], e->GetID(), squadActions, deltaTime, mEnemyStateQTable);
-		//	}
-		//	else
-		//	{
-		//		e->EnemyDecisionPrecomputedQ(enemyStates[e->GetID()], e->GetID(), squadActions, deltaTime, mEnemyStateQTable);
-		//	}
-		//}
-//		e->Update(useEDBT, speedDivider, blendFac);
+						glm::vec3 tracerDir = glm::normalize(enemyTracerEnd - enem->GetEnemyShootPos(m_tracerOffset));
 
+						m_enemyTracerModelMatrices.at(enemyID) = glm::translate(m_enemyTracerModelMatrices.at(enemyID), enem->GetEnemyShootPos(m_tracerOffset));
+						glm::quat tracerRotation = glm::rotation(glm::vec3(0.0f, 0.0f, 1.0f), tracerDir);
+						m_enemyTracerModelMatrices.at(enemyID) *= glm::toMat4(tracerRotation);
+						//m_enemyTracerModelMatrices.at(enemyID) = glm::rotate(m_enemyTracerModelMatrices.at(enemyID), (-enem->GetYaw() + 90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+						m_enemyTracerModelMatrices.at(enemyID) = glm::scale(m_enemyTracerModelMatrices.at(enemyID), glm::vec3(m_enemyTracerScales.at(enemyID), m_enemyTracerScales.at(enemyID), length(enemyTracerEnd - enem->GetEnemyShootPos(m_tracerOffset))));
+						m_enemyTracerModelMatrices.at(enemyID) = glm::translate(m_enemyTracerModelMatrices.at(enemyID), glm::vec3(0.0f, 0.0f, 0.27f));
 
-	/*	targetPos[0] = 0.0f;
-		targetPos[1] = 0.0f;
-		targetPos[2] = .0f;*/
-
-		//float offset = 5.0f;
-		//targetPos[0] += (e->GetID() % 3 - 1) * offset;
-		//targetPos[2] += ((e->GetID() / 3) % 3 - 1) * offset;
-		float halfExtents2[3] = { 50.0f, 10.0f, 50.0f };
-		dtPolyRef playerPoly;		
-		float targetPlayerPosOnNavMesh[3];
-
-		navMeshQuery->findNearestPoly(targetPos, halfExtents2, &filter, &playerPoly, targetPlayerPosOnNavMesh);
-	//	Logger::log(1, "Player position: %f %f %f\n", player->getPosition().x, player->getPosition().y, player->getPosition().z);
-
-		std::vector<float* [3]> enemPos;
-		
-		float enemyPosition[3] = { e->getPosition().x, e->getPosition().y, e->getPosition().z };
-
-		//DebugNavmeshConnectivity(navMeshQuery, navMesh, filter, targetPos, enemyPosition);
-
-		float randPos[3];
-		dtPolyRef randRef;
-
-//		findRandomNavMeshPoint(navMeshQuery, &filter, randPos, &randRef);
-
-		dtPolyRef targetPoly;
-		float targetPosOnNavMesh[3];
-
-		float jitterX = ((rand() % 100) / 100.0f - 0.5f) * 10.0f; 
-		float jitterZ = ((rand() % 100) / 100.0f - 0.5f) * 10.0f;
-
-		float target[3] = {
-			targetPlayerPosOnNavMesh[0] + jitterX,
-			targetPlayerPosOnNavMesh[1],
-			targetPlayerPosOnNavMesh[2] + jitterZ
-		};
-
-		if (!navMeshQuery)
-		{
-		}
-
-		dtStatus status = navMeshQuery->findNearestPoly(
-			targetPos, halfExtents2, &filter, &targetPoly, targetPlayerPosOnNavMesh
-		);
-		if (dtStatusFailed(status)) {
-			continue;
-		}
-
-		bool moveStatus = crowd->requestMoveTarget(e->GetID(), targetPoly, targetPlayerPosOnNavMesh);
-
-		if (!moveStatus) {
-			continue;
-		}
-
-
-	}
-	crowd->update(deltaTime, nullptr);
-
-
-	for (Enemy* e : enemies)
-	{
-
-		const dtCrowdAgent* agent = crowd->getAgent(e->GetID());
-		float agentPos[3];
-		dtVcopy(agentPos, agent->npos);
-	//	e->Update(false, speedDivider, blendFac);
-		if ((agent->npos - targetPos) < glm::abs(32.0f)) {
-			// stop steering and switch to idle/attack state
-			crowd->resetMoveTarget(e->GetID());
-		}
-		e->setPosition(glm::vec3(agentPos[0], agentPos[1], agentPos[2]));
-	}
-
-	mAudioManager->Update(deltaTime);
-	audioSystem->Update(deltaTime);
+						m_enemyTracerQuad->Draw3D(m_enemyTracerTints.at(enemyID), m_enemyTracerAlphas.at(enemyID) - m_dt, m_projection, m_view, m_enemyTracerModelMatrices.at(enemyID));
+					}
+				}
 
 			}
 		}
@@ -1823,10 +1722,7 @@ void GameManager::ShowCameraControlWindow(Camera& cam)
 
 void GameManager::RenderPlayerCrosshairAndMuzzleFlash(bool isMainPass)
 {
-	glEnable(GL_DEPTH_TEST);
-	glDisable(GL_BLEND);
-	//glEnable(GL_CULL_FACE);
-	if (!isShadowMapRenderPass)
+	if ((m_player->GetPlayerState() == AIMING || m_player->GetPlayerState() == SHOOTING) && m_camSwitchedToAim == false && isMainPass)
 	{
 		m_renderer->RemoveDepthAndSetBlending();
 
@@ -1839,110 +1735,13 @@ void GameManager::RenderPlayerCrosshairAndMuzzleFlash(bool isMainPass)
 		glm::vec3 lineColor = glm::vec3(1.0f, 0.0f, 0.0f);
 
 
-
-	for (auto obj : gameObjects) {
-		if (obj->isDestroyed)
-			continue;
-		if (isMinimapRenderPass)
+		if (m_player->GetPlayerState() == SHOOTING)
 		{
 			lineColor = glm::vec3(0.0f, 1.0f, 0.0f);
 
-	if (isShadowMapRenderPass)
-	{
-		shadowMapShader.use();
-		shadowMapShader.setVec3("dirLight.direction", dirLight.direction);
-		shadowMapShader.setVec3("dirLight.ambient", dirLight.ambient);
-		shadowMapShader.setVec3("dirLight.diffuse", dirLight.diffuse);
-		shadowMapShader.setVec3("dirLight.specular", dirLight.specular);
-	}
-	else
-	{
-		gridShader.use();
-		gridShader.setVec3("dirLight.direction", dirLight.direction);
-		gridShader.setVec3("dirLight.ambient", dirLight.ambient);
-		gridShader.setVec3("dirLight.diffuse", dirLight.diffuse);
-		gridShader.setVec3("dirLight.specular", dirLight.specular);
+			float currentTime = (float)glfwGetTime();
 
-	}
-
-	if (isMinimapRenderPass)
-	{
-		//gameGrid->drawGrid(gridShader, minimapView, minimapProjection, camera->Position, false, lightSpaceMatrix, renderer->GetShadowMapTexture());
-	}
-	else if (isShadowMapRenderPass)
-	{
-		//gameGrid->drawGrid(shadowMapShader, lightSpaceView, lightSpaceProjection, camera->Position, true, lightSpaceMatrix, renderer->GetShadowMapTexture());
-	}
-	else
-	{
-		//gameGrid->drawGrid(gridShader, view, projection, camera->Position, false, lightSpaceMatrix, renderer->GetShadowMapTexture());
-	}
-
-	navMeshShader.use();
-	navMeshShader.setMat4("view", view);
-	navMeshShader.setMat4("projection", projection);
-	//glBindVertexArray(vao);
-	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-	//glCullFace(GL_FRONT);
-	//glDrawElements(GL_TRIANGLES, navMeshIndices.size(), GL_UNSIGNED_INT, 0);
-
-	//glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-
-	//glBindVertexArray(vao);
-	//glDisable(GL_CULL_FACE);
-
-	//glEnable(GL_CULL_FACE);
-	//glCullFace(GL_BACK);
-	// Draw navmesh
-	/*glEnable(GL_DEPTH_TEST);
-	glDisable(GL_BLEND);*/
-
-	glDisable(GL_CULL_FACE);
-	//glEnable(GL_CULL_FACE);
-	//glCullFace(GL_BACK);
-	glBindVertexArray(vao);
-	glDisable(GL_CULL_FACE);
-	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-	glDrawElements(GL_TRIANGLES, navRenderMeshIndices.size(), GL_UNSIGNED_INT, 0);
-	//glDrawArrays(GL_TRIANGLES, 0, navRenderMeshVertices.size() / 3);
-//	glDrawElements(GL_TRIANGLES, navMesh.size(), GL_UNSIGNED_INT, 0);
-	//glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-	//glDisable(GL_POLYGON_OFFSET_FILL);
-	glBindVertexArray(0);
-	glDisable(GL_CULL_FACE);
-
-
-	hfnavMeshShader.use();
-	hfnavMeshShader.setMat4("view", view);
-	hfnavMeshShader.setMat4("projection", projection);
-
-//	glDisable(GL_CULL_FACE);
-//	//glEnable(GL_CULL_FACE);
-//	//glCullFace(GL_BACK);
-//	glBindVertexArray(hfvao);
-//	glDisable(GL_CULL_FACE);
-//	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-//	glDrawElements(GL_TRIANGLES, hfnavRenderMeshIndices.size(), GL_UNSIGNED_INT, 0);
-//	//glDrawArrays(GL_TRIANGLES, 0, navMeshVertices.size() / 3);
-////	glDrawElements(GL_TRIANGLES, navMesh.size(), GL_UNSIGNED_INT, 0);
-//	//glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-//	//glDisable(GL_POLYGON_OFFSET_FILL);
-//	glBindVertexArray(0);
-//	glDisable(GL_CULL_FACE);
-
-
-	if (camSwitchedToAim)
-		camSwitchedToAim = false;
-
-	if (!enemy->isDestroyed)
-	{
-		glm::vec3 enemyRayEnd = glm::vec3(0.0f);
-
-		if (enemy->GetEnemyHasShot())
-		{
-			float enemyMuzzleCurrentTime = glfwGetTime();
-
-			if (renderEnemyMuzzleFlash && enemyMuzzleFlashStartTime + enemyMuzzleFlashDuration > enemyMuzzleCurrentTime)
+			if (m_renderPlayerMuzzleFlash && m_playerMuzzleFlashStartTime + m_playerMuzzleFlashDuration > currentTime)
 			{
 				m_renderPlayerMuzzleFlash = false;
 			}
@@ -2014,6 +1813,7 @@ void GameManager::RenderPlayerCrosshairAndMuzzleFlash(bool isMainPass)
 	}
 }
 
+
 void GameManager::Update(float deltaTime)
 {
 	m_inputManager->ProcessInput(m_window->GetWindow(), deltaTime);
@@ -2038,29 +1838,102 @@ void GameManager::Update(float deltaTime)
 
 	m_dt = scaledDeltaTime;
 
+	float targetPos[3] = { m_player->GetPosition().x, m_player->GetPosition().y, m_player->GetPosition().z };
+
 	int enemyID = 0;
 	for (Enemy* e : m_enemies)
 	{
-		if (e == nullptr || e->IsDestroyed())
+		if (e == nullptr || e->IsDead())
 			continue;
 
-		e->SetDeltaTime(scaledDeltaTime);
+		e->SetDeltaTime(deltaTime);
 
-		if (!m_useEdbt)
+		//if (!useEDBT)
+		//{
+		//	if (training)
+		//	{
+		//		e->EnemyDecision(enemyStates[e->GetID()], e->GetID(), squadActions, deltaTime, mEnemyStateQTable);
+		//	}
+		//	else
+		//	{
+		//		e->EnemyDecisionPrecomputedQ(enemyStates[e->GetID()], e->GetID(), squadActions, deltaTime, mEnemyStateQTable);
+		//	}
+		//}
+//		e->Update(useEDBT, speedDivider, blendFac);
+
+
+	/*	targetPos[0] = 0.0f;
+		targetPos[1] = 0.0f;
+		targetPos[2] = .0f;*/
+
+		//float offset = 5.0f;
+		//targetPos[0] += (e->GetID() % 3 - 1) * offset;
+		//targetPos[2] += ((e->GetID() / 3) % 3 - 1) * offset;
+		float halfExtents2[3] = { 50.0f, 10.0f, 50.0f };
+		dtPolyRef playerPoly;
+		float targetPlayerPosOnNavMesh[3];
+
+		navMeshQuery->findNearestPoly(targetPos, halfExtents2, &filter, &playerPoly, targetPlayerPosOnNavMesh);
+		//	Logger::log(1, "Player position: %f %f %f\n", player->getPosition().x, player->getPosition().y, player->getPosition().z);
+
+		std::vector<float* [3]> enemPos;
+
+		float enemyPosition[3] = { e->GetPosition().x, e->GetPosition().y, e->GetPosition().z };
+
+		//DebugNavmeshConnectivity(navMeshQuery, navMesh, filter, targetPos, enemyPosition);
+
+		float randPos[3];
+		dtPolyRef randRef;
+
+		//		findRandomNavMeshPoint(navMeshQuery, &filter, randPos, &randRef);
+
+		dtPolyRef targetPoly;
+		float targetPosOnNavMesh[3];
+
+		float jitterX = ((rand() % 100) / 100.0f - 0.5f) * 10.0f;
+		float jitterZ = ((rand() % 100) / 100.0f - 0.5f) * 10.0f;
+
+		float target[3] = {
+			targetPlayerPosOnNavMesh[0] + jitterX,
+			targetPlayerPosOnNavMesh[1],
+			targetPlayerPosOnNavMesh[2] + jitterZ
+		};
+
+		if (!navMeshQuery)
 		{
-			if (m_training)
-			{
-				e->EnemyDecision(m_enemyStates[e->GetID()], e->GetID(), m_squadActions, scaledDeltaTime, m_enemyStateQTable);
-			}
-			else
-			{
-				e->EnemyDecisionPrecomputedQ(m_enemyStates[e->GetID()], e->GetID(), m_squadActions, scaledDeltaTime, m_enemyStateQTable);
-			}
 		}
 
-		e->Update(m_useEdbt, isPaused, isTimeScaled);
-	}
+		dtStatus status = navMeshQuery->findNearestPoly(
+			targetPos, halfExtents2, &filter, &targetPoly, targetPlayerPosOnNavMesh
+		);
+		if (dtStatusFailed(status)) {
+			continue;
+		}
 
+		bool moveStatus = crowd->requestMoveTarget(e->GetID(), targetPoly, targetPlayerPosOnNavMesh);
+
+		if (!moveStatus) {
+			continue;
+		}
+
+
+	}
+	crowd->update(deltaTime, nullptr);
+
+
+	for (Enemy* e : m_enemies)
+	{
+
+		const dtCrowdAgent* agent = crowd->getAgent(e->GetID());
+		float agentPos[3];
+		dtVcopy(agentPos, agent->npos);
+		//	e->Update(false, speedDivider, blendFac);
+		if ((agent->npos - targetPos) < glm::abs(32.0f)) {
+			// stop steering and switch to idle/attack state
+			crowd->resetMoveTarget(e->GetID());
+		}
+		e->SetPosition(glm::vec3(agentPos[0], agentPos[1], agentPos[2]));
+	}
 	m_audioManager->Update(scaledDeltaTime);
 	m_audioSystem->Update(scaledDeltaTime);
 
@@ -2069,6 +1942,8 @@ void GameManager::Update(float deltaTime)
 
 void GameManager::Render(bool isMinimapRenderPass, bool isShadowMapRenderPass, bool isMainRenderPass)
 {
+	glEnable(GL_DEPTH_TEST);
+	glDisable(GL_BLEND);
 
 	m_renderer->ResetRenderStates();
 
@@ -2104,21 +1979,58 @@ void GameManager::Render(bool isMinimapRenderPass, bool isShadowMapRenderPass, b
 		}
 	}
 
-	if (isMinimapRenderPass)
-	{
-		m_gameGrid->DrawGrid(m_gridShader, m_minimapView, m_minimapProjection, m_camera->GetPosition(), false, m_lightSpaceMatrix, m_renderer->GetShadowMapTexture(),
-			dirLight.m_direction, dirLight.m_ambient, dirLight.m_diffuse, dirLight.m_specular);
-	}
-	else if (isShadowMapRenderPass)
-	{
-		m_gameGrid->DrawGrid(m_shadowMapShader, m_lightSpaceView, m_lightSpaceProjection, m_camera->GetPosition(), true, m_lightSpaceMatrix, m_renderer->GetShadowMapTexture(),
-			dirLight.m_direction, dirLight.m_ambient, dirLight.m_diffuse, dirLight.m_specular);
-	}
-	else
-	{
-		m_gameGrid->DrawGrid(m_gridShader, m_view, m_projection, m_camera->GetPosition(), false, m_lightSpaceMatrix, m_renderer->GetShadowMapTexture(),
-			dirLight.m_direction, dirLight.m_ambient, dirLight.m_diffuse, dirLight.m_specular);
-	}
+	navMeshShader.Use();
+	navMeshShader.SetMat4("view", view);
+	navMeshShader.SetMat4("projection", projection);
+	//glBindVertexArray(vao);
+	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	//glCullFace(GL_FRONT);
+	//glDrawElements(GL_TRIANGLES, navMeshIndices.size(), GL_UNSIGNED_INT, 0);
+
+	//glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
+	//glBindVertexArray(vao);
+	//glDisable(GL_CULL_FACE);
+
+	//glEnable(GL_CULL_FACE);
+	//glCullFace(GL_BACK);
+	// Draw navmesh
+	/*glEnable(GL_DEPTH_TEST);
+	glDisable(GL_BLEND);*/
+
+	glDisable(GL_CULL_FACE);
+	//glEnable(GL_CULL_FACE);
+	//glCullFace(GL_BACK);
+	glBindVertexArray(vao);
+	glDisable(GL_CULL_FACE);
+	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	glDrawElements(GL_TRIANGLES, navRenderMeshIndices.size(), GL_UNSIGNED_INT, 0);
+	//glDrawArrays(GL_TRIANGLES, 0, navRenderMeshVertices.size() / 3);
+//	glDrawElements(GL_TRIANGLES, navMesh.size(), GL_UNSIGNED_INT, 0);
+	//glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	//glDisable(GL_POLYGON_OFFSET_FILL);
+	glBindVertexArray(0);
+	glDisable(GL_CULL_FACE);
+
+
+	hfnavMeshShader.Use();
+	hfnavMeshShader.SetMat4("view", view);
+	hfnavMeshShader.SetMat4("projection", projection);
+
+	//	glDisable(GL_CULL_FACE);
+	//	//glEnable(GL_CULL_FACE);
+	//	//glCullFace(GL_BACK);
+	//	glBindVertexArray(hfvao);
+	//	glDisable(GL_CULL_FACE);
+	//	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	//	glDrawElements(GL_TRIANGLES, hfnavRenderMeshIndices.size(), GL_UNSIGNED_INT, 0);
+	//	//glDrawArrays(GL_TRIANGLES, 0, navMeshVertices.size() / 3);
+	////	glDrawElements(GL_TRIANGLES, navMesh.size(), GL_UNSIGNED_INT, 0);
+	//	//glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	//	//glDisable(GL_POLYGON_OFFSET_FILL);
+	//	glBindVertexArray(0);
+	//	glDisable(GL_CULL_FACE);
+
 
 	if (m_camSwitchedToAim)
 		m_camSwitchedToAim = false;
@@ -2149,6 +2061,5 @@ void GameManager::Render(bool isMinimapRenderPass, bool isShadowMapRenderPass, b
 	{
 		m_renderer->UnbindShadowMapFbo();
 	}
-
 
 }

@@ -23,17 +23,17 @@ public:
 			modelFilename);
 
 		if (!loaderWarnings.empty()) {
-			Logger::log(1, "%s: warnings while loading glTF model:\n%s\n", __FUNCTION__,
+			Logger::Log(1, "%s: warnings while loading glTF model:\n%s\n", __FUNCTION__,
 				loaderWarnings.c_str());
 		}
 
 		if (!loaderErrors.empty()) {
-			Logger::log(1, "%s: errors while loading glTF model:\n%s\n", __FUNCTION__,
+			Logger::Log(1, "%s: errors while loading glTF model:\n%s\n", __FUNCTION__,
 				loaderErrors.c_str());
 		}
 
 		if (!result) {
-			Logger::log(1, "%s error: could not load file '%s'\n", __FUNCTION__,
+			Logger::Log(1, "%s error: could not load file '%s'\n", __FUNCTION__,
 				modelFilename.c_str());
 		}
 
@@ -42,7 +42,7 @@ public:
 		for (int texID : LoadGLTFTextures(mapModel))
 			glTextures.push_back(texID);
 
-		mTex.loadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Models/New/Updated/Atlas_00001.png", false);
+		mTex.LoadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Models/New/Updated/Atlas_00001.png", false);
 
 		//model->loadModelNoAnim(modelFilename);
 		//model->uploadVertexBuffersNoAnimations();
@@ -51,15 +51,24 @@ public:
 
 	}
 
-	void SetPosition(const glm::vec3& pos) { position = pos; }
-	void SetScale(const glm::vec3& newScale) { scale = newScale; }
-	glm::vec3 GetPosition() { return position; }
-	glm::vec3 GetScale() { return scale; }
+	void SetPosition(const glm::vec3& pos) { m_position = pos; }
+	void SetScale(const glm::vec3& newScale) { m_scale = newScale; }
+	glm::vec3 GetPosition() { return m_position; }
+	glm::vec3 GetScale() { return m_scale; }
 
 
-	void drawObject(glm::mat4 viewMat, glm::mat4 proj, bool shadowMap, glm::mat4 lightSpaceMat, GLuint shadowMapTexture, glm::vec3 camPos) override;
+	void DrawObject(glm::mat4 viewMat, glm::mat4 proj, bool shadowMap, glm::mat4 lightSpaceMat, GLuint shadowMapTexture, glm::vec3 camPos) override;
 
 	void ComputeAudioWorldTransform() override;
+
+	void HasKilledPlayer() override
+	{
+	};
+
+	void HasDealtDamage() override {};
+
+
+
 
 	void OnHit() override
 	{
@@ -126,7 +135,7 @@ public:
 
 					if (attribName == "POSITION") {
 						int numPositionEntries = accessor.count;
-						Logger::log(1, "%s: loaded %i vertices from glTF file\n", __FUNCTION__,
+						Logger::Log(1, "%s: loaded %i vertices from glTF file\n", __FUNCTION__,
 							numPositionEntries);
 
 						// Extract vertices
@@ -196,7 +205,7 @@ public:
 							break;
 						}
 						default:
-							Logger::log(1, " << indexAccessor.componentType, %zu", indexAccessor.componentType);
+							Logger::Log(1, " << indexAccessor.componentType, %zu", indexAccessor.componentType);
 							break;
 						}
 					}

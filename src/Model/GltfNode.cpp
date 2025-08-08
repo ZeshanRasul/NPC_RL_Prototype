@@ -96,13 +96,13 @@ glm::mat4 GltfNode::GetNodeMatrix()
 	return m_nodeMatrix;
 }
 
-void GltfNode::printTree() {
-	//Logger::log(1, "%s: ---- tree ----\n", __FUNCTION__);
-	//Logger::log(1, "%s: parent : %i (%s)\n", __FUNCTION__, mNodeNum, mNodeName.c_str());
-	for (const auto& childNode : mChildNodes) {
-		GltfNode::printNodes(childNode, 1);
+void GltfNode::PrintTree() {
+	//Logger::Log(1, "%s: ---- tree ----\n", __FUNCTION__);
+	//Logger::Log(1, "%s: parent : %i (%s)\n", __FUNCTION__, mNodeNum, mNodeName.c_str());
+	for (const auto& childNode : m_childNodes) {
+		GltfNode::PrintNodes(childNode, 1);
 	}
-	//Logger::log(1, "%s: -- end tree --\n", __FUNCTION__);
+	//Logger::Log(1, "%s: -- end tree --\n", __FUNCTION__);
 }
 
 void GltfNode::PrintNodes(std::shared_ptr<GltfNode> node, int indent)
@@ -113,7 +113,7 @@ void GltfNode::PrintNodes(std::shared_ptr<GltfNode> node, int indent)
 		indendString += " ";
 	}
 	indendString += "-";
-	//Logger::log(1, "%s: %s child : %i (%s)\n", __FUNCTION__,
+	//Logger::Log(1, "%s: %s child : %i (%s)\n", __FUNCTION__,
 //		indendString.c_str(), node->mNodeNum, node->mNodeName.c_str());
 
 	for (const auto& childNode : node->m_childNodes)
