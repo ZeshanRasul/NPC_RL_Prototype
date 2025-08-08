@@ -1980,8 +1980,8 @@ void GameManager::Render(bool isMinimapRenderPass, bool isShadowMapRenderPass, b
 	}
 
 	navMeshShader.Use();
-	navMeshShader.SetMat4("view", view);
-	navMeshShader.SetMat4("projection", projection);
+	navMeshShader.SetMat4("view", m_view);
+	navMeshShader.SetMat4("projection", m_projection);
 	//glBindVertexArray(vao);
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	//glCullFace(GL_FRONT);
@@ -2014,8 +2014,8 @@ void GameManager::Render(bool isMinimapRenderPass, bool isShadowMapRenderPass, b
 
 
 	hfnavMeshShader.Use();
-	hfnavMeshShader.SetMat4("view", view);
-	hfnavMeshShader.SetMat4("projection", projection);
+	hfnavMeshShader.SetMat4("view", m_view);
+	hfnavMeshShader.SetMat4("projection", m_projection);
 
 	//	glDisable(GL_CULL_FACE);
 	//	//glEnable(GL_CULL_FACE);
