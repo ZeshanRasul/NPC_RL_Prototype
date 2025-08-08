@@ -12,6 +12,15 @@ void GltfAnimationClip::AddChannel(std::shared_ptr<tinygltf::Model> model,
 	m_animationChannels.push_back(chan);
 }
 
+void GltfAnimationClip::AddChannel(tinygltf::Model* model,
+	tinygltf::Animation anim, tinygltf::AnimationChannel channel)
+{
+	auto chan = std::make_shared<GltfAnimationChannel>();
+	chan->LoadChannelData(model, anim, channel);
+	m_animationChannels.push_back(chan);
+}
+
+
 void GltfAnimationClip::SetAnimationFrame(std::vector<std::shared_ptr<GltfNode>> nodes, std::vector<bool> additiveMask,
                                           float time)
 {

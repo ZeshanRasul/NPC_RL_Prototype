@@ -11,6 +11,9 @@
 #include "Physics/AABB.h"
 #include "Components/AudioComponent.h"
 #include "Model/GLTFPrimitive.h"
+#include <glm/gtc/type_ptr.hpp>
+#include <glm/gtx/dual_quaternion.hpp>
+#include <glm/gtx/matrix_decompose.hpp>
 
 enum PlayerState
 {
@@ -24,7 +27,7 @@ class Player : public GameObject
 {
 public:
 	Player(glm::vec3 pos, glm::vec3 scale, Shader* shdr, Shader* shadowMapShader, bool applySkinning,
-	       GameManager* gameMgr, float yaw = -90.0f)
+		GameManager* gameMgr, float yaw = -90.0f)
 		: GameObject(pos, scale, yaw, shdr, shadowMapShader, applySkinning, gameMgr)
 	{
 		SetInitialPos(pos);
@@ -89,7 +92,7 @@ public:
 		//m_model->uploadIndexBuffer();
 		//Logger::Log(1, "%s: glTF m_model '%s' successfully loaded\n", __FUNCTION__, modelFilename.c_str());
 		//
-		//size_t playerModelJointDualQuatBufferSize = m_model->getJointDualQuatsSize() *
+		//size_t playerModelJointDualQuatBufferSize = getJointDualQuatsSize() *
 		//	sizeof(glm::mat2x4);
 		//m_playerDualQuatSsBuffer.Init(playerModelJointDualQuatBufferSize);
 		//Logger::Log(1, "%s: glTF joint dual quaternions shader storage buffer (size %i bytes) successfully created\n",
@@ -107,13 +110,162 @@ public:
 		SetPlayerAimUp(m_playerUp);
 	}
 
+	std::vector<glm::tvec4<uint16_t>> m_jointVec{};
+	std::vector<glm::vec4> m_weightVec{};
+	std::vector<glm::mat4> m_inverseBindMatrices{};
+	std::vector<glm::mat4> m_jointMatrices{};
+	std::vector<glm::mat2x4> m_jointDualQuats{};
+
+	std::vector<int> m_attribAccessors{};
+	std::vector<int> m_nodeToJoint{};
+
+	std::shared_ptr<GltfNode> m_rootNode = nullptr;
+
+	std::vector<std::shared_ptr<GltfNode>> m_nodeList;
+	int m_nodeCount = 0;
+
+	std::vector<std::shared_ptr<GltfAnimationClip>> m_animClips{};
+	size_t m_clipsSize;
+
+	std::vector<bool> m_additiveAnimationMask{};
+	std::vector<bool> m_invertedAdditiveAnimationMask{};
+
 	~Player()
 	{
 		m_model->cleanup();
 	}
 
+	void GetInvBindMatrices()
+	{
+		const tinygltf::Skin& skin = playerModel->skins.at(0);
+		int invBindMatAccessor = skin.inverseBindMatrices;
+
+		const tinygltf::Accessor& accessor = playerModel->accessors.at(invBindMatAccessor);
+		const tinygltf::BufferView& bufferView = playerModel->bufferViews.at(accessor.bufferView);
+		const tinygltf::Buffer& buffer = playerModel->buffers.at(bufferView.buffer);
+
+		m_inverseBindMatrices.resize(skin.joints.size());
+		m_jointMatrices.resize(skin.joints.size());
+		m_jointDualQuats.resize(skin.joints.size());
+
+		std::memcpy(m_inverseBindMatrices.data(), &buffer.data.at(0) + bufferView.byteOffset,
+			bufferView.byteLength);
+	}
+
+	void UpdateJointMatricesAndQuats(std::shared_ptr<GltfNode> treeNode)
+	{
+		int nodeNum = treeNode->GetNodeNum();
+		m_jointMatrices.at(m_nodeToJoint.at(nodeNum)) =
+			treeNode->GetNodeMatrix() * m_inverseBindMatrices.at(m_nodeToJoint.at(nodeNum));
+
+		/* extract components from node matrix */
+		glm::quat orientation;
+		glm::vec3 scale;
+		glm::vec3 translation;
+		glm::vec3 skew;
+		glm::vec4 perspective;
+		glm::dualquat dq;
+
+		/* create dual quaternion */
+		if (decompose(m_jointMatrices.at(m_nodeToJoint.at(nodeNum)), scale, orientation,
+			translation, skew, perspective))
+		{
+			dq[0] = orientation;
+			dq[1] = glm::quat(0.0, translation.x, translation.y, translation.z) * orientation * 0.5f;
+			m_jointDualQuats.at(m_nodeToJoint.at(nodeNum)) = mat2x4_cast(dq);
+			glm::mat2x4 newDq = m_jointDualQuats.at(m_nodeToJoint.at(nodeNum));
+			newDq;
+		}
+		else {
+			//Logger::Log(1, "%s error: could not decompose matrix for node %i\n", __FUNCTION__,
+		//		nodeNum);
+		}
+	}
+
+	void GetNodeData(std::shared_ptr<GltfNode> treeNode, glm::mat4 parentNodeMatrix)
+	{
+		int nodeNum = treeNode->GetNodeNum();
+		const tinygltf::Node& node = playerModel->nodes.at(nodeNum);
+		treeNode->SetNodeName(node.name);
+
+		if (node.translation.size())
+		{
+			treeNode->SetTranslation(glm::make_vec3(node.translation.data()));
+		}
+		if (node.rotation.size())
+		{
+			treeNode->SetRotation(glm::make_quat(node.rotation.data()));
+		}
+		if (node.scale.size())
+		{
+			treeNode->SetScale(glm::make_vec3(node.scale.data()));
+		}
+
+		treeNode->CalculateLocalTrsMatrix();
+		treeNode->CalculateNodeMatrix(parentNodeMatrix);
+
+		UpdateJointMatricesAndQuats(treeNode);
+	}
+
+
+	void GetJointData()
+	{
+		std::string jointsAccessorAttrib = "JOINTS_0";
+
+		for (auto& mesh : playerModel->meshes)
+		{
+			for (auto& primitive : mesh.primitives)
+			{
+			}
+		}
+		int jointsAccessor = playerModel->meshes.at(0).primitives.at(0).attributes[jointsAccessorAttrib];
+		Logger::Log(1, "%s: using accessor %i to get %s\n", __FUNCTION__, jointsAccessor,
+			jointsAccessorAttrib.c_str());
+
+
+		const tinygltf::Accessor& accessor = playerModel->accessors.at(jointsAccessor);
+		const tinygltf::BufferView& bufferView = playerModel->bufferViews.at(accessor.bufferView);
+		const tinygltf::Buffer& buffer = playerModel->buffers.at(bufferView.buffer);
+		int jointVecSize = accessor.count;
+		Logger::Log(1, "%s: %i short vec4 in JOINTS_0\n", __FUNCTION__, jointVecSize);
+		m_jointVec.resize(jointVecSize);
+
+
+		std::memcpy(m_jointVec.data(), &buffer.data.at(0) + bufferView.byteOffset,
+			bufferView.byteLength);
+
+		m_nodeToJoint.resize(playerModel->nodes.size());
+		const tinygltf::Skin& skin = playerModel->skins.at(0);
+		for (int i = 0; i < skin.joints.size(); ++i)
+		{
+			int destinationNode = skin.joints.at(i);
+			m_nodeToJoint.at(destinationNode) = i;
+			Logger::Log(2, "%s: joint %i affects node %i\n", __FUNCTION__, i, destinationNode);
+		}
+
+	}
+
+	void GetWeightData()
+	{
+		std::string weightsAccessorAttrib = "WEIGHTS_0";
+		int weightAccessor = playerModel->meshes.at(0).primitives.at(0).attributes.at(weightsAccessorAttrib);
+		Logger::Log(1, "%s: using accessor %i to get %s\n", __FUNCTION__, weightAccessor,
+			weightsAccessorAttrib.c_str());
+
+		const tinygltf::Accessor& accessor = playerModel->accessors.at(weightAccessor);
+		const tinygltf::BufferView& bufferView = playerModel->bufferViews.at(accessor.bufferView);
+		const tinygltf::Buffer& buffer = playerModel->buffers.at(bufferView.buffer);
+
+		int weightVecSize = accessor.count;
+		Logger::Log(1, "%s: %i vec4 in WEIGHTS_0\n", __FUNCTION__, weightVecSize);
+		m_weightVec.resize(weightVecSize);
+
+		std::memcpy(m_weightVec.data(), &buffer.data.at(0) + bufferView.byteOffset,
+			bufferView.byteLength);
+	}
+
 	void DrawObject(glm::mat4 viewMat, glm::mat4 proj, bool shadowMap, glm::mat4 lightSpaceMat, GLuint shadowMapTexture,
-	                glm::vec3 camPos) override;
+		glm::vec3 camPos) override;
 
 	void Update(float dt, bool isPaused, bool isTimeScaled);
 
@@ -274,7 +426,45 @@ public:
 
 	std::vector<GLTFMesh> meshData;
 
-	void SetupGLTFMeshes(tinygltf::Model* model) {
+	void GetNodes(std::shared_ptr<GltfNode> treeNode)
+	{
+		int nodeNum = treeNode->GetNodeNum();
+		std::vector<int> childNodes = playerModel->nodes.at(nodeNum).children;
+
+		/* remove the child node with skin/mesh metadata, confuses skeleton */
+		auto removeIt = std::remove_if(childNodes.begin(), childNodes.end(),
+			[&](int num) { return playerModel->nodes.at(num).skin != -1; }
+		);
+		childNodes.erase(removeIt, childNodes.end());
+
+		treeNode->AddChilds(childNodes);
+		glm::mat4 treeNodeMatrix = treeNode->GetNodeMatrix();
+
+		for (auto& childNode : treeNode->GetChilds())
+		{
+			m_nodeList.at(childNode->GetNodeNum()) = childNode;
+			GetNodeData(childNode, treeNodeMatrix);
+			GetNodes(childNode);
+		}
+	}
+
+	void GetAnimations()
+	{
+		for (const auto& anim : playerModel->animations)
+		{
+			Logger::Log(1, "%s: loading animation '%s' with %i channels\n", __FUNCTION__, anim.name.c_str(),
+				anim.channels.size());
+			auto clip = std::make_shared<GltfAnimationClip>(anim.name);
+			for (const auto& channel : anim.channels)
+			{
+				clip->AddChannel(playerModel, anim, channel);
+			}
+			m_animClips.push_back(clip);
+		}
+	}
+
+	void SetupGLTFMeshes(tinygltf::Model* model)
+	{
 		meshData.resize(model->meshes.size());
 
 		for (size_t meshIndex = 0; meshIndex < model->meshes.size(); ++meshIndex) {
@@ -346,35 +536,7 @@ public:
 							(const void*)0);
 					}
 
-					//gltfPrim.GetJointData();
-					//gltfPrim.GetWeightData();
-					//gltfPrim.GetInvBindMatrices();
 
-					gltfPrim.m_nodeCount = (int)playerModel->nodes.size();
-					int rootNode = playerModel->scenes.at(0).nodes.at(0);
-					Logger::Log(1, "%s: model has %i nodes, root node is %i\n", __FUNCTION__, gltfPrim.m_nodeCount, rootNode);
-
-					gltfPrim.m_nodeList.resize(gltfPrim.m_nodeCount);
-
-					gltfPrim.m_rootNode = GltfNode::CreateRoot(rootNode);
-
-					gltfPrim.m_nodeList.at(rootNode) = gltfPrim.m_rootNode;
-
-					//gltfPrim.GetNodeData(gltfPrim.m_rootNode, glm::mat4(1.0f));
-					//gltfPrim.GetNodes(gltfPrim.m_rootNode);
-					//
-					//gltfPrim.m_rootNode->PrintTree();
-					//
-					//gltfPrim.GetAnimations();
-
-					gltfPrim.m_additiveAnimationMask.resize(gltfPrim.m_nodeCount);
-					gltfPrim.m_invertedAdditiveAnimationMask.resize(gltfPrim.m_nodeCount);
-
-					std::fill(gltfPrim.m_additiveAnimationMask.begin(), gltfPrim.m_additiveAnimationMask.end(), true);
-					gltfPrim.m_invertedAdditiveAnimationMask = gltfPrim.m_additiveAnimationMask;
-					gltfPrim.m_invertedAdditiveAnimationMask.flip();
-
-					glBindBuffer(GL_ARRAY_BUFFER, 0);
 				}
 
 
@@ -442,7 +604,38 @@ public:
 
 			meshData[meshIndex] = gltfMesh;
 		}
+
+		GetJointData();
+		GetWeightData();
+		GetInvBindMatrices();
+
+		m_nodeCount = (int)playerModel->nodes.size();
+		int rootNode = playerModel->scenes.at(0).nodes.at(0);
+		Logger::Log(1, "%s: model has %i nodes, root node is %i\n", __FUNCTION__, m_nodeCount, rootNode);
+
+		m_nodeList.resize(m_nodeCount);
+
+		m_rootNode = GltfNode::CreateRoot(rootNode);
+
+		m_nodeList.at(rootNode) = m_rootNode;
+
+		GetNodeData(m_rootNode, glm::mat4(1.0f));
+		GetNodes(m_rootNode);
+
+		m_rootNode->PrintTree();
+
+		GetAnimations();
+
+		m_additiveAnimationMask.resize(m_nodeCount);
+		m_invertedAdditiveAnimationMask.resize(m_nodeCount);
+
+		std::fill(m_additiveAnimationMask.begin(), m_additiveAnimationMask.end(), true);
+		m_invertedAdditiveAnimationMask = m_additiveAnimationMask;
+		m_invertedAdditiveAnimationMask.flip();
+
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
 	}
+	
 
 	void DrawGLTFModel(glm::mat4 viewMat, glm::mat4 projMat);
 

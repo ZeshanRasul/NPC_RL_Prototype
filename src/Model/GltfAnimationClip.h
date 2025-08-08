@@ -16,6 +16,10 @@ public:
 	void SetAnimationFrame(std::vector<std::shared_ptr<GltfNode>> nodes, std::vector<bool> additiveMask, float time);
 	void BlendAnimationFrame(std::vector<std::shared_ptr<GltfNode>> nodes, std::vector<bool> additiveMask, float time,
 	                         float blendFactor);
+
+	void AddChannel(tinygltf::Model* model,
+		tinygltf::Animation anim, tinygltf::AnimationChannel channel);
+
 	float GetClipEndTime();
 	std::string GetClipName();
 

@@ -25,6 +25,8 @@ class GltfAnimationChannel
 public:
 	void LoadChannelData(std::shared_ptr<tinygltf::Model> model, tinygltf::Animation anim,
 	                     tinygltf::AnimationChannel channel);
+	void LoadChannelData(tinygltf::Model* model, tinygltf::Animation anim,
+		tinygltf::AnimationChannel channel);
 
 	int GetTargetNode();
 	ETargetPath GetTargetPath();
