@@ -959,7 +959,7 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 	enemy4MuzzleFlashQuad->LoadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/muzzleflash.png");
 
 
-	player = new Player(glm::vec3(-9.0f, -354.6f, 163.0f), glm::vec3(5.0f), &playerShader, &playerShadowMapShader, true, this);
+	player = new Player(glm::vec3(-9.0f, 354.6f, 163.0f), glm::vec3(5.0f), &playerShader, &playerShadowMapShader, true, this);
 	//player = new Player( (glm::vec3(23.0f, 0.0f, 37.0f)), glm::vec3(3.0f), &playerShader, &playerShadowMapShader, true, this);
 
 	player->aabbShader = &aabbShader;

@@ -46,12 +46,12 @@ public:
 	float MouseSensitivity;
 	float Zoom;
 
-	float playerCamRearOffset = 25.0f;
-	float playerCamHeightOffset = 7.0f;
+	float playerCamRearOffset = 27.0f;
+	float playerCamHeightOffset = 12.0f;
 	float playerPosOffset = 12.0f;
 	float playerAimRightOffset = 5.0f;
-	float enemyCamRearOffset = 15.0f;
-	float enemyCamHeightOffset = 5.0f;
+	float enemyCamRearOffset = 17.0f;
+	float enemyCamHeightOffset = 15.0f;
 
 	Camera(glm::vec3 position = glm::vec3(0.0f), glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f), float yaw = YAW, float pitch = PITCH, glm::vec3 front = glm::vec3(-1.0f, 0.0f, 0.0f));
 	Camera(float posX, float posY, float posZ, float upX, float upY, float upZ, float yaw, float pitch);
