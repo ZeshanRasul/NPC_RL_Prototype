@@ -44,6 +44,9 @@ std::vector<GLuint> Player::LoadGLTFTextures(tinygltf::Model* model) {
 		textureIDs[i] = texID;
 	}
 
+	m_ao.LoadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Models/New/Updated/Atlas_00001.png", false);
+
+
 	glBindTexture(GL_TEXTURE_2D, 0);
 	return textureIDs;
 }
@@ -51,7 +54,7 @@ std::vector<GLuint> Player::LoadGLTFTextures(tinygltf::Model* model) {
 void Player::DrawGLTFModel(glm::mat4 viewMat, glm::mat4 projMat) {
 	glDisable(GL_CULL_FACE);
 
-	int texIndex = 0;
+	int texIndex = 1;
 	for (size_t meshIndex = 0; meshIndex < meshData.size(); ++meshIndex) {
 		for (size_t primIndex = 0; primIndex < meshData[meshIndex].primitives.size(); ++primIndex) {
 			const GLTFPrimitive& prim = meshData[meshIndex].primitives[primIndex];
@@ -77,7 +80,6 @@ void Player::DrawGLTFModel(glm::mat4 viewMat, glm::mat4 projMat) {
 					hasTexture = true;
 					texIndex = mat.pbrMetallicRoughness.baseColorTexture.index;
 				}
-				// You can add more checks for other texture types if needed
 
 				if (mat.pbrMetallicRoughness.baseColorTexture.index >= 0) {
 					texIndex = mat.pbrMetallicRoughness.baseColorTexture.index;
@@ -87,14 +89,14 @@ void Player::DrawGLTFModel(glm::mat4 viewMat, glm::mat4 projMat) {
 					m_shader->SetBool("useTexture", mat.pbrMetallicRoughness.baseColorTexture.index >= 0);
 					m_shader->SetVec3("color", 1.0f, 1.0f, 1.0f);
 				}
-				else {
-					glm::vec3 baseColor = glm::vec3(mat.pbrMetallicRoughness.baseColorFactor[0], mat.pbrMetallicRoughness.baseColorFactor[1], mat.pbrMetallicRoughness.baseColorFactor[2]);
-					glActiveTexture(GL_TEXTURE0);
-					glBindTexture(GL_TEXTURE_2D, glTextures[0]);
-					m_shader->SetInt("tex", 0);
-					m_shader->SetBool("useTexture", mat.pbrMetallicRoughness.baseColorTexture.index >= 0);
-					m_shader->SetVec3("color", baseColor);
-				}
+				/*	else {
+						glm::vec3 baseColor = glm::vec3(mat.pbrMetallicRoughness.baseColorFactor[0], mat.pbrMetallicRoughness.baseColorFactor[1], mat.pbrMetallicRoughness.baseColorFactor[2]);
+						glActiveTexture(GL_TEXTURE0);
+						glBindTexture(GL_TEXTURE_2D, glTextures[texIndex]);
+						m_shader->SetInt("tex", 0);
+						m_shader->SetBool("useTexture", mat.pbrMetallicRoughness.baseColorTexture.index >= 0);
+						m_shader->SetVec3("color", baseColor);
+					}*/
 			}
 
 			if (prim.indexBuffer) {
@@ -108,8 +110,8 @@ void Player::DrawGLTFModel(glm::mat4 viewMat, glm::mat4 projMat) {
 
 		}
 
-		//if (texIndex < glTextures.size())
-		//	texIndex += 1;
+		if (texIndex < glTextures.size() - 3)
+			texIndex += 3;
 	}
 }
 
