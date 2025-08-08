@@ -8,6 +8,7 @@
 
 #include "GltfModel.h"
 #include "Logger.h"
+#include "GLTFPrimitive.h"
 
 bool GltfModel::LoadModelNoAnim(std::string modelFilename)
 {

@@ -351,6 +351,7 @@
     <ClInclude Include="src\Model\GltfAnimationClip.h" />
     <ClInclude Include="src\Model\GltfModel.h" />
     <ClInclude Include="src\Model\GltfNode.h" />
+    <ClInclude Include="src\Model\GLTFPrimitive.h" />
     <ClInclude Include="src\OpenGL\Cubemap.h" />
     <ClInclude Include="src\OpenGL\RenderData.h" />
     <ClInclude Include="src\OpenGL\Renderer.h" />

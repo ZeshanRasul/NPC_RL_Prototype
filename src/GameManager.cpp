@@ -15,7 +15,7 @@ DirLight dirLight = {
 
 const float AGENT_RADIUS = 0.6f;
 
-glm::vec3 dirLightPBRColour = glm::vec3(10.f, 10.0f, 10.0f);
+glm::vec3 dirLightPBRColour = glm::vec3(300.f, 300.0f, 300.0f);
 
 bool GameManager::BuildTile(int tx, int ty, float* bmin, float* bmax,  rcConfig cfg, unsigned char*& navData, int* navDataSize, dtNavMeshParams parameters)
 {

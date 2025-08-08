@@ -10,6 +10,7 @@
 #include "ShaderStorageBuffer.h"
 #include "Physics/AABB.h"
 #include "Components/AudioComponent.h"
+#include "Model/GLTFPrimitive.h"
 
 enum PlayerState
 {
@@ -254,6 +255,7 @@ public:
 	Shader* m_aabbShader;
 	CameraMovement m_prevDirection = STATIONARY;
 
+
 	float m_playerYaw;
 	glm::vec3 m_playerFront;
 	glm::vec3 m_playerRight;
@@ -265,19 +267,6 @@ public:
 	float m_initialYaw = -90.0f;
 
 	tinygltf::Model* playerModel;
-
-	struct GLTFPrimitive {
-		GLuint vao;
-		GLuint indexBuffer;
-		GLsizei indexCount;
-		GLsizei vertexCount;
-		GLenum indexType;
-		GLenum mode;
-		int material;
-		std::vector<glm::vec3> verts;
-		std::vector<unsigned int> indices;
-
-	};
 
 	struct GLTFMesh {
 		std::vector<GLTFPrimitive> primitives;
@@ -341,9 +330,10 @@ public:
 					if (attribName == "POSITION") location = 0;
 					else if (attribName == "NORMAL") location = 1;
 					else if (attribName == "TEXCOORD_0") location = 2;
-					else if (attribName == "TEXCOORD_1") location = 3;
-					else if (attribName == "TEXCOORD_2") location = 4;
+					else if (attribName == "JOINTS_0") location = 3;
+					else if (attribName == "WEIGHTS_0") location = 4;
 					// Add JOINTS_0, WEIGHTS_0 etc. if needed
+					Logger::Log(1, "%s: loading attribute: %s\n", __FUNCTION__, attribName);
 
 					if (location >= 0) {
 						GLint numComponents = tinygltf::GetNumComponentsInType(accessor.type); // e.g. VEC3 -> 3
@@ -355,6 +345,34 @@ public:
 							bufferView.byteStride ? bufferView.byteStride : 0,
 							(const void*)0);
 					}
+
+					//gltfPrim.GetJointData();
+					//gltfPrim.GetWeightData();
+					//gltfPrim.GetInvBindMatrices();
+
+					gltfPrim.m_nodeCount = (int)playerModel->nodes.size();
+					int rootNode = playerModel->scenes.at(0).nodes.at(0);
+					Logger::Log(1, "%s: model has %i nodes, root node is %i\n", __FUNCTION__, gltfPrim.m_nodeCount, rootNode);
+
+					gltfPrim.m_nodeList.resize(gltfPrim.m_nodeCount);
+
+					gltfPrim.m_rootNode = GltfNode::CreateRoot(rootNode);
+
+					gltfPrim.m_nodeList.at(rootNode) = gltfPrim.m_rootNode;
+
+					//gltfPrim.GetNodeData(gltfPrim.m_rootNode, glm::mat4(1.0f));
+					//gltfPrim.GetNodes(gltfPrim.m_rootNode);
+					//
+					//gltfPrim.m_rootNode->PrintTree();
+					//
+					//gltfPrim.GetAnimations();
+
+					gltfPrim.m_additiveAnimationMask.resize(gltfPrim.m_nodeCount);
+					gltfPrim.m_invertedAdditiveAnimationMask.resize(gltfPrim.m_nodeCount);
+
+					std::fill(gltfPrim.m_additiveAnimationMask.begin(), gltfPrim.m_additiveAnimationMask.end(), true);
+					gltfPrim.m_invertedAdditiveAnimationMask = gltfPrim.m_additiveAnimationMask;
+					gltfPrim.m_invertedAdditiveAnimationMask.flip();
 
 					glBindBuffer(GL_ARRAY_BUFFER, 0);
 				}
@@ -486,4 +504,10 @@ private:
 
 	AABB* m_aabb;
 	glm::vec3 m_aabbColor = glm::vec3(0.0f, 0.0f, 1.0f);
+
+	std::map<std::string, GLint> m_playerModelAttributes =
+	{
+		{"POSITION", 0}, {"NORMAL", 1}, {"TEXCOORD_0", 2}, {"JOINTS_0", 4}, {"WEIGHTS_0", 5},
+		{"TANGENT", 6}
+	};
 };
