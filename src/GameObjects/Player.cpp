@@ -1,62 +1,179 @@
 #include "Player.h"
 #include "GameManager.h"
 
-void Player::DrawObject(glm::mat4 viewMat, glm::mat4 proj, bool shadowMap, glm::mat4 lightSpaceMat,
-                        GLuint shadowMapTexture, glm::vec3 camPos)
-{
-	auto modelMat = glm::mat4(1.0f);
-	modelMat = translate(modelMat, m_position);
-	modelMat = rotate(modelMat, glm::radians(-m_yaw + 180.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-	modelMat = glm::scale(modelMat, m_scale);
-	std::vector<glm::mat4> matrixData;
-	matrixData.push_back(viewMat);
-	matrixData.push_back(proj);
-	matrixData.push_back(modelMat);
-	matrixData.push_back(lightSpaceMat);
-	m_uniformBuffer.UploadUboData(matrixData, 0);
+std::vector<GLuint> Player::LoadGLTFTextures(tinygltf::Model* model) {
+	std::vector<GLuint> textureIDs(model->textures.size(), 0);
 
-	m_playerDualQuatSsBuffer.UploadSsboData(m_model->getJointDualQuats(), 2);
+	for (size_t i = 0; i < model->textures.size(); ++i) {
+		const tinygltf::Texture& tex = model->textures[i];
+		if (tex.source < 0 || tex.source >= model->images.size()) {
+			continue; // Invalid texture
+		}
 
-	if (m_uploadVertexBuffer)
-	{
-		m_model->uploadVertexBuffers();
-		GameManager* gameMgr = GetGameManager();
-		gameMgr->GetPhysicsWorld()->AddCollider(GetAABB());
-		m_uploadVertexBuffer = false;
+		const tinygltf::Image& image = model->images[tex.source];
+
+		GLuint texID;
+		glGenTextures(1, &texID);
+		glBindTexture(GL_TEXTURE_2D, texID);
+
+		GLenum format = GL_RGBA;
+		if (image.component == 1) format = GL_RED;
+		else if (image.component == 2) format = GL_RG;
+		else if (image.component == 3) format = GL_RGB;
+		else if (image.component == 4) format = GL_RGBA;
+
+		GLenum type = (image.bits == 16) ? GL_UNSIGNED_SHORT : GL_UNSIGNED_BYTE;
+
+		glTexImage2D(GL_TEXTURE_2D,
+			0,
+			format,
+			image.width,
+			image.height,
+			0,
+			format,
+			type,
+			image.image.data());
+
+		glGenerateMipmap(GL_TEXTURE_2D);
+
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+		textureIDs[i] = texID;
 	}
 
-	if (shadowMap)
-	{
-		m_shadowShader->Use();
-		m_model->draw(m_tex);
-	}
-	else
-	{
-		m_shader->SetVec3("cameraPos", m_gameManager->GetCamera()->GetPosition().x, m_gameManager->GetCamera()->GetPosition().y, m_gameManager->GetCamera()->GetPosition().z);
-		m_tex.Bind();
-		m_shader->SetInt("albedoMap", 0);
-		m_normal.Bind(1);
-		m_shader->SetInt("normalMap", 1);
-		m_metallic.Bind(2);
-		m_shader->SetInt("metallicMap", 2);
-		m_roughness.Bind(3);
-		m_shader->SetInt("roughnessMap", 3);
-		m_ao.Bind(4);
-		m_shader->SetInt("aoMap", 4);
-		glActiveTexture(GL_TEXTURE5);
-		glBindTexture(GL_TEXTURE_2D, shadowMapTexture);
-		m_shader->SetInt("shadowMap", 5);
-		m_model->draw(m_tex);
+	glBindTexture(GL_TEXTURE_2D, 0);
+	return textureIDs;
+}
 
-#ifdef _DEBUG
-		m_aabb->Render(viewMat, proj, modelMat, m_aabbColor);
-#endif
+void Player::DrawGLTFModel(glm::mat4 viewMat, glm::mat4 projMat) {
+	glDisable(GL_CULL_FACE);
+
+	int texIndex = 0;
+	for (size_t meshIndex = 0; meshIndex < meshData.size(); ++meshIndex) {
+		for (size_t primIndex = 0; primIndex < meshData[meshIndex].primitives.size(); ++primIndex) {
+			const GLTFPrimitive& prim = meshData[meshIndex].primitives[primIndex];
+
+
+			m_shader->Use();
+			glm::mat4 modelMat = glm::mat4(1.0f);
+			modelMat = glm::translate(modelMat, m_position);
+			//modelMat = glm::rotate(modelMat, glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+			modelMat = glm::scale(modelMat, m_scale);
+			std::vector<glm::mat4> matrixData;
+			matrixData.push_back(viewMat);
+			matrixData.push_back(projMat);
+			matrixData.push_back(modelMat);
+			m_uniformBuffer.UploadUboData(matrixData, 0);
+
+			bool hasTexture = false;
+			glBindVertexArray(prim.vao);
+			int matIndex = prim.material;
+			if (matIndex >= 0 && matIndex < playerModel->materials.size()) {
+				const tinygltf::Material& mat = playerModel->materials[matIndex];
+				if (mat.pbrMetallicRoughness.baseColorTexture.index >= 0) {
+					hasTexture = true;
+					texIndex = mat.pbrMetallicRoughness.baseColorTexture.index;
+				}
+				// You can add more checks for other texture types if needed
+
+				if (mat.pbrMetallicRoughness.baseColorTexture.index >= 0) {
+					texIndex = mat.pbrMetallicRoughness.baseColorTexture.index;
+					glActiveTexture(GL_TEXTURE0);
+					glBindTexture(GL_TEXTURE_2D, glTextures[texIndex]);
+					m_shader->SetInt("tex", 0);
+					m_shader->SetBool("useTexture", mat.pbrMetallicRoughness.baseColorTexture.index >= 0);
+					m_shader->SetVec3("color", 1.0f, 1.0f, 1.0f);
+				}
+				else {
+					glm::vec3 baseColor = glm::vec3(mat.pbrMetallicRoughness.baseColorFactor[0], mat.pbrMetallicRoughness.baseColorFactor[1], mat.pbrMetallicRoughness.baseColorFactor[2]);
+					glActiveTexture(GL_TEXTURE0);
+					glBindTexture(GL_TEXTURE_2D, glTextures[0]);
+					m_shader->SetInt("tex", 0);
+					m_shader->SetBool("useTexture", mat.pbrMetallicRoughness.baseColorTexture.index >= 0);
+					m_shader->SetVec3("color", baseColor);
+				}
+			}
+
+			if (prim.indexBuffer) {
+				glDrawElements(GL_TRIANGLES, prim.indexCount, GL_UNSIGNED_INT, 0);
+			}
+			else {
+				glDrawArrays(prim.mode, 0, prim.vertexCount);
+			}
+
+			glBindVertexArray(0);
+
+		}
+
+		//if (texIndex < glTextures.size())
+		//	texIndex += 1;
 	}
 }
 
+void Player::DrawObject(glm::mat4 viewMat, glm::mat4 proj, bool shadowMap, glm::mat4 lightSpaceMat, GLuint shadowMapTexture, glm::vec3 camPos)
+{
+	DrawGLTFModel(viewMat, proj);
+}
+
+//void Player::DrawObject(glm::mat4 viewMat, glm::mat4 proj, bool shadowMap, glm::mat4 lightSpaceMat,
+//                        GLuint shadowMapTexture, glm::vec3 camPos)
+//{
+//	auto modelMat = glm::mat4(1.0f);
+//	modelMat = translate(modelMat, m_position);
+//	modelMat = rotate(modelMat, glm::radians(-m_yaw + 180.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+//	modelMat = glm::scale(modelMat, m_scale);
+//	std::vector<glm::mat4> matrixData;
+//	matrixData.push_back(viewMat);
+//	matrixData.push_back(proj);
+//	matrixData.push_back(modelMat);
+//	matrixData.push_back(lightSpaceMat);
+//	m_uniformBuffer.UploadUboData(matrixData, 0);
+//
+//	m_playerDualQuatSsBuffer.UploadSsboData(m_model->getJointDualQuats(), 2);
+//
+//	if (m_uploadVertexBuffer)
+//	{
+//		m_model->uploadVertexBuffers();
+//		GameManager* gameMgr = GetGameManager();
+//		gameMgr->GetPhysicsWorld()->AddCollider(GetAABB());
+//		m_uploadVertexBuffer = false;
+//	}
+//
+//	if (shadowMap)
+//	{
+//		m_shadowShader->Use();
+//		m_model->draw(m_tex);
+//	}
+//	else
+//	{
+//		m_shader->SetVec3("cameraPos", m_gameManager->GetCamera()->GetPosition().x, m_gameManager->GetCamera()->GetPosition().y, m_gameManager->GetCamera()->GetPosition().z);
+//		m_tex.Bind();
+//		m_shader->SetInt("albedoMap", 0);
+//		m_normal.Bind(1);
+//		m_shader->SetInt("normalMap", 1);
+//		m_metallic.Bind(2);
+//		m_shader->SetInt("metallicMap", 2);
+//		m_roughness.Bind(3);
+//		m_shader->SetInt("roughnessMap", 3);
+//		m_ao.Bind(4);
+//		m_shader->SetInt("aoMap", 4);
+//		glActiveTexture(GL_TEXTURE5);
+//		glBindTexture(GL_TEXTURE_2D, shadowMapTexture);
+//		m_shader->SetInt("shadowMap", 5);
+//		m_model->draw(m_tex);
+//
+//#ifdef _DEBUG
+//		m_aabb->Render(viewMat, proj, modelMat, m_aabbColor);
+//#endif
+//	}
+//}
+
 void Player::Update(float dt, bool isPaused, bool isTimeScaled)
 {
-	UpdateAabb();
+	//UpdateAabb();
 	ComputeAudioWorldTransform();
 	UpdateComponents(dt);
 
@@ -71,62 +188,62 @@ void Player::Update(float dt, bool isPaused, bool isTimeScaled)
 		m_playGameStartAudioTimer -= dt;
 	}
 
-	if (m_playGameStartAudio && m_playGameStartAudioTimer < 0.0f)
-	{
-		std::random_device rd;
-		std::mt19937 gen{rd()};
-		std::uniform_int_distribution<> distrib(1, 2);
-		int randomIndex = distrib(gen);
-		if (randomIndex == 1)
-			m_takeDamageAc->PlayEvent("event:/Player2_Game Start");
-		else
-			m_takeDamageAc->PlayEvent("event:/Player2_Game Start2");
-		m_playGameStartAudio = false;
-	}
-
-	if (m_destAnim != 0 && m_velocity == 0.0f)
-	{
-		SetSourceAnimNum(m_destAnim);
-		SetDestAnimNum(0);
-		m_resetBlend = true;
-		m_blendAnim = true;
-		SetPrevDirection(STATIONARY);
-	}
-
-	if (m_resetBlend)
-	{
-		m_blendAnim = true;
-		m_blendFactor = 0.0f;
-		m_resetBlend = false;
-	}
-
-	float animSpeedDivider = 1.0f;
-
-	if (isPaused)
-		animSpeedDivider = 0.0f;
-
-	if (isTimeScaled)
-		animSpeedDivider = 0.25f;
-
-	if (m_blendAnim)
-	{
-		m_blendFactor += m_blendSpeed * dt;
-
-		SetAnimation(GetSourceAnimNum(), GetDestAnimNum(), animSpeedDivider, m_blendFactor, false);
-	
-		
-		if (m_blendFactor >= 1.0f)
-		{
-			m_blendAnim = false;
-			m_resetBlend = true;
-			SetSourceAnimNum(GetDestAnimNum());
-			m_resetBlend = true;
-		}
-	}
-	else
-	{
-		SetAnimation(m_destAnim, animSpeedDivider, 1.0f, false);
-	}
+	//if (m_playGameStartAudio && m_playGameStartAudioTimer < 0.0f)
+	//{
+	//	std::random_device rd;
+	//	std::mt19937 gen{rd()};
+	//	std::uniform_int_distribution<> distrib(1, 2);
+	//	int randomIndex = distrib(gen);
+	//	if (randomIndex == 1)
+	//		m_takeDamageAc->PlayEvent("event:/Player2_Game Start");
+	//	else
+	//		m_takeDamageAc->PlayEvent("event:/Player2_Game Start2");
+	//	m_playGameStartAudio = false;
+	//}
+	//
+	//if (m_destAnim != 0 && m_velocity == 0.0f)
+	//{
+	//	SetSourceAnimNum(m_destAnim);
+	//	SetDestAnimNum(0);
+	//	m_resetBlend = true;
+	//	m_blendAnim = true;
+	//	SetPrevDirection(STATIONARY);
+	//}
+	//
+	//if (m_resetBlend)
+	//{
+	//	m_blendAnim = true;
+	//	m_blendFactor = 0.0f;
+	//	m_resetBlend = false;
+	//}
+	//
+	//float animSpeedDivider = 1.0f;
+	//
+	//if (isPaused)
+	//	animSpeedDivider = 0.0f;
+	//
+	//if (isTimeScaled)
+	//	animSpeedDivider = 0.25f;
+	//
+	//if (m_blendAnim)
+	//{
+	//	m_blendFactor += m_blendSpeed * dt;
+	//
+	//	SetAnimation(GetSourceAnimNum(), GetDestAnimNum(), animSpeedDivider, m_blendFactor, false);
+	//
+	//	
+	//	if (m_blendFactor >= 1.0f)
+	//	{
+	//		m_blendAnim = false;
+	//		m_resetBlend = true;
+	//		SetSourceAnimNum(GetDestAnimNum());
+	//		m_resetBlend = true;
+	//	}
+	//}
+	//else
+	//{
+	//	SetAnimation(m_destAnim, animSpeedDivider, 1.0f, false);
+	//}
 }
 
 
@@ -242,13 +359,13 @@ void Player::PlayerProcessMouseMovement(float xOffset)
 
 void Player::SetAnimation(int animNum, float speedDivider, float blendFactor, bool playAnimBackwards)
 {
-	m_model->PlayAnimation(animNum, speedDivider, blendFactor, playAnimBackwards);
+	//m_model->PlayAnimation(animNum, speedDivider, blendFactor, playAnimBackwards);
 }
 
 void Player::SetAnimation(int srcAnimNum, int destAnimNum, float speedDivider, float blendFactor,
                           bool playAnimBackwards)
 {
-	m_model->PlayAnimation(srcAnimNum, destAnimNum, speedDivider, blendFactor, playAnimBackwards);
+	//m_model->PlayAnimation(srcAnimNum, destAnimNum, speedDivider, blendFactor, playAnimBackwards);
 }
 
 void Player::SetPlayerState(PlayerState newState)
@@ -332,13 +449,13 @@ void Player::Shoot()
 
 void Player::SetUpAABB()
 {
-	m_aabb = new AABB();
-	m_aabb->CalculateAABB(m_model->GetVertices());
+	/*m_aabb = new AABB();
+	m_aabb->CalculateAABB(playerModel->GetVertices());
 	m_aabb->SetShader(m_aabbShader);
 	m_aabb->SetUpMesh();
 	m_aabb->SetOwner(this);
 	m_aabb->SetIsPlayer(true);
-	UpdateAabb();
+	//UpdateAabb();*/
 }
 
 void Player::OnHit()

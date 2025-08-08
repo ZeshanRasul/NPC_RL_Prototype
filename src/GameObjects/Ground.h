@@ -134,7 +134,7 @@ public:
 					glBindBuffer(GL_ARRAY_BUFFER, vbo);
 
 					if (attribName == "POSITION") {
-						int numPositionEntries = accessor.count;
+						int numPositionEntries = static_cast<int>(accessor.count);
 						Logger::Log(1, "%s: loaded %i vertices from glTF file\n", __FUNCTION__,
 							numPositionEntries);
 
