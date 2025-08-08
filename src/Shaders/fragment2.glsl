@@ -111,7 +111,7 @@ void main()
     if (useMetallicRoughness) {
         roughness = texture(metallicRoughnessMap, TexCoords).g;
     } else {
-        roughness = roughness;
+        roughness = roughnessFactor;
     }
 
     float ao;
