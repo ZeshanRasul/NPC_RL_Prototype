@@ -43,7 +43,7 @@ public:
 
 		playerModel = new tinygltf::Model;
 
-		std::string modelFilename = "src/Assets/Models/Soldier/solder2.gltf";
+		std::string modelFilename = "src/Assets/Models/Soldier/soldier5.gltf";
 
 
 		tinygltf::TinyGLTF gltfLoader;
