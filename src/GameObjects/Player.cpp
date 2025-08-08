@@ -86,20 +86,19 @@ void Player::DrawGLTFModel(glm::mat4 viewMat, glm::mat4 projMat, glm::vec3 camPo
 					texIndex = mat.pbrMetallicRoughness.baseColorTexture.index;
 					glActiveTexture(GL_TEXTURE0);
 					glBindTexture(GL_TEXTURE_2D, glTextures[texIndex]);
-					m_shader->SetInt("tex", 0);
-					m_shader->SetBool("useTexture", mat.pbrMetallicRoughness.baseColorTexture.index >= 0);
-					m_shader->SetVec3("color", 1.0f, 1.0f, 1.0f);
+					m_shader->SetInt("albedoMap", 0);
+					m_shader->SetBool("useAlbedo", mat.pbrMetallicRoughness.baseColorTexture.index >= 0);
+					m_shader->SetVec3("baseColour", 1.0f, 1.0f, 1.0f);
 				}
 
 				if (mat.pbrMetallicRoughness.metallicRoughnessTexture.index >= 0) {
 					glActiveTexture(GL_TEXTURE1);
 					glBindTexture(GL_TEXTURE_2D, glTextures[mat.pbrMetallicRoughness.metallicRoughnessTexture.index]);
-					m_shader->SetInt("metallicRoughnessTex", 1);
+					m_shader->SetInt("metallicRoughnessMap", 1);
 					m_shader->SetBool("useMetallicRoughness", mat.pbrMetallicRoughness.baseColorTexture.index >= 0);
 
 				}
 				else {
-					m_shader->SetInt("metallicRoughnessTex", 1);
 					m_shader->SetBool("useMetallicRoughness", mat.pbrMetallicRoughness.baseColorTexture.index >= 0);
 					m_shader->SetFloat("metallicFactor", mat.pbrMetallicRoughness.metallicFactor);
 					m_shader->SetFloat("roughnessFactor", mat.pbrMetallicRoughness.roughnessFactor);
@@ -108,11 +107,10 @@ void Player::DrawGLTFModel(glm::mat4 viewMat, glm::mat4 projMat, glm::vec3 camPo
 				if (mat.normalTexture.index >= 0) {
 					glActiveTexture(GL_TEXTURE2);
 					glBindTexture(GL_TEXTURE_2D, glTextures[mat.normalTexture.index]);
-					m_shader->SetInt("normalTex", 2);
+					m_shader->SetInt("normalMap", 2);
 					m_shader->SetBool("useNormalMap", mat.normalTexture.index >= 0);
 				}
 				else {
-					m_shader->SetInt("normalTex", 2);
 					m_shader->SetBool("useNormalMap", false);
 				}
 

@@ -6,7 +6,7 @@ in vec3 WorldPos;
 in vec3 Normal;
 
 uniform sampler2D albedoMap;
-uniform sampler2D metallicRoughnessTex;
+uniform sampler2D metallicRoughnessMap;
 uniform sampler2D normalMap;
 uniform sampler2D aoMap;
 
@@ -21,7 +21,7 @@ struct DirLight {
 
 uniform DirLight dirLight;
 
-uniform bool useTexture;
+uniform bool useAlbedo;
 uniform bool useMetallicRoughness;
 uniform bool useNormalMap;
 uniform bool useOcclusionMap;
@@ -29,6 +29,7 @@ uniform bool useOcclusionMap;
 vec3 CalcDirLight(DirLight light, vec3 normal);
 
 uniform vec3 cameraPos;
+uniform vec3 baseColour;
 uniform float metallicFactor;
 uniform float roughnessFactor;
 const float PI = 3.14159265359;
@@ -92,16 +93,23 @@ vec3 fresnelSchlick(float cosTheta, vec3 F0)
 // ----------------------------------------------------------------------------
 void main()
 {		
-    vec3 albedo     = pow(texture(albedoMap, TexCoords).rgb, vec3(2.2));
+    vec3 albedo;
+    if (useAlbedo) {
+        albedo =  pow(texture(albedoMap, TexCoords).rgb, vec3(2.2));
+    } else {
+        albedo = baseColour;
+    }
+
     float metallic;
     if (useMetallicRoughness) {
-        metallic  = texture(metallicRoughnessTex, TexCoords).b;
+        metallic  = texture(metallicRoughnessMap, TexCoords).b;
     } else {
-            metallic = metallicFactor;
+        metallic = metallicFactor;
     }
+
     float roughness;
     if (useMetallicRoughness) {
-        roughness = texture(metallicRoughnessTex, TexCoords).g;
+        roughness = texture(metallicRoughnessMap, TexCoords).g;
     } else {
         roughness = roughness;
     }
@@ -129,10 +137,14 @@ void main()
 
     // reflectance equation
     vec3 Lo = vec3(0.0);
-    for(int i = 0; i < 1; ++i) 
+    for(int i = 0; i < 4; ++i) 
     {
         // calculate per-light radiance
         vec3 L = normalize(-dirLight.direction);
+        if (i % 2 == 0) {
+            // skip every second light
+           L = -L;
+        }
         vec3 H = normalize(V + L);
         vec3 radiance = dirLight.diffuse;
 
