@@ -78,7 +78,7 @@ public:
 	{
 	};
 
-	void DrawGLTFModel(glm::mat4 viewMat, glm::mat4 projMat);
+	void DrawGLTFModel(glm::mat4 viewMat, glm::mat4 projMat, glm::vec3 camPos);
 
 
 	Texture mTex;

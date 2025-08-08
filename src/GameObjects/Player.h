@@ -635,9 +635,10 @@ public:
 
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 	}
+
 	
 
-	void DrawGLTFModel(glm::mat4 viewMat, glm::mat4 projMat);
+	void DrawGLTFModel(glm::mat4 viewMat, glm::mat4 projMat, glm::vec3 camPos);
 
 	std::vector<GLuint> glTextures;
 

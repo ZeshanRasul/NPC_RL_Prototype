@@ -47,7 +47,7 @@ std::vector<GLuint> Ground::LoadGLTFTextures(tinygltf::Model* model) {
 	return textureIDs;
 }
 
-void Ground::DrawGLTFModel(glm::mat4 viewMat, glm::mat4 projMat) {
+void Ground::DrawGLTFModel(glm::mat4 viewMat, glm::mat4 projMat, glm::vec3 camPos) {
 	glDisable(GL_CULL_FACE);
 
 	int texIndex = 0;
@@ -67,6 +67,8 @@ void Ground::DrawGLTFModel(glm::mat4 viewMat, glm::mat4 projMat) {
 			matrixData.push_back(modelMat);
 			m_uniformBuffer.UploadUboData(matrixData, 0);
 
+			m_shader->SetVec3("cameraPos", camPos);
+
 			bool hasTexture = false;
 			glBindVertexArray(prim.vao);
 			int matIndex = prim.material;
@@ -83,7 +85,7 @@ void Ground::DrawGLTFModel(glm::mat4 viewMat, glm::mat4 projMat) {
 					glActiveTexture(GL_TEXTURE0);
 					glBindTexture(GL_TEXTURE_2D, glTextures[texIndex]);
 					m_shader->SetInt("tex", 0);
-					m_shader->SetBool("useTexture", mat.pbrMetallicRoughness.baseColorTexture.index >= 0);
+					m_shader->SetBool("useBaseColor", mat.pbrMetallicRoughness.baseColorTexture.index >= 0);
 					m_shader->SetVec3("color", 1.0f, 1.0f, 1.0f);
 				}
 				else {
@@ -91,8 +93,44 @@ void Ground::DrawGLTFModel(glm::mat4 viewMat, glm::mat4 projMat) {
 					glActiveTexture(GL_TEXTURE0);
 					glBindTexture(GL_TEXTURE_2D, mTex.GetTexId());
 					m_shader->SetInt("tex", 0);
-					m_shader->SetBool("useTexture", mat.pbrMetallicRoughness.baseColorTexture.index >= 0);
+					m_shader->SetBool("useBaseColor", mat.pbrMetallicRoughness.baseColorTexture.index >= 0);
 					m_shader->SetVec3("color", baseColor);
+				}
+
+				if (mat.pbrMetallicRoughness.metallicRoughnessTexture.index >= 0) {
+					glActiveTexture(GL_TEXTURE1);
+					glBindTexture(GL_TEXTURE_2D, glTextures[mat.pbrMetallicRoughness.metallicRoughnessTexture.index]);
+					m_shader->SetInt("metallicRoughnessTex", 1);
+					m_shader->SetBool("useMetallicRoughness", mat.pbrMetallicRoughness.baseColorTexture.index >= 0);
+
+				}
+				else {
+					m_shader->SetInt("metallicRoughnessTex", 1);
+					m_shader->SetBool("useMetallicRoughness", mat.pbrMetallicRoughness.baseColorTexture.index >= 0);
+					m_shader->SetFloat("metallicFactor", mat.pbrMetallicRoughness.metallicFactor);
+					m_shader->SetFloat("roughnessFactor", mat.pbrMetallicRoughness.roughnessFactor);
+				}
+
+				if (mat.normalTexture.index >= 0) {
+					glActiveTexture(GL_TEXTURE2);
+					glBindTexture(GL_TEXTURE_2D, glTextures[mat.normalTexture.index]);
+					m_shader->SetInt("normalTex", 2);
+					m_shader->SetBool("useNormalMap", mat.normalTexture.index >= 0);
+				}
+				else {
+					m_shader->SetInt("normalTex", 2);
+					m_shader->SetBool("useNormalMap", false);
+				}
+
+				if (mat.occlusionTexture.index >= 0) {
+					glActiveTexture(GL_TEXTURE3);
+					glBindTexture(GL_TEXTURE_2D, glTextures[mat.occlusionTexture.index]);
+					m_shader->SetInt("occlusionTex", 3);
+					m_shader->SetBool("useOcclusionMap", mat.occlusionTexture.index >= 0);
+				}
+				else {
+					m_shader->SetInt("occlusionTex", 3);
+					m_shader->SetBool("useOcclusionMap", false);
 				}
 			}
 
@@ -114,7 +152,7 @@ void Ground::DrawGLTFModel(glm::mat4 viewMat, glm::mat4 projMat) {
 
 void Ground::DrawObject(glm::mat4 viewMat, glm::mat4 proj, bool shadowMap, glm::mat4 lightSpaceMat, GLuint shadowMapTexture, glm::vec3 camPos)
 {
-	DrawGLTFModel(viewMat, proj);
+	DrawGLTFModel(viewMat, proj, camPos);
 }	
 
 void Ground::ComputeAudioWorldTransform()

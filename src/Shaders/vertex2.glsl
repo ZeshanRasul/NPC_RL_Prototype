@@ -6,18 +6,24 @@ layout (location = 3) in vec2 aTexCoord_1;
 layout (location = 4) in vec2 aTexCoord_2;
 
 
-layout (location = 0) out vec3 normal;
-layout (location = 1) out vec2 texCoord;
+out vec2 TexCoords;
+out vec3 WorldPos;
+out vec3 Normal;
+
+
 
 layout (std140, binding = 0) uniform Matrices {
     mat4 view;
     mat4 projection;
-	  mat4 model;
+	mat4 model;
 };
 
 void main() {
-  gl_Position = projection * view * model * vec4(aPos, 1.0);
-  normal = vec3(transpose(inverse(model)) * vec4(aNormal, 1.0));
-  texCoord = aTexCoord;
 
+    TexCoords = aTexCoord;
+    WorldPos = vec3(model * vec4(aPos, 1.0));
+    mat3 normalMatrix = transpose(inverse(mat3(model)));
+    Normal = normalMatrix * aNormal;   
+
+    gl_Position =  projection * view * vec4(WorldPos, 1.0);
 }
