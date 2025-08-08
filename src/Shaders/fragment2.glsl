@@ -26,6 +26,12 @@ void main() {
 
 	vec3 result = CalcDirLight(dirLight, norm);
 
+
+	// HDR tonemapping
+    result = result / (result + vec3(1.0));
+    // gamma correct
+    result = pow(result, vec3(1.0/2.2)); 
+
 	FragColor = vec4(result, 1.0);
 }
 

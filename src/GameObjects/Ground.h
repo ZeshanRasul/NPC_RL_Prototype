@@ -11,7 +11,7 @@ public:
 	{
 		mapModel = new tinygltf::Model;
 
-		std::string modelFilename = "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Models/New/Updated/Aviary final Model4.gltf";
+		std::string modelFilename = "src/Assets/Models/Game_Scene/V1/Aviary-Environment-V1.gltf";
 
 
 		tinygltf::TinyGLTF gltfLoader;
