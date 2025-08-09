@@ -254,6 +254,11 @@ void main()
         // calculate per-light radiance
         vec3 L = normalize(-dirLight.direction);
       
+        if (i % 2 == 0) {
+            L.x *= -1.0; // flip the direction for every second light
+            L.z *= -1.0; // flip the direction for every second light
+        }
+        
         vec3 H = normalize(V + L);
         vec3 radiance = dirLight.diffuse;
 

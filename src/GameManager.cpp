@@ -587,36 +587,6 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 
 	ground = new Ground(mapPos, mapScale, &groundShader, &groundShadowShader, false, this);
 
-	//size_t vertexOffset = 0;
-	//int vertexCount = 0;
-	//
-	//int coverCount = 0;
-	//
-	//for (Cube* coverSpot : coverSpots)
-	//{
-	//	std::vector<glm::vec3> coverVerts = coverSpot->GetPositionVertices();
-	//	for (glm::vec3 coverPosVerts : coverVerts)
-	//	{
-	//		navMeshVertices.push_back(coverPosVerts.x);
-	//		navMeshVertices.push_back(coverPosVerts.y);
-	//		navMeshVertices.push_back(coverPosVerts.z);
-	//		vertexCount += 3;
-	//	}
-	//
-	//	GLuint* indices = coverSpot->indices;
-	//
-	//	int numIndices = 36;
-	//
-	//	for (int i = 0; i < numIndices; i++)
-	//	{
-	//		navMeshIndices.push_back(indices[i]);
-	//	}
-	//
-	//	vertexOffset += coverVerts.size();
-	//
-	//	coverCount++;
-	//}
-
 	std::vector<Ground::GLTFMesh> meshDataGrnd = ground->meshData;
 	int mapVertCount = 0;
 	int mapIndCount = 0;
@@ -655,22 +625,10 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 	}
 
 
-	//navMeshVertices.resize(1162447);
-	//navMeshIndices.resize(1162447);
-
+	
 
 	Logger::Log(1, "Map vertices count: %i\n", mapVerts.size());
 
-	int gridVertCount = 0;
-	//std::vector<glm::mat4> models = gameGrid->GetModels();
-
-	for (glm::vec3 mapVertex : mapVerts)
-	{
-		//navMeshVertices.push_back(mapVertex.x);
-		//navMeshVertices.push_back(mapVertex.y);
-		//navMeshVertices.push_back(mapVertex.z);
-
-	}
 
 	Logger::Log(1, "navMeshVertices count: %zu\n", navMeshVertices.size());
 	for (size_t i = 0; i < std::min((size_t)10, navMeshVertices.size() / 3); ++i)
@@ -682,11 +640,6 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 			navMeshVertices[i * 3 + 2]);
 	}
 
-
-	//for (int index : gameGrid->GetIndices())
-	//{
-	//	navMeshIndices.push_back(index + vertexOffset);
-	//}
 
 	int indexCount = (int)navMeshIndices.size();
 	Logger::Log(1, "Index Count: %zu\n", (int)navMeshIndices.size());
@@ -840,7 +793,7 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 	float minBounds[3] = { -261.04f, -2.39, -231.76 };
 	float maxBounds[3] = { 251.37f, 213.66f, 304.81f };
 
-	//rcCalcBounds(navMeshVertices.data(), navMeshVertices.size() / 3, cfg.bmin, cfg.bmax);
+	rcCalcBounds(navMeshVertices.data(), navMeshVertices.size() / 3, cfg.bmin, cfg.bmax);
 
 
 
@@ -862,55 +815,55 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 
 	dtStatus navInitStatus = navMesh->init(&params);
 
-	//for (int y = 0; y < tileCountY; ++y)
-	//{
-	//	for (int x = 0; x < tileCountX; ++x)
-	//	{
-	//		unsigned char* navData = nullptr;
-	//		int navDataSize = 0;
+	for (int y = 0; y < tileCountY; ++y)
+	{
+		for (int x = 0; x < tileCountX; ++x)
+		{
+			unsigned char* navData = nullptr;
+			int navDataSize = 0;
 
-	//		if (BuildTile(x, y, cfg.bmin, cfg.bmax, cfg, navData, &navDataSize, params))
-	//		{
-	//			// Add tile to Detour navmesh
-	//			dtStatus status = navMesh->addTile(navData, navDataSize, DT_TILE_FREE_DATA, 0, nullptr);
-	//		
-	//			if (dtStatusFailed(status))
-	//			{
-	//				Logger::Log(1, "Error: Could not add tile to navmesh\n", __FUNCTION__);
-	//			}
-	//		}
-	//	}
-	//}
+			if (BuildTile(x, y, cfg.bmin, cfg.bmax, cfg, navData, &navDataSize, params))
+			{
+				// Add tile to Detour navmesh
+				dtStatus status = navMesh->addTile(navData, navDataSize, DT_TILE_FREE_DATA, 0, nullptr);
+			
+				if (dtStatusFailed(status))
+				{
+					Logger::Log(1, "Error: Could not add tile to navmesh\n", __FUNCTION__);
+				}
+			}
+		}
+	}
 
-	//navMeshQuery = dtAllocNavMeshQuery();
+	navMeshQuery = dtAllocNavMeshQuery();
 
-	//dtStatus status = navMeshQuery->init(navMesh, 4096);
-	//if (dtStatusFailed(status))
-	//{
-	//	Logger::Log(1, "%s error: Could not init Detour navMeshQuery\n", __FUNCTION__);
-	//}
-	//else
-	//{
-	//	Logger::Log(1, "%s: Detour navMeshQuery successfully initialized\n", __FUNCTION__);
+	dtStatus status = navMeshQuery->init(navMesh, 4096);
+	if (dtStatusFailed(status))
+	{
+		Logger::Log(1, "%s error: Could not init Detour navMeshQuery\n", __FUNCTION__);
+	}
+	else
+	{
+		Logger::Log(1, "%s: Detour navMeshQuery successfully initialized\n", __FUNCTION__);
 
-	//}
+	}
 
 
 
-	//const dtNavMeshParams* nmparams = navMesh->getParams();
-	//Logger::Log(1, "Navmesh origin: %.2f %.2f %.2f\n", nmparams->orig[0], nmparams->orig[1], nmparams->orig[2]);
+	const dtNavMeshParams* nmparams = navMesh->getParams();
+	Logger::Log(1, "Navmesh origin: %.2f %.2f %.2f\n", nmparams->orig[0], nmparams->orig[1], nmparams->orig[2]);
 
-	//for (int y = 0; y < navMesh->getMaxTiles(); ++y) {
-	//	for (int x = 0; x < navMesh->getMaxTiles(); ++x) {
-	//		const dtMeshTile* tile = navMesh->getTileAt(x, y, 0);  // layer = 0
-	//		if (!tile || !tile->header) continue;
+	for (int y = 0; y < navMesh->getMaxTiles(); ++y) {
+		for (int x = 0; x < navMesh->getMaxTiles(); ++x) {
+			const dtMeshTile* tile = navMesh->getTileAt(x, y, 0);  // layer = 0
+			if (!tile || !tile->header) continue;
 
-	//		Logger::Log(1, "Tile at (%d,%d): Bmin(%.2f %.2f %.2f) Bmax(%.2f %.2f %.2f)\n",
-	//			x, y,
-	//			tile->header->bmin[0], tile->header->bmin[1], tile->header->bmin[2],
-	//			tile->header->bmax[0], tile->header->bmax[1], tile->header->bmax[2]);
-	//	}
-	//}
+			Logger::Log(1, "Tile at (%d,%d): Bmin(%.2f %.2f %.2f) Bmax(%.2f %.2f %.2f)\n",
+				x, y,
+				tile->header->bmin[0], tile->header->bmin[1], tile->header->bmin[2],
+				tile->header->bmax[0], tile->header->bmax[1], tile->header->bmax[2]);
+		}
+	}
 
 
 
@@ -1039,7 +992,7 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 		}
 	}
 
-	//mMusicEvent = audioSystem->PlayEvent("event:/bgm");
+	mMusicEvent = m_audioSystem->PlayEvent("event:/bgm");
 
 	//for (int i = 0; i < polyMesh->nverts; ++i) {
 	//	const unsigned short* v = &polyMesh->verts[i * 3];
@@ -1141,15 +1094,15 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 
 	glBindVertexArray(0);
 
-	//float playerStartingPos[3] = { m_player->GetPosition().x, m_player->GetPosition().y, m_player->GetPosition().z };
-	//float playerSnappedPos[3];
-	//dtPolyRef playerStartPoly;
-	//navMeshQuery->findNearestPoly(playerStartingPos, halfExtents, &filter, &playerStartPoly, playerSnappedPos);
-	//m_player->SetPosition(glm::vec3(playerSnappedPos[0], playerSnappedPos[1], playerSnappedPos[2]));
-	//
-	//
-	//crowd = dtAllocCrowd();
-	//crowd->init(50, AGENT_RADIUS, navMesh);
+	float playerStartingPos[3] = { m_player->GetPosition().x, m_player->GetPosition().y, m_player->GetPosition().z };
+	float playerSnappedPos[3];
+	dtPolyRef playerStartPoly;
+	navMeshQuery->findNearestPoly(playerStartingPos, halfExtents, &filter, &playerStartPoly, playerSnappedPos);
+	m_player->SetPosition(glm::vec3(playerSnappedPos[0], playerSnappedPos[1], playerSnappedPos[2]));
+	
+	
+	crowd = dtAllocCrowd();
+	crowd->init(50, AGENT_RADIUS, navMesh);
 
 	//for (auto& enem : enemies)
 	//{
@@ -1169,26 +1122,26 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 
 	for (auto& enem : m_enemies)
 	{
-		//dtCrowdAgentParams ap;
-		//memset(&ap, 0, sizeof(ap));
-		//ap.radius = AGENT_RADIUS;
-		//ap.height = 1.0f;
-		//ap.maxSpeed = 4.0f;
-		//ap.maxAcceleration = 12.0f;
-		//ap.collisionQueryRange = AGENT_RADIUS * 6.0f;
-		//ap.pathOptimizationRange = AGENT_RADIUS * 15.0f;
-		//ap.updateFlags = DT_CROWD_ANTICIPATE_TURNS
-		//	| DT_CROWD_OPTIMIZE_VIS
-		//	| DT_CROWD_OPTIMIZE_TOPO
-		//	| DT_CROWD_SEPARATION;
-		//ap.separationWeight = 0.5f;
-		//float startingPos[3] = { enem->GetPosition().x, enem->GetPosition().y, enem->GetPosition().z };
-		//float snappedPos[3];
-		//dtPolyRef startPoly;
-		//navMeshQuery->findNearestPoly(startingPos, halfExtents, &filter, &startPoly, snappedPos);
-		//enemyAgentIDs.push_back(crowd->addAgent(snappedPos, &ap));
-		//Logger::Log(1, "[Spawn] Enemy spawned as agent %d at (%.2f, %.2f, %.2f)\n",
-		//	enemyAgentIDs.back(), snappedPos[0], snappedPos[1], snappedPos[2]);
+		dtCrowdAgentParams ap;
+		memset(&ap, 0, sizeof(ap));
+		ap.radius = AGENT_RADIUS;
+		ap.height = 1.0f;
+		ap.maxSpeed = 4.0f;
+		ap.maxAcceleration = 12.0f;
+		ap.collisionQueryRange = AGENT_RADIUS * 6.0f;
+		ap.pathOptimizationRange = AGENT_RADIUS * 15.0f;
+		ap.updateFlags = DT_CROWD_ANTICIPATE_TURNS
+			| DT_CROWD_OPTIMIZE_VIS
+			| DT_CROWD_OPTIMIZE_TOPO
+			| DT_CROWD_SEPARATION;
+		ap.separationWeight = 0.5f;
+		float startingPos[3] = { enem->GetPosition().x, enem->GetPosition().y, enem->GetPosition().z };
+		float snappedPos[3];
+		dtPolyRef startPoly;
+		navMeshQuery->findNearestPoly(startingPos, halfExtents, &filter, &startPoly, snappedPos);
+		enemyAgentIDs.push_back(crowd->addAgent(snappedPos, &ap));
+		Logger::Log(1, "[Spawn] Enemy spawned as agent %d at (%.2f, %.2f, %.2f)\n",
+			enemyAgentIDs.back(), snappedPos[0], snappedPos[1], snappedPos[2]);
 	}
 
 	//for (auto& enem : enemies)
@@ -1866,73 +1819,73 @@ void GameManager::Update(float deltaTime)
 		targetPos[1] = 0.0f;
 		targetPos[2] = .0f;*/
 
-		//float offset = 5.0f;
-		//targetPos[0] += (e->GetID() % 3 - 1) * offset;
-		//targetPos[2] += ((e->GetID() / 3) % 3 - 1) * offset;
-		//float halfExtents2[3] = { 50.0f, 10.0f, 50.0f };
-		//dtPolyRef playerPoly;
-		//float targetPlayerPosOnNavMesh[3];
-		//
-		//navMeshQuery->findNearestPoly(targetPos, halfExtents2, &filter, &playerPoly, targetPlayerPosOnNavMesh);
-		////	Logger::log(1, "Player position: %f %f %f\n", player->getPosition().x, player->getPosition().y, player->getPosition().z);
-		//
-		//std::vector<float* [3]> enemPos;
-		//
-		//float enemyPosition[3] = { e->GetPosition().x, e->GetPosition().y, e->GetPosition().z };
-		//
-		////DebugNavmeshConnectivity(navMeshQuery, navMesh, filter, targetPos, enemyPosition);
-		//
-		//float randPos[3];
-		//dtPolyRef randRef;
-		//
-		////		findRandomNavMeshPoint(navMeshQuery, &filter, randPos, &randRef);
-		//
-		//dtPolyRef targetPoly;
-		//float targetPosOnNavMesh[3];
-		//
-		//float jitterX = ((rand() % 100) / 100.0f - 0.5f) * 10.0f;
-		//float jitterZ = ((rand() % 100) / 100.0f - 0.5f) * 10.0f;
-		//
-		//float target[3] = {
-		//	targetPlayerPosOnNavMesh[0] + jitterX,
-		//	targetPlayerPosOnNavMesh[1],
-		//	targetPlayerPosOnNavMesh[2] + jitterZ
-		//};
-		//
-		//if (!navMeshQuery)
-		//{
-		//}
-		//
-		//dtStatus status = navMeshQuery->findNearestPoly(
-		//	targetPos, halfExtents2, &filter, &targetPoly, targetPlayerPosOnNavMesh
-		//);
-		//if (dtStatusFailed(status)) {
-		//	continue;
-		//}
-		//
-		//bool moveStatus = crowd->requestMoveTarget(e->GetID(), targetPoly, targetPlayerPosOnNavMesh);
-		//
-		//if (!moveStatus) {
-		//	continue;
-		//}
+		float offset = 5.0f;
+		targetPos[0] += (e->GetID() % 3 - 1) * offset;
+		targetPos[2] += ((e->GetID() / 3) % 3 - 1) * offset;
+		float halfExtents2[3] = { 50.0f, 10.0f, 50.0f };
+		dtPolyRef playerPoly;
+		float targetPlayerPosOnNavMesh[3];
+		
+		navMeshQuery->findNearestPoly(targetPos, halfExtents2, &filter, &playerPoly, targetPlayerPosOnNavMesh);
+		//	Logger::log(1, "Player position: %f %f %f\n", player->getPosition().x, player->getPosition().y, player->getPosition().z);
+		
+		std::vector<float* [3]> enemPos;
+		
+		float enemyPosition[3] = { e->GetPosition().x, e->GetPosition().y, e->GetPosition().z };
+		
+		//DebugNavmeshConnectivity(navMeshQuery, navMesh, filter, targetPos, enemyPosition);
+		
+		float randPos[3];
+		dtPolyRef randRef;
+		
+		//		findRandomNavMeshPoint(navMeshQuery, &filter, randPos, &randRef);
+		
+		dtPolyRef targetPoly;
+		float targetPosOnNavMesh[3];
+		
+		float jitterX = ((rand() % 100) / 100.0f - 0.5f) * 10.0f;
+		float jitterZ = ((rand() % 100) / 100.0f - 0.5f) * 10.0f;
+		
+		float target[3] = {
+			targetPlayerPosOnNavMesh[0] + jitterX,
+			targetPlayerPosOnNavMesh[1],
+			targetPlayerPosOnNavMesh[2] + jitterZ
+		};
+		
+		if (!navMeshQuery)
+		{
+		}
+		
+		dtStatus status = navMeshQuery->findNearestPoly(
+			targetPos, halfExtents2, &filter, &targetPoly, targetPlayerPosOnNavMesh
+		);
+		if (dtStatusFailed(status)) {
+			continue;
+		}
+		
+		bool moveStatus = crowd->requestMoveTarget(e->GetID(), targetPoly, targetPlayerPosOnNavMesh);
+		
+		if (!moveStatus) {
+			continue;
+		}
 
 
 	}
-//	crowd->update(deltaTime, nullptr);
+	crowd->update(deltaTime, nullptr);
 
 
 	for (Enemy* e : m_enemies)
 	{
 
-		//const dtCrowdAgent* agent = crowd->getAgent(e->GetID());
-		//float agentPos[3];
-		//dtVcopy(agentPos, agent->npos);
-		////	e->Update(false, speedDivider, blendFac);
-		//if ((agent->npos - targetPos) < glm::abs(32.0f)) {
-		//	// stop steering and switch to idle/attack state
-		//	crowd->resetMoveTarget(e->GetID());
-		//}
-		//e->SetPosition(glm::vec3(agentPos[0], agentPos[1], agentPos[2]));
+		const dtCrowdAgent* agent = crowd->getAgent(e->GetID());
+		float agentPos[3];
+		dtVcopy(agentPos, agent->npos);
+		//	e->Update(false, speedDivider, blendFac);
+		if ((agent->npos - targetPos) < glm::abs(32.0f)) {
+			// stop steering and switch to idle/attack state
+			crowd->resetMoveTarget(e->GetID());
+		}
+		e->SetPosition(glm::vec3(agentPos[0], agentPos[1], agentPos[2]));
 	}
 	m_audioManager->Update(scaledDeltaTime);
 	m_audioSystem->Update(scaledDeltaTime);
