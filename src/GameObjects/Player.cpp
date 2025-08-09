@@ -493,20 +493,20 @@ void Player::Update(float dt, bool isPaused, bool isTimeScaled)
 
 	
 
-	PlayAnimation(22, 1.0f, 1.0f, false);
+	PlayAnimation(6, 1.0f, 1.0f, false);
 
-	//if (m_playGameStartAudio && m_playGameStartAudioTimer < 0.0f)
-	//{
-	//	std::random_device rd;
-	//	std::mt19937 gen{rd()};
-	//	std::uniform_int_distribution<> distrib(1, 2);
-	//	int randomIndex = distrib(gen);
-	//	if (randomIndex == 1)
-	//		m_takeDamageAc->PlayEvent("event:/Player2_Game Start");
-	//	else
-	//		m_takeDamageAc->PlayEvent("event:/Player2_Game Start2");
-	//	m_playGameStartAudio = false;
-	//}
+	if (m_playGameStartAudio && m_playGameStartAudioTimer < 0.0f)
+	{
+		std::random_device rd;
+		std::mt19937 gen{ rd() };
+		std::uniform_int_distribution<> distrib(1, 2);
+		int randomIndex = distrib(gen);
+		if (randomIndex == 1)
+			m_takeDamageAc->PlayEvent("event:/Player2_Game Start");
+		else
+			m_takeDamageAc->PlayEvent("event:/Player2_Game Start2");
+		m_playGameStartAudio = false;
+	}
 	//
 	//if (m_destAnim != 0 && m_velocity == 0.0f)
 	//{

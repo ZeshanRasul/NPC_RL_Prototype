@@ -18,36 +18,58 @@ Enemy::Enemy(glm::vec3 pos, glm::vec3 scale, Shader* sdr, Shader* shadowMapShade
 	m_isEnemy = true;
 
 	m_id = id;
+	enemyModel = new tinygltf::Model;
 
-	m_model = std::make_shared<GltfModel>();
+	std::string modelFilename = "src/Assets/Models/New_Enemies/Armour7/First.gltf";
 
-	std::string modelFilename =
-		"src/Assets/Models/GLTF/Enemies/Ely/EnemyEly.gltf";
 
-	if (!m_model->LoadModel(modelFilename, true))
-	{
-		Logger::Log(1, "%s: loading glTF m_model '%s' failed\n", __FUNCTION__, modelFilename.c_str());
+	tinygltf::TinyGLTF gltfLoader;
+	std::string loaderErrors;
+	std::string loaderWarnings;
+	bool result = false;
+
+	result = gltfLoader.LoadASCIIFromFile(enemyModel, &loaderErrors, &loaderWarnings,
+		modelFilename);
+
+	if (!loaderWarnings.empty()) {
+		Logger::Log(1, "%s: warnings while loading glTF model:\n%s\n", __FUNCTION__,
+			loaderWarnings.c_str());
 	}
 
-	if (!m_tex.LoadTexture(texFilename, false))
-	{
-		Logger::Log(1, "%s: texture loading failed\n", __FUNCTION__);
+	if (!loaderErrors.empty()) {
+		Logger::Log(1, "%s: errors while loading glTF model:\n%s\n", __FUNCTION__,
+			loaderErrors.c_str());
 	}
-	Logger::Log(1, "%s: glTF m_model texture '%s' successfully loaded\n", __FUNCTION__, texFilename.c_str());
 
-	m_normal.LoadTexture(
-		"src/Assets/Models/GLTF/Enemies/Ely/EnemyEly_ely_vanguardsoldier_kerwinatienza_M2_Normal.png");
-	m_metallic.LoadTexture(
-		"src/Assets/Models/GLTF/Enemies/Ely/EnemyEly_ely_vanguardsoldier_kerwinatienza_M2_Metallic.png");
-	m_roughness.LoadTexture(
-		"src/Assets/Models/GLTF/Enemies/Ely/EnemyEly_ely_vanguardsoldier_kerwinatienza_M2_Roughness.png");
-	m_ao.LoadTexture(
-		"src/Assets/Models/GLTF/Enemies/Ely/EnemyEly_ely_vanguardsoldier_kerwinatienza_M2_AO.png");
-	m_emissive.LoadTexture(
-		"src/Assets/Models/GLTF/Enemies/Ely/EnemyEly_ely_vanguardsoldier_kerwinatienza_M2_Emissive.png");
+	if (!result) {
+		Logger::Log(1, "%s error: could not load file '%s'\n", __FUNCTION__,
+			modelFilename.c_str());
+	}
 
+	SetupGLTFMeshes(enemyModel);
 
-	SetUpModel();
+	for (int texID : LoadGLTFTextures(enemyModel))
+		glTextures.push_back(texID);
+
+	//m_tex = m_model->LoadTexture(modelTextureFilename, false);
+	//
+	//m_normal.LoadTexture(
+	//	"src/Assets/Models/GLTF/SwatPlayer/Swat_Ch15_body_Normal.png");
+	//m_metallic.LoadTexture(
+	//	"src/Assets/Models/GLTF/SwatPlayer/Swat_Ch15_body_Metallic.png");
+	//m_roughness.LoadTexture(
+	//	"src/Assets/Models/GLTF/SwatPlayer/Swat_Ch15_body_Roughness.png");
+	//m_ao.LoadTexture(
+		//"src/Assets/Models/GLTF/SwatPlayer/Swat_Ch15_body_AO.png");
+
+	//m_model->uploadIndexBuffer();
+	//Logger::Log(1, "%s: glTF m_model '%s' successfully loaded\n", __FUNCTION__, modelFilename.c_str());
+	//
+	size_t enemyModelJointDualQuatBufferSize = GetJointDualQuatsSize() *
+		sizeof(glm::mat2x4);
+	m_enemyDualQuatSsBuffer.Init(enemyModelJointDualQuatBufferSize);
+	Logger::Log(1, "%s: glTF joint dual quaternions shader storage buffer (size %i bytes) successfully created\n",
+		__FUNCTION__, enemyModelJointDualQuatBufferSize);
 
 	ComputeAudioWorldTransform();
 
@@ -88,52 +110,425 @@ void Enemy::SetUpModel()
 	            __FUNCTION__, enemyModelJointDualQuatBufferSize);
 }
 
-void Enemy::DrawObject(glm::mat4 viewMat, glm::mat4 proj, bool shadowMap, glm::mat4 lightSpaceMat,
-                       GLuint shadowMapTexture, glm::vec3 camPos)
+void Enemy::SetupGLTFMeshes(tinygltf::Model* model)
 {
-	auto modelMat = glm::mat4(1.0f);
-	modelMat = translate(modelMat, m_position);
-	modelMat = rotate(modelMat, glm::radians(-m_yaw + 90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-	modelMat = glm::scale(modelMat, m_scale);
-	std::vector<glm::mat4> matrixData;
-	matrixData.push_back(viewMat);
-	matrixData.push_back(proj);
-	matrixData.push_back(modelMat);
-	matrixData.push_back(lightSpaceMat);
-	m_uniformBuffer.UploadUboData(matrixData, 0);
+	meshData.resize(model->meshes.size());
 
-	if (shadowMap)
-	{
-		m_shadowShader->Use();
-		m_enemyDualQuatSsBuffer.UploadSsboData(m_model->getJointDualQuats(), 2);
-		m_model->draw(m_tex);
-	}
-	else
-	{
-		GetShader()->Use();
-		m_shader->SetVec3("cameraPos", m_gameManager->GetCamera()->GetPosition().x, m_gameManager->GetCamera()->GetPosition().y, m_gameManager->GetCamera()->GetPosition().z);
-		m_enemyDualQuatSsBuffer.UploadSsboData(m_model->getJointDualQuats(), 2);
+	for (size_t meshIndex = 0; meshIndex < model->meshes.size(); ++meshIndex) {
+		const tinygltf::Mesh& mesh = model->meshes[meshIndex];
+		GLTFMesh gltfMesh;
 
-		m_tex.Bind();
-		m_shader->SetInt("albedoMap", 0);
-		m_normal.Bind(1);
-		m_shader->SetInt("normalMap", 1);
-		m_metallic.Bind(2);
-		m_shader->SetInt("metallicMap", 2);
-		m_roughness.Bind(3);
-		m_shader->SetInt("roughnessMap", 3);
-		m_ao.Bind(4);
-		m_shader->SetInt("aoMap", 4);
-		m_emissive.Bind(5);
-		m_shader->SetInt("emissiveMap", 5);
-		glActiveTexture(GL_TEXTURE6);
-		glBindTexture(GL_TEXTURE_2D, shadowMapTexture);
-		m_shader->SetInt("shadowMap", 6);
-		m_model->draw(m_tex);
-#ifdef _DEBUG
-		m_aabb->Render(viewMat, proj, modelMat, m_aabbColor);
-#endif
+		for (size_t primIndex = 0; primIndex < mesh.primitives.size(); ++primIndex) {
+			const tinygltf::Primitive& primitive = mesh.primitives[primIndex];
+			GLTFPrimitive gltfPrim = {};
+			gltfPrim.mode = primitive.mode; // usually GL_TRIANGLES
+
+			gltfPrim.material = primitive.material;
+
+			// --- Create VAO ---
+			glGenVertexArrays(1, &gltfPrim.vao);
+			glBindVertexArray(gltfPrim.vao);
+
+			// --- Upload vertex attributes ---
+			for (const auto& attrib : primitive.attributes) {
+				const std::string& attribName = attrib.first; // "POSITION", "NORMAL", "TEXCOORD_0", etc.
+				int accessorIndex = attrib.second;
+				const tinygltf::Accessor& accessor = model->accessors[accessorIndex];
+				const tinygltf::BufferView& bufferView = model->bufferViews[accessor.bufferView];
+				const tinygltf::Buffer& buffer = model->buffers[bufferView.buffer];
+
+				GLuint vbo;
+				glGenBuffers(1, &vbo);
+				glBindBuffer(GL_ARRAY_BUFFER, vbo);
+
+				if (attribName == "POSITION") {
+					int numPositionEntries = static_cast<int>(accessor.count);
+					Logger::Log(1, "%s: loaded %i vertices from glTF file\n", __FUNCTION__,
+						numPositionEntries);
+
+					// Extract vertices
+					const float* positions = reinterpret_cast<const float*>(
+						buffer.data.data() + bufferView.byteOffset + accessor.byteOffset);
+
+					for (int i = 0; i < numPositionEntries; i++)
+					{
+						gltfPrim.verts.push_back(glm::vec3(positions[i * 3 + 0], positions[i * 3 + 1], positions[i * 3 + 2]));
+						gltfPrim.vertexCount++;
+					}
+				}
+
+				const void* dataPtr = &buffer.data[accessor.byteOffset + bufferView.byteOffset];
+				size_t dataSize = accessor.count * tinygltf::GetNumComponentsInType(accessor.type) * tinygltf::GetComponentSizeInBytes(accessor.componentType);
+
+				glBufferData(GL_ARRAY_BUFFER, dataSize, dataPtr, GL_STATIC_DRAW);
+
+				// Determine attribute layout location (you must match your shader locations)
+				GLint location = -1;
+				if (attribName == "POSITION") location = 0;
+				else if (attribName == "NORMAL") location = 1;
+				else if (attribName == "TEXCOORD_0") location = 2;
+				else if (attribName == "JOINTS_0") location = 3;
+				else if (attribName == "WEIGHTS_0") location = 4;
+
+				Logger::Log(1, "%s: loading attribute: %s\n", __FUNCTION__, attribName);
+
+				if (location >= 0) {
+					GLint numComponents = tinygltf::GetNumComponentsInType(accessor.type); // e.g. VEC3 -> 3
+					GLenum glType = accessor.componentType; // GL_FLOAT, GL_UNSIGNED_SHORT, etc.
+
+					glEnableVertexAttribArray(location);
+					glVertexAttribPointer(location, numComponents, glType,
+						accessor.normalized ? GL_TRUE : GL_FALSE,
+						bufferView.byteStride ? bufferView.byteStride : 0,
+						(const void*)0);
+				}
+
+
+			}
+
+
+			if (primitive.indices >= 0) {
+				// Get the accessor, bufferview, and buffer for the index data
+				const tinygltf::Accessor& indexAccessor = model->accessors[primitive.indices];
+				const tinygltf::BufferView& bufferView = model->bufferViews[indexAccessor.bufferView];
+				const tinygltf::Buffer& buffer = model->buffers[bufferView.buffer];
+
+
+
+				// Pointer to the actual index data
+				const unsigned char* dataPtr = buffer.data.data() + bufferView.byteOffset + indexAccessor.byteOffset;
+
+				// Loop through and extract indices based on the component type
+				for (size_t i = 0; i < indexAccessor.count; ++i) {
+					switch (indexAccessor.componentType) {
+					case TINYGLTF_PARAMETER_TYPE_UNSIGNED_BYTE: {
+						gltfPrim.indices.push_back(static_cast<unsigned int>(reinterpret_cast<const uint8_t*>(dataPtr)[i]));
+						break;
+					}
+					case TINYGLTF_PARAMETER_TYPE_UNSIGNED_SHORT: {
+						gltfPrim.indices.push_back(static_cast<unsigned int>(reinterpret_cast<const uint16_t*>(dataPtr)[i]));
+						break;
+					}
+					case TINYGLTF_PARAMETER_TYPE_UNSIGNED_INT: {
+						gltfPrim.indices.push_back(reinterpret_cast<const uint32_t*>(dataPtr)[i]);
+						break;
+					}
+					default:
+						Logger::Log(1, " << indexAccessor.componentType, %zu", indexAccessor.componentType);
+						break;
+					}
+				}
+			}
+			else {
+				// No index buffer: assume the primitive is non-indexed (each vertex is used once)
+				int posAccessorIndex = primitive.attributes.at("POSITION");
+				const tinygltf::Accessor& posAccessor = model->accessors[posAccessorIndex];
+				for (size_t i = 0; i < posAccessor.count; ++i) {
+					gltfPrim.indices.push_back(static_cast<unsigned int>(i));
+				}
+			}
+
+			if (!gltfPrim.indices.empty()) {
+				glGenBuffers(1, &gltfPrim.indexBuffer);
+				glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, gltfPrim.indexBuffer);
+				glBufferData(GL_ELEMENT_ARRAY_BUFFER,
+					gltfPrim.indices.size() * sizeof(unsigned int),
+					gltfPrim.indices.data(),
+					GL_STATIC_DRAW);
+
+				gltfPrim.indexCount = static_cast<GLsizei>(gltfPrim.indices.size());
+				gltfPrim.indexType = GL_UNSIGNED_INT;
+			}
+			else {
+				gltfPrim.indexBuffer = 0;
+				gltfPrim.indexCount = 0;
+			}
+
+			glBindVertexArray(0);
+
+			gltfMesh.primitives.push_back(gltfPrim);
+		}
+
+		meshData[meshIndex] = gltfMesh;
 	}
+
+	GetJointData();
+	GetWeightData();
+	GetInvBindMatrices();
+
+	m_nodeCount = (int)enemyModel->nodes.size();
+	int rootNode = enemyModel->scenes.at(0).nodes.at(0);
+	Logger::Log(1, "%s: model has %i nodes, root node is %i\n", __FUNCTION__, m_nodeCount, rootNode);
+
+	m_nodeList.resize(m_nodeCount);
+
+	m_rootNode = GltfNode::CreateRoot(rootNode);
+
+	m_nodeList.at(rootNode) = m_rootNode;
+
+	GetNodeData(m_rootNode, glm::mat4(1.0f));
+	GetNodes(m_rootNode);
+
+	m_rootNode->PrintTree();
+
+	GetAnimations();
+
+	m_additiveAnimationMask.resize(m_nodeCount);
+	m_invertedAdditiveAnimationMask.resize(m_nodeCount);
+
+	std::fill(m_additiveAnimationMask.begin(), m_additiveAnimationMask.end(), true);
+	m_invertedAdditiveAnimationMask = m_additiveAnimationMask;
+	m_invertedAdditiveAnimationMask.flip();
+
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+}
+
+std::vector<GLuint> Enemy::LoadGLTFTextures(tinygltf::Model* model) {
+	std::vector<GLuint> textureIDs(model->textures.size(), 0);
+
+	for (size_t i = 0; i < model->textures.size(); ++i) {
+		const tinygltf::Texture& tex = model->textures[i];
+		if (tex.source < 0 || tex.source >= model->images.size()) {
+			continue; // Invalid texture
+		}
+
+		const tinygltf::Image& image = model->images[tex.source];
+
+		GLuint texID;
+		glGenTextures(1, &texID);
+		glBindTexture(GL_TEXTURE_2D, texID);
+
+		GLenum format = GL_RGBA;
+		if (image.component == 1) format = GL_RED;
+		else if (image.component == 2) format = GL_RG;
+		else if (image.component == 3) format = GL_RGB;
+		else if (image.component == 4) format = GL_RGBA;
+
+		GLenum type = (image.bits == 16) ? GL_UNSIGNED_SHORT : GL_UNSIGNED_BYTE;
+
+		glTexImage2D(GL_TEXTURE_2D,
+			0,
+			format,
+			image.width,
+			image.height,
+			0,
+			format,
+			type,
+			image.image.data());
+
+		glGenerateMipmap(GL_TEXTURE_2D);
+
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+		textureIDs[i] = texID;
+	}
+
+	m_ao.LoadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Models/New/Updated/Atlas_00001.png", false);
+
+
+	glBindTexture(GL_TEXTURE_2D, 0);
+	return textureIDs;
+}
+
+void Enemy::GetWeightData()
+{
+	const std::string attr = "WEIGHTS_0";
+
+	m_weightVec.clear(); // make this std::vector<glm::vec4>
+	std::vector<std::pair<size_t, size_t>> primRanges;
+
+	auto elemSize = [](int gltfType, int compType) -> size_t {
+		int ncomp =
+			(gltfType == TINYGLTF_TYPE_SCALAR) ? 1 :
+			(gltfType == TINYGLTF_TYPE_VEC2) ? 2 :
+			(gltfType == TINYGLTF_TYPE_VEC3) ? 3 :
+			(gltfType == TINYGLTF_TYPE_VEC4) ? 4 : 0;
+		size_t csize =
+			(compType == TINYGLTF_COMPONENT_TYPE_BYTE ||
+				compType == TINYGLTF_COMPONENT_TYPE_UNSIGNED_BYTE) ? 1 :
+			(compType == TINYGLTF_COMPONENT_TYPE_SHORT ||
+				compType == TINYGLTF_COMPONENT_TYPE_UNSIGNED_SHORT) ? 2 :
+			(compType == TINYGLTF_COMPONENT_TYPE_INT ||
+				compType == TINYGLTF_COMPONENT_TYPE_UNSIGNED_INT ||
+				compType == TINYGLTF_COMPONENT_TYPE_FLOAT) ? 4 : 0;
+		return ncomp * csize;
+		};
+
+	for (size_t mi = 0; mi < enemyModel->meshes.size(); ++mi)
+	{
+		const auto& mesh = enemyModel->meshes[mi];
+		for (size_t pi = 0; pi < mesh.primitives.size(); ++pi)
+		{
+			const auto& prim = mesh.primitives[pi];
+			auto it = prim.attributes.find(attr);
+			if (it == prim.attributes.end())
+				continue;
+
+			int accIdx = it->second;
+			const auto& acc = enemyModel->accessors[accIdx];
+			const auto& bv = enemyModel->bufferViews[acc.bufferView];
+			const auto& buf = enemyModel->buffers[bv.buffer];
+
+			const uint8_t* srcBase = buf.data.data() + bv.byteOffset + acc.byteOffset;
+
+			size_t stride = bv.byteStride;
+			if (stride == 0) stride = elemSize(acc.type, acc.componentType);
+
+			if (acc.type != TINYGLTF_TYPE_VEC4) {
+				Logger::Log(0, "%s: WEIGHTS_0 must be vec4\n", __FUNCTION__);
+				continue;
+			}
+
+			size_t start = m_weightVec.size();
+			m_weightVec.resize(start + acc.count);
+
+			for (size_t k = 0; k < acc.count; ++k)
+			{
+				const uint8_t* s = srcBase + k * stride;
+				glm::vec4 w(0.0f);
+
+				switch (acc.componentType)
+				{
+				case TINYGLTF_COMPONENT_TYPE_FLOAT: {
+					const float* v = reinterpret_cast<const float*>(s);
+					w = glm::vec4(v[0], v[1], v[2], v[3]);
+				} break;
+				case TINYGLTF_COMPONENT_TYPE_UNSIGNED_BYTE: {
+					const uint8_t* v = reinterpret_cast<const uint8_t*>(s);
+					w = glm::vec4(v[0], v[1], v[2], v[3]) / 255.0f;
+				} break;
+				case TINYGLTF_COMPONENT_TYPE_UNSIGNED_SHORT: {
+					const uint16_t* v = reinterpret_cast<const uint16_t*>(s);
+					w = glm::vec4(v[0], v[1], v[2], v[3]) / 65535.0f;
+				} break;
+				default:
+					Logger::Log(0, "%s: unexpected WEIGHTS_0 component type\n", __FUNCTION__);
+					continue;
+				}
+
+				// Safety: renormalize
+				float sum = w.x + w.y + w.z + w.w;
+				if (sum > 0.0f) w /= sum;
+				m_weightVec[start + k] = w;
+			}
+
+			Logger::Log(1, "%s: mesh %zu prim %zu WEIGHTS_0 acc %d count %zu\n",
+				__FUNCTION__, mi, pi, accIdx, size_t(acc.count));
+			primRanges.emplace_back(start, acc.count);
+		}
+	}
+}
+
+
+void Enemy::DrawGLTFModel(glm::mat4 viewMat, glm::mat4 projMat, glm::vec3 camPos) {
+	glDisable(GL_CULL_FACE);
+
+	int texIndex = 1;
+	for (size_t meshIndex = 0; meshIndex < meshData.size(); ++meshIndex) {
+		for (size_t primIndex = 0; primIndex < meshData[meshIndex].primitives.size(); ++primIndex) {
+			const GLTFPrimitive& prim = meshData[meshIndex].primitives[primIndex];
+
+
+			m_shader->Use();
+			glm::mat4 modelMat = glm::mat4(1.0f);
+			modelMat = glm::translate(modelMat, m_position);
+			//modelMat = glm::rotate(modelMat, glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+			modelMat = glm::scale(modelMat, m_scale);
+			std::vector<glm::mat4> matrixData;
+			matrixData.push_back(viewMat);
+			matrixData.push_back(projMat);
+			matrixData.push_back(modelMat);
+			m_uniformBuffer.UploadUboData(matrixData, 0);
+			m_shader->SetVec3("cameraPos", camPos);
+
+			m_enemyDualQuatSsBuffer.UploadSsboData(getJointDualQuats(), 2);
+
+			bool hasTexture = false;
+			glBindVertexArray(prim.vao);
+			int matIndex = prim.material;
+			if (matIndex >= 0 && matIndex < enemyModel->materials.size()) {
+				const tinygltf::Material& mat = enemyModel->materials[matIndex];
+				if (mat.pbrMetallicRoughness.baseColorTexture.index >= 0) {
+					hasTexture = true;
+					texIndex = mat.pbrMetallicRoughness.baseColorTexture.index;
+				}
+
+				if (mat.pbrMetallicRoughness.baseColorTexture.index >= 0) {
+					texIndex = mat.pbrMetallicRoughness.baseColorTexture.index;
+					glActiveTexture(GL_TEXTURE0);
+					glBindTexture(GL_TEXTURE_2D, glTextures[texIndex]);
+					m_shader->SetInt("albedoMap", 0);
+					m_shader->SetBool("useAlbedo", mat.pbrMetallicRoughness.baseColorTexture.index >= 0);
+					m_shader->SetVec3("baseColour", 1.0f, 1.0f, 1.0f);
+				}
+				else {
+					glm::vec3 baseColor = glm::vec3(mat.pbrMetallicRoughness.baseColorFactor[0], mat.pbrMetallicRoughness.baseColorFactor[1], mat.pbrMetallicRoughness.baseColorFactor[2]);
+					m_shader->SetBool("useAlbedo", mat.pbrMetallicRoughness.baseColorTexture.index >= 0);
+					m_shader->SetVec3("baseColour", baseColor);
+				}
+
+
+				if (mat.pbrMetallicRoughness.metallicRoughnessTexture.index >= 0) {
+					glActiveTexture(GL_TEXTURE1);
+					glBindTexture(GL_TEXTURE_2D, glTextures[mat.pbrMetallicRoughness.metallicRoughnessTexture.index]);
+					m_shader->SetInt("metallicRoughnessMap", 1);
+					m_shader->SetBool("useMetallicRoughness", mat.pbrMetallicRoughness.baseColorTexture.index >= 0);
+
+				}
+				else {
+					m_shader->SetBool("useMetallicRoughness", mat.pbrMetallicRoughness.baseColorTexture.index >= 0);
+					m_shader->SetFloat("metallicFactor", mat.pbrMetallicRoughness.metallicFactor);
+					m_shader->SetFloat("roughnessFactor", mat.pbrMetallicRoughness.roughnessFactor);
+				}
+
+				if (mat.normalTexture.index >= 0) {
+					glActiveTexture(GL_TEXTURE2);
+					glBindTexture(GL_TEXTURE_2D, glTextures[mat.normalTexture.index]);
+					m_shader->SetInt("normalMap", 2);
+					m_shader->SetBool("useNormalMap", mat.normalTexture.index >= 0);
+				}
+				else {
+					m_shader->SetBool("useNormalMap", false);
+				}
+
+				if (mat.occlusionTexture.index >= 0) {
+					glActiveTexture(GL_TEXTURE3);
+					glBindTexture(GL_TEXTURE_2D, glTextures[mat.occlusionTexture.index]);
+					m_shader->SetInt("occlusionTex", 3);
+					m_shader->SetBool("useOcclusionMap", mat.occlusionTexture.index >= 0);
+				}
+				else {
+					m_shader->SetInt("occlusionTex", 3);
+					m_shader->SetBool("useOcclusionMap", false);
+				}
+
+				m_shader->SetBool("useEmissiveFactor", false);
+				m_shader->SetVec3("emissiveFactor", 0.0f, 0.0f, 0.0f);
+				m_shader->SetFloat("emissiveStrength", 0.0f);
+			}
+
+			if (prim.indexBuffer) {
+				glDrawElements(GL_TRIANGLES, prim.indexCount, GL_UNSIGNED_INT, 0);
+			}
+			else {
+				glDrawArrays(prim.mode, 0, prim.vertexCount);
+			}
+
+			glBindVertexArray(0);
+
+		}
+
+		if (texIndex < glTextures.size() - 3)
+			texIndex += 3;
+	}
+}
+
+void Enemy::DrawObject(glm::mat4 viewMat, glm::mat4 proj, bool shadowMap, glm::mat4 lightSpaceMat, GLuint shadowMapTexture, glm::vec3 camPos)
+{
+	DrawGLTFModel(viewMat, proj, camPos);
 }
 
 void Enemy::Update(bool shouldUseEDBT, bool isPaused, bool isTimeScaled)
@@ -284,7 +679,7 @@ void Enemy::OnEvent(const Event& event)
 void Enemy::SetPosition(glm::vec3 newPos)
 {
 	m_position = newPos;
-	UpdateAABB();
+	//UpdateAABB();
 	m_recomputeWorldTransform = true;
 	ComputeAudioWorldTransform();
 }
@@ -606,15 +1001,15 @@ void Enemy::Shoot()
 
 void Enemy::SetUpAABB()
 {
-	m_aabb = new AABB();
-	m_aabb->CalculateAABB(m_model->GetVertices());
-	m_aabb->SetShader(m_aabbShader);
-	m_aabb->SetUpMesh();
-	m_aabb->SetOwner(this);
-	m_aabb->SetIsEnemy(true);
-	m_gameManager->GetPhysicsWorld()->AddCollider(GetAABB());
-	m_gameManager->GetPhysicsWorld()->AddEnemyCollider(GetAABB());
-	UpdateAABB();
+	//m_aabb = new AABB();
+	//m_aabb->CalculateAABB(m_model->GetVertices());
+	//m_aabb->SetShader(m_aabbShader);
+	//m_aabb->SetUpMesh();
+	//m_aabb->SetOwner(this);
+	//m_aabb->SetIsEnemy(true);
+	//m_gameManager->GetPhysicsWorld()->AddCollider(GetAABB());
+	//m_gameManager->GetPhysicsWorld()->AddEnemyCollider(GetAABB());
+	//UpdateAABB();
 }
 
 void Enemy::Speak(const std::string& clipName, float priority, float cooldown)
@@ -715,10 +1110,10 @@ void Enemy::OnDeath()
 
 void Enemy::UpdateAABB()
 {
-	glm::mat4 modelMatrix = translate(glm::mat4(1.0f), m_position) *
-		rotate(glm::mat4(1.0f), glm::radians(-m_yaw + 90.0f), glm::vec3(0.0f, 1.0f, 0.0f)) *
-		glm::scale(glm::mat4(1.0f), m_aabbScale);
-	m_aabb->Update(modelMatrix);
+	//glm::mat4 modelMatrix = translate(glm::mat4(1.0f), m_position) *
+	//	rotate(glm::mat4(1.0f), glm::radians(-m_yaw + 90.0f), glm::vec3(0.0f, 1.0f, 0.0f)) *
+	//	glm::scale(glm::mat4(1.0f), m_aabbScale);
+	//m_aabb->Update(modelMatrix);
 };
 
 void Enemy::ScoreCoverLocations(Player& player)
@@ -1350,7 +1745,7 @@ void Enemy::ResetState()
 
 	m_aabbColor = glm::vec3(0.0f, 0.0f, 1.0f);
 
-	UpdateAABB();
+	//UpdateAABB();
 
 	m_animNum = 1;
 	m_sourceAnim = 1;
