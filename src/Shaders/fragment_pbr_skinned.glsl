@@ -28,13 +28,15 @@ PointLight pointLight1 = PointLight(vec3(10.0, 503.0, -184.0), vec3(301.0, 10.1,
 PointLight pointLight2 = PointLight(vec3(16.0, 339.0, -155.0), vec3(301.0, 10.6, 20.2));
 PointLight pointLight3 = PointLight(vec3(-382.0, 332.0, -153.0), vec3(301.0, 10.6, 20.2));
 PointLight pointLight4 = PointLight(vec3(-83.0, 334.0, -8.0), vec3(300.0, 10.6, 20.2));
+PointLight pointLight5 = PointLight(vec3(0.0, 394.0, 0.0), vec3(300.0, 200.6, 200.2));
 
 
 PointLight pointLights[] =  {
     pointLight1,
     pointLight2,
     pointLight3,
-    pointLight4
+    pointLight4,
+    pointLight5
 };
 
 uniform DirLight dirLight;
@@ -251,10 +253,7 @@ void main()
     {
         // calculate per-light radiance
         vec3 L = normalize(-dirLight.direction);
-        if (i % 2 == 0) {
-            // skip every second light
-           L = -L;
-        }
+      
         vec3 H = normalize(V + L);
         vec3 radiance = dirLight.diffuse;
 
@@ -283,10 +282,15 @@ void main()
 
 
         // add to outgoing radiance Lo
-        Lo += (kD * albedo / PI + specular) * radiance * NdotL;
+        Lo += (kD * albedo / PI + specular) * radiance * NdotL * 3.0;
     }   
     
+    float intensity = 8.0f;
+
     for (int i = 0; i < 4; ++i) {
+        if (i == 4) {
+            intensity = 77.0f;
+        }
         Lo += CalcPointLight(
             pointLights[i].position,
             pointLights[i].color,
@@ -296,7 +300,7 @@ void main()
             metallic,
             roughness,
             albedo
-        ) * 5.0f;
+        ) * intensity;
     }
 
     for (int i = 0; i < 4; ++i) {
@@ -316,7 +320,7 @@ void main()
     }
 
     // ambient lighting
-    vec3 ambient = vec3(0.03) * albedo * ao;
+    vec3 ambient = vec3(0.13) * albedo * ao;
     
     vec3 color = ambient + Lo + emissive;
 
