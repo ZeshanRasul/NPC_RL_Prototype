@@ -1,4 +1,4 @@
-#version 330 core
+#version 460 core
 out vec4 FragColor;
 
 in vec2 TexCoords;
@@ -17,6 +17,24 @@ struct DirLight {
 	vec3 ambient;
 	vec3 diffuse;
 	vec3 specular;
+};
+
+struct PointLight {
+    vec3 position;
+    vec3 color;
+};
+
+PointLight pointLight1 = PointLight(vec3(10.0, 503.0, -184.0), vec3(301.0, 10.1, 20.2));
+PointLight pointLight2 = PointLight(vec3(16.0, 339.0, -155.0), vec3(301.0, 10.6, 20.2));
+PointLight pointLight3 = PointLight(vec3(-382.0, 332.0, -153.0), vec3(301.0, 10.6, 20.2));
+PointLight pointLight4 = PointLight(vec3(-83.0, 334.0, -8.0), vec3(300.0, 10.6, 20.2));
+
+
+PointLight pointLights[] =  {
+    pointLight1,
+    pointLight2,
+    pointLight3,
+    pointLight4
 };
 
 uniform DirLight dirLight;
@@ -91,11 +109,48 @@ float GeometrySmith(vec3 N, vec3 V, vec3 L, float roughness)
     return ggx1 * ggx2;
 }
 // ----------------------------------------------------------------------------
-vec3 fresnelSchlick(float cosTheta, vec3 F0)
+vec3 FresnelSchlick(float cosTheta, vec3 F0)
 {
     return F0 + (1.0 - F0) * pow(clamp(1.0 - cosTheta, 0.0, 1.0), 5.0);
 }
 // ----------------------------------------------------------------------------
+
+
+vec3 CalcPointLight(
+    vec3 lightPos,
+    vec3 lightColor,
+    vec3 fragPos,
+    vec3 N,
+    vec3 V,
+    float metallic,
+    float roughness,
+    vec3 albedo
+) {
+    vec3 L = normalize(lightPos - fragPos);
+    vec3 H = normalize(V + L);
+    float distance = length(lightPos - fragPos);
+    float attenuation = 1.0 / (distance * distance);
+    vec3 radiance = lightColor * attenuation;
+
+    vec3 F0 = vec3(0.04); 
+    F0 = mix(F0, albedo, metallic);
+
+    float NDF = DistributionGGX(N, H, roughness);
+    float G   = GeometrySmith(N, V, L, roughness);
+    vec3  F   = FresnelSchlick(max(dot(H, V), 0.0), F0);
+
+    vec3 numerator    = NDF * G * F;
+    float denominator = 4.0 * max(dot(N, V), 0.0) * max(dot(N, L), 0.0) + 0.001;
+    vec3 specular     = numerator / denominator;
+
+    vec3 kS = F;
+    vec3 kD = vec3(1.0) - kS;
+    kD *= 1.0 - metallic;
+
+    float NdotL = max(dot(N, L), 0.0);
+    return (kD * albedo / PI + specular) * radiance * NdotL;
+}
+
 void main()
 {		
     vec3 albedo;
@@ -164,7 +219,7 @@ void main()
         // Cook-Torrance BRDF
         float NDF = DistributionGGX(N, H, roughness);   
         float G   = GeometrySmith(N, V, L, roughness);      
-        vec3 F    = fresnelSchlick(max(dot(H, V), 0.0), F0);
+        vec3 F    = FresnelSchlick(max(dot(H, V), 0.0), F0);
            
         vec3 numerator    = NDF * G * F; 
         float denominator = 4.0 * max(dot(N, V), 0.0) * max(dot(N, L), 0.0) + 0.0001; // + 0.0001 to prevent divide by zero
@@ -189,6 +244,19 @@ void main()
         Lo += (kD * albedo / PI + specular) * radiance * NdotL;
     }   
     
+    for (int i = 0; i < 4; ++i) {
+        Lo += CalcPointLight(
+            pointLights[i].position,
+            pointLights[i].color,
+            WorldPos,
+            N,
+            V,
+            metallic,
+            roughness,
+            albedo
+        ) * 100.0f;
+    }
+
     // ambient lighting
     vec3 ambient = vec3(0.03) * albedo * ao;
     
