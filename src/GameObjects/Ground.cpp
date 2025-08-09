@@ -47,6 +47,27 @@ std::vector<GLuint> Ground::LoadGLTFTextures(tinygltf::Model* model) {
 	return textureIDs;
 }
 
+float GetEmissiveStrength(const tinygltf::Material& mat)
+{
+	// Default is 1.0 if extension not present
+	float emissiveStrength = 1.0f;
+
+	// Check if extension exists
+	auto extIt = mat.extensions.find("KHR_materials_emissive_strength");
+	if (extIt != mat.extensions.end())
+	{
+		const tinygltf::Value& ext = extIt->second;
+
+		// Check if "emissiveStrength" exists in the extension object
+		if (ext.Has("emissiveStrength"))
+		{
+			emissiveStrength = static_cast<float>(ext.Get("emissiveStrength").GetNumberAsDouble());
+		}
+	}
+
+	return emissiveStrength;
+}
+
 void Ground::DrawGLTFModel(glm::mat4 viewMat, glm::mat4 projMat, glm::vec3 camPos) {
 	glDisable(GL_CULL_FACE);
 
@@ -125,6 +146,19 @@ void Ground::DrawGLTFModel(glm::mat4 viewMat, glm::mat4 projMat, glm::vec3 camPo
 				}
 				else {
 					m_shader->SetBool("useOcclusionMap", false);
+				}
+
+				if (!mat.emissiveFactor.empty()) {
+					glm::vec3 emissiveFactor = glm::vec3(mat.emissiveFactor[0], mat.emissiveFactor[1], mat.emissiveFactor[2]);
+					m_shader->SetBool("useEmissiveFactor", true);
+					m_shader->SetVec3("emissiveFactor", emissiveFactor);
+					float emissiveStrength = GetEmissiveStrength(mat);
+					m_shader->SetFloat("emissiveStrength", emissiveStrength);
+				}
+				else {
+					m_shader->SetBool("useEmissiveFactor", false);
+					m_shader->SetVec3("emissiveFactor", 0.0f, 0.0f, 0.0f);
+					m_shader->SetFloat("emissiveStrength", 0.0f);
 				}
 			}
 

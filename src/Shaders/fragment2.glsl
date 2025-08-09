@@ -25,6 +25,8 @@ uniform bool useAlbedo;
 uniform bool useMetallicRoughness;
 uniform bool useNormalMap;
 uniform bool useOcclusionMap;
+uniform bool useEmissiveFactor;
+
 
 vec3 CalcDirLight(DirLight light, vec3 normal);
 
@@ -32,6 +34,9 @@ uniform vec3 cameraPos;
 uniform vec3 baseColour;
 uniform float metallicFactor;
 uniform float roughnessFactor;
+uniform vec3 emissiveFactor;
+uniform float emissiveStrength;
+
 const float PI = 3.14159265359;
 
 vec3 getNormalFromMap()
@@ -122,6 +127,14 @@ void main()
         ao = 1.0;
     }
 
+    vec3 emissive;
+    if (useEmissiveFactor) 
+    {
+        emissive = emissiveFactor * emissiveStrength;
+    } else {
+        emissive = vec3(0.0f, 0.0f, 0.0f);
+   }
+
     vec3 N;
 
     if (useNormalMap) {
@@ -179,7 +192,7 @@ void main()
     // ambient lighting
     vec3 ambient = vec3(0.03) * albedo * ao;
     
-    vec3 color = ambient + Lo;
+    vec3 color = ambient + Lo + emissive;
 
     // HDR tonemapping
     color = color / (color + vec3(1.0));

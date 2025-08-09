@@ -89,7 +89,12 @@ void Player::DrawGLTFModel(glm::mat4 viewMat, glm::mat4 projMat, glm::vec3 camPo
 					m_shader->SetInt("albedoMap", 0);
 					m_shader->SetBool("useAlbedo", mat.pbrMetallicRoughness.baseColorTexture.index >= 0);
 					m_shader->SetVec3("baseColour", 1.0f, 1.0f, 1.0f);
+				} else {
+					glm::vec3 baseColor = glm::vec3(mat.pbrMetallicRoughness.baseColorFactor[0], mat.pbrMetallicRoughness.baseColorFactor[1], mat.pbrMetallicRoughness.baseColorFactor[2]);
+					m_shader->SetBool("useAlbedo", mat.pbrMetallicRoughness.baseColorTexture.index >= 0);
+					m_shader->SetVec3("baseColour", baseColor);
 				}
+
 
 				if (mat.pbrMetallicRoughness.metallicRoughnessTexture.index >= 0) {
 					glActiveTexture(GL_TEXTURE1);
@@ -124,6 +129,10 @@ void Player::DrawGLTFModel(glm::mat4 viewMat, glm::mat4 projMat, glm::vec3 camPo
 					m_shader->SetInt("occlusionTex", 3);
 					m_shader->SetBool("useOcclusionMap", false);
 				}
+
+				m_shader->SetBool("useEmissiveFactor", false);
+				m_shader->SetVec3("emissiveFactor", 0.0f, 0.0f, 0.0f);
+				m_shader->SetFloat("emissiveStrength", 0.0f);
 			}
 
 			if (prim.indexBuffer) {
