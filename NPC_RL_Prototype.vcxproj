@@ -369,6 +369,7 @@
     <ClInclude Include="src\Window\Window.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="src\Shaders\fragment_pbr_skinned.glsl" />
     <None Include="src\Shaders\muzzle_flash_fragment.glsl" />
     <None Include="src\Shaders\muzzle_flash_vertex.glsl" />
     <None Include="src\Shaders\navmesh_frag.glsl" />
@@ -409,6 +410,7 @@
     <None Include="src\Shaders\vertex_gpu_dquat2.glsl" />
     <None Include="src\Shaders\fragment2.glsl" />
     <None Include="src\Shaders\vertex2.glsl" />
+    <None Include="src\Shaders\vertex_pbr_skinned.glsl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

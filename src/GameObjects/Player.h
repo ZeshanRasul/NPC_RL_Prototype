@@ -2,6 +2,13 @@
 
 #include <string>
 #include <iostream>
+#include <algorithm>
+#include <chrono>
+#include <cmath>
+
+#include <glm/gtc/type_ptr.hpp>
+#include <glm/gtx/dual_quaternion.hpp>
+#include <glm/gtx/matrix_decompose.hpp>
 
 #include "GameObject.h"
 #include "../Camera.h"
@@ -11,9 +18,6 @@
 #include "Physics/AABB.h"
 #include "Components/AudioComponent.h"
 #include "Model/GLTFPrimitive.h"
-#include <glm/gtc/type_ptr.hpp>
-#include <glm/gtx/dual_quaternion.hpp>
-#include <glm/gtx/matrix_decompose.hpp>
 
 enum PlayerState
 {
@@ -92,11 +96,11 @@ public:
 		//m_model->uploadIndexBuffer();
 		//Logger::Log(1, "%s: glTF m_model '%s' successfully loaded\n", __FUNCTION__, modelFilename.c_str());
 		//
-		//size_t playerModelJointDualQuatBufferSize = getJointDualQuatsSize() *
-		//	sizeof(glm::mat2x4);
-		//m_playerDualQuatSsBuffer.Init(playerModelJointDualQuatBufferSize);
-		//Logger::Log(1, "%s: glTF joint dual quaternions shader storage buffer (size %i bytes) successfully created\n",
-		//            __FUNCTION__, playerModelJointDualQuatBufferSize);
+		size_t playerModelJointDualQuatBufferSize = GetJointDualQuatsSize() *
+			sizeof(glm::mat2x4);
+		m_playerDualQuatSsBuffer.Init(playerModelJointDualQuatBufferSize);
+		Logger::Log(1, "%s: glTF joint dual quaternions shader storage buffer (size %i bytes) successfully created\n",
+		            __FUNCTION__, playerModelJointDualQuatBufferSize);
 
 		m_takeDamageAc = new AudioComponent(this);
 		m_deathAc = new AudioComponent(this);
@@ -108,6 +112,11 @@ public:
 		SetPlayerAimFront(GetPlayerFront());
 		m_playerAimRight = GetPlayerRight();
 		SetPlayerAimUp(m_playerUp);
+	}
+
+	std::vector<glm::mat2x4> getJointDualQuats()
+	{
+		return m_jointDualQuats;
 	}
 
 	std::vector<glm::tvec4<uint16_t>> m_jointVec{};
@@ -135,6 +144,116 @@ public:
 		m_model->cleanup();
 	}
 
+	std::string GetNodeName(int nodeNum)
+	{
+		if (nodeNum >= 0 && nodeNum < (m_nodeList.size()) && m_nodeList.at(nodeNum))
+		{
+			return m_nodeList.at(nodeNum)->GetNodeName();
+		}
+		return "(Invalid)";
+	}
+
+	void ResetNodeData()
+	{
+		GetNodeData(m_rootNode, glm::mat4(1.0f));
+		ResetNodeData(m_rootNode, glm::mat4(1.0f));
+	}
+
+	void ResetNodeData(std::shared_ptr<GltfNode> treeNode, glm::mat4 parentNodeMatrix)
+	{
+		glm::mat4 treeNodeMatrix = treeNode->GetNodeMatrix();
+		for (auto& childNode : treeNode->GetChilds())
+		{
+			GetNodeData(childNode, treeNodeMatrix);
+			ResetNodeData(childNode, treeNodeMatrix);
+		}
+	}
+
+	void UpdateNodeMatrices(std::shared_ptr<GltfNode> treeNode, glm::mat4 parentNodeMatrix)
+	{
+		treeNode->CalculateNodeMatrix(parentNodeMatrix);
+		UpdateJointMatricesAndQuats(treeNode);
+
+		glm::mat4 treeNodeMatrix = treeNode->GetNodeMatrix();
+
+		for (auto& childNode : treeNode->GetChilds())
+		{
+			//Logger::Log(1, "%s: updating node %i (%s)\n", __FUNCTION__,
+			//	childNode->GetNodeNum(), childNode->GetNodeName().c_str());
+			UpdateNodeMatrices(childNode, treeNodeMatrix);
+		}
+	}
+
+	void UpdateJointMatricesAndQuats(std::shared_ptr<GltfNode> treeNode)
+	{
+		const int nodeNum = treeNode->GetNodeNum();
+
+		if (nodeNum < 0 || nodeNum >= static_cast<int>(m_nodeToJoint.size()))
+			return;
+
+		const int j = m_nodeToJoint[nodeNum];
+		if (j < 0)                      return; // not a joint
+		if (j >= static_cast<int>(m_jointMatrices.size()) ||
+			j >= static_cast<int>(m_inverseBindMatrices.size()) ||
+			j >= static_cast<int>(m_jointDualQuats.size())) {
+			Logger::Log(0, "%s: joint %d out of range for buffers\n", __FUNCTION__, j);
+			return;
+		}
+
+		const glm::mat4 J = treeNode->GetNodeMatrix() * m_inverseBindMatrices[j];
+		m_jointMatrices[j] = J;
+
+		/* extract components from node matrix */
+		glm::quat orientation;
+		glm::vec3 scale;
+		glm::vec3 translation;
+		glm::vec3 skew;
+		glm::vec4 perspective;
+
+		/* create dual quaternion */
+		if (glm::decompose(J, scale, orientation, translation, skew, perspective)) {
+			glm::dualquat dq;
+			dq.real = orientation;
+			dq.dual = glm::quat(0.0f, translation) * orientation * 0.5f;
+			m_jointDualQuats[j] = glm::mat2x4_cast(dq);
+		}
+	}
+
+	void BlendAnimationFrame(int animNum, float time, float blendFactor)
+	{
+		m_animClips.at(animNum)->BlendAnimationFrame(m_nodeList, m_additiveAnimationMask, time, blendFactor);
+		UpdateNodeMatrices(m_rootNode, glm::mat4(1.0f));
+	}
+
+	void PlayAnimation(int animNum, float speedDivider, float blendFactor, bool playBackwards)
+	{
+		//Logger::Log(1, "%s: playing animation %i at speed %f with blend factor %f\n",
+		//	__FUNCTION__, animNum, speedDivider, blendFactor);
+		double currentTime = (double)std::chrono::duration_cast<std::chrono::milliseconds>(
+			std::chrono::steady_clock::now().time_since_epoch()).count();
+		if (playBackwards)
+		{
+			BlendAnimationFrame(animNum, m_animClips.at(animNum)->GetClipEndTime() -
+				std::fmod(currentTime / 1000.0 * speedDivider,
+					m_animClips.at(animNum)->GetClipEndTime()), blendFactor);
+		}
+		else
+		{
+			BlendAnimationFrame(animNum, std::fmod(currentTime / 1000.0 * speedDivider,
+				m_animClips.at(animNum)->GetClipEndTime()), blendFactor);
+		}
+	}
+
+	float GetAnimationEndTime(int animNum)
+	{
+		return m_animClips.at(animNum)->GetClipEndTime();
+	}
+
+	std::string GetClipName(int animNum)
+	{
+		return m_animClips.at(animNum)->GetClipName();
+	}
+
 	void GetInvBindMatrices()
 	{
 		const tinygltf::Skin& skin = playerModel->skins.at(0);
@@ -152,35 +271,11 @@ public:
 			bufferView.byteLength);
 	}
 
-	void UpdateJointMatricesAndQuats(std::shared_ptr<GltfNode> treeNode)
+	int GetJointDualQuatsSize()
 	{
-		int nodeNum = treeNode->GetNodeNum();
-		m_jointMatrices.at(m_nodeToJoint.at(nodeNum)) =
-			treeNode->GetNodeMatrix() * m_inverseBindMatrices.at(m_nodeToJoint.at(nodeNum));
-
-		/* extract components from node matrix */
-		glm::quat orientation;
-		glm::vec3 scale;
-		glm::vec3 translation;
-		glm::vec3 skew;
-		glm::vec4 perspective;
-		glm::dualquat dq;
-
-		/* create dual quaternion */
-		if (decompose(m_jointMatrices.at(m_nodeToJoint.at(nodeNum)), scale, orientation,
-			translation, skew, perspective))
-		{
-			dq[0] = orientation;
-			dq[1] = glm::quat(0.0, translation.x, translation.y, translation.z) * orientation * 0.5f;
-			m_jointDualQuats.at(m_nodeToJoint.at(nodeNum)) = mat2x4_cast(dq);
-			glm::mat2x4 newDq = m_jointDualQuats.at(m_nodeToJoint.at(nodeNum));
-			newDq;
-		}
-		else {
-			//Logger::Log(1, "%s error: could not decompose matrix for node %i\n", __FUNCTION__,
-		//		nodeNum);
-		}
+		return (int)m_jointDualQuats.size();
 	}
+
 
 	void GetNodeData(std::shared_ptr<GltfNode> treeNode, glm::mat4 parentNodeMatrix)
 	{
@@ -206,63 +301,126 @@ public:
 
 		UpdateJointMatricesAndQuats(treeNode);
 	}
-
+	// Helpers to look up an attribute accessor for a primitive
+	bool GetAttrAccessorIndex(const tinygltf::Primitive& prim,
+		const char* name, int& outAccessorIndex)
+	{
+		auto it = prim.attributes.find(name);
+		if (it == prim.attributes.end()) return false;
+		outAccessorIndex = it->second;
+		return true;
+	}
 
 	void GetJointData()
 	{
-		std::string jointsAccessorAttrib = "JOINTS_0";
+		const std::string attr = "JOINTS_0";
 
-		for (auto& mesh : playerModel->meshes)
+		m_jointVec.clear();
+		std::vector<std::pair<size_t, size_t>> primRanges; // [start,count] per primitive if you need it
+
+		auto elemSize = [](int gltfType, int compType) -> size_t {
+			int ncomp = (gltfType == TINYGLTF_TYPE_VEC4) ? 4 :
+				(gltfType == TINYGLTF_TYPE_VEC3) ? 3 :
+				(gltfType == TINYGLTF_TYPE_VEC2) ? 2 :
+				(gltfType == TINYGLTF_TYPE_SCALAR) ? 1 : 0;
+			size_t csize = (compType == TINYGLTF_COMPONENT_TYPE_UNSIGNED_BYTE ||
+				compType == TINYGLTF_COMPONENT_TYPE_BYTE) ? 1 :
+				(compType == TINYGLTF_COMPONENT_TYPE_UNSIGNED_SHORT ||
+					compType == TINYGLTF_COMPONENT_TYPE_SHORT) ? 2 :
+				(compType == TINYGLTF_COMPONENT_TYPE_UNSIGNED_INT ||
+					compType == TINYGLTF_COMPONENT_TYPE_INT ||
+					compType == TINYGLTF_COMPONENT_TYPE_FLOAT) ? 4 : 0;
+			return ncomp * csize;
+			};
+
+		for (size_t mi = 0; mi < playerModel->meshes.size(); ++mi)
 		{
-			for (auto& primitive : mesh.primitives)
+			const auto& mesh = playerModel->meshes[mi];
+			for (size_t pi = 0; pi < mesh.primitives.size(); ++pi)
 			{
+				const auto& prim = mesh.primitives[pi];
+				auto it = prim.attributes.find(attr);
+				if (it == prim.attributes.end())
+					continue; // rigid primitive
+
+				int accIdx = it->second;
+				const auto& acc = playerModel->accessors[accIdx];
+				const auto& bv = playerModel->bufferViews[acc.bufferView];
+				const auto& buf = playerModel->buffers[bv.buffer];
+
+				const uint8_t* srcBase =
+					buf.data.data() + bv.byteOffset + acc.byteOffset;
+
+				size_t stride = bv.byteStride;
+				if (stride == 0) stride = elemSize(acc.type, acc.componentType);
+
+				// Only u8x4 or u16x4 are valid for JOINTS_0
+				if (acc.type != TINYGLTF_TYPE_VEC4 ||
+					(acc.componentType != TINYGLTF_COMPONENT_TYPE_UNSIGNED_BYTE &&
+						acc.componentType != TINYGLTF_COMPONENT_TYPE_UNSIGNED_SHORT))
+				{
+					Logger::Log(0, "%s: unexpected JOINTS_0 type/compType\n", __FUNCTION__);
+					continue;
+				}
+
+				size_t start = m_jointVec.size();
+				m_jointVec.resize(start + acc.count);
+
+				for (size_t k = 0; k < acc.count; ++k)
+				{
+					const uint8_t* s = srcBase + k * stride;
+					glm::u16vec4 j(0);
+					if (acc.componentType == TINYGLTF_COMPONENT_TYPE_UNSIGNED_BYTE) {
+						const uint8_t* v = reinterpret_cast<const uint8_t*>(s);
+						j = glm::u16vec4(v[0], v[1], v[2], v[3]);
+					}
+					else {
+						const uint16_t* v = reinterpret_cast<const uint16_t*>(s);
+						j = glm::u16vec4(v[0], v[1], v[2], v[3]);
+					}
+					m_jointVec[start + k] = j;
+				}
+
+				Logger::Log(1, "%s: mesh %zu prim %zu JOINTS_0 acc %d count %zu\n",
+					__FUNCTION__, mi, pi, accIdx, size_t(acc.count));
+				primRanges.emplace_back(start, acc.count);
 			}
 		}
-		int jointsAccessor = playerModel->meshes.at(0).primitives.at(0).attributes[jointsAccessorAttrib];
-		Logger::Log(1, "%s: using accessor %i to get %s\n", __FUNCTION__, jointsAccessor,
-			jointsAccessorAttrib.c_str());
 
-
-		const tinygltf::Accessor& accessor = playerModel->accessors.at(jointsAccessor);
-		const tinygltf::BufferView& bufferView = playerModel->bufferViews.at(accessor.bufferView);
-		const tinygltf::Buffer& buffer = playerModel->buffers.at(bufferView.buffer);
-		int jointVecSize = accessor.count;
-		Logger::Log(1, "%s: %i short vec4 in JOINTS_0\n", __FUNCTION__, jointVecSize);
-		m_jointVec.resize(jointVecSize);
-
-
-		std::memcpy(m_jointVec.data(), &buffer.data.at(0) + bufferView.byteOffset,
-			bufferView.byteLength);
-
-		m_nodeToJoint.resize(playerModel->nodes.size());
+		// Build node->joint map once per skin
 		const tinygltf::Skin& skin = playerModel->skins.at(0);
-		for (int i = 0; i < skin.joints.size(); ++i)
-		{
-			int destinationNode = skin.joints.at(i);
-			m_nodeToJoint.at(destinationNode) = i;
-			Logger::Log(2, "%s: joint %i affects node %i\n", __FUNCTION__, i, destinationNode);
+		m_nodeToJoint.assign(playerModel->nodes.size(), -1);
+		for (int i = 0; i < static_cast<int>(skin.joints.size()); ++i) {
+			int jointNode = skin.joints[i];
+			if (jointNode >= 0 && jointNode < static_cast<int>(m_nodeToJoint.size()))
+				m_nodeToJoint[jointNode] = i;
 		}
 
+		m_inverseBindMatrices.resize(skin.joints.size());
+		m_jointMatrices.resize(skin.joints.size());
+		m_jointDualQuats.resize(skin.joints.size());
 	}
 
-	void GetWeightData()
-	{
-		std::string weightsAccessorAttrib = "WEIGHTS_0";
-		int weightAccessor = playerModel->meshes.at(0).primitives.at(0).attributes.at(weightsAccessorAttrib);
-		Logger::Log(1, "%s: using accessor %i to get %s\n", __FUNCTION__, weightAccessor,
-			weightsAccessorAttrib.c_str());
 
-		const tinygltf::Accessor& accessor = playerModel->accessors.at(weightAccessor);
-		const tinygltf::BufferView& bufferView = playerModel->bufferViews.at(accessor.bufferView);
-		const tinygltf::Buffer& buffer = playerModel->buffers.at(bufferView.buffer);
+	void GetWeightData();
 
-		int weightVecSize = accessor.count;
-		Logger::Log(1, "%s: %i vec4 in WEIGHTS_0\n", __FUNCTION__, weightVecSize);
-		m_weightVec.resize(weightVecSize);
+	//void GetWeightData()
+	//{
+	//	int weightAccessor = playerModel->meshes.at(0).primitives.at(0).attributes.at(weightsAccessorAttrib);
+	//	Logger::Log(1, "%s: using accessor %i to get %s\n", __FUNCTION__, weightAccessor,
+	//		weightsAccessorAttrib.c_str());
 
-		std::memcpy(m_weightVec.data(), &buffer.data.at(0) + bufferView.byteOffset,
-			bufferView.byteLength);
-	}
+	//	const tinygltf::Accessor& accessor = playerModel->accessors.at(weightAccessor);
+	//	const tinygltf::BufferView& bufferView = playerModel->bufferViews.at(accessor.bufferView);
+	//	const tinygltf::Buffer& buffer = playerModel->buffers.at(bufferView.buffer);
+
+	//	int weightVecSize = accessor.count;
+	//	Logger::Log(1, "%s: %i vec4 in WEIGHTS_0\n", __FUNCTION__, weightVecSize);
+	//	m_weightVec.resize(weightVecSize);
+
+	//	std::memcpy(m_weightVec.data(), &buffer.data.at(0) + bufferView.byteOffset,
+	//		bufferView.byteLength);
+	//}
 
 	void DrawObject(glm::mat4 viewMat, glm::mat4 proj, bool shadowMap, glm::mat4 lightSpaceMat, GLuint shadowMapTexture,
 		glm::vec3 camPos) override;
@@ -463,178 +621,7 @@ public:
 		}
 	}
 
-	void SetupGLTFMeshes(tinygltf::Model* model)
-	{
-		meshData.resize(model->meshes.size());
-
-		for (size_t meshIndex = 0; meshIndex < model->meshes.size(); ++meshIndex) {
-			const tinygltf::Mesh& mesh = model->meshes[meshIndex];
-			GLTFMesh gltfMesh;
-
-			for (size_t primIndex = 0; primIndex < mesh.primitives.size(); ++primIndex) {
-				const tinygltf::Primitive& primitive = mesh.primitives[primIndex];
-				GLTFPrimitive gltfPrim = {};
-				gltfPrim.mode = primitive.mode; // usually GL_TRIANGLES
-
-				gltfPrim.material = primitive.material;
-
-				// --- Create VAO ---
-				glGenVertexArrays(1, &gltfPrim.vao);
-				glBindVertexArray(gltfPrim.vao);
-
-				// --- Upload vertex attributes ---
-				for (const auto& attrib : primitive.attributes) {
-					const std::string& attribName = attrib.first; // "POSITION", "NORMAL", "TEXCOORD_0", etc.
-					int accessorIndex = attrib.second;
-					const tinygltf::Accessor& accessor = model->accessors[accessorIndex];
-					const tinygltf::BufferView& bufferView = model->bufferViews[accessor.bufferView];
-					const tinygltf::Buffer& buffer = model->buffers[bufferView.buffer];
-
-					GLuint vbo;
-					glGenBuffers(1, &vbo);
-					glBindBuffer(GL_ARRAY_BUFFER, vbo);
-
-					if (attribName == "POSITION") {
-						int numPositionEntries = static_cast<int>(accessor.count);
-						Logger::Log(1, "%s: loaded %i vertices from glTF file\n", __FUNCTION__,
-							numPositionEntries);
-
-						// Extract vertices
-						const float* positions = reinterpret_cast<const float*>(
-							buffer.data.data() + bufferView.byteOffset + accessor.byteOffset);
-
-						for (int i = 0; i < numPositionEntries; i++)
-						{
-							gltfPrim.verts.push_back(glm::vec3(positions[i * 3 + 0], positions[i * 3 + 1], positions[i * 3 + 2]));
-							gltfPrim.vertexCount++;
-						}
-					}
-
-					const void* dataPtr = &buffer.data[accessor.byteOffset + bufferView.byteOffset];
-					size_t dataSize = accessor.count * tinygltf::GetNumComponentsInType(accessor.type) * tinygltf::GetComponentSizeInBytes(accessor.componentType);
-
-					glBufferData(GL_ARRAY_BUFFER, dataSize, dataPtr, GL_STATIC_DRAW);
-
-					// Determine attribute layout location (you must match your shader locations)
-					GLint location = -1;
-					if (attribName == "POSITION") location = 0;
-					else if (attribName == "NORMAL") location = 1;
-					else if (attribName == "TEXCOORD_0") location = 2;
-					else if (attribName == "JOINTS_0") location = 3;
-					else if (attribName == "WEIGHTS_0") location = 4;
-					// Add JOINTS_0, WEIGHTS_0 etc. if needed
-					Logger::Log(1, "%s: loading attribute: %s\n", __FUNCTION__, attribName);
-
-					if (location >= 0) {
-						GLint numComponents = tinygltf::GetNumComponentsInType(accessor.type); // e.g. VEC3 -> 3
-						GLenum glType = accessor.componentType; // GL_FLOAT, GL_UNSIGNED_SHORT, etc.
-
-						glEnableVertexAttribArray(location);
-						glVertexAttribPointer(location, numComponents, glType,
-							accessor.normalized ? GL_TRUE : GL_FALSE,
-							bufferView.byteStride ? bufferView.byteStride : 0,
-							(const void*)0);
-					}
-
-
-				}
-
-
-				if (primitive.indices >= 0) {
-					// Get the accessor, bufferview, and buffer for the index data
-					const tinygltf::Accessor& indexAccessor = model->accessors[primitive.indices];
-					const tinygltf::BufferView& bufferView = model->bufferViews[indexAccessor.bufferView];
-					const tinygltf::Buffer& buffer = model->buffers[bufferView.buffer];
-
-
-
-					// Pointer to the actual index data
-					const unsigned char* dataPtr = buffer.data.data() + bufferView.byteOffset + indexAccessor.byteOffset;
-
-					// Loop through and extract indices based on the component type
-					for (size_t i = 0; i < indexAccessor.count; ++i) {
-						switch (indexAccessor.componentType) {
-						case TINYGLTF_PARAMETER_TYPE_UNSIGNED_BYTE: {
-							gltfPrim.indices.push_back(static_cast<unsigned int>(reinterpret_cast<const uint8_t*>(dataPtr)[i]));
-							break;
-						}
-						case TINYGLTF_PARAMETER_TYPE_UNSIGNED_SHORT: {
-							gltfPrim.indices.push_back(static_cast<unsigned int>(reinterpret_cast<const uint16_t*>(dataPtr)[i]));
-							break;
-						}
-						case TINYGLTF_PARAMETER_TYPE_UNSIGNED_INT: {
-							gltfPrim.indices.push_back(reinterpret_cast<const uint32_t*>(dataPtr)[i]);
-							break;
-						}
-						default:
-							Logger::Log(1, " << indexAccessor.componentType, %zu", indexAccessor.componentType);
-							break;
-						}
-					}
-				}
-				else {
-					// No index buffer: assume the primitive is non-indexed (each vertex is used once)
-					int posAccessorIndex = primitive.attributes.at("POSITION");
-					const tinygltf::Accessor& posAccessor = model->accessors[posAccessorIndex];
-					for (size_t i = 0; i < posAccessor.count; ++i) {
-						gltfPrim.indices.push_back(static_cast<unsigned int>(i));
-					}
-				}
-
-				if (!gltfPrim.indices.empty()) {
-					glGenBuffers(1, &gltfPrim.indexBuffer);
-					glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, gltfPrim.indexBuffer);
-					glBufferData(GL_ELEMENT_ARRAY_BUFFER,
-						gltfPrim.indices.size() * sizeof(unsigned int),
-						gltfPrim.indices.data(),
-						GL_STATIC_DRAW);
-
-					gltfPrim.indexCount = static_cast<GLsizei>(gltfPrim.indices.size());
-					gltfPrim.indexType = GL_UNSIGNED_INT;
-				}
-				else {
-					gltfPrim.indexBuffer = 0;
-					gltfPrim.indexCount = 0;
-				}
-
-				glBindVertexArray(0);
-
-				gltfMesh.primitives.push_back(gltfPrim);
-			}
-
-			meshData[meshIndex] = gltfMesh;
-		}
-
-		GetJointData();
-		GetWeightData();
-		GetInvBindMatrices();
-
-		m_nodeCount = (int)playerModel->nodes.size();
-		int rootNode = playerModel->scenes.at(0).nodes.at(0);
-		Logger::Log(1, "%s: model has %i nodes, root node is %i\n", __FUNCTION__, m_nodeCount, rootNode);
-
-		m_nodeList.resize(m_nodeCount);
-
-		m_rootNode = GltfNode::CreateRoot(rootNode);
-
-		m_nodeList.at(rootNode) = m_rootNode;
-
-		GetNodeData(m_rootNode, glm::mat4(1.0f));
-		GetNodes(m_rootNode);
-
-		m_rootNode->PrintTree();
-
-		GetAnimations();
-
-		m_additiveAnimationMask.resize(m_nodeCount);
-		m_invertedAdditiveAnimationMask.resize(m_nodeCount);
-
-		std::fill(m_additiveAnimationMask.begin(), m_additiveAnimationMask.end(), true);
-		m_invertedAdditiveAnimationMask = m_additiveAnimationMask;
-		m_invertedAdditiveAnimationMask.flip();
-
-		glBindBuffer(GL_ARRAY_BUFFER, 0);
-	}
+	void SetupGLTFMeshes(tinygltf::Model* model);
 
 	
 

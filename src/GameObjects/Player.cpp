@@ -1,6 +1,179 @@
 #include "Player.h"
 #include "GameManager.h"
 
+void Player::SetupGLTFMeshes(tinygltf::Model* model)
+{
+	meshData.resize(model->meshes.size());
+
+	for (size_t meshIndex = 0; meshIndex < model->meshes.size(); ++meshIndex) {
+		const tinygltf::Mesh& mesh = model->meshes[meshIndex];
+		GLTFMesh gltfMesh;
+
+		for (size_t primIndex = 0; primIndex < mesh.primitives.size(); ++primIndex) {
+			const tinygltf::Primitive& primitive = mesh.primitives[primIndex];
+			GLTFPrimitive gltfPrim = {};
+			gltfPrim.mode = primitive.mode; // usually GL_TRIANGLES
+
+			gltfPrim.material = primitive.material;
+
+			// --- Create VAO ---
+			glGenVertexArrays(1, &gltfPrim.vao);
+			glBindVertexArray(gltfPrim.vao);
+
+			// --- Upload vertex attributes ---
+			for (const auto& attrib : primitive.attributes) {
+				const std::string& attribName = attrib.first; // "POSITION", "NORMAL", "TEXCOORD_0", etc.
+				int accessorIndex = attrib.second;
+				const tinygltf::Accessor& accessor = model->accessors[accessorIndex];
+				const tinygltf::BufferView& bufferView = model->bufferViews[accessor.bufferView];
+				const tinygltf::Buffer& buffer = model->buffers[bufferView.buffer];
+
+				GLuint vbo;
+				glGenBuffers(1, &vbo);
+				glBindBuffer(GL_ARRAY_BUFFER, vbo);
+
+				if (attribName == "POSITION") {
+					int numPositionEntries = static_cast<int>(accessor.count);
+					Logger::Log(1, "%s: loaded %i vertices from glTF file\n", __FUNCTION__,
+						numPositionEntries);
+
+					// Extract vertices
+					const float* positions = reinterpret_cast<const float*>(
+						buffer.data.data() + bufferView.byteOffset + accessor.byteOffset);
+
+					for (int i = 0; i < numPositionEntries; i++)
+					{
+						gltfPrim.verts.push_back(glm::vec3(positions[i * 3 + 0], positions[i * 3 + 1], positions[i * 3 + 2]));
+						gltfPrim.vertexCount++;
+					}
+				}
+
+				const void* dataPtr = &buffer.data[accessor.byteOffset + bufferView.byteOffset];
+				size_t dataSize = accessor.count * tinygltf::GetNumComponentsInType(accessor.type) * tinygltf::GetComponentSizeInBytes(accessor.componentType);
+
+				glBufferData(GL_ARRAY_BUFFER, dataSize, dataPtr, GL_STATIC_DRAW);
+
+				// Determine attribute layout location (you must match your shader locations)
+				GLint location = -1;
+				if (attribName == "POSITION") location = 0;
+				else if (attribName == "NORMAL") location = 1;
+				else if (attribName == "TEXCOORD_0") location = 2;
+				else if (attribName == "JOINTS_0") location = 3;
+				else if (attribName == "WEIGHTS_0") location = 4;
+
+				Logger::Log(1, "%s: loading attribute: %s\n", __FUNCTION__, attribName);
+
+				if (location >= 0) {
+					GLint numComponents = tinygltf::GetNumComponentsInType(accessor.type); // e.g. VEC3 -> 3
+					GLenum glType = accessor.componentType; // GL_FLOAT, GL_UNSIGNED_SHORT, etc.
+
+					glEnableVertexAttribArray(location);
+					glVertexAttribPointer(location, numComponents, glType,
+						accessor.normalized ? GL_TRUE : GL_FALSE,
+						bufferView.byteStride ? bufferView.byteStride : 0,
+						(const void*)0);
+				}
+
+
+			}
+
+
+			if (primitive.indices >= 0) {
+				// Get the accessor, bufferview, and buffer for the index data
+				const tinygltf::Accessor& indexAccessor = model->accessors[primitive.indices];
+				const tinygltf::BufferView& bufferView = model->bufferViews[indexAccessor.bufferView];
+				const tinygltf::Buffer& buffer = model->buffers[bufferView.buffer];
+
+
+
+				// Pointer to the actual index data
+				const unsigned char* dataPtr = buffer.data.data() + bufferView.byteOffset + indexAccessor.byteOffset;
+
+				// Loop through and extract indices based on the component type
+				for (size_t i = 0; i < indexAccessor.count; ++i) {
+					switch (indexAccessor.componentType) {
+					case TINYGLTF_PARAMETER_TYPE_UNSIGNED_BYTE: {
+						gltfPrim.indices.push_back(static_cast<unsigned int>(reinterpret_cast<const uint8_t*>(dataPtr)[i]));
+						break;
+					}
+					case TINYGLTF_PARAMETER_TYPE_UNSIGNED_SHORT: {
+						gltfPrim.indices.push_back(static_cast<unsigned int>(reinterpret_cast<const uint16_t*>(dataPtr)[i]));
+						break;
+					}
+					case TINYGLTF_PARAMETER_TYPE_UNSIGNED_INT: {
+						gltfPrim.indices.push_back(reinterpret_cast<const uint32_t*>(dataPtr)[i]);
+						break;
+					}
+					default:
+						Logger::Log(1, " << indexAccessor.componentType, %zu", indexAccessor.componentType);
+						break;
+					}
+				}
+			}
+			else {
+				// No index buffer: assume the primitive is non-indexed (each vertex is used once)
+				int posAccessorIndex = primitive.attributes.at("POSITION");
+				const tinygltf::Accessor& posAccessor = model->accessors[posAccessorIndex];
+				for (size_t i = 0; i < posAccessor.count; ++i) {
+					gltfPrim.indices.push_back(static_cast<unsigned int>(i));
+				}
+			}
+
+			if (!gltfPrim.indices.empty()) {
+				glGenBuffers(1, &gltfPrim.indexBuffer);
+				glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, gltfPrim.indexBuffer);
+				glBufferData(GL_ELEMENT_ARRAY_BUFFER,
+					gltfPrim.indices.size() * sizeof(unsigned int),
+					gltfPrim.indices.data(),
+					GL_STATIC_DRAW);
+
+				gltfPrim.indexCount = static_cast<GLsizei>(gltfPrim.indices.size());
+				gltfPrim.indexType = GL_UNSIGNED_INT;
+			}
+			else {
+				gltfPrim.indexBuffer = 0;
+				gltfPrim.indexCount = 0;
+			}
+
+			glBindVertexArray(0);
+
+			gltfMesh.primitives.push_back(gltfPrim);
+		}
+
+		meshData[meshIndex] = gltfMesh;
+	}
+
+	GetJointData();
+	GetWeightData();
+	GetInvBindMatrices();
+
+	m_nodeCount = (int)playerModel->nodes.size();
+	int rootNode = playerModel->scenes.at(0).nodes.at(0);
+	Logger::Log(1, "%s: model has %i nodes, root node is %i\n", __FUNCTION__, m_nodeCount, rootNode);
+
+	m_nodeList.resize(m_nodeCount);
+
+	m_rootNode = GltfNode::CreateRoot(rootNode);
+
+	m_nodeList.at(rootNode) = m_rootNode;
+
+	GetNodeData(m_rootNode, glm::mat4(1.0f));
+	GetNodes(m_rootNode);
+
+	m_rootNode->PrintTree();
+
+	GetAnimations();
+
+	m_additiveAnimationMask.resize(m_nodeCount);
+	m_invertedAdditiveAnimationMask.resize(m_nodeCount);
+
+	std::fill(m_additiveAnimationMask.begin(), m_additiveAnimationMask.end(), true);
+	m_invertedAdditiveAnimationMask = m_additiveAnimationMask;
+	m_invertedAdditiveAnimationMask.flip();
+
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+}
+
 std::vector<GLuint> Player::LoadGLTFTextures(tinygltf::Model* model) {
 	std::vector<GLuint> textureIDs(model->textures.size(), 0);
 
@@ -51,6 +224,96 @@ std::vector<GLuint> Player::LoadGLTFTextures(tinygltf::Model* model) {
 	return textureIDs;
 }
 
+void Player::GetWeightData()
+{
+	const std::string attr = "WEIGHTS_0";
+
+	m_weightVec.clear(); // make this std::vector<glm::vec4>
+	std::vector<std::pair<size_t, size_t>> primRanges;
+
+	auto elemSize = [](int gltfType, int compType) -> size_t {
+		int ncomp =
+			(gltfType == TINYGLTF_TYPE_SCALAR) ? 1 :
+			(gltfType == TINYGLTF_TYPE_VEC2) ? 2 :
+			(gltfType == TINYGLTF_TYPE_VEC3) ? 3 :
+			(gltfType == TINYGLTF_TYPE_VEC4) ? 4 : 0;
+		size_t csize =
+			(compType == TINYGLTF_COMPONENT_TYPE_BYTE ||
+				compType == TINYGLTF_COMPONENT_TYPE_UNSIGNED_BYTE) ? 1 :
+			(compType == TINYGLTF_COMPONENT_TYPE_SHORT ||
+				compType == TINYGLTF_COMPONENT_TYPE_UNSIGNED_SHORT) ? 2 :
+			(compType == TINYGLTF_COMPONENT_TYPE_INT ||
+				compType == TINYGLTF_COMPONENT_TYPE_UNSIGNED_INT ||
+				compType == TINYGLTF_COMPONENT_TYPE_FLOAT) ? 4 : 0;
+		return ncomp * csize;
+		};
+
+	for (size_t mi = 0; mi < playerModel->meshes.size(); ++mi)
+	{
+		const auto& mesh = playerModel->meshes[mi];
+		for (size_t pi = 0; pi < mesh.primitives.size(); ++pi)
+		{
+			const auto& prim = mesh.primitives[pi];
+			auto it = prim.attributes.find(attr);
+			if (it == prim.attributes.end())
+				continue;
+
+			int accIdx = it->second;
+			const auto& acc = playerModel->accessors[accIdx];
+			const auto& bv = playerModel->bufferViews[acc.bufferView];
+			const auto& buf = playerModel->buffers[bv.buffer];
+
+			const uint8_t* srcBase = buf.data.data() + bv.byteOffset + acc.byteOffset;
+
+			size_t stride = bv.byteStride;
+			if (stride == 0) stride = elemSize(acc.type, acc.componentType);
+
+			if (acc.type != TINYGLTF_TYPE_VEC4) {
+				Logger::Log(0, "%s: WEIGHTS_0 must be vec4\n", __FUNCTION__);
+				continue;
+			}
+
+			size_t start = m_weightVec.size();
+			m_weightVec.resize(start + acc.count);
+
+			for (size_t k = 0; k < acc.count; ++k)
+			{
+				const uint8_t* s = srcBase + k * stride;
+				glm::vec4 w(0.0f);
+
+				switch (acc.componentType)
+				{
+				case TINYGLTF_COMPONENT_TYPE_FLOAT: {
+					const float* v = reinterpret_cast<const float*>(s);
+					w = glm::vec4(v[0], v[1], v[2], v[3]);
+				} break;
+				case TINYGLTF_COMPONENT_TYPE_UNSIGNED_BYTE: {
+					const uint8_t* v = reinterpret_cast<const uint8_t*>(s);
+					w = glm::vec4(v[0], v[1], v[2], v[3]) / 255.0f;
+				} break;
+				case TINYGLTF_COMPONENT_TYPE_UNSIGNED_SHORT: {
+					const uint16_t* v = reinterpret_cast<const uint16_t*>(s);
+					w = glm::vec4(v[0], v[1], v[2], v[3]) / 65535.0f;
+				} break;
+				default:
+					Logger::Log(0, "%s: unexpected WEIGHTS_0 component type\n", __FUNCTION__);
+					continue;
+				}
+
+				// Safety: renormalize
+				float sum = w.x + w.y + w.z + w.w;
+				if (sum > 0.0f) w /= sum;
+				m_weightVec[start + k] = w;
+			}
+
+			Logger::Log(1, "%s: mesh %zu prim %zu WEIGHTS_0 acc %d count %zu\n",
+				__FUNCTION__, mi, pi, accIdx, size_t(acc.count));
+			primRanges.emplace_back(start, acc.count);
+		}
+	}
+}
+
+
 void Player::DrawGLTFModel(glm::mat4 viewMat, glm::mat4 projMat, glm::vec3 camPos) {
 	glDisable(GL_CULL_FACE);
 
@@ -71,6 +334,8 @@ void Player::DrawGLTFModel(glm::mat4 viewMat, glm::mat4 projMat, glm::vec3 camPo
 			matrixData.push_back(modelMat);
 			m_uniformBuffer.UploadUboData(matrixData, 0);
 			m_shader->SetVec3("cameraPos", camPos);
+
+			m_playerDualQuatSsBuffer.UploadSsboData(getJointDualQuats(), 2);
 
 			bool hasTexture = false;
 			glBindVertexArray(prim.vao);
@@ -225,6 +490,10 @@ void Player::Update(float dt, bool isPaused, bool isTimeScaled)
 	{
 		m_playGameStartAudioTimer -= dt;
 	}
+
+	
+
+	PlayAnimation(22, 1.0f, 1.0f, false);
 
 	//if (m_playGameStartAudio && m_playGameStartAudioTimer < 0.0f)
 	//{
