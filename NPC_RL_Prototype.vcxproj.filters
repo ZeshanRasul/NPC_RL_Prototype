@@ -207,6 +207,9 @@
     <ClCompile Include="include\DetourCrowd\Source\DetourProximityGrid.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\Tunables.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Camera.h">
@@ -417,6 +420,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Model\GLTFPrimitive.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Tunables.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

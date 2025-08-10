@@ -224,6 +224,89 @@ std::vector<GLuint> Player::LoadGLTFTextures(tinygltf::Model* model) {
 	return textureIDs;
 }
 
+Player::Player(glm::vec3 pos, glm::vec3 scale, Shader* shdr, Shader* shadowMapShader, bool applySkinning, GameManager* gameMgr, float yaw)
+	: GameObject(pos, scale, yaw, shdr, shadowMapShader, applySkinning, gameMgr)
+{
+	SetInitialPos(pos);
+	m_initialYaw = yaw;
+
+	//m_model = std::make_shared<GltfModel>();
+
+	//std::string modelFilename =
+	//	"src/Assets/Models/GLTF/SwatPlayer/Swat.gltf";
+	//std::string modelTextureFilename =
+	//	"src/Assets/Models/GLTF/SwatPlayer/Swat_Ch15_body_BaseColor.png";
+
+	//if (!m_model->LoadModel(modelFilename))
+	//{
+	//	Logger::Log(1, "%s: loading glTF m_model '%s' failed\n", __FUNCTION__, modelFilename.c_str());
+	//}
+
+	playerModel = new tinygltf::Model;
+
+	std::string modelFilename = "src/Assets/Models/Soldier/soldier5.gltf";
+
+
+	tinygltf::TinyGLTF gltfLoader;
+	std::string loaderErrors;
+	std::string loaderWarnings;
+	bool result = false;
+
+	result = gltfLoader.LoadASCIIFromFile(playerModel, &loaderErrors, &loaderWarnings,
+		modelFilename);
+
+	if (!loaderWarnings.empty()) {
+		Logger::Log(1, "%s: warnings while loading glTF model:\n%s\n", __FUNCTION__,
+			loaderWarnings.c_str());
+	}
+
+	if (!loaderErrors.empty()) {
+		Logger::Log(1, "%s: errors while loading glTF model:\n%s\n", __FUNCTION__,
+			loaderErrors.c_str());
+	}
+
+	if (!result) {
+		Logger::Log(1, "%s error: could not load file '%s'\n", __FUNCTION__,
+			modelFilename.c_str());
+	}
+
+	SetupGLTFMeshes(playerModel);
+
+	for (int texID : LoadGLTFTextures(playerModel))
+		glTextures.push_back(texID);
+
+	//m_tex = m_model->LoadTexture(modelTextureFilename, false);
+	//
+	//m_normal.LoadTexture(
+	//	"src/Assets/Models/GLTF/SwatPlayer/Swat_Ch15_body_Normal.png");
+	//m_metallic.LoadTexture(
+	//	"src/Assets/Models/GLTF/SwatPlayer/Swat_Ch15_body_Metallic.png");
+	//m_roughness.LoadTexture(
+	//	"src/Assets/Models/GLTF/SwatPlayer/Swat_Ch15_body_Roughness.png");
+	//m_ao.LoadTexture(
+		//"src/Assets/Models/GLTF/SwatPlayer/Swat_Ch15_body_AO.png");
+
+	//m_model->uploadIndexBuffer();
+	//Logger::Log(1, "%s: glTF m_model '%s' successfully loaded\n", __FUNCTION__, modelFilename.c_str());
+	//
+	size_t playerModelJointDualQuatBufferSize = GetJointDualQuatsSize() *
+		sizeof(glm::mat2x4);
+	m_playerDualQuatSsBuffer.Init(playerModelJointDualQuatBufferSize);
+	Logger::Log(1, "%s: glTF joint dual quaternions shader storage buffer (size %i bytes) successfully created\n",
+		__FUNCTION__, playerModelJointDualQuatBufferSize);
+
+	m_takeDamageAc = new AudioComponent(this);
+	m_deathAc = new AudioComponent(this);
+	m_shootAc = new AudioComponent(this);
+
+	ComputeAudioWorldTransform();
+
+	UpdatePlayerVectors();
+	SetPlayerAimFront(GetPlayerFront());
+	m_playerAimRight = GetPlayerRight();
+	SetPlayerAimUp(m_playerUp);
+}
+
 void Player::GetWeightData()
 {
 	const std::string attr = "WEIGHTS_0";
@@ -493,7 +576,7 @@ void Player::Update(float dt, bool isPaused, bool isTimeScaled)
 
 	
 
-	PlayAnimation(6, 1.0f, 1.0f, false);
+	PlayAnimation(0, 1.0f, 1.0f, false);
 
 	if (m_playGameStartAudio && m_playGameStartAudioTimer < 0.0f)
 	{

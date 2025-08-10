@@ -294,6 +294,7 @@
     <ClCompile Include="src\tinygltf\tiny_gltf.cc" />
     <ClCompile Include="src\Tools\Logger.cpp" />
     <ClCompile Include="src\tracy\TracyClient.cpp" />
+    <ClCompile Include="src\Tunables.cpp" />
     <ClCompile Include="src\Window\Window.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -366,6 +367,7 @@
     <ClInclude Include="src\tinygltf\tiny_gltf.h" />
     <ClInclude Include="src\Tools\Logger.h" />
     <ClInclude Include="src\tracy\tracy\Tracy.hpp" />
+    <ClInclude Include="src\Tunables.h" />
     <ClInclude Include="src\Window\Window.h" />
   </ItemGroup>
   <ItemGroup>
