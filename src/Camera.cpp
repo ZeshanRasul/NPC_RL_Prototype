@@ -34,8 +34,8 @@ Camera::Camera(float posX, float posY, float posZ, float upX, float upY, float u
 void Camera::FollowTarget(const glm::vec3& targetPosition, const glm::vec3& targetFront, float distanceBehind, float heightOffset)
 {
 	glm::vec3 offset = -targetFront * distanceBehind;
-	if (GetMode() != PLAYER_AIM)
-		offset.y += heightOffset;
+	//if (GetMode() != PLAYER_AIM)
+	offset.y += heightOffset;
 	SetPosition(targetPosition + offset);
 	target = targetPosition;
 	prevCamTarget = targetPosition;

@@ -1272,16 +1272,21 @@ void GameManager::SetupCamera(unsigned int width, unsigned int height, float del
 			//if (newPos.y < m_player->GetPosition().y)
 			newPos.y = m_player->GetPosition().y + m_camera->playerCamHeightOffset;
 
-			//glm::vec3 camPos = m_camera->GetPosition();
+			glm::vec3 camPos = m_camera->GetPosition();
 			//if (camPos.y <= m_player->GetPosition().y)
 			//{
 			//	camPos.y = m_player->GetPosition().y + 5.0f;
 			//	m_camera->SetPosition(camPos);
 			//}
-			m_view = m_camera->UpdateCameraLerp(target,
+			m_camera->FollowTarget(m_player->GetPosition() + (m_player->GetPlayerFront() * m_camera->GetPlayerPosOffset()) + (m_player->GetPlayerRight() * m_camera->GetPlayerAimRightOffset()),
+				m_player->GetPlayerFront(), m_camera->GetPlayerCamRearOffset(), m_camera->GetPlayerCamHeightOffset());
+
+			glm::vec3 targetPos = m_camera->GetPosition();
+
+			m_view = m_camera->UpdateCameraLerp(targetPos,
 				m_player->GetPosition() + (m_player->GetPlayerFront() * m_camera->GetPlayerPosOffset()) + (m_player->GetPlayerRight() * m_camera->GetPlayerAimRightOffset()),
 				m_player->GetPlayerAimFront(), m_player->GetPlayerAimUp(), deltaTime);	
-			m_camera->StorePrevCam(m_camera->GetPosition(), target);
+			m_camera->StorePrevCam(camPos, target);
 		
 		} else {
 
@@ -1293,14 +1298,12 @@ void GameManager::SetupCamera(unsigned int width, unsigned int height, float del
 			if (m_camera->HasSwitched())
 				m_camera->StorePrevCam(m_camera->GetPosition() + m_player->GetPlayerAimUp() * m_camera->GetPlayerCamHeightOffset(), m_player->GetPosition() + (m_player->GetPlayerFront() * m_camera->GetPlayerPosOffset()) + (m_player->GetPlayerRight() * m_camera->GetPlayerAimRightOffset()) + (m_player->GetPlayerAimUp() * m_camera->GetPlayerCamHeightOffset()));
 
-			camPos = m_camera->GetPosition();
-
 			//if (camPos.y <= m_player->GetPosition().y)
 			//{
 			//	camPos.y = m_player->GetPosition().y + 5.0f;
 			//	m_camera->SetPosition(camPos);
 			//}
-			m_camera->StorePrevCam(m_camera->GetPosition(), target);
+			m_camera->StorePrevCam(camPos, m_camera->GetPosition());
 			m_view = m_camera->GetViewMatrixPlayerFollow(target, m_player->GetPlayerAimUp());
 		}
 
