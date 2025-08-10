@@ -1256,7 +1256,7 @@ void GameManager::SetupCamera(unsigned int width, unsigned int height, float del
 	else if (m_camera->GetMode() == PLAYER_AIM)
 	{
 
-		m_camera->SetZoom(40.0f);
+		m_camera->SetZoom(33.0f);
 		glm::vec3 target = m_player->GetPosition() + (m_player->GetPlayerFront() * m_camera->GetPlayerPosOffset()) + (m_player->GetPlayerRight() * m_camera->GetPlayerAimRightOffset());
 		if (target.y < m_player->GetShootPos().y)
 			target.y = m_player->GetShootPos().y;
