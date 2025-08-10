@@ -134,7 +134,7 @@ void InputManager::ProcessInput(GLFWwindow* window, float deltaTime)
 			m_camera->SetMode(PLAYER_FOLLOW);
 		}
 		m_camera->hasSwitched = true;
-		m_camera->LerpCamera();
+		//m_camera->LerpCamera();
 		m_player->UpdatePlayerAimVectors();
 		m_player->UpdatePlayerVectors();
 	}

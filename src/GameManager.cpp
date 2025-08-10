@@ -902,7 +902,7 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 	m_enemy4MuzzleFlashQuad->LoadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/muzzleflash.png");
 
 
-	m_player = new Player(glm::vec3(-9.0f, 354.6f, 163.0f), glm::vec3(5.0f), &playerShader, &groundShadowShader, true, this);
+	m_player = new Player(glm::vec3(-9.0f, 354.6f, 163.0f), glm::vec3(5.0f), &playerShader, &groundShadowShader, true, this, 0.0f);
 	//player = new Player( (glm::vec3(23.0f, 0.0f, 37.0f)), glm::vec3(3.0f), &playerShader, &playerShadowMapShader, true, this);
 
 	m_player->SetAABBShader(&aabbShader);
@@ -1257,36 +1257,43 @@ void GameManager::SetupCamera(unsigned int width, unsigned int height, float del
 	{
 
 		m_camera->SetZoom(40.0f);
-		glm::vec3 target = m_player->GetPosition() + (m_player->GetPlayerAimFront() * m_camera->GetPlayerPosOffset()) + (m_player->GetPlayerRight() * m_camera->GetPlayerAimRightOffset());
+		glm::vec3 target = m_player->GetPosition() + (m_player->GetPlayerFront() * m_camera->GetPlayerPosOffset()) + (m_player->GetPlayerRight() * m_camera->GetPlayerAimRightOffset());
 		if (target.y < m_player->GetShootPos().y)
 			target.y = m_player->GetShootPos().y;
 
 
 		if (m_camera->isBlending)
 		{
-			glm::vec3 newPos =
-				(m_player->GetShootPos())  +
-				(m_player->GetPlayerFront() * m_camera->GetPlayerPosOffset()) +
-				(m_player->GetPlayerRight() * m_camera->GetPlayerAimRightOffset());
+			//glm::vec3 newPos =
+			//	(m_player->GetPosition())  +
+			//	(m_player->GetPlayerFront() * m_camera->GetPlayerPosOffset()) +
+			//	(m_player->GetPlayerRight() * m_camera->GetPlayerAimRightOffset());
 			
 			//if (newPos.y < m_player->GetPosition().y)
-			newPos.y = m_player->GetPosition().y + m_camera->playerCamHeightOffset;
+			//newPos.y = m_player->GetPosition().y + m_camera->playerCamHeightOffset;
 
-			glm::vec3 camPos = m_camera->GetPosition();
+			//glm::vec3 camPos = m_camera->GetPosition();
 			//if (camPos.y <= m_player->GetPosition().y)
 			//{
 			//	camPos.y = m_player->GetPosition().y + 5.0f;
 			//	m_camera->SetPosition(camPos);
 			//}
+			//m_camera->FollowTarget(m_player->GetPosition() + (m_player->GetPlayerFront() * m_camera->GetPlayerPosOffset()) + (m_player->GetPlayerRight() * m_camera->GetPlayerAimRightOffset()),
+			//	m_player->GetPlayerFront(), m_camera->GetPlayerCamRearOffset(), m_camera->GetPlayerCamHeightOffset());
+			//
+			//glm::vec3 targetPos = m_camera->GetPosition();
+
+			glm::vec3 camPos = m_camera->GetPosition();
+
 			m_camera->FollowTarget(m_player->GetPosition() + (m_player->GetPlayerFront() * m_camera->GetPlayerPosOffset()) + (m_player->GetPlayerRight() * m_camera->GetPlayerAimRightOffset()),
 				m_player->GetPlayerFront(), m_camera->GetPlayerCamRearOffset(), m_camera->GetPlayerCamHeightOffset());
 
-			glm::vec3 targetPos = m_camera->GetPosition();
+			camPos = m_camera->GetPosition();
 
-			m_view = m_camera->UpdateCameraLerp(targetPos,
+			m_view = m_camera->UpdateCameraLerp(camPos,
 				m_player->GetPosition() + (m_player->GetPlayerFront() * m_camera->GetPlayerPosOffset()) + (m_player->GetPlayerRight() * m_camera->GetPlayerAimRightOffset()),
-				m_player->GetPlayerAimFront(), m_player->GetPlayerAimUp(), deltaTime);	
-			m_camera->StorePrevCam(camPos, target);
+				m_player->GetPlayerFront(), m_player->GetPlayerAimUp(), deltaTime);
+			m_camera->StorePrevCam(m_camera->GetPosition(), target);
 		
 		} else {
 

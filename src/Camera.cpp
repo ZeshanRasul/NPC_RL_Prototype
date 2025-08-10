@@ -159,16 +159,17 @@ glm::mat4 Camera::UpdateCameraLerp(const glm::vec3& newPos, const glm::vec3& tar
 	float blendedPitch = glm::mix(prevCamPitch, targetCamPitch, t);
 
 
-	SetPitch(blendedPitch);
-	SetPosition(blendedPos + (GetUp() * m_playerCamHeightOffset));
+	SetPitch(GetPitch());
+	SetPosition(blendedPos);
+	
+	FollowTarget(blendedTarget, front, m_playerCamRearOffset, m_playerCamHeightOffset);
 	target = blendedTarget;
-
+	//+ (GetUp() * m_playerCamHeightOffset)
 	float yOffset = m_playerCamHeightOffset;
 
 	//if (GetMode() == PLAYER_AIM)
 	//	yOffset = 0.0f;
 
-	FollowTarget(blendedTarget, front, m_playerCamRearOffset, m_playerCamHeightOffset);
 
 	glm::vec3 camPos = GetPosition();
 	/*if (camPos.y <= 0.02f)
@@ -192,5 +193,5 @@ glm::mat4 Camera::UpdateCameraLerp(const glm::vec3& newPos, const glm::vec3& tar
 		return GetViewMatrixPlayerFollow(targetPos, up);
 	}
 
-	return GetViewMatrixPlayerFollow(blendedTarget, up);
+	return GetViewMatrixPlayerFollow(camPos, up);
 }
