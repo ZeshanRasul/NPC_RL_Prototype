@@ -545,7 +545,7 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 	gridShader.LoadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/pbr_vertex.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/pbr_fragment.glsl");
 	crosshairShader.LoadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/crosshair_vert.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/crosshair_frag.glsl");
 	lineShader.LoadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/line_vert.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/line_frag.glsl");
-	aabbShader.LoadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/aabb_vert.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/aabb_frag.glsl");
+	aabbShader.LoadShaders("src/Shaders/aabb_vert.glsl", "src/Shaders/aabb_frag.glsl");
 	cubeShader.LoadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/pbr_vertex.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/pbr_fragment_emissive.glsl");
 	cubemapShader.LoadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/cubemap_vertex.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/cubemap_fragment.glsl");
 	minimapShader.LoadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/quad_vertex.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/quad_fragment.glsl");
@@ -560,7 +560,7 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 
 	m_crosshairShader.LoadShaders("src/Shaders/crosshair_vert.glsl", "src/Shaders/crosshair_frag.glsl");
 	m_lineShader.LoadShaders("src/Shaders/line_vert.glsl", "src/Shaders/line_frag.glsl");
-	m_aabbShader.LoadShaders("src/Shaders/aabb_vert.glsl", "src/Shaders/aabb_frag.glsl");
+	aabbShader.LoadShaders("src/Shaders/aabb_vert.glsl", "src/Shaders/aabb_frag.glsl");
 	m_cubeShader.LoadShaders("src/Shaders/pbr_vertex.glsl", "src/Shaders/pbr_fragment_emissive.glsl");
 	m_cubemapShader.LoadShaders("src/Shaders/cubemap_vertex.glsl", "src/Shaders/cubemap_fragment.glsl");
 	m_minimapShader.LoadShaders("src/Shaders/quad_vertex.glsl", "src/Shaders/quad_fragment.glsl");
@@ -587,6 +587,9 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 	m_cubemap->LoadCubemap(m_cubemapFaces);
 
 	ground = new Ground(mapPos, mapScale, &groundShader, &groundShadowShader, false, this);
+
+	ground->SetAABBShader(&aabbShader);
+	ground->SetUpAABB();
 
 	std::vector<Ground::GLTFMesh> meshDataGrnd = ground->meshData;
 	int mapVertCount = 0;
@@ -914,20 +917,20 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 	std::string texture4 = "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Models/GLTF/Enemies/Ely/ely-vanguardsoldier-kerwinatienza_diffuse_4.png";
 
 	m_enemy = new Enemy(glm::vec3(-9.0f, 354.6f, 166.0f), glm::vec3(5.0f), &playerShader, &enemyShadowMapShader, true, this, texture, 0, GetEventManager(), *m_player);
-	//m_enemy->SetAABBShader(&aabbShader);
-	//m_enemy->SetUpAABB();
+	m_enemy->SetAABBShader(&aabbShader);
+	m_enemy->SetUpAABB();
 
 	m_enemy2 = new Enemy(glm::vec3(-7.0f, 354.6f, 169.0f), glm::vec3(5.0f), &playerShader, &enemyShadowMapShader, true, this, texture2, 1, GetEventManager(), *m_player);
-	//m_enemy2->SetAABBShader(&aabbShader);
-	//m_enemy2->SetUpAABB();
+	m_enemy2->SetAABBShader(&aabbShader);
+	m_enemy2->SetUpAABB();
 
 	m_enemy3 = new Enemy(glm::vec3(-4.0f, 354.6f, 171.0f), glm::vec3(5.0f), &playerShader, &enemyShadowMapShader, true, this, texture3, 2, GetEventManager(), *m_player);
-	//m_enemy3->SetAABBShader(&aabbShader);
-	//m_enemy3->SetUpAABB();
+	m_enemy3->SetAABBShader(&aabbShader);
+	m_enemy3->SetUpAABB();
 
 	m_enemy4 = new Enemy(glm::vec3(-5.0f, 354.6f, 173.0f), glm::vec3(5.0f), &playerShader, &enemyShadowMapShader, true, this, texture4, 3, GetEventManager(), *m_player);
-	//m_enemy4->SetAABBShader(&aabbShader);
-	//m_enemy4->SetUpAABB();
+	m_enemy4->SetAABBShader(&aabbShader);
+	m_enemy4->SetUpAABB();
 
 	m_crosshair = new Crosshair(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.3f), &crosshairShader, &shadowMapShader, false, this);
 	m_crosshair->LoadMesh();

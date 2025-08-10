@@ -301,7 +301,6 @@ private:
 	Shader m_gridDebugShader{};
 	Shader m_crosshairShader{};
 	Shader m_lineShader{};
-	Shader m_aabbShader{};
 	Shader m_cubeShader{};
 	Shader m_cubemapShader{};
 	Shader m_minimapShader{};

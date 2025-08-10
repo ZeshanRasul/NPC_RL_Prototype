@@ -162,7 +162,7 @@ void Player::SetupGLTFMeshes(tinygltf::Model* model)
 
 	m_rootNode->PrintTree();
 
-	GetAnimations();
+	//GetAnimations();
 
 	m_additiveAnimationMask.resize(m_nodeCount);
 	m_invertedAdditiveAnimationMask.resize(m_nodeCount);
@@ -576,7 +576,7 @@ void Player::Update(float dt, bool isPaused, bool isTimeScaled)
 
 	
 
-	PlayAnimation(0, 1.0f, 1.0f, false);
+	//PlayAnimation(0, 1.0f, 1.0f, false);
 
 	if (m_playGameStartAudio && m_playGameStartAudioTimer < 0.0f)
 	{

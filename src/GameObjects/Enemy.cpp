@@ -76,10 +76,10 @@ Enemy::Enemy(glm::vec3 pos, glm::vec3 scale, Shader* sdr, Shader* shadowMapShade
 	UpdateEnemyCameraVectors();
 	UpdateEnemyVectors();
 
-	std::random_device rd;
-	std::mt19937 gen{ rd() };
-	std::uniform_int_distribution<> distrib(0, (int)m_waypointPositions.size() - 1);
-	int randomIndex = distrib(gen);
+	//std::random_device rd;
+	//std::mt19937 gen{ rd() };
+	//std::uniform_int_distribution<> distrib(0, (int)m_waypointPositions.size() - 1);
+	//int randomIndex = distrib(gen);
 	m_takeDamageAc = new AudioComponent(this);
 	m_deathAc = new AudioComponent(this);
 	m_shootAc = new AudioComponent(this);
@@ -154,6 +154,7 @@ void Enemy::SetupGLTFMeshes(tinygltf::Model* model)
 					{
 						gltfPrim.verts.push_back(glm::vec3(positions[i * 3 + 0], positions[i * 3 + 1], positions[i * 3 + 2]));
 						gltfPrim.vertexCount++;
+						verts.push_back(glm::vec3(positions[i * 3 + 0], positions[i * 3 + 1], positions[i * 3 + 2]));
 					}
 				}
 
@@ -425,18 +426,18 @@ void Enemy::GetWeightData()
 
 void Enemy::DrawGLTFModel(glm::mat4 viewMat, glm::mat4 projMat, glm::vec3 camPos) {
 	glDisable(GL_CULL_FACE);
-
 	int texIndex = 1;
 	for (size_t meshIndex = 0; meshIndex < meshData.size(); ++meshIndex) {
 		for (size_t primIndex = 0; primIndex < meshData[meshIndex].primitives.size(); ++primIndex) {
 			const GLTFPrimitive& prim = meshData[meshIndex].primitives[primIndex];
 
-
-			m_shader->Use();
 			glm::mat4 modelMat = glm::mat4(1.0f);
 			modelMat = glm::translate(modelMat, m_position);
 			//modelMat = glm::rotate(modelMat, glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
 			modelMat = glm::scale(modelMat, m_scale);
+			m_aabb->Render(viewMat, projMat, modelMat, glm::vec3(1.0f, 1.0f, 0.0f));
+
+			m_shader->Use();
 			std::vector<glm::mat4> matrixData;
 			matrixData.push_back(viewMat);
 			matrixData.push_back(projMat);
@@ -679,7 +680,7 @@ void Enemy::OnEvent(const Event& event)
 void Enemy::SetPosition(glm::vec3 newPos)
 {
 	m_position = newPos;
-	//UpdateAABB();
+	UpdateAABB();
 	m_recomputeWorldTransform = true;
 	ComputeAudioWorldTransform();
 }
@@ -1001,15 +1002,15 @@ void Enemy::Shoot()
 
 void Enemy::SetUpAABB()
 {
-	//m_aabb = new AABB();
-	//m_aabb->CalculateAABB(m_model->GetVertices());
-	//m_aabb->SetShader(m_aabbShader);
-	//m_aabb->SetUpMesh();
-	//m_aabb->SetOwner(this);
-	//m_aabb->SetIsEnemy(true);
-	//m_gameManager->GetPhysicsWorld()->AddCollider(GetAABB());
-	//m_gameManager->GetPhysicsWorld()->AddEnemyCollider(GetAABB());
-	//UpdateAABB();
+	m_aabb = new AABB();
+	m_aabb->CalculateAABB(verts);
+	m_aabb->SetShader(m_aabbShader);
+	m_aabb->SetUpMesh();
+	m_aabb->SetOwner(this);
+	m_aabb->SetIsEnemy(true);
+	m_gameManager->GetPhysicsWorld()->AddCollider(GetAABB());
+	m_gameManager->GetPhysicsWorld()->AddEnemyCollider(GetAABB());
+	UpdateAABB();
 }
 
 void Enemy::Speak(const std::string& clipName, float priority, float cooldown)
@@ -1110,10 +1111,10 @@ void Enemy::OnDeath()
 
 void Enemy::UpdateAABB()
 {
-	//glm::mat4 modelMatrix = translate(glm::mat4(1.0f), m_position) *
-	//	rotate(glm::mat4(1.0f), glm::radians(-m_yaw + 90.0f), glm::vec3(0.0f, 1.0f, 0.0f)) *
-	//	glm::scale(glm::mat4(1.0f), m_aabbScale);
-	//m_aabb->Update(modelMatrix);
+	glm::mat4 modelMatrix = translate(glm::mat4(1.0f), m_position) *
+		rotate(glm::mat4(1.0f), glm::radians(-m_yaw + 90.0f), glm::vec3(0.0f, 1.0f, 0.0f)) *
+		glm::scale(glm::mat4(1.0f), m_aabbScale);
+	m_aabb->Update(modelMatrix);
 };
 
 void Enemy::ScoreCoverLocations(Player& player)

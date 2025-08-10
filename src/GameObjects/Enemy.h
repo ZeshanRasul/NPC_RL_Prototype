@@ -642,6 +642,8 @@ private:
 	AABB* m_aabb;
 	Shader* m_aabbShader;
 
+	std::vector<glm::vec3> verts;
+
 	AudioComponent* m_takeDamageAc;
 	AudioComponent* m_shootAc;
 	AudioComponent* m_deathAc;

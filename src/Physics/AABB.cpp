@@ -64,7 +64,7 @@ void AABB::Render(glm::mat4 viewMat, glm::mat4 proj, glm::mat4 model, glm::vec3 
 
 	m_shader->SetMat4("projection", proj);
 	m_shader->SetMat4("view", viewMat);
-	m_shader->SetMat4("m_model", model);
+	m_shader->SetMat4("model", glm::mat4(1.0f));
 	m_shader->SetVec3("color", aabbColor);
 
 	glBindVertexArray(m_vao);
