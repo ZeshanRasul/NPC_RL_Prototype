@@ -1286,7 +1286,7 @@ void GameManager::SetupCamera(unsigned int width, unsigned int height, float del
 			glm::vec3 camPos = m_camera->GetPosition();
 
 			m_camera->FollowTarget(m_player->GetPosition() + (m_player->GetPlayerFront() * m_camera->GetPlayerPosOffset()) + (m_player->GetPlayerRight() * m_camera->GetPlayerAimRightOffset()),
-				m_player->GetPlayerFront(), m_camera->GetPlayerCamRearOffset(), m_camera->GetPlayerCamHeightOffset());
+				m_player->GetPlayerFront(), m_camera->GetPlayerAimCamRearOffset(), m_camera->GetPlayerAimCamHeightOffset());
 
 			camPos = m_camera->GetPosition();
 
@@ -1300,10 +1300,10 @@ void GameManager::SetupCamera(unsigned int width, unsigned int height, float del
 			glm::vec3 camPos = m_camera->GetPosition();
 
 			m_camera->FollowTarget(m_player->GetPosition() + (m_player->GetPlayerFront() * m_camera->GetPlayerPosOffset()) + (m_player->GetPlayerRight() * m_camera->GetPlayerAimRightOffset()),
-				m_player->GetPlayerFront(), m_camera->GetPlayerCamRearOffset(), m_camera->GetPlayerCamHeightOffset());
+				m_player->GetPlayerFront(), m_camera->GetPlayerAimCamRearOffset(), m_camera->GetPlayerAimCamHeightOffset());
 			
 			if (m_camera->HasSwitched())
-				m_camera->StorePrevCam(m_camera->GetPosition() + m_player->GetPlayerAimUp() * m_camera->GetPlayerCamHeightOffset(), m_player->GetPosition() + (m_player->GetPlayerFront() * m_camera->GetPlayerPosOffset()) + (m_player->GetPlayerRight() * m_camera->GetPlayerAimRightOffset()) + (m_player->GetPlayerAimUp() * m_camera->GetPlayerCamHeightOffset()));
+				m_camera->StorePrevCam(m_camera->GetPosition() + m_player->GetPlayerAimUp() * m_camera->GetPlayerAimCamHeightOffset(), m_player->GetPosition() + (m_player->GetPlayerFront() * m_camera->GetPlayerPosOffset()) + (m_player->GetPlayerRight() * m_camera->GetPlayerAimRightOffset()) + (m_player->GetPlayerAimUp() * m_camera->GetPlayerAimCamHeightOffset()));
 
 			//if (camPos.y <= m_player->GetPosition().y)
 			//{
@@ -1411,6 +1411,8 @@ void GameManager::ShowCameraControlWindow(Camera& cam)
 	ImGui::InputFloat3("Position", (float*)&cam.m_position);
 
 	ImGui::InputFloat("Pitch", (float*)&cam.m_pitch);
+	ImGui::InputFloat("Blend Time", (float*)&m_camera->cameraBlendTime);
+
 	ImGui::InputFloat("Yaw", (float*)&cam.m_yaw);
 	ImGui::InputFloat("Zoom", (float*)&cam.m_zoom);
 
@@ -1791,6 +1793,7 @@ void GameManager::Update(float deltaTime)
 	float timeScaleFactor = m_inputManager->GetTimeScaleFacotr();
 
 	float scaledDeltaTime = deltaTime;
+
 
 	bool isPaused = m_inputManager->GetIsPaused();
 	bool isTimeScaled = m_inputManager->GetIsTimeScaled();

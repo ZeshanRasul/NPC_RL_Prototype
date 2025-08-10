@@ -150,15 +150,21 @@ public:
 	float m_mouseSensitivity;
 	float m_zoom;
 
+	float cameraBlendTime = 1.3f;
+	float GetPlayerAimCamRearOffset() const { return m_playerAimCamRearOffset; }
+	void SetPlayerAimCamRearOffset(float val) { m_playerAimCamRearOffset = val; }
+	float GetPlayerAimCamHeightOffset() const { return m_playerAimCamHeightOffset; }
+	void SetPlayerAimCamHeightOffset(float val) { m_playerAimCamHeightOffset = val; }
 private:
 	CameraMode m_mode = PLAYER_FOLLOW;
-	float m_playerCamRearOffset = 25.0f;
-	float m_playerCamHeightOffset = 7.0f;
+	float m_playerCamRearOffset = 33.0f;
+	float m_playerAimCamRearOffset = 27.0f;
+	float m_playerCamHeightOffset = 15.0f;
+	float m_playerAimCamHeightOffset = 12.0f;
 	float m_playerPosOffset = 12.0f;
 	float m_playerAimRightOffset = 5.0f;
 	float m_enemyCamRearOffset = 15.0f;
 	float m_enemyCamHeightOffset = 5.0f;
 
-	float cameraBlendTime = 0.8f;
 	float cameraBlendTimer = 0.0f;
 };
