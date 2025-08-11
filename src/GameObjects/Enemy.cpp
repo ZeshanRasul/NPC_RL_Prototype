@@ -1112,8 +1112,8 @@ void Enemy::OnDeath()
 void Enemy::UpdateAABB()
 {
 	glm::mat4 modelMatrix = translate(glm::mat4(1.0f), m_position) *
-		rotate(glm::mat4(1.0f), glm::radians(-m_yaw + 90.0f), glm::vec3(0.0f, 1.0f, 0.0f)) *
-		glm::scale(glm::mat4(1.0f), m_aabbScale);
+		rotate(glm::mat4(1.0f), glm::radians(m_yaw), glm::vec3(0.0f, 1.0f, 0.0f)) *
+		glm::scale(glm::mat4(1.0f), m_scale);
 	m_aabb->Update(modelMatrix);
 };
 

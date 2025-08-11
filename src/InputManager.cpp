@@ -36,12 +36,12 @@ void InputManager::HandleMouseMovement(double xPosIn, double yPosIn)
 
 	if (m_camera->GetMode() == PLAYER_FOLLOW)
 	{
-		m_player->SetPlayerYaw(m_camera->GetYaw());
+		m_player->SetPlayerYaw(m_camera->GetYaw() + 90.0f);
 		m_player->SetAimPitch(m_camera->GetPitch());
-		if (m_player->GetAimPitch() > 19.0f)
-			m_player->SetAimPitch(19.0f);
-		if (m_player->GetAimPitch() < -19.0f)
-			m_player->SetAimPitch(-19.0f);
+		if (m_player->GetAimPitch() > 50.0f)
+			m_player->SetAimPitch(50.0f);
+		if (m_player->GetAimPitch() < -30.0f)
+			m_player->SetAimPitch(-30.0f);
 		m_player->UpdatePlayerVectors();
 		m_player->UpdatePlayerAimVectors();
 	}
@@ -134,7 +134,7 @@ void InputManager::ProcessInput(GLFWwindow* window, float deltaTime)
 			m_camera->SetMode(PLAYER_FOLLOW);
 		}
 		m_camera->hasSwitched = true;
-		//m_camera->LerpCamera();
+		//-m_camera->LerpCamera();
 		m_player->UpdatePlayerAimVectors();
 		m_player->UpdatePlayerVectors();
 	}

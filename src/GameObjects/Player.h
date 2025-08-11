@@ -31,7 +31,7 @@ class Player : public GameObject
 {
 public:
 	Player(glm::vec3 pos, glm::vec3 scale, Shader* shdr, Shader* shadowMapShader, bool applySkinning,
-		GameManager* gameMgr, float yaw = -90.0f);
+		GameManager* gameMgr, float yaw);
 
 	std::vector<glm::mat2x4> getJointDualQuats()
 	{
@@ -556,6 +556,7 @@ public:
 		const tinygltf::Buffer& buffer = model->buffers[bufferView.buffer];
 		return &buffer.data[accessor.byteOffset + bufferView.byteOffset];
 	}
+	int m_animNum = 0;
 
 
 private:
@@ -587,7 +588,6 @@ private:
 
 	float m_health = 100.0f;
 
-	int m_animNum = 0;
 	int m_sourceAnim = 0;
 	int m_destAnim = 0;
 	bool m_destAnimSet = true;

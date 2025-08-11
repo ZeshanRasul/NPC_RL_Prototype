@@ -79,10 +79,17 @@ void Camera::ProcessMouseMovement(float xOffset, float yOffset, GLboolean constr
 		}
 		else if (GetMode() == PLAYER_AIM || GetMode() == PLAYER_FOLLOW)
 		{
-			if (GetPitch() > 25.0f)
-				SetPitch(25.0f);
-			if (GetPitch() < -16.0)
-				SetPitch(-16.0f);
+			if (GetPitch() > 50.0f)
+				SetPitch(50.0f);
+			if (GetPitch() < -30.0)
+				SetPitch(-30.0);
+		}
+		else if (GetMode() == PLAYER_FOLLOW)
+		{
+			if (GetPitch() > 60.0f)
+				SetPitch(60.0f);
+			if (GetPitch() < -40.0)
+				SetPitch(-40.0);
 		}
 	}
 
@@ -133,13 +140,13 @@ void Camera::LerpCamera()
 	targetCamDir = glm::normalize(targetCamTarget - targetCamPos);
 
 
-	if (GetMode() == PLAYER_AIM)
-	{
-		if (GetPitch() > 25.0f)
-			targetCamPitch =25.0f;
-		if (GetPitch() < -16.0)
-			targetCamPitch = -16.0f;
-	}
+	//if (GetMode() == PLAYER_AIM)
+	//{
+	//	if (GetPitch() > 25.0f)
+	//		targetCamPitch =25.0f;
+	//	if (GetPitch() < -16.0)
+	//		targetCamPitch = -16.0f;
+	//}
 
 	cameraBlendTimer = 0.0f;
 	isBlending = true;

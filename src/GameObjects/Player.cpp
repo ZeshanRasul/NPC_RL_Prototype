@@ -244,10 +244,10 @@ Player::Player(glm::vec3 pos, glm::vec3 scale, Shader* shdr, Shader* shadowMapSh
 
 	playerModel = new tinygltf::Model;
 
-	std::string modelFilename = "src/Assets/Models/Soldier/Test.glb";
+	std::string modelFilename = "src/Assets/Models/Soldier/Test (1).glb";
 
 
-	tinygltf::TinyGLTF gltfLoader;
+	tinygltf::TinyGLTF gltfLoader;	
 	std::string loaderErrors;
 	std::string loaderWarnings;
 	bool result = false;
@@ -409,7 +409,7 @@ void Player::DrawGLTFModel(glm::mat4 viewMat, glm::mat4 projMat, glm::vec3 camPo
 			m_shader->Use();
 			glm::mat4 modelMat = glm::mat4(1.0f);
 			modelMat = glm::translate(modelMat, m_position);
-			//modelMat = glm::rotate(modelMat, glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+			modelMat = glm::rotate(modelMat, glm::radians(-m_yaw + 90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 			modelMat = glm::scale(modelMat, m_scale);
 			std::vector<glm::mat4> matrixData;
 			matrixData.push_back(viewMat);
@@ -576,8 +576,7 @@ void Player::Update(float dt, bool isPaused, bool isTimeScaled)
 
 	
 
-	PlayAnimation(3, 1.0f, 1.0f, false);
-
+	PlayAnimation(m_animNum, 1.0f, 1.0f, false);
 	if (m_playGameStartAudio && m_playGameStartAudioTimer < 0.0f)
 	{
 		std::random_device rd;
@@ -759,7 +758,7 @@ void Player::PlayerProcessMouseMovement(float xOffset)
 
 void Player::SetAnimation(int animNum, float speedDivider, float blendFactor, bool playAnimBackwards)
 {
-	//m_model->PlayAnimation(animNum, speedDivider, blendFactor, playAnimBackwards);
+	//playerModel->PlayAnimation(animNum, speedDivider, blendFactor, playAnimBackwards);
 }
 
 void Player::SetAnimation(int srcAnimNum, int destAnimNum, float speedDivider, float blendFactor,
@@ -849,13 +848,13 @@ void Player::Shoot()
 
 void Player::SetUpAABB()
 {
-	/*m_aabb = new AABB();
-	m_aabb->CalculateAABB(playerModel->GetVertices());
-	m_aabb->SetShader(m_aabbShader);
-	m_aabb->SetUpMesh();
-	m_aabb->SetOwner(this);
-	m_aabb->SetIsPlayer(true);
-	//UpdateAabb();*/
+	//m_aabb = new AABB();
+	//m_aabb->CalculateAABB(playerModel->GetVertices());
+	//m_aabb->SetShader(m_aabbShader);
+	//m_aabb->SetUpMesh();
+	//m_aabb->SetOwner(this);
+	//m_aabb->SetIsPlayer(true);
+	//UpdateAabb();
 }
 
 void Player::OnHit()
