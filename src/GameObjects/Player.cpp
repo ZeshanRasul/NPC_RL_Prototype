@@ -162,7 +162,7 @@ void Player::SetupGLTFMeshes(tinygltf::Model* model)
 
 	m_rootNode->PrintTree();
 
-	//GetAnimations();
+	GetAnimations();
 
 	m_additiveAnimationMask.resize(m_nodeCount);
 	m_invertedAdditiveAnimationMask.resize(m_nodeCount);
@@ -244,7 +244,7 @@ Player::Player(glm::vec3 pos, glm::vec3 scale, Shader* shdr, Shader* shadowMapSh
 
 	playerModel = new tinygltf::Model;
 
-	std::string modelFilename = "src/Assets/Models/Soldier/soldier5.gltf";
+	std::string modelFilename = "src/Assets/Models/Soldier/Test.glb";
 
 
 	tinygltf::TinyGLTF gltfLoader;
@@ -252,7 +252,7 @@ Player::Player(glm::vec3 pos, glm::vec3 scale, Shader* shdr, Shader* shadowMapSh
 	std::string loaderWarnings;
 	bool result = false;
 
-	result = gltfLoader.LoadASCIIFromFile(playerModel, &loaderErrors, &loaderWarnings,
+	result = gltfLoader.LoadBinaryFromFile(playerModel, &loaderErrors, &loaderWarnings,
 		modelFilename);
 
 	if (!loaderWarnings.empty()) {
@@ -576,7 +576,7 @@ void Player::Update(float dt, bool isPaused, bool isTimeScaled)
 
 	
 
-	//PlayAnimation(0, 1.0f, 1.0f, false);
+	PlayAnimation(3, 1.0f, 1.0f, false);
 
 	if (m_playGameStartAudio && m_playGameStartAudioTimer < 0.0f)
 	{
