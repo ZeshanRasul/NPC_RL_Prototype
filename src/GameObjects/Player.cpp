@@ -683,11 +683,15 @@ void Player::PlayerProcessKeyboard(CameraMovement direction, float deltaTime)
 {
 	m_velocity = m_movementSpeed * deltaTime;
 
-	int nextAnim = -1;
+	glm::vec3 desiredDirection = GetPlayerFront();
+	float t;
 
+
+	int nextAnim = -1;
 	if (direction == FORWARD)
-	{
-		m_position += GetPlayerFront() * m_velocity;
+	{ 
+		desiredDirection = m_gameManager->GetPhysicsWorld()->RaycastPlane(GetPosition(), glm::vec3(0.0f, -1.0f, 0.0f), t, desiredDirection);
+		m_position += desiredDirection * m_velocity;
 		m_recomputeWorldTransform = true;
 		ComputeAudioWorldTransform();
 		UpdateComponents(deltaTime);
@@ -695,7 +699,9 @@ void Player::PlayerProcessKeyboard(CameraMovement direction, float deltaTime)
 	}
 	if (direction == BACKWARD)
 	{
-		m_position -= GetPlayerFront() * m_velocity;
+		desiredDirection = -GetPlayerFront();
+		desiredDirection = m_gameManager->GetPhysicsWorld()->RaycastPlane(GetPosition(), glm::vec3(0.0f, -1.0f, 0.0f), t, desiredDirection);
+		m_position += desiredDirection * m_velocity;		
 		m_recomputeWorldTransform = true;
 		ComputeAudioWorldTransform();
 		UpdateComponents(deltaTime);
@@ -703,7 +709,9 @@ void Player::PlayerProcessKeyboard(CameraMovement direction, float deltaTime)
 	}
 	if (direction == LEFT)
 	{
-		m_position -= GetPlayerRight() * m_velocity;
+		desiredDirection = -GetPlayerRight();
+		desiredDirection = m_gameManager->GetPhysicsWorld()->RaycastPlane(GetPosition(), glm::vec3(0.0f, -1.0f, 0.0f), t, desiredDirection);
+		m_position += desiredDirection * m_velocity;		
 		m_recomputeWorldTransform = true;
 		ComputeAudioWorldTransform();
 		UpdateComponents(deltaTime);
@@ -711,7 +719,9 @@ void Player::PlayerProcessKeyboard(CameraMovement direction, float deltaTime)
 	}
 	if (direction == RIGHT)
 	{
-		m_position += GetPlayerRight() * m_velocity;
+		desiredDirection = GetPlayerRight();
+		desiredDirection = m_gameManager->GetPhysicsWorld()->RaycastPlane(GetPosition(), glm::vec3(0.0f, -1.0f, 0.0f), t, desiredDirection);
+		m_position += desiredDirection * m_velocity;
 		m_recomputeWorldTransform = true;
 		ComputeAudioWorldTransform();
 		UpdateComponents(deltaTime);

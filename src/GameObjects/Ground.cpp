@@ -378,8 +378,10 @@ void Ground::CreatePlaneColliders()
 			glm::vec3 wsVertex = modelMat * glm::vec4(vertex, 1.0f);
 			planeVerts.push_back(wsVertex);
 		}
-		PlaneCollider planeCollider = BuildPlaneFromVerts(planeVerts);
-		planeColliders.push_back(planeCollider);
+		PlaneCollider* planeCollider = new PlaneCollider;
+		planeCollider = BuildPlaneFromVerts(planeVerts);
+		planeColliders.push_back(*planeCollider);
+		m_gameManager->GetPhysicsWorld()->AddPlaneCollider(planeCollider);
 	}
 }
 
@@ -441,7 +443,6 @@ void Ground::LoadPlaneCollider(tinygltf::Model* model)
 				// Determine attribute layout location (you must match your shader locations)
 				GLint location = -1;
 				if (attribName == "POSITION") location = 0;
-				else if (attribName == "NORMAL") location = 1;
 
 				if (location >= 0) {
 					GLint numComponents = tinygltf::GetNumComponentsInType(accessor.type); // e.g. VEC3 -> 3

@@ -3,6 +3,7 @@
 #include <glm/glm.hpp>
 
 #include "PhysicsWorld.h"
+#include "GameObjects/Ground.h"
 
 PhysicsWorld::PhysicsWorld()
 {
@@ -16,6 +17,11 @@ void PhysicsWorld::AddCollider(AABB* collider)
 void PhysicsWorld::AddEnemyCollider(AABB* collider)
 {
 	m_enemyColliders.push_back(collider);
+}
+
+void PhysicsWorld::AddPlaneCollider(PlaneCollider* collider)
+{
+	m_planeColliders.push_back(collider);
 }
 
 void PhysicsWorld::RemoveCollider(AABB* collider)
@@ -241,6 +247,32 @@ bool PhysicsWorld::CheckPlayerVisibility(const glm::vec3& rayOrigin, const glm::
 	}
 
 	return false;
+}
+
+glm::vec3 PhysicsWorld::RaycastPlane(const glm::vec3& ro, const glm::vec3& rd, float& tOut, glm::vec3& desiredDir)
+{
+	desiredDir = glm::normalize(desiredDir);
+
+	for (PlaneCollider* pl : m_planeColliders)
+	{
+		float denom = glm::dot(pl->normal, rd);
+		if (std::abs(denom) < 1e-8f)
+			continue; // parallel
+
+		Logger::Log(1, "Plane Normal: %f, %f, %f", pl->normal.x, pl->normal.y, pl->normal.z);
+
+		tOut = -(glm::dot(pl->normal, ro) + pl->d) / denom;
+		if (tOut >= 0.0f)
+		{
+			glm::vec3 slopeDir = desiredDir - glm::dot(desiredDir, pl->normal) * pl->normal;
+			slopeDir = glm::normalize(slopeDir);
+			Logger::Log(1, "Slope direction: %f, %f, %f", slopeDir.x, slopeDir.y, slopeDir.z);
+			return slopeDir;
+		};
+	}
+	Logger::Log(1, "Desired direction: %f, %f, %f", desiredDir.x, desiredDir.y, desiredDir.z);
+
+	return desiredDir;
 }
 
 bool PhysicsWorld::RayAABBIntersect(const glm::vec3& rayOrigin, const glm::vec3& rayDirection, AABB* aabb,

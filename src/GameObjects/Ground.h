@@ -3,6 +3,18 @@
 #include "GameObject.h"
 #include "Physics/AABB.h"
 
+struct PlaneCollider
+{
+	glm::vec3 point;
+	glm::vec3 normal;
+	float     d;         // plane equation: dot(n, X) + d = 0   (d = -dot(n, point))
+
+	glm::vec3 center;    // centroid
+	glm::vec3 tangent;   // unit vector on plane
+	glm::vec3 bitangent; // unit vector on plane, orthonormal to tangent
+	glm::vec2 halfSize;  // half-extent along tangent/bitangent
+};
+
 class Ground : public GameObject
 {
 public:
@@ -36,17 +48,7 @@ public:
 	{
 	};
 
-	struct PlaneCollider
-	{
-		glm::vec3 point;
-		glm::vec3 normal;
-		float     d;         // plane equation: dot(n, X) + d = 0   (d = -dot(n, point))
 
-		glm::vec3 center;    // centroid
-		glm::vec3 tangent;   // unit vector on plane
-		glm::vec3 bitangent; // unit vector on plane, orthonormal to tangent
-		glm::vec2 halfSize;  // half-extent along tangent/bitangent
-	};
 
 	std::vector<PlaneCollider> planeColliders;
 
@@ -63,45 +65,62 @@ public:
 	void LoadPlaneCollider(tinygltf::Model* model);
 	void CreatePlaneColliders();
 
-	static PlaneCollider BuildPlaneFromVerts(const std::vector<glm::vec3>& vertsWS)
+	static PlaneCollider* BuildPlaneFromVerts(const std::vector<glm::vec3>& vertsWS)
 	{
-		PlaneCollider pc{};
+		PlaneCollider* pcOut = new PlaneCollider;
 
-		if (vertsWS.size() < 3) {
-			pc.point = glm::vec3(0);
-			pc.normal = glm::vec3(0, 1, 0);
-			pc.d = 0.0f;
-			pc.center = pc.point;
-			pc.tangent = glm::vec3(1, 0, 0);
-			pc.bitangent = glm::vec3(0, 0, 1);
-			pc.halfSize = glm::vec2(0.5f);
-			return pc;
-		}
+		const float EPS = 1e-8f;
+		if (vertsWS.size() < 3) return pcOut;
 
-		const glm::vec3& p0 = vertsWS[0];
-		const glm::vec3& p1 = vertsWS[1];
-		const glm::vec3& p2 = vertsWS[2];
-
-		glm::vec3 n = glm::normalize(glm::cross(p1 - p0, p2 - p0));
-
-		// Centroid
+		// 1) Centroid
 		glm::vec3 c(0.0f);
 		for (auto& v : vertsWS) c += v;
 		c /= float(vertsWS.size());
 
-		pc.point = c;
-		pc.normal = n;
-		pc.d = -glm::dot(n, c);
-		pc.center = c;
+		// 2) Pick a stable triangle using farthest-point heuristic
+		// Find vA farthest from centroid
+		size_t idxA = 0;
+		float maxDA = -1.0f;
+		for (size_t i = 0; i < vertsWS.size(); ++i) {
+			float d2 = glm::length2(vertsWS[i] - c);
+			if (d2 > maxDA) { maxDA = d2; idxA = i; }
+		}
+		// Find vB farthest from vA
+		size_t idxB = idxA;
+		float maxDB = -1.0f;
+		for (size_t i = 0; i < vertsWS.size(); ++i) {
+			float d2 = glm::length2(vertsWS[i] - vertsWS[idxA]);
+			if (d2 > maxDB) { maxDB = d2; idxB = i; }
+		}
+		if (idxA == idxB || maxDB < EPS) return pcOut; // collinear/degenerate
 
-		// Build an on-plane orthonormal basis (tangent/bitangent)
+		// Find vC that maximizes triangle area with AB
+		const glm::vec3 A = vertsWS[idxA];
+		const glm::vec3 B = vertsWS[idxB];
+		const glm::vec3 AB = B - A;
+
+		size_t idxC = idxA;
+		float maxArea2 = -1.0f;
+		for (size_t i = 0; i < vertsWS.size(); ++i) {
+			if (i == idxA || i == idxB) continue;
+			glm::vec3 AC = vertsWS[i] - A;
+			float area2 = glm::length2(glm::cross(AB, AC)); // proportional to area^2
+			if (area2 > maxArea2) { maxArea2 = area2; idxC = i; }
+		}
+		if (idxC == idxA || idxC == idxB || maxArea2 < EPS) return pcOut; // nearly collinear set
+
+		// 3) Normal from the most stable triangle
+		glm::vec3 n = glm::cross(AB, vertsWS[idxC] - A);
+		float nlen2 = glm::length2(n);
+		if (nlen2 < EPS) return pcOut;
+		n /= std::sqrt(nlen2);
+
+		// 4) Build on-plane basis
 		glm::vec3 arbitrary = (std::abs(n.y) < 0.9f) ? glm::vec3(0, 1, 0) : glm::vec3(1, 0, 0);
 		glm::vec3 t = glm::normalize(glm::cross(arbitrary, n));
 		glm::vec3 b = glm::normalize(glm::cross(n, t));
-		pc.tangent = t;
-		pc.bitangent = b;
 
-		// Project verts into this basis to get extents
+		// 5) Extents via projection
 		float minU = FLT_MAX, maxU = -FLT_MAX, minV = FLT_MAX, maxV = -FLT_MAX;
 		for (auto& v : vertsWS) {
 			glm::vec3 rel = v - c;
@@ -110,10 +129,16 @@ public:
 			minU = std::min(minU, u); maxU = std::max(maxU, u);
 			minV = std::min(minV, v2); maxV = std::max(maxV, v2);
 		}
-		pc.halfSize = 0.5f * glm::vec2(maxU - minU, maxV - minV);
 
+		pcOut->point = c;
+		pcOut->normal = n;
+		pcOut->d = -glm::dot(n, c);
+		pcOut->center = c;
+		pcOut->tangent = t;
+		pcOut->bitangent = b;
+		pcOut->halfSize = 0.5f * glm::vec2(maxU - minU, maxV - minV);
 
-		return pc;
+		return pcOut;
 	}
 
 	static DebugPlaneGL MakeDebugPlane(const PlaneCollider& pl)
