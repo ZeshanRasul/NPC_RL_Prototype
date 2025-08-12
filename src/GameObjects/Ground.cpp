@@ -159,20 +159,12 @@ void Ground::SetupGLTFMeshes(tinygltf::Model* model)
 		}
 
 		meshData[meshIndex] = gltfMesh;
-
-
-		if (mesh.name == "Cube.197" || mesh.name == "Cube.200" || mesh.name == "Cube.201")
-		{
-			Logger::Log(1, "Found Collider_Box.002");
+		const tinygltf::Value& val = mesh.extras.Get("isBox");
+		const tinygltf::Value& val2 = mesh.extras.Get("isCollider");
+		if (val.IsInt() && val.Get<int>() == 1 && val2.IsInt() && val2.Get<int>() == 1) {
+			Logger::Log(1, "Mesh is a box collider, setting up AABB");
 			aabbMeshVertices.push_back(meshVerts);
-			//const tinygltf::Value& val = mesh.extras.Get("isBox");
-			//if (val.IsBool() && val.Get<bool>()) {
-			//	Logger::Log(1, "Mesh is a box, setting up AABB");
-			//}
-			//else {
-			//	Logger::Log(1, "Mesh is not a box, skipping AABB setup");
-			//}
-
+			continue;
 		}
 	}
 }
@@ -247,22 +239,9 @@ float GetEmissiveStrength(const tinygltf::Material& mat)
 
 void Ground::DrawGLTFModel(glm::mat4 viewMat, glm::mat4 projMat, glm::vec3 camPos) {
 	glDisable(GL_CULL_FACE);
-
 	int texIndex = 0;
 	for (size_t meshIndex = 0; meshIndex < meshData.size(); ++meshIndex) {
-		for (AABB* aabb : m_aabbs)
-		{
-			//m_aabbShader->Use();
-			glm::mat4 modelMat = glm::mat4(1.0f);
-			//modelMat = glm::translate(modelMat, glm::vec3(-9.0f, 354.6f, 163.0f));
-			//modelMat = glm::rotate(modelMat, glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-			modelMat = glm::scale(modelMat, m_scale);
-			glm::mat4 modelMatrix = glm::scale(glm::mat4(1.0f), m_scale);
-			aabb->Update(modelMatrix);
-			glDisable(GL_DEPTH_TEST);
-			aabb->Render(viewMat, projMat, modelMat, glm::vec3(0.0f, 1.0f, 0.0f));
-			glEnable(GL_DEPTH_TEST);
-		}
+	
 		for (size_t primIndex = 0; primIndex < meshData[meshIndex].primitives.size(); ++primIndex) {
 			const GLTFPrimitive& prim = meshData[meshIndex].primitives[primIndex];
 		
@@ -535,7 +514,7 @@ Ground::Ground(glm::vec3 pos, glm::vec3 scale, Shader* shdr, Shader* shadowMapSh
 {
 	mapModel = new tinygltf::Model;
 
-	std::string modelFilename = "src/Assets/Models/Game_Scene/V2/CollisionMeshTest/New/Aviary-Environment-V2-Texture-Baked2.gltf";
+	std::string modelFilename = "src/Assets/Models/Game_Scene/V2/CollisionMeshTest/V3/Aviary-Environment-V3-Box-Collider.gltf";
 
 	tinygltf::TinyGLTF gltfLoader;
 	std::string loaderErrors;
@@ -607,7 +586,20 @@ void Ground::DrawObject(glm::mat4 viewMat, glm::mat4 proj, bool shadowMap, glm::
 		glBindVertexArray(0);
 		glUseProgram(0);
 		glEnable(GL_DEPTH_TEST);
+	}
 
+	for (AABB* aabb : m_aabbs)
+	{
+		//m_aabbShader->Use();
+		glm::mat4 modelMat = glm::mat4(1.0f);
+		//modelMat = glm::translate(modelMat, glm::vec3(-9.0f, 354.6f, 163.0f));
+		//modelMat = glm::rotate(modelMat, glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+		modelMat = glm::scale(modelMat, m_scale);
+		glm::mat4 modelMatrix = glm::scale(glm::mat4(1.0f), m_scale);
+		aabb->Update(modelMatrix);
+		glDisable(GL_DEPTH_TEST);
+		aabb->Render(viewMat, proj, modelMat, glm::vec3(0.0f, 1.0f, 0.0f));
+		glEnable(GL_DEPTH_TEST);
 	}
 }	
 
