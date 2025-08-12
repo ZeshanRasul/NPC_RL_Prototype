@@ -556,7 +556,7 @@ public:
 		const tinygltf::Buffer& buffer = model->buffers[bufferView.buffer];
 		return &buffer.data[accessor.byteOffset + bufferView.byteOffset];
 	}
-	int m_animNum = 0;
+	int m_animNum = 1;
 
 
 private:
