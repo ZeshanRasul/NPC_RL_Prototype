@@ -19,7 +19,7 @@ void Ground::SetUpAABB()
 void Ground::SetupGLTFMeshes(tinygltf::Model* model)
 {
 	meshData.resize(model->meshes.size());
-
+	int planeCount = 1;
 	for (size_t meshIndex = 0; meshIndex < model->meshes.size(); ++meshIndex) {
 		const tinygltf::Mesh& mesh = model->meshes[meshIndex];
 		GLTFMesh gltfMesh;
@@ -162,10 +162,19 @@ void Ground::SetupGLTFMeshes(tinygltf::Model* model)
 		const tinygltf::Value& val = mesh.extras.Get("isBox");
 		const tinygltf::Value& val2 = mesh.extras.Get("isCollider");
 		if (val.IsInt() && val.Get<int>() == 1 && val2.IsInt() && val2.Get<int>() == 1) {
-			Logger::Log(1, "Mesh is a box collider, setting up AABB");
+			Logger::Log(1, "Mesh is a box collider, setting up AABB\n");
 			aabbMeshVertices.push_back(meshVerts);
 			continue;
 		}
+
+		const tinygltf::Value& planeVal = mesh.extras.Get("isPlane");
+		const tinygltf::Value& planeVal2 = mesh.extras.Get("isCollider");
+		if (planeVal.IsInt() && planeVal.Get<int>() == 1 && planeVal2.IsInt() && planeVal2.Get<int>() == 1) {
+			Logger::Log(1, "Mesh is a plane collider, setting up plane collider\n");
+			//planeData.resize(++planeCount);
+			planeData.push_back(gltfMesh);
+			continue;
+		}	
 	}
 }
 
@@ -355,9 +364,9 @@ void Ground::CreatePlaneColliders()
 	glm::mat4 modelMat = glm::mat4(1.0f);
 	//modelMat = glm::translate(modelMat, m_position);
 	modelMat = glm::scale(modelMat, m_scale);
-	for (const auto& plane : planeData) {
+	for (const GLTFMesh& plane : planeData) {
 		std::vector<glm::vec3> planeVerts;
-		for (const auto& vertex : plane.primitives[0].verts) {
+		for (const glm::vec3& vertex : plane.primitives[0].verts) {
 			glm::vec3 wsVertex = modelMat * glm::vec4(vertex, 1.0f);
 			planeVerts.push_back(wsVertex);
 		}
@@ -370,7 +379,6 @@ void Ground::CreatePlaneColliders()
 
 void Ground::LoadPlaneCollider(tinygltf::Model* model)
 {
-	planeData.resize(1);
 	for (size_t meshIndex = 0; meshIndex < model->meshes.size(); ++meshIndex) {
 		const tinygltf::Mesh& mesh = model->meshes[meshIndex];
 		GLTFMesh gltfMesh;
@@ -514,7 +522,7 @@ Ground::Ground(glm::vec3 pos, glm::vec3 scale, Shader* shdr, Shader* shadowMapSh
 {
 	mapModel = new tinygltf::Model;
 
-	std::string modelFilename = "src/Assets/Models/Game_Scene/V2/CollisionMeshTest/Aviary-Environment-V3-Box-Collider.glb";
+	std::string modelFilename = "src/Assets/Models/Game_Scene/V4/Aviary-Environment-V4-Box-Collider.glb";
 
 	tinygltf::TinyGLTF gltfLoader;
 	std::string loaderErrors;
@@ -546,14 +554,12 @@ Ground::Ground(glm::vec3 pos, glm::vec3 scale, Shader* shdr, Shader* shadowMapSh
 
 	mTex.LoadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Models/New/Updated/Atlas_00001.png", false);
 
-	plane01Model = new tinygltf::Model;
+	//plane01Model = new tinygltf::Model;
 
-	std::string planeModelFilename = "src/Assets/Models/Game_Scene/V2/CollisionMeshTest/SlopePlanes/Plane01.gltf";
+	//std::string planeModelFilename = "src/Assets/Models/Game_Scene/V2/CollisionMeshTest/SlopePlanes/Plane01.gltf";
 
-	result = gltfLoader.LoadASCIIFromFile(plane01Model, &loaderErrors, &loaderWarnings,
-		planeModelFilename);
-
-	LoadPlaneCollider(plane01Model);
+	//result = gltfLoader.LoadASCIIFromFile(plane01Model, &loaderErrors, &loaderWarnings,
+	//	planeModelFilename);
 
 	CreatePlaneColliders();
 

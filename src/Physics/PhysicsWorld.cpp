@@ -43,7 +43,7 @@ void PhysicsWorld::RemoveEnemyCollider(AABB* collider)
 }
 
 bool PhysicsWorld::RayIntersect(const glm::vec3& rayOrigin, const glm::vec3& rayDirection, glm::vec3& hitPoint,
-                                AABB* selfAABB)
+	AABB* selfAABB)
 {
 	bool hit = false;
 	float closestDistance = std::numeric_limits<float>::max();
@@ -125,7 +125,7 @@ bool PhysicsWorld::RayEnemyIntersect(const glm::vec3& rayOrigin, const glm::vec3
 }
 
 bool PhysicsWorld::RayEnemyCrosshairIntersect(const glm::vec3& rayOrigin, const glm::vec3& rayDirection,
-                                              glm::vec3& hitPoint)
+	glm::vec3& hitPoint)
 {
 	bool hit = false;
 	float closestDistance = std::numeric_limits<float>::max();
@@ -158,7 +158,7 @@ bool PhysicsWorld::RayEnemyCrosshairIntersect(const glm::vec3& rayOrigin, const 
 
 
 bool PhysicsWorld::RayPlayerIntersect(const glm::vec3& rayOrigin, const glm::vec3& rayDirection, glm::vec3& hitPoint,
-                                      AABB* selfAABB)
+	AABB* selfAABB)
 {
 	bool hit = false;
 	float closestDistance = std::numeric_limits<float>::max();
@@ -209,7 +209,7 @@ bool PhysicsWorld::RayPlayerIntersect(const glm::vec3& rayOrigin, const glm::vec
 }
 
 bool PhysicsWorld::CheckPlayerVisibility(const glm::vec3& rayOrigin, const glm::vec3& rayDirection, glm::vec3& hitPoint,
-                                         AABB* selfAABB)
+	AABB* selfAABB)
 {
 	bool hit = false;
 	float closestDistance = std::numeric_limits<float>::max();
@@ -264,6 +264,16 @@ glm::vec3 PhysicsWorld::RaycastPlane(const glm::vec3& ro, const glm::vec3& rd, f
 		tOut = -(glm::dot(pl->normal, ro) + pl->d) / denom;
 		if (tOut >= 0.0f)
 		{
+			glm::vec3 hit = ro + tOut * rd;
+
+			glm::vec3 rel = hit - pl->center;
+			float u = glm::dot(rel, pl->tangent);
+			float v = glm::dot(rel, pl->bitangent);
+
+			float tol = 1e-4f;
+			if (std::abs(u) > pl->halfSize.x + tol) return desiredDir;
+			if (std::abs(v) > pl->halfSize.y + tol) return desiredDir;
+
 			glm::vec3 slopeDir = desiredDir - glm::dot(desiredDir, pl->normal) * pl->normal;
 			slopeDir = glm::normalize(slopeDir);
 			Logger::Log(1, "Slope direction: %f, %f, %f", slopeDir.x, slopeDir.y, slopeDir.z);
@@ -276,7 +286,7 @@ glm::vec3 PhysicsWorld::RaycastPlane(const glm::vec3& ro, const glm::vec3& rd, f
 }
 
 bool PhysicsWorld::RayAABBIntersect(const glm::vec3& rayOrigin, const glm::vec3& rayDirection, AABB* aabb,
-                                    glm::vec3& hitPoint)
+	glm::vec3& hitPoint)
 {
 	// Use the transformed AABB for the intersection test
 	glm::vec3 min = aabb->GetTransformedMin();
