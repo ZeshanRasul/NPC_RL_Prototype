@@ -259,7 +259,10 @@ glm::vec3 PhysicsWorld::RaycastPlane(const glm::vec3& ro, const glm::vec3& rd, f
 		if (std::abs(denom) < 1e-8f)
 			continue; // parallel
 
-		Logger::Log(1, "Plane Normal: %f, %f, %f", pl->normal.x, pl->normal.y, pl->normal.z);
+		Logger::Log(1, "Plane Normal: %f, %f, %f\n", pl->normal.x, pl->normal.y, pl->normal.z);
+
+		//pl->normal.y = pl->normal.y < 0.0f ? -pl->normal.y : pl->normal.y;
+		//pl->normal.z = pl->normal.z < 0.0f ? -pl->normal.z : pl->normal.z;
 
 		tOut = -(glm::dot(pl->normal, ro) + pl->d) / denom;
 		if (tOut >= 0.0f)
@@ -276,11 +279,11 @@ glm::vec3 PhysicsWorld::RaycastPlane(const glm::vec3& ro, const glm::vec3& rd, f
 
 			glm::vec3 slopeDir = desiredDir - glm::dot(desiredDir, pl->normal) * pl->normal;
 			slopeDir = glm::normalize(slopeDir);
-			Logger::Log(1, "Slope direction: %f, %f, %f", slopeDir.x, slopeDir.y, slopeDir.z);
+			Logger::Log(1, "Slope direction: %f, %f, %f\n", slopeDir.x, slopeDir.y, slopeDir.z);
 			return slopeDir;
 		};
 	}
-	Logger::Log(1, "Desired direction: %f, %f, %f", desiredDir.x, desiredDir.y, desiredDir.z);
+	Logger::Log(1, "Desired direction: %f, %f, %f\n", desiredDir.x, desiredDir.y, desiredDir.z);
 
 	return desiredDir;
 }
