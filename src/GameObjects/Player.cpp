@@ -244,7 +244,7 @@ Player::Player(glm::vec3 pos, glm::vec3 scale, Shader* shdr, Shader* shadowMapSh
 
 	playerModel = new tinygltf::Model;
 
-	std::string modelFilename = "src/Assets/Models/Soldier/Test (1).glb";
+	std::string modelFilename = "src/Assets/Models/Soldier/Animations.glb";
 
 
 	tinygltf::TinyGLTF gltfLoader;	
@@ -685,11 +685,12 @@ void Player::PlayerProcessKeyboard(CameraMovement direction, float deltaTime)
 	glm::vec3 desiredDirection = GetPlayerFront();
 	float t;
 
+	glm::vec3 orOffset = glm::vec3(0.0f, 5.0f, 0.0f);
 
 	int nextAnim = -1;
 	if (direction == FORWARD)
 	{ 
-		desiredDirection = m_gameManager->GetPhysicsWorld()->RaycastPlane(GetPosition(), glm::vec3(0.0f, -1.0f, 0.0f), t, desiredDirection);
+		desiredDirection = m_gameManager->GetPhysicsWorld()->RaycastPlane(GetPosition() + orOffset, glm::vec3(0.0f, -1.0f, 0.0f), t, desiredDirection);
 		m_position += desiredDirection * m_velocity;
 		m_recomputeWorldTransform = true;
 		ComputeAudioWorldTransform();
@@ -699,7 +700,7 @@ void Player::PlayerProcessKeyboard(CameraMovement direction, float deltaTime)
 	if (direction == BACKWARD)
 	{
 		desiredDirection = -GetPlayerFront();
-		desiredDirection = m_gameManager->GetPhysicsWorld()->RaycastPlane(GetPosition(), glm::vec3(0.0f, -1.0f, 0.0f), t, desiredDirection);
+		desiredDirection = m_gameManager->GetPhysicsWorld()->RaycastPlane(GetPosition() + orOffset, glm::vec3(0.0f, -1.0f, 0.0f), t, desiredDirection);
 		m_position += desiredDirection * m_velocity;		
 		m_recomputeWorldTransform = true;
 		ComputeAudioWorldTransform();
@@ -709,7 +710,7 @@ void Player::PlayerProcessKeyboard(CameraMovement direction, float deltaTime)
 	if (direction == LEFT)
 	{
 		desiredDirection = -GetPlayerRight();
-		desiredDirection = m_gameManager->GetPhysicsWorld()->RaycastPlane(GetPosition(), glm::vec3(0.0f, -1.0f, 0.0f), t, desiredDirection);
+		desiredDirection = m_gameManager->GetPhysicsWorld()->RaycastPlane(GetPosition() + orOffset, glm::vec3(0.0f, -1.0f, 0.0f), t, desiredDirection);
 		m_position += desiredDirection * m_velocity;		
 		m_recomputeWorldTransform = true;
 		ComputeAudioWorldTransform();
@@ -719,7 +720,7 @@ void Player::PlayerProcessKeyboard(CameraMovement direction, float deltaTime)
 	if (direction == RIGHT)
 	{
 		desiredDirection = GetPlayerRight();
-		desiredDirection = m_gameManager->GetPhysicsWorld()->RaycastPlane(GetPosition(), glm::vec3(0.0f, -1.0f, 0.0f), t, desiredDirection);
+		desiredDirection = m_gameManager->GetPhysicsWorld()->RaycastPlane(GetPosition() + orOffset, glm::vec3(0.0f, -1.0f, 0.0f), t, desiredDirection);
 		m_position += desiredDirection * m_velocity;
 		m_recomputeWorldTransform = true;
 		ComputeAudioWorldTransform();

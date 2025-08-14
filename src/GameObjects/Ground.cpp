@@ -514,14 +514,14 @@ Ground::Ground(glm::vec3 pos, glm::vec3 scale, Shader* shdr, Shader* shadowMapSh
 {
 	mapModel = new tinygltf::Model;
 
-	std::string modelFilename = "src/Assets/Models/Game_Scene/V2/CollisionMeshTest/V3/Aviary-Environment-V3-Box-Collider.gltf";
+	std::string modelFilename = "src/Assets/Models/Game_Scene/V2/CollisionMeshTest/Aviary-Environment-V3-Box-Collider.glb";
 
 	tinygltf::TinyGLTF gltfLoader;
 	std::string loaderErrors;
 	std::string loaderWarnings;
 	bool result = false;
 
-	result = gltfLoader.LoadASCIIFromFile(mapModel, &loaderErrors, &loaderWarnings,
+	result = gltfLoader.LoadBinaryFromFile(mapModel, &loaderErrors, &loaderWarnings,
 		modelFilename);
 
 	if (!loaderWarnings.empty()) {
