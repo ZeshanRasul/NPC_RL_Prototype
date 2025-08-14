@@ -4,3 +4,4 @@ src/Assets/Models/Soldier/AnimatedSoldier.glb filter=lfs diff=lfs merge=lfs -tex
 src/Assets/Models/Soldier/AnimatedSoldier.gltf filter=lfs diff=lfs merge=lfs -text
 src/Assets/Models/Soldier/Animations.glb filter=lfs diff=lfs merge=lfs -text
 src/Assets/Models/Game_Scene/V4/Aviary-Environment-V4-Box-Collider.glb filter=lfs diff=lfs merge=lfs -text
+src/Assets/Models/Game_Scene/V4/Aviary-Environment-V4-Box-Plane-Collider.glb filter=lfs diff=lfs merge=lfs -text

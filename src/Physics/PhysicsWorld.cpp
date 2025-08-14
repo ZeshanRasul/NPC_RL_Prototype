@@ -255,18 +255,28 @@ glm::vec3 PhysicsWorld::RaycastPlane(const glm::vec3& ro, const glm::vec3& rd, f
 
 	for (PlaneCollider* pl : m_planeColliders)
 	{
+		if (glm::dot(pl->normal, glm::vec3(0.0f, 1.0f, 0.0f)) < 0.0f)
+		{
+			pl->normal = -pl->normal;
+			pl->d = -pl->d;
+			pl->tangent = -pl->tangent;
+			pl->bitangent = -pl->bitangent;
+		}
+
 		float denom = glm::dot(pl->normal, rd);
 		if (std::abs(denom) < 1e-8f)
 			continue; // parallel
 
 		Logger::Log(1, "Plane Normal: %f, %f, %f\n", pl->normal.x, pl->normal.y, pl->normal.z);
 
-		//pl->normal.y = pl->normal.y < 0.0f ? -pl->normal.y : pl->normal.y;
-		//pl->normal.z = pl->normal.z < 0.0f ? -pl->normal.z : pl->normal.z;
-
 		tOut = -(glm::dot(pl->normal, ro) + pl->d) / denom;
-		if (tOut >= 0.0f)
+		Logger::Log(1, "t = %f\n", tOut);
+
+		if (tOut >= 0.0f && tOut <= 50.0f)
 		{
+
+			Logger::Log(1, "t greater than 0 = %f\n", tOut);
+
 			glm::vec3 hit = ro + tOut * rd;
 
 			glm::vec3 rel = hit - pl->center;
@@ -274,8 +284,17 @@ glm::vec3 PhysicsWorld::RaycastPlane(const glm::vec3& ro, const glm::vec3& rd, f
 			float v = glm::dot(rel, pl->bitangent);
 
 			float tol = 1e-4f;
-			if (std::abs(u) > pl->halfSize.x + tol) return desiredDir;
-			if (std::abs(v) > pl->halfSize.y + tol) return desiredDir;
+			//float tol = 1.5f;
+			if (std::abs(u) > pl->halfSize.x + tol)
+			{
+				Logger::Log(1, "Outside of plane bounds\n");
+				continue;
+			}
+			if (std::abs(v) > pl->halfSize.y + tol)
+			{
+				Logger::Log(1, "Outside of plane bounds\n");
+				continue;
+			}
 
 			glm::vec3 slopeDir = desiredDir - glm::dot(desiredDir, pl->normal) * pl->normal;
 			slopeDir = glm::normalize(slopeDir);
