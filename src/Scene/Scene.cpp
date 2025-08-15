@@ -1,4 +1,5 @@
 #include "Scene.h"
+#include "Systems/TransformSystem.h"
 
 Scene::Scene()
 {
@@ -16,4 +17,5 @@ entt::entity Scene::CreateEntity()
 
 void Scene::OnUpdate(float deltaTime)
 {
+	UpdateTransforms(m_registry);
 }

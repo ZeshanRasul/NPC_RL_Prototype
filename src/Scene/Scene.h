@@ -2,7 +2,7 @@
 
 #include <EnTT/entt.hpp>
 
-#include "Components.h"
+#include "Scene/Components/Components.h"
 
 class Scene {
 public:
@@ -18,3 +18,5 @@ public:
 private:
 	entt::registry m_registry;
 };
+
+

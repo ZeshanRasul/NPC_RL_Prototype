@@ -3,6 +3,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include "EnTT/entt.hpp"
 
 #include "src/OpenGL/Shader.h"
 #include "Model/GltfModel.h"
@@ -16,20 +17,12 @@ class GameObject
 {
 public:
 	GameObject(glm::vec3 pos, glm::vec3 scale, float yaw, Shader* shdr, Shader* shadowMapShader, bool applySkinning,
-	           class GameManager* gameMgr)
-		: m_yaw(yaw), m_position(pos), m_scale(scale), m_toSkin(applySkinning), m_shader(shdr), m_shadowShader(shadowMapShader),
-		  m_gameManager(gameMgr)
-	{
-		size_t uniformMatrixBufferSize = 4 * sizeof(glm::mat4);
-		m_uniformBuffer.Init(uniformMatrixBufferSize);
-		Logger::Log(1, "%s: matrix uniform buffer (size %i bytes) successfully created\n", __FUNCTION__,
-		            uniformMatrixBufferSize);
-	}
+		class GameManager* gameMgr);
 
 	bool IsSkinned() const { return m_toSkin; }
 	bool IsDestroyed() const { return m_isDestroyed; }
 
-	float GetYaw() const { return m_yaw; }
+	float GetYaw();
 	void SetIsDestroyed(bool newValue) { m_isDestroyed = newValue; }
 
 	virtual void Draw(glm::mat4 viewMat, glm::mat4 proj, bool shadowMap, glm::mat4 lightSpaceMat,
@@ -93,7 +86,9 @@ public:
 
 	virtual void ComputeAudioWorldTransform() {};
 
-	GameManager* GetGameManager() const { return m_gameManager; }
+	entt::entity GetEntity() { return m_entity; }
+
+	class GameManager* GetGameManager() const { return m_gameManager; }
 
 	glm::mat4 GetAudioWorldTransform() const { return m_audioWorldTransform; }
 
@@ -103,6 +98,10 @@ public:
 
 	virtual void HasDealtDamage() = 0;
 	virtual void HasKilledPlayer() = 0;
+
+	void SetPosition(const glm::vec3& p);
+	void SetScale(const glm::vec3& s);
+	void SetYaw(float yaw);
 
 	glm::vec3 m_position;
 protected:
@@ -131,4 +130,6 @@ protected:
 	UniformBuffer m_uniformBuffer{};
 
 	std::vector<Component*> m_components;
+
+	entt::entity m_entity{ entt::null };
 };

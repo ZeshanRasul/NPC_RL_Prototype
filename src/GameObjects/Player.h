@@ -19,6 +19,8 @@
 #include "Components/AudioComponent.h"
 #include "Model/GLTFPrimitive.h"
 
+#include "Scene/Components/Components.h"
+
 enum PlayerState
 {
 	MOVING,
@@ -346,16 +348,7 @@ public:
 
 	void Update(float dt, bool isPaused, bool isTimeScaled);
 
-	glm::vec3 GetPosition()
-	{
-		return m_position;
-	}
-
-	void SetPosition(glm::vec3 newPos)
-	{
-		m_position = newPos;
-		m_recomputeWorldTransform = true;
-	}
+	glm::vec3 GetPosition();
 
 	float GetInitialYaw() const { return m_initialYaw; }
 

@@ -67,6 +67,11 @@ public:
 		m_model->cleanup();
 	}
 
+	glm::vec3 GetPositionOld()
+	{
+		return m_position;
+	}
+
 	void SetUpModel();
 
 	std::vector<glm::mat2x4> getJointDualQuats()
@@ -428,14 +433,9 @@ public:
 
 	AudioComponent* GetAudioComponent() const { return m_takeDamageAc; }
 
-	glm::vec3 GetPosition()
-	{
-		return m_position;
-	}
-
 	glm::vec3 GetInitialPosition() const { return m_initialPosition; }
 
-	void SetPosition(glm::vec3 newPos);
+	void SetPositionOld(glm::vec3 newPos);
 
 	void ComputeAudioWorldTransform() override;
 
@@ -482,7 +482,7 @@ public:
 	glm::vec3 GetEnemyShootPos(float forwardOffset)
 	{
 		UpdateEnemyVectors();
-		return GetPosition() + glm::vec3(0.0f, 4.5f, 0.0f) + (forwardOffset * m_front);
+		return GetPositionOld() + glm::vec3(0.0f, 4.5f, 0.0f) + (forwardOffset * m_front);
 	}
 
 	glm::vec3 GetEnemyShootDir() const { return m_enemyShootDir; }

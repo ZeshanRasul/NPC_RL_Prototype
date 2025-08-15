@@ -281,6 +281,7 @@
     <ClCompile Include="src\GameManager.cpp" />
     <ClCompile Include="src\GameObjects\Crosshair.cpp" />
     <ClCompile Include="src\GameObjects\Enemy.cpp" />
+    <ClCompile Include="src\GameObjects\GameObject.cpp" />
     <ClCompile Include="src\GameObjects\Ground.cpp" />
     <ClCompile Include="src\GameObjects\Line.cpp" />
     <ClCompile Include="src\GameObjects\Player.cpp" />
@@ -373,8 +374,9 @@
     <ClInclude Include="src\OpenGL\VertexBuffer.h" />
     <ClInclude Include="src\Physics\AABB.h" />
     <ClInclude Include="src\Physics\PhysicsWorld.h" />
-    <ClInclude Include="src\Scene\Components.h" />
+    <ClInclude Include="src\Scene\Components\Components.h" />
     <ClInclude Include="src\Scene\Scene.h" />
+    <ClInclude Include="src\Scene\Systems\TransformSystem.h" />
     <ClInclude Include="src\tinygltf\json.hpp" />
     <ClInclude Include="src\tinygltf\tiny_gltf.h" />
     <ClInclude Include="src\Tools\Logger.h" />

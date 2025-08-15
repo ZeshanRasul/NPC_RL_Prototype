@@ -481,8 +481,8 @@ void Enemy::DrawGLTFModel(glm::mat4 viewMat, glm::mat4 projMat, glm::vec3 camPos
 				}
 				else {
 					m_shader->SetBool("useMetallicRoughness", mat.pbrMetallicRoughness.baseColorTexture.index >= 0);
-					m_shader->SetFloat("metallicFactor", mat.pbrMetallicRoughness.metallicFactor);
-					m_shader->SetFloat("roughnessFactor", mat.pbrMetallicRoughness.roughnessFactor);
+					m_shader->SetFloat("metallicFactor", static_cast<float>(mat.pbrMetallicRoughness.metallicFactor));
+					m_shader->SetFloat("roughnessFactor", static_cast<float>(mat.pbrMetallicRoughness.roughnessFactor));
 				}
 
 				if (mat.normalTexture.index >= 0) {
@@ -677,7 +677,7 @@ void Enemy::OnEvent(const Event& event)
 	}
 }
 
-void Enemy::SetPosition(glm::vec3 newPos)
+void Enemy::SetPositionOld(glm::vec3 newPos)
 {
 	m_position = newPos;
 	UpdateAABB();
@@ -938,11 +938,11 @@ void Enemy::Shoot()
 		}
 	}
 
-	m_enemyShootPos = GetPosition() + glm::vec3(0.0f, 2.5f, 0.0f);
-	m_enemyShootDir = (m_player.GetPosition() - GetPosition()) + accuracyOffset;
+	m_enemyShootPos = GetPositionOld() + glm::vec3(0.0f, 2.5f, 0.0f);
+	m_enemyShootDir = (m_player.GetPosition() - GetPositionOld()) + accuracyOffset;
 	auto hitPoint = glm::vec3(0.0f);
 
-	glm::vec3 playerDir = normalize(m_player.GetPosition() - GetPosition());
+	glm::vec3 playerDir = normalize(m_player.GetPosition() - GetPositionOld());
 
 	m_yaw = glm::degrees(glm::atan(playerDir.z, playerDir.x));
 	UpdateEnemyVectors();
@@ -1378,7 +1378,7 @@ void Enemy::EnemyDecision(State& currentState, int enemyId, std::vector<Action>&
 	State nextState = currentState;
 	int numAttacking = static_cast<int>(std::count(squadActions.begin(), squadActions.end(), ATTACK));
 	bool isSuppressionFire = numAttacking > 0;
-	float playerDistance = distance(GetPosition(), m_player.GetPosition());
+	float playerDistance = distance(GetPositionOld(), m_player.GetPosition());
 
 	if (!IsPlayerDetected() && (playerDistance < 35.0f) && IsPlayerVisible())
 	{
@@ -1398,7 +1398,7 @@ void Enemy::EnemyDecision(State& currentState, int enemyId, std::vector<Action>&
 		MoveEnemy(m_currentPath, m_dt, 1.0f, false);
 
 		nextState.playerDetected = IsPlayerDetected();
-		nextState.distanceToPlayer = distance(GetPosition(), m_player.GetPosition());
+		nextState.distanceToPlayer = distance(GetPositionOld(), m_player.GetPosition());
 		nextState.playerVisible = IsPlayerVisible();
 		nextState.health = GetHealth();
 		nextState.isSuppressionFire = isSuppressionFire;
@@ -1415,7 +1415,7 @@ void Enemy::EnemyDecision(State& currentState, int enemyId, std::vector<Action>&
 		Shoot();
 
 		nextState.playerDetected = IsPlayerDetected();
-		nextState.distanceToPlayer = distance(GetPosition(), m_player.GetPosition());
+		nextState.distanceToPlayer = distance(GetPositionOld(), m_player.GetPosition());
 		nextState.playerVisible = IsPlayerVisible();
 		nextState.health = GetHealth();
 		nextState.isSuppressionFire = isSuppressionFire;
@@ -1442,7 +1442,7 @@ void Enemy::EnemyDecision(State& currentState, int enemyId, std::vector<Action>&
 		}
 
 		nextState.playerDetected = IsPlayerDetected();
-		nextState.distanceToPlayer = distance(GetPosition(), m_player.GetPosition());
+		nextState.distanceToPlayer = distance(GetPositionOld(), m_player.GetPosition());
 		nextState.playerVisible = IsPlayerVisible();
 		nextState.health = GetHealth();
 		nextState.isSuppressionFire = isSuppressionFire;
@@ -1553,7 +1553,7 @@ void Enemy::EnemyDecisionPrecomputedQ(State& currentState, int enemyId, std::vec
 
 	int numAttacking = static_cast<int>(std::count(squadActions.begin(), squadActions.end(), ATTACK));
 	bool isSuppressionFire = numAttacking > 0;
-	float playerDistance = distance(GetPosition(), m_player.GetPosition());
+	float playerDistance = distance(GetPositionOld(), m_player.GetPosition());
 	if (!IsPlayerDetected() && (playerDistance < 35.0f) && IsPlayerVisible())
 	{
 		DetectPlayer();
@@ -1578,7 +1578,7 @@ void Enemy::EnemyDecisionPrecomputedQ(State& currentState, int enemyId, std::vec
 		MoveEnemy(m_currentPath, deltaTime, 1.0f, false);
 
 		currentState.playerDetected = IsPlayerDetected();
-		currentState.distanceToPlayer = distance(GetPosition(), m_player.GetPosition());
+		currentState.distanceToPlayer = distance(GetPositionOld(), m_player.GetPosition());
 		currentState.playerVisible = IsPlayerVisible();
 		currentState.health = GetHealth();
 		currentState.isSuppressionFire = isSuppressionFire;
@@ -1602,7 +1602,7 @@ void Enemy::EnemyDecisionPrecomputedQ(State& currentState, int enemyId, std::vec
 
 		MoveEnemy(m_currentPath, m_dt, 1.0f, false);
 		currentState.playerDetected = IsPlayerDetected();
-		currentState.distanceToPlayer = distance(GetPosition(), m_player.GetPosition());
+		currentState.distanceToPlayer = distance(GetPositionOld(), m_player.GetPosition());
 		currentState.playerVisible = IsPlayerVisible();
 		currentState.health = GetHealth();
 		currentState.isSuppressionFire = isSuppressionFire;
@@ -1619,7 +1619,7 @@ void Enemy::EnemyDecisionPrecomputedQ(State& currentState, int enemyId, std::vec
 		Shoot();
 
 		currentState.playerDetected = IsPlayerDetected();
-		currentState.distanceToPlayer = distance(GetPosition(), m_player.GetPosition());
+		currentState.distanceToPlayer = distance(GetPositionOld(), m_player.GetPosition());
 		currentState.playerVisible = IsPlayerVisible();
 		currentState.health = GetHealth();
 		currentState.isSuppressionFire = isSuppressionFire;
@@ -1670,7 +1670,7 @@ void Enemy::EnemyDecisionPrecomputedQ(State& currentState, int enemyId, std::vec
 
 
 		currentState.playerDetected = IsPlayerDetected();
-		currentState.distanceToPlayer = distance(GetPosition(), m_player.GetPosition());
+		currentState.distanceToPlayer = distance(GetPositionOld(), m_player.GetPosition());
 		currentState.playerVisible = IsPlayerVisible();
 		currentState.health = GetHealth();
 		currentState.isSuppressionFire = isSuppressionFire;
@@ -1943,8 +1943,8 @@ bool Enemy::IsPlayerDetected()
 
 bool Enemy::IsPlayerVisible()
 {
-	glm::vec3 tempEnemyShootPos = GetPosition() + glm::vec3(0.0f, 2.5f, 0.0f);
-	glm::vec3 tempEnemyShootDir = normalize(m_player.GetPosition() - GetPosition());
+	glm::vec3 tempEnemyShootPos = GetPositionOld() + glm::vec3(0.0f, 2.5f, 0.0f);
+	glm::vec3 tempEnemyShootDir = normalize(m_player.GetPosition() - GetPositionOld());
 	auto hitPoint = glm::vec3(0.0f);
 
 
@@ -1966,10 +1966,10 @@ bool Enemy::IsHealthBelowThreshold()
 
 bool Enemy::IsPlayerInRange()
 {
-	float playerEnemyDistance = distance(GetPosition(), m_player.GetPosition());
+	float playerEnemyDistance = distance(GetPositionOld(), m_player.GetPosition());
 
-	glm::vec3 tempEnemyShootPos = GetPosition() + glm::vec3(0.0f, 2.5f, 0.0f);
-	glm::vec3 tempEnemyShootDir = normalize(m_player.GetPosition() - GetPosition());
+	glm::vec3 tempEnemyShootPos = GetPositionOld() + glm::vec3(0.0f, 2.5f, 0.0f);
+	glm::vec3 tempEnemyShootDir = normalize(m_player.GetPosition() - GetPositionOld());
 	auto hitPoint = glm::vec3(0.0f);
 
 	if (playerEnemyDistance < 35.0f && !IsPlayerDetected())
@@ -2374,7 +2374,7 @@ NodeStatus Enemy::InCoverAction()
 
 	m_state = "In Cover";
 
-	glm::vec3 rayOrigin = GetPosition() + glm::vec3(0.0f, 2.5f, 0.0f);
+	glm::vec3 rayOrigin = GetPositionOld() + glm::vec3(0.0f, 2.5f, 0.0f);
 	glm::vec3 rayDirection = normalize(m_player.GetPosition() - rayOrigin);
 	auto hitPoint = glm::vec3(0.0f);
 

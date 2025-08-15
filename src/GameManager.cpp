@@ -539,6 +539,8 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 	m_renderer->SetUpMinimapFBO(width, height);
 	m_renderer->SetUpShadowMapFBO(SHADOW_WIDTH, SHADOW_HEIGHT);
 
+	m_activeScene = new Scene();
+
 	playerShader.LoadShaders("src/Shaders/vertex_pbr_skinned.glsl", "src/Shaders/fragment_pbr_skinned.glsl");
 	groundShader.LoadShaders("src/Shaders/vertex2.glsl", "src/Shaders/fragment2.glsl");
 	enemyShader.LoadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/vertex_gpu_dquat_enemy.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/pbr_fragment_emissive.glsl");
@@ -999,12 +1001,6 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 
 	mMusicEvent = m_audioSystem->PlayEvent("event:/bgm");
 
-	m_activeScene = new Scene();
-
-	auto testEntity = m_activeScene->CreateEntity();
-	m_activeScene->GetRegistry().emplace<TransformComponent>(testEntity);
-
-
 	//for (int i = 0; i < polyMesh->nverts; ++i) {
 	//	const unsigned short* v = &polyMesh->verts[i * 3];
 	//	navRenderMeshVertices.push_back(v[0]); // X
@@ -1250,8 +1246,8 @@ void GameManager::SetupCamera(unsigned int width, unsigned int height, float del
 			m_camera->SetMode(FLY);
 			return;
 		}
-		m_camera->FollowTarget(m_enemy->GetPosition(), m_enemy->GetEnemyFront(), m_camera->GetEnemyCamRearOffset(), m_camera->GetEnemyCamHeightOffset());
-		m_view = m_camera->GetViewMatrixEnemyFollow(m_enemy->GetPosition(), glm::vec3(0.0f, 1.0f, 0.0f));
+		m_camera->FollowTarget(m_enemy->GetPositionOld(), m_enemy->GetEnemyFront(), m_camera->GetEnemyCamRearOffset(), m_camera->GetEnemyCamHeightOffset());
+		m_view = m_camera->GetViewMatrixEnemyFollow(m_enemy->GetPositionOld(), glm::vec3(0.0f, 1.0f, 0.0f));
 	}
 	else if (m_camera->GetMode() == FLY)
 	{
@@ -1552,7 +1548,7 @@ void GameManager::ResetGame()
 	m_audioManager->ClearQueue();
 	m_player->SetPosition(m_player->GetInitialPos());
 	m_player->SetYaw(m_player->GetInitialYaw());
-	m_player->SetAnimNum(0);
+	m_player->SetAnimNum(4);
 	m_player->SetIsDestroyed(false);
 	m_player->SetHealth(100.0f);
 	m_player->UpdatePlayerVectors();
@@ -1567,10 +1563,10 @@ void GameManager::ResetGame()
 	m_enemy2->SetIsDead(false);
 	m_enemy3->SetIsDead(false);
 	m_enemy4->SetIsDead(false);
-	m_enemy->SetPosition(m_enemy->GetInitialPosition());
-	m_enemy2->SetPosition(m_enemy2->GetInitialPosition());
-	m_enemy3->SetPosition(m_enemy3->GetInitialPosition());
-	m_enemy4->SetPosition(m_enemy4->GetInitialPosition());
+	m_enemy->SetPositionOld(m_enemy->GetInitialPosition());
+	m_enemy2->SetPositionOld(m_enemy2->GetInitialPosition());
+	m_enemy3->SetPositionOld(m_enemy3->GetInitialPosition());
+	m_enemy4->SetPositionOld(m_enemy4->GetInitialPosition());
 	m_enemyStates = {
 		{ false, false, 100.0f, 100.0f, false },
 		{ false, false, 100.0f, 100.0f, false },
@@ -1815,7 +1811,7 @@ void GameManager::Update(float deltaTime)
 	if (isTimeScaled)
 		scaledDeltaTime *= timeScaleFactor;
 
-	m_activeScene->OnUpdate(deltaTime);
+	GetActiveScene()->OnUpdate(deltaTime);
 
 	m_player->UpdatePlayerVectors();
 	m_player->UpdatePlayerAimVectors();

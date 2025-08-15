@@ -173,6 +173,8 @@ public:
 	bool HasCamSwitchedToAim() const { return m_camSwitchedToAim; }
 	void SetCamSwitchedToAim(bool val) { m_camSwitchedToAim = val; }
 
+	Scene* GetActiveScene() { return m_activeScene; }
+
 private:
 	void RenderEnemyLineAndMuzzleFlash(bool isMainPass, bool isMinimapPass, bool isShadowPass);
 	void RenderPlayerCrosshairAndMuzzleFlash(bool isMainPass);

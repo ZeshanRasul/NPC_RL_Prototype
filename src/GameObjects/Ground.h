@@ -21,8 +21,8 @@ public:
 	Ground(glm::vec3 pos, glm::vec3 scale, Shader* shdr, Shader* shadowMapShader, bool applySkinning,
 		GameManager* gameMgr, float yaw = 0.0f);
 
-	void SetPosition(const glm::vec3& pos) { m_position = pos; }
-	void SetScale(const glm::vec3& newScale) { m_scale = newScale; }
+	void SetPositionOld(const glm::vec3& pos) { m_position = pos; }
+	void SetScaleOld(const glm::vec3& newScale) { m_scale = newScale; }
 	glm::vec3 GetPosition() { return m_position; }
 	glm::vec3 GetScale() { return m_scale; }
 

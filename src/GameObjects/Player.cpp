@@ -408,9 +408,10 @@ void Player::DrawGLTFModel(glm::mat4 viewMat, glm::mat4 projMat, glm::vec3 camPo
 
 			m_shader->Use();
 			glm::mat4 modelMat = glm::mat4(1.0f);
-			modelMat = glm::translate(modelMat, m_position);
+		/*	modelMat = glm::translate(modelMat, m_position);
 			modelMat = glm::rotate(modelMat, glm::radians(-m_yaw + 90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-			modelMat = glm::scale(modelMat, m_scale);
+			modelMat = glm::scale(modelMat, m_scale);*/
+			modelMat = m_gameManager->GetActiveScene()->GetRegistry().get<TransformComponent>(m_entity).World;
 			std::vector<glm::mat4> matrixData;
 			matrixData.push_back(viewMat);
 			matrixData.push_back(projMat);
@@ -678,6 +679,14 @@ void Player::UpdatePlayerAimVectors()
 	SetPlayerAimUp(normalize(cross(m_playerAimRight, GetPlayerAimFront())));
 }
 
+glm::vec3 Player::GetPosition()
+{
+	auto& t = m_gameManager->GetActiveScene()->GetRegistry().get<TransformComponent>(m_entity);
+	m_position = t.Position;
+	return m_position;
+}
+
+
 void Player::PlayerProcessKeyboard(CameraMovement direction, float deltaTime)
 {
 	m_velocity = m_movementSpeed * deltaTime;
@@ -692,6 +701,7 @@ void Player::PlayerProcessKeyboard(CameraMovement direction, float deltaTime)
 	{ 
 		desiredDirection = m_gameManager->GetPhysicsWorld()->RaycastPlane(GetPosition() + orOffset, glm::vec3(0.0f, -1.0f, 0.0f), t, desiredDirection);
 		m_position += desiredDirection * m_velocity;
+		SetPosition(m_position);
 		m_recomputeWorldTransform = true;
 		ComputeAudioWorldTransform();
 		UpdateComponents(deltaTime);
@@ -701,7 +711,8 @@ void Player::PlayerProcessKeyboard(CameraMovement direction, float deltaTime)
 	{
 		desiredDirection = -GetPlayerFront();
 		desiredDirection = m_gameManager->GetPhysicsWorld()->RaycastPlane(GetPosition() + orOffset, glm::vec3(0.0f, -1.0f, 0.0f), t, desiredDirection);
-		m_position += desiredDirection * m_velocity;		
+		m_position += desiredDirection * m_velocity;
+		SetPosition(m_position);
 		m_recomputeWorldTransform = true;
 		ComputeAudioWorldTransform();
 		UpdateComponents(deltaTime);
@@ -711,7 +722,8 @@ void Player::PlayerProcessKeyboard(CameraMovement direction, float deltaTime)
 	{
 		desiredDirection = -GetPlayerRight();
 		desiredDirection = m_gameManager->GetPhysicsWorld()->RaycastPlane(GetPosition() + orOffset, glm::vec3(0.0f, -1.0f, 0.0f), t, desiredDirection);
-		m_position += desiredDirection * m_velocity;		
+		m_position += desiredDirection * m_velocity;	
+		SetPosition(m_position);
 		m_recomputeWorldTransform = true;
 		ComputeAudioWorldTransform();
 		UpdateComponents(deltaTime);
@@ -722,6 +734,7 @@ void Player::PlayerProcessKeyboard(CameraMovement direction, float deltaTime)
 		desiredDirection = GetPlayerRight();
 		desiredDirection = m_gameManager->GetPhysicsWorld()->RaycastPlane(GetPosition() + orOffset, glm::vec3(0.0f, -1.0f, 0.0f), t, desiredDirection);
 		m_position += desiredDirection * m_velocity;
+		SetPosition(m_position);
 		m_recomputeWorldTransform = true;
 		ComputeAudioWorldTransform();
 		UpdateComponents(deltaTime);
