@@ -300,6 +300,7 @@
     <ClCompile Include="src\OpenGL\VertexBuffer.cpp" />
     <ClCompile Include="src\Physics\AABB.cpp" />
     <ClCompile Include="src\Physics\PhysicsWorld.cpp" />
+    <ClCompile Include="src\Scene\Scene.cpp" />
     <ClCompile Include="src\tinygltf\tiny_gltf.cc" />
     <ClCompile Include="src\Tools\Logger.cpp" />
     <ClCompile Include="src\tracy\TracyClient.cpp" />
@@ -372,6 +373,8 @@
     <ClInclude Include="src\OpenGL\VertexBuffer.h" />
     <ClInclude Include="src\Physics\AABB.h" />
     <ClInclude Include="src\Physics\PhysicsWorld.h" />
+    <ClInclude Include="src\Scene\Components.h" />
+    <ClInclude Include="src\Scene\Scene.h" />
     <ClInclude Include="src\tinygltf\json.hpp" />
     <ClInclude Include="src\tinygltf\tiny_gltf.h" />
     <ClInclude Include="src\Tools\Logger.h" />

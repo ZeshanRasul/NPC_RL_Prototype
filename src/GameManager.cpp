@@ -53,7 +53,7 @@ bool GameManager::BuildTile(int tx, int ty, float* bmin, float* bmax,  rcConfig 
 	std::vector<unsigned char> tileAreas;     
 	std::unordered_map<int, int> globalToLocalVert;
 
-	int triCount = navMeshIndices.size() / 3;
+	int triCount = static_cast<int>(navMeshIndices.size()) / 3;
 
 	for (int i = 0; i < triCount; ++i)
 	{
@@ -81,7 +81,7 @@ bool GameManager::BuildTile(int tx, int ty, float* bmin, float* bmax,  rcConfig 
 			if (found != globalToLocalVert.end())
 				return found->second;
 
-			int localIndex = tileVerts.size() / 3;
+			int localIndex = static_cast<int>(tileVerts.size()) / 3;
 			tileVerts.push_back(navMeshVertices[globalIndex * 3 + 0]);
 			tileVerts.push_back(navMeshVertices[globalIndex * 3 + 1]);
 			tileVerts.push_back(navMeshVertices[globalIndex * 3 + 2]);
@@ -111,9 +111,9 @@ bool GameManager::BuildTile(int tx, int ty, float* bmin, float* bmax,  rcConfig 
 	}
 
 
-	int triangleCount = navMeshIndices.size() / 3;
+	int triangleCount = static_cast<int>(navMeshIndices.size()) / 3;
 
-	if (!rcRasterizeTriangles(&ctx, tileVerts.data(), tileVerts.size() / 3, tileIndices.data(), tileAreas.data(), tileIndices.size() / 3, *heightField, config.walkableClimb))
+	if (!rcRasterizeTriangles(&ctx, tileVerts.data(), static_cast<int>(tileVerts.size()) / 3, tileIndices.data(), tileAreas.data(), static_cast<int>(tileIndices.size()) / 3, *heightField, config.walkableClimb))
 	{
 		Logger::Log(1, "%s error: Could not rasterize triangles\n", __FUNCTION__);
 	}
@@ -999,6 +999,12 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 
 	mMusicEvent = m_audioSystem->PlayEvent("event:/bgm");
 
+	m_activeScene = new Scene();
+
+	auto testEntity = m_activeScene->CreateEntity();
+	m_activeScene->GetRegistry().emplace<TransformComponent>(testEntity);
+
+
 	//for (int i = 0; i < polyMesh->nverts; ++i) {
 	//	const unsigned short* v = &polyMesh->verts[i * 3];
 	//	navRenderMeshVertices.push_back(v[0]); // X
@@ -1808,6 +1814,8 @@ void GameManager::Update(float deltaTime)
 
 	if (isTimeScaled)
 		scaledDeltaTime *= timeScaleFactor;
+
+	m_activeScene->OnUpdate(deltaTime);
 
 	m_player->UpdatePlayerVectors();
 	m_player->UpdatePlayerAimVectors();

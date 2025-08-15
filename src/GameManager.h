@@ -35,6 +35,8 @@
 #include "AI/Event.h"
 #include "AI/Events.h"
 
+#include "Scene/Scene.h"
+
 class GameManager {
 private:
 	void SaveQTable(const std::unordered_map<std::pair<State, Action>, float, PairHash>& qTable, const std::string& filename) {
@@ -448,6 +450,8 @@ private:
 
 	glm::vec3 mapScale = glm::vec3(5.0f);
 	glm::vec3 mapPos = glm::vec3(0, 0.f, 0.0f);
+
+	Scene* m_activeScene;
 };
 
 struct DebugVertex {

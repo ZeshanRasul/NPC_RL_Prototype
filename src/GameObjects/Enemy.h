@@ -164,13 +164,13 @@ public:
 		if (playBackwards)
 		{
 			BlendAnimationFrame(animNum, m_animClips.at(animNum)->GetClipEndTime() -
-				std::fmod(currentTime / 1000.0 * speedDivider,
-					m_animClips.at(animNum)->GetClipEndTime()), blendFactor);
+				static_cast<float>(std::fmod(currentTime / 1000.0 * speedDivider,
+					m_animClips.at(animNum)->GetClipEndTime())), blendFactor);
 		}
 		else
 		{
-			BlendAnimationFrame(animNum, std::fmod(currentTime / 1000.0 * speedDivider,
-				m_animClips.at(animNum)->GetClipEndTime()), blendFactor);
+			BlendAnimationFrame(animNum, static_cast<float>(std::fmod(currentTime / 1000.0 * speedDivider,
+				m_animClips.at(animNum)->GetClipEndTime())), blendFactor);
 		}
 	}
 
