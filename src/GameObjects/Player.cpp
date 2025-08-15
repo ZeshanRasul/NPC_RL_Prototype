@@ -412,6 +412,7 @@ void Player::DrawGLTFModel(glm::mat4 viewMat, glm::mat4 projMat, glm::vec3 camPo
 			modelMat = glm::rotate(modelMat, glm::radians(-m_yaw + 90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 			modelMat = glm::scale(modelMat, m_scale);*/
 			modelMat = m_gameManager->GetActiveScene()->GetRegistry().get<TransformComponent>(m_entity).World;
+			
 			std::vector<glm::mat4> matrixData;
 			matrixData.push_back(viewMat);
 			matrixData.push_back(projMat);
@@ -755,7 +756,6 @@ void Player::PlayerProcessKeyboard(CameraMovement direction, float deltaTime)
 void Player::PlayerProcessMouseMovement(float xOffset)
 {
 	xOffset *= SENSITIVITY;  
-
 	m_yaw += xOffset;
 	SetYaw(m_yaw);
 	SetPlayerYaw(m_yaw);
@@ -907,6 +907,6 @@ void Player::SetPlayerYaw(float val)
 	m_yaw = val;
 	auto& t = m_gameManager->GetActiveScene()->GetRegistry().get<TransformComponent>(m_entity);
 
-	t.Rotation = glm::angleAxis(glm::radians(val), glm::vec3{ 0.0f, 1.0f, 0.0f });
+	t.Rotation = glm::angleAxis(glm::radians(-val + 90.0f), glm::vec3{ 0.0f, 1.0f, 0.0f });
 	t.dirty = true;
 }
