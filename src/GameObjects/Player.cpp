@@ -230,6 +230,7 @@ Player::Player(glm::vec3 pos, glm::vec3 scale, Shader* shdr, Shader* shadowMapSh
 	SetInitialPos(pos);
 	m_initialYaw = yaw;
 	SetYaw(yaw);
+	SetPlayerYaw(yaw);
 	//m_model = std::make_shared<GltfModel>();
 
 	//std::string modelFilename =
