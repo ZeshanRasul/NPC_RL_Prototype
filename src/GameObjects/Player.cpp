@@ -229,7 +229,7 @@ Player::Player(glm::vec3 pos, glm::vec3 scale, Shader* shdr, Shader* shadowMapSh
 {
 	SetInitialPos(pos);
 	m_initialYaw = yaw;
-
+	SetYaw(yaw);
 	//m_model = std::make_shared<GltfModel>();
 
 	//std::string modelFilename =
@@ -754,9 +754,11 @@ void Player::PlayerProcessKeyboard(CameraMovement direction, float deltaTime)
 
 void Player::PlayerProcessMouseMovement(float xOffset)
 {
-	//    xOffset *= SENSITIVITY;  
+	xOffset *= SENSITIVITY;  
 
 	m_yaw += xOffset;
+	SetYaw(m_yaw);
+	SetPlayerYaw(m_yaw);
 	m_recomputeWorldTransform = true;
 	ComputeAudioWorldTransform();
 	if (GetPlayerState() == MOVING)
@@ -897,4 +899,14 @@ void Player::ResetGame()
 	m_gameManager->ResetGame();
 	m_playGameStartAudio = true;
 	m_playGameStartAudioTimer = 1.0f;
+}
+
+void Player::SetPlayerYaw(float val)
+{
+	m_playerYaw = val;
+	m_yaw = val;
+	auto& t = m_gameManager->GetActiveScene()->GetRegistry().get<TransformComponent>(m_entity);
+
+	t.Rotation = glm::angleAxis(glm::radians(val), glm::vec3{ 0.0f, 1.0f, 0.0f });
+	t.dirty = true;
 }

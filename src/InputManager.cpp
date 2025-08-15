@@ -36,7 +36,7 @@ void InputManager::HandleMouseMovement(double xPosIn, double yPosIn)
 
 	if (m_camera->GetMode() == PLAYER_FOLLOW)
 	{
-		m_player->SetPlayerYaw(m_camera->GetYaw() + 90.0f);
+		m_player->SetPlayerYaw(m_camera->GetYaw());
 		m_player->SetAimPitch(m_camera->GetPitch());
 		if (m_player->GetAimPitch() > 50.0f)
 			m_player->SetAimPitch(50.0f);

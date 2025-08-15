@@ -12,8 +12,8 @@ GameObject::GameObject(glm::vec3 pos, glm::vec3 scale, float yaw, Shader* shdr, 
 		auto& t = scene->GetRegistry().emplace<TransformComponent>(m_entity);
 
 		t.Position = pos;
+		t.Rotation = glm::angleAxis(glm::radians(yaw), glm::vec3{ 0.0f, 1.0f, 0.0f });
 		t.Scale = scale;
-		t.Rotation = glm::angleAxis(yaw, glm::vec3{ 0.0f, 1.0f, 0.0f });
 		t.dirty = true;
 
 		size_t uniformMatrixBufferSize = 4 * sizeof(glm::mat4);
@@ -27,9 +27,9 @@ float GameObject::GetYaw()
 {
 	const auto& t = m_gameManager->GetActiveScene()->GetRegistry().get<TransformComponent>(m_entity);
 
-	float yaw = glm::eulerAngles(t.Rotation).y;
+	float yaw = glm::eulerAngles(glm::normalize(t.Rotation)).y;
 
-	return glm::degrees(yaw);
+	return glm::radians(yaw);
 }
 
 void GameObject::SetPosition(const glm::vec3& p)
@@ -52,10 +52,9 @@ void GameObject::SetYaw(float yaw)
 {
 	auto& t = m_gameManager->GetActiveScene()->GetRegistry().get<TransformComponent>(m_entity);
 
-	t.Rotation = glm::angleAxis(yaw, glm::vec3{ 0.0f, 1.0f, 0.0f });
+	t.Rotation = glm::angleAxis(glm::radians(yaw), glm::vec3{ 0.0f, 1.0f, 0.0f });
 	t.dirty = true;
 
-	m_yaw = yaw;
 }
 
 

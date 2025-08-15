@@ -352,12 +352,6 @@ public:
 
 	float GetInitialYaw() const { return m_initialYaw; }
 
-	void SetYaw(float newYaw)
-	{
-		m_yaw = newYaw;
-		m_recomputeWorldTransform = true;
-	};
-
 	void ComputeAudioWorldTransform() override;
 
 	void UpdatePlayerVectors();
@@ -452,7 +446,7 @@ public:
 	};
 
 	float GetPlayerYaw() const { return m_playerYaw; }
-	void SetPlayerYaw(float val) { m_playerYaw = val; }
+	void SetPlayerYaw(float val);
 
 	float GetAimPitch() const { return m_aimPitch; }
 	void SetAimPitch(float val) { m_aimPitch = val; }
