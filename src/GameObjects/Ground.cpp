@@ -277,7 +277,6 @@ void Ground::DrawGLTFModel(glm::mat4 viewMat, glm::mat4 projMat, glm::vec3 camPo
 					hasTexture = true;
 					texIndex = mat.pbrMetallicRoughness.baseColorTexture.index;
 				}
-				// You can add more checks for other texture types if needed
 
 				if (mat.pbrMetallicRoughness.baseColorTexture.index >= 0) {
 					texIndex = mat.pbrMetallicRoughness.baseColorTexture.index;
@@ -604,7 +603,7 @@ void Ground::DrawObject(glm::mat4 viewMat, glm::mat4 proj, bool shadowMap, glm::
 		glm::mat4 modelMatrix = glm::scale(glm::mat4(1.0f), m_scale);
 		aabb->Update(modelMatrix);
 		glDisable(GL_DEPTH_TEST);
-		aabb->Render(viewMat, proj, modelMat, glm::vec3(0.0f, 1.0f, 0.0f));
+		//aabb->Render(viewMat, proj, modelMat, glm::vec3(0.0f, 1.0f, 0.0f));
 		glEnable(GL_DEPTH_TEST);
 	}
 }	

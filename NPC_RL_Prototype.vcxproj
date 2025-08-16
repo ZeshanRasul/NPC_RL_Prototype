@@ -126,6 +126,7 @@
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <CreateHotpatchableImage>
       </CreateHotpatchableImage>
+      <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -143,6 +144,7 @@
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -160,6 +162,7 @@
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -240,37 +243,37 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="include\DetourCrowd\Source\DetourCrowd.cpp" />
-    <ClCompile Include="include\DetourCrowd\Source\DetourLocalBoundary.cpp" />
-    <ClCompile Include="include\DetourCrowd\Source\DetourObstacleAvoidance.cpp" />
-    <ClCompile Include="include\DetourCrowd\Source\DetourPathCorridor.cpp" />
-    <ClCompile Include="include\DetourCrowd\Source\DetourPathQueue.cpp" />
-    <ClCompile Include="include\DetourCrowd\Source\DetourProximityGrid.cpp" />
-    <ClCompile Include="include\Detour\Source\DetourAlloc.cpp" />
-    <ClCompile Include="include\Detour\Source\DetourAssert.cpp" />
-    <ClCompile Include="include\Detour\Source\DetourCommon.cpp" />
-    <ClCompile Include="include\Detour\Source\DetourNavMesh.cpp" />
-    <ClCompile Include="include\Detour\Source\DetourNavMeshBuilder.cpp" />
-    <ClCompile Include="include\Detour\Source\DetourNavMeshQuery.cpp" />
-    <ClCompile Include="include\Detour\Source\DetourNode.cpp" />
-    <ClCompile Include="include\imgui\backend\imgui_impl_glfw.cpp" />
-    <ClCompile Include="include\imgui\backend\imgui_impl_opengl3.cpp" />
-    <ClCompile Include="include\imgui\imgui.cpp" />
-    <ClCompile Include="include\imgui\imgui_demo.cpp" />
-    <ClCompile Include="include\imgui\imgui_draw.cpp" />
-    <ClCompile Include="include\imgui\imgui_tables.cpp" />
-    <ClCompile Include="include\imgui\imgui_widgets.cpp" />
-    <ClCompile Include="include\Recast\Source\Recast.cpp" />
-    <ClCompile Include="include\Recast\Source\RecastAlloc.cpp" />
-    <ClCompile Include="include\Recast\Source\RecastArea.cpp" />
-    <ClCompile Include="include\Recast\Source\RecastAssert.cpp" />
-    <ClCompile Include="include\Recast\Source\RecastContour.cpp" />
-    <ClCompile Include="include\Recast\Source\RecastFilter.cpp" />
-    <ClCompile Include="include\Recast\Source\RecastLayers.cpp" />
-    <ClCompile Include="include\Recast\Source\RecastMesh.cpp" />
-    <ClCompile Include="include\Recast\Source\RecastMeshDetail.cpp" />
-    <ClCompile Include="include\Recast\Source\RecastRasterization.cpp" />
-    <ClCompile Include="include\Recast\Source\RecastRegion.cpp" />
+    <ClCompile Include="Include\DetourCrowd\Source\DetourCrowd.cpp" />
+    <ClCompile Include="Include\DetourCrowd\Source\DetourLocalBoundary.cpp" />
+    <ClCompile Include="Include\DetourCrowd\Source\DetourObstacleAvoidance.cpp" />
+    <ClCompile Include="Include\DetourCrowd\Source\DetourPathCorridor.cpp" />
+    <ClCompile Include="Include\DetourCrowd\Source\DetourPathQueue.cpp" />
+    <ClCompile Include="Include\DetourCrowd\Source\DetourProximityGrid.cpp" />
+    <ClCompile Include="Include\Detour\Source\DetourAlloc.cpp" />
+    <ClCompile Include="Include\Detour\Source\DetourAssert.cpp" />
+    <ClCompile Include="Include\Detour\Source\DetourCommon.cpp" />
+    <ClCompile Include="Include\Detour\Source\DetourNavMesh.cpp" />
+    <ClCompile Include="Include\Detour\Source\DetourNavMeshBuilder.cpp" />
+    <ClCompile Include="Include\Detour\Source\DetourNavMeshQuery.cpp" />
+    <ClCompile Include="Include\Detour\Source\DetourNode.cpp" />
+    <ClCompile Include="Include\imgui\backend\imgui_impl_glfw.cpp" />
+    <ClCompile Include="Include\imgui\backend\imgui_impl_opengl3.cpp" />
+    <ClCompile Include="Include\imgui\imgui.cpp" />
+    <ClCompile Include="Include\imgui\imgui_demo.cpp" />
+    <ClCompile Include="Include\imgui\imgui_draw.cpp" />
+    <ClCompile Include="Include\imgui\imgui_tables.cpp" />
+    <ClCompile Include="Include\imgui\imgui_widgets.cpp" />
+    <ClCompile Include="Include\Recast\Source\Recast.cpp" />
+    <ClCompile Include="Include\Recast\Source\RecastAlloc.cpp" />
+    <ClCompile Include="Include\Recast\Source\RecastArea.cpp" />
+    <ClCompile Include="Include\Recast\Source\RecastAssert.cpp" />
+    <ClCompile Include="Include\Recast\Source\RecastContour.cpp" />
+    <ClCompile Include="Include\Recast\Source\RecastFilter.cpp" />
+    <ClCompile Include="Include\Recast\Source\RecastLayers.cpp" />
+    <ClCompile Include="Include\Recast\Source\RecastMesh.cpp" />
+    <ClCompile Include="Include\Recast\Source\RecastMeshDetail.cpp" />
+    <ClCompile Include="Include\Recast\Source\RecastRasterization.cpp" />
+    <ClCompile Include="Include\Recast\Source\RecastRegion.cpp" />
     <ClCompile Include="src\App.cpp" />
     <ClCompile Include="src\Audio\AudioManager.cpp" />
     <ClCompile Include="src\Audio\AudioSystem.cpp" />
@@ -278,6 +281,11 @@
     <ClCompile Include="src\Camera.cpp" />
     <ClCompile Include="src\Components\AudioComponent.cpp" />
     <ClCompile Include="src\Components\Component.cpp" />
+    <ClCompile Include="src\Engine\Asset\AssetManager.cpp" />
+    <ClCompile Include="src\Engine\Asset\GLTFImporter.cpp" />
+    <ClCompile Include="src\Engine\ECS\Systems\RenderSystem.cpp" />
+    <ClCompile Include="src\Engine\Render\GpuUploader.cpp" />
+    <ClCompile Include="src\Engine\Render\RenderBackGL.cpp" />
     <ClCompile Include="src\GameManager.cpp" />
     <ClCompile Include="src\GameObjects\Crosshair.cpp" />
     <ClCompile Include="src\GameObjects\Enemy.cpp" />
@@ -301,7 +309,8 @@
     <ClCompile Include="src\OpenGL\VertexBuffer.cpp" />
     <ClCompile Include="src\Physics\AABB.cpp" />
     <ClCompile Include="src\Physics\PhysicsWorld.cpp" />
-    <ClCompile Include="src\Scene\Scene.cpp" />
+    <ClCompile Include="src\Engine\ECS\Scene.cpp" />
+    <ClCompile Include="src\Prefabs.cpp" />
     <ClCompile Include="src\tinygltf\tiny_gltf.cc" />
     <ClCompile Include="src\Tools\Logger.cpp" />
     <ClCompile Include="src\tracy\TracyClient.cpp" />
@@ -309,35 +318,35 @@
     <ClCompile Include="src\Window\Window.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="include\DetourCrowd\Include\DetourCrowd.h" />
-    <ClInclude Include="include\DetourCrowd\Include\DetourLocalBoundary.h" />
-    <ClInclude Include="include\DetourCrowd\Include\DetourObstacleAvoidance.h" />
-    <ClInclude Include="include\DetourCrowd\Include\DetourPathCorridor.h" />
-    <ClInclude Include="include\DetourCrowd\Include\DetourPathQueue.h" />
-    <ClInclude Include="include\DetourCrowd\Include\DetourProximityGrid.h" />
-    <ClInclude Include="include\Detour\Include\DetourAlloc.h" />
-    <ClInclude Include="include\Detour\Include\DetourAssert.h" />
-    <ClInclude Include="include\Detour\Include\DetourCommon.h" />
-    <ClInclude Include="include\Detour\Include\DetourMath.h" />
-    <ClInclude Include="include\Detour\Include\DetourNavMesh.h" />
-    <ClInclude Include="include\Detour\Include\DetourNavMeshBuilder.h" />
-    <ClInclude Include="include\Detour\Include\DetourNavMeshQuery.h" />
-    <ClInclude Include="include\Detour\Include\DetourNode.h" />
-    <ClInclude Include="include\Detour\Include\DetourStatus.h" />
-    <ClInclude Include="include\imgui\backend\imgui_impl_glfw.h" />
-    <ClInclude Include="include\imgui\backend\imgui_impl_opengl3.h" />
-    <ClInclude Include="include\imgui\backend\imgui_impl_opengl3_loader.h" />
-    <ClInclude Include="include\imgui\imconfig.h" />
-    <ClInclude Include="include\imgui\imgui.h" />
-    <ClInclude Include="include\imgui\imgui_internal.h" />
-    <ClInclude Include="include\imgui\imstb_rectpack.h" />
-    <ClInclude Include="include\imgui\imstb_textedit.h" />
-    <ClInclude Include="include\imgui\imstb_truetype.h" />
-    <ClInclude Include="include\Recast\Include\Recast.h" />
-    <ClInclude Include="include\Recast\Include\RecastAlloc.h" />
-    <ClInclude Include="include\Recast\Include\RecastAssert.h" />
-    <ClInclude Include="include\stb_image.h" />
-    <ClInclude Include="include\stb_image_write.h" />
+    <ClInclude Include="Include\DetourCrowd\Include\DetourCrowd.h" />
+    <ClInclude Include="Include\DetourCrowd\Include\DetourLocalBoundary.h" />
+    <ClInclude Include="Include\DetourCrowd\Include\DetourObstacleAvoidance.h" />
+    <ClInclude Include="Include\DetourCrowd\Include\DetourPathCorridor.h" />
+    <ClInclude Include="Include\DetourCrowd\Include\DetourPathQueue.h" />
+    <ClInclude Include="Include\DetourCrowd\Include\DetourProximityGrid.h" />
+    <ClInclude Include="Include\Detour\Include\DetourAlloc.h" />
+    <ClInclude Include="Include\Detour\Include\DetourAssert.h" />
+    <ClInclude Include="Include\Detour\Include\DetourCommon.h" />
+    <ClInclude Include="Include\Detour\Include\DetourMath.h" />
+    <ClInclude Include="Include\Detour\Include\DetourNavMesh.h" />
+    <ClInclude Include="Include\Detour\Include\DetourNavMeshBuilder.h" />
+    <ClInclude Include="Include\Detour\Include\DetourNavMeshQuery.h" />
+    <ClInclude Include="Include\Detour\Include\DetourNode.h" />
+    <ClInclude Include="Include\Detour\Include\DetourStatus.h" />
+    <ClInclude Include="Include\imgui\backend\imgui_impl_glfw.h" />
+    <ClInclude Include="Include\imgui\backend\imgui_impl_opengl3.h" />
+    <ClInclude Include="Include\imgui\backend\imgui_impl_opengl3_loader.h" />
+    <ClInclude Include="Include\imgui\imconfig.h" />
+    <ClInclude Include="Include\imgui\imgui.h" />
+    <ClInclude Include="Include\imgui\imgui_internal.h" />
+    <ClInclude Include="Include\imgui\imstb_rectpack.h" />
+    <ClInclude Include="Include\imgui\imstb_textedit.h" />
+    <ClInclude Include="Include\imgui\imstb_truetype.h" />
+    <ClInclude Include="Include\Recast\Include\Recast.h" />
+    <ClInclude Include="Include\Recast\Include\RecastAlloc.h" />
+    <ClInclude Include="Include\Recast\Include\RecastAssert.h" />
+    <ClInclude Include="Include\stb_image.h" />
+    <ClInclude Include="Include\stb_image_write.h" />
     <ClInclude Include="src\AI\ActionNode.h" />
     <ClInclude Include="src\AI\BehaviourTree.h" />
     <ClInclude Include="src\AI\ConditionNode.h" />
@@ -350,6 +359,15 @@
     <ClInclude Include="src\Camera.h" />
     <ClInclude Include="src\Components\AudioComponent.h" />
     <ClInclude Include="src\Components\Component.h" />
+    <ClInclude Include="src\Engine\Asset\AssetManager.h" />
+    <ClInclude Include="src\Engine\Asset\AssetTypes.h" />
+    <ClInclude Include="src\Engine\Asset\ColliderBuild.h" />
+    <ClInclude Include="src\Engine\Asset\GLTFExtrasHelpers.h" />
+    <ClInclude Include="src\Engine\Asset\GLTFImporter.h" />
+    <ClInclude Include="src\Engine\Asset\PhysicsAsset.h" />
+    <ClInclude Include="src\Engine\Asset\TextureLoader.h" />
+    <ClInclude Include="src\Engine\Render\GpuUploader.h" />
+    <ClInclude Include="src\Engine\Render\RenderBackend.h" />
     <ClInclude Include="src\GameManager.h" />
     <ClInclude Include="src\GameObjects\Crosshair.h" />
     <ClInclude Include="src\GameObjects\Enemy.h" />
@@ -374,9 +392,12 @@
     <ClInclude Include="src\OpenGL\VertexBuffer.h" />
     <ClInclude Include="src\Physics\AABB.h" />
     <ClInclude Include="src\Physics\PhysicsWorld.h" />
-    <ClInclude Include="src\Scene\Components\Components.h" />
-    <ClInclude Include="src\Scene\Scene.h" />
-    <ClInclude Include="src\Scene\Systems\TransformSystem.h" />
+    <ClInclude Include="src\Engine\ECS\Components\StaticModelRendererComponent.h" />
+    <ClInclude Include="src\Engine\ECS\Components\TransformComponent.h" />
+    <ClInclude Include="src\Engine\ECS\Scene.h" />
+    <ClInclude Include="src\Engine\ECS\Systems\RenderSystem.h" />
+    <ClInclude Include="src\Engine\ECS\Systems\TransformSystem.h" />
+    <ClInclude Include="src\Prefabs.h" />
     <ClInclude Include="src\tinygltf\json.hpp" />
     <ClInclude Include="src\tinygltf\tiny_gltf.h" />
     <ClInclude Include="src\Tools\Logger.h" />

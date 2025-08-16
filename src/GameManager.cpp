@@ -908,7 +908,7 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 	m_enemy4MuzzleFlashQuad->LoadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/muzzleflash.png");
 
 
-	m_player = new Player(glm::vec3(-9.0f, 354.6f, 163.0f), glm::vec3(5.0f), &playerShader, &groundShadowShader, true, this, 0.0f);
+	m_player = new Player(glm::vec3(-9.0f, 354.6f, 163.0f), glm::vec3(5.0f), &playerShader, &groundShadowShader, true, this, 180.0f);
 	//player = new Player( (glm::vec3(23.0f, 0.0f, 37.0f)), glm::vec3(3.0f), &playerShader, &playerShadowMapShader, true, this);
 
 	m_player->SetAABBShader(&aabbShader);
@@ -918,6 +918,7 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 	std::string texture2 = "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Models/GLTF/Enemies/Ely/ely-vanguardsoldier-kerwinatienza_diffuse_2.png";
 	std::string texture3 = "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Models/GLTF/Enemies/Ely/ely-vanguardsoldier-kerwinatienza_diffuse_3.png";
 	std::string texture4 = "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Models/GLTF/Enemies/Ely/ely-vanguardsoldier-kerwinatienza_diffuse_4.png";
+
 
 	m_enemy = new Enemy(glm::vec3(-9.0f, 354.6f, 166.0f), glm::vec3(5.0f), &playerShader, &enemyShadowMapShader, true, this, texture, 0, GetEventManager(), *m_player);
 	m_enemy->SetAABBShader(&aabbShader);
