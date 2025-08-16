@@ -37,6 +37,7 @@ void GpuUploader::EnsureResident(ModelHandle handle)
 		gpuMesh.indexBuffer = ib;
 		gpuMesh.indexType = cm.index32 ? IndexType::U32 : IndexType::U16;
 		gpuMesh.vertexStride = cm.vertexStride;
+		gpuMesh.indexCount = cm.indexCount;
 		
 #ifdef ENGINE_BACKEND_OPENGL
 		GLuint vao = 0;

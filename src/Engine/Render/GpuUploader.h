@@ -10,6 +10,7 @@ struct GpuMeshBuffer {
 	GpuBufferHandle vertexBuffer = 0;
 	GpuBufferHandle indexBuffer = 0;
 	IndexType indexType = IndexType::U32;
+	int indexCount = 0;
 	int vertexStride = 0;
 	uint32_t vao = 0;
 };

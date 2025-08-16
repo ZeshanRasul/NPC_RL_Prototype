@@ -222,16 +222,16 @@
     <ClCompile Include="src\Engine\Asset\GLTFImporter.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Engine\Render\RenderBackGL.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\Engine\Render\GpuUploader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Prefabs.cpp">
+    <ClCompile Include="src\Engine\ECS\Systems\RenderSystem.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Engine\ECS\Systems\RenderSystem.cpp">
+    <ClCompile Include="src\Engine\Render\RenderBackendGL.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Game\Prefabs.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -482,9 +482,6 @@
     <ClInclude Include="src\Engine\Render\GpuUploader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Prefabs.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\Engine\Asset\GLTFExtrasHelpers.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -492,6 +489,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Engine\Asset\PhysicsAsset.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Game\Prefabs.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
