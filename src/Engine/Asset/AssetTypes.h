@@ -23,6 +23,9 @@ struct CpuStaticMesh {
 	bool     index32 = false;
 	std::vector<CpuSubmesh> submeshes;
 
+	float aabbMin[3] = { 0.0f, 0.0f, 0.0f };
+	float aabbMax[3] = { 0.0f, 0.0f, 0.0f };
+
 };
 
 struct CpuMaterial {

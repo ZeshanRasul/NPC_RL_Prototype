@@ -1,7 +1,7 @@
 #pragma once
 #include "EnTT/entt.hpp"
 
-#include "Scene/Components/TransformComponent.h"
+#include "Engine/ECS/Components/TransformComponent.h"
 
 inline void UpdateTransforms(entt::registry& r)
 {

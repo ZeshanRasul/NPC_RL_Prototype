@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -285,7 +285,7 @@
     <ClCompile Include="src\Engine\Asset\GLTFImporter.cpp" />
     <ClCompile Include="src\Engine\ECS\Systems\RenderSystem.cpp" />
     <ClCompile Include="src\Engine\Render\GpuUploader.cpp" />
-    <ClCompile Include="src\Engine\Render\RenderBackGL.cpp" />
+    <ClCompile Include="src\Engine\Render\RenderBackendGL.cpp" />
     <ClCompile Include="src\GameManager.cpp" />
     <ClCompile Include="src\GameObjects\Crosshair.cpp" />
     <ClCompile Include="src\GameObjects\Enemy.cpp" />

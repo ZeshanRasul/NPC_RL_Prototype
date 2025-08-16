@@ -35,7 +35,7 @@
 #include "AI/Event.h"
 #include "AI/Events.h"
 
-#include "Scene/Scene.h"
+#include "Engine/ECS/Scene.h"
 
 class GameManager {
 private:

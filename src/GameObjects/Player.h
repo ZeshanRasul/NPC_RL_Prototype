@@ -19,7 +19,7 @@
 #include "Components/AudioComponent.h"
 #include "Model/GLTFPrimitive.h"
 
-#include "Scene/Components/TransformComponent.h"
+#include "Engine/ECS/Components/TransformComponent.h"
 
 enum PlayerState
 {

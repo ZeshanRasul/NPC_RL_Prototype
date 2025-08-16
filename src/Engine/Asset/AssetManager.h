@@ -14,9 +14,12 @@ public:
 	const CpuMaterial* GetCpuMaterial(MaterialHandle h) const;
 
 private:
+	ModelHandle MakeModelHandle();
+	MaterialHandle MakeMaterialHandle();
+
 	std::unordered_map<ModelHandle, std::unique_ptr<CpuStaticModel>> m_cpuStaticModels;
-	ModelHandle m_nextModelHandle = 1;
+	ModelHandle m_nextModelHandle{ 1 };
 
 	std::unordered_map<MaterialHandle, std::unique_ptr<CpuMaterial>> m_cpuMaterials;
-	MaterialHandle m_nextMaterialHandle = 1;
+	MaterialHandle m_nextMaterialHandle{ 1 };
 };
