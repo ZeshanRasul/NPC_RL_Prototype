@@ -72,7 +72,7 @@ struct DrawItem {
 class RenderBackend {
 public:
 	virtual ~RenderBackend() = default;
-	virtual bool Initialize() = 0;
+	virtual void Initialize() = 0;
 	virtual void Shutdown() = 0;
 
 	virtual GpuBufferHandle CreateBuffer(const BufferCreateInfo& createInfo) = 0;

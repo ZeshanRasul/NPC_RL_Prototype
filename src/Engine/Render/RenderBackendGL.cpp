@@ -24,7 +24,7 @@ struct GLPipe {
 
 class RenderBackendGL : public RenderBackend {
 public:
-	bool Initialize() override {};
+	void Initialize() override {};
 	void Shutdown() override {
 		for (auto& [handle, buffer] : m_buffers) {
 			if (buffer.id) {
