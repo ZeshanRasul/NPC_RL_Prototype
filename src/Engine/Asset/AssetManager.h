@@ -10,7 +10,7 @@ public:
 	ModelHandle LoadStaticModel(const std::string& gltfPath);
 	const CpuStaticModel* GetCpuStaticModel(ModelHandle h) const;
 
-	MaterialHandle CreateMaterial(const CpuMaterial& mat);
+	MaterialHandle CreateMaterial(CpuMaterial& mat);
 	const CpuMaterial* GetCpuMaterial(MaterialHandle h) const;
 
 	TextureHandle CreateTexture(CpuTexture tex);

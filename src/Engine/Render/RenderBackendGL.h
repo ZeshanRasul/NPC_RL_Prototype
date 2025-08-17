@@ -40,6 +40,36 @@ struct GLStorageBuffer {
 
 using GLBuffer = std::variant<GLVertexIndexBuffer, GLUniformBuffer, GLStorageBuffer>;
 
+struct GLSamplerParams {
+	GLint minFilterGL;
+	GLint magFilterGL;
+	GLint wrapSGL;
+	GLint wrapTGL;
+};
+
+static GLSamplerParams ToGL(const SamplerDesc& s) {
+	auto toGLWrap = [](AddressMode m)->GLint {
+		switch (m) {
+		case AddressMode::ClampToEdge:  return GL_CLAMP_TO_EDGE;
+		case AddressMode::MirrorRepeat: return GL_MIRRORED_REPEAT;
+		case AddressMode::Repeat:
+		default:                         return GL_REPEAT;
+		}
+		};
+
+	auto minBase = (s.minFilter == TexFilter::Nearest) ? GL_NEAREST : GL_LINEAR;
+	GLint minGL = minBase;
+	switch (s.mipFilter) {
+	case MipFilter::None:    /* leave minGL as base */ break;
+	case MipFilter::Nearest: minGL = (minBase == GL_NEAREST) ? GL_NEAREST_MIPMAP_NEAREST : GL_LINEAR_MIPMAP_NEAREST; break;
+	case MipFilter::Linear:  minGL = (minBase == GL_NEAREST) ? GL_NEAREST_MIPMAP_LINEAR : GL_LINEAR_MIPMAP_LINEAR;  break;
+	}
+
+	GLint magGL = (s.magFilter == TexFilter::Nearest) ? GL_NEAREST : GL_LINEAR;
+
+	return { minGL, magGL, toGLWrap(s.wrapS), toGLWrap(s.wrapT) };
+}
+
 
 class RenderBackendGL : public RenderBackend {
 public:
@@ -192,6 +222,49 @@ public:
 			Logger::Log(1, "Material ID %u not found for destruction\n", materialId);
 		}
 	}
+
+	GLuint CreateTexture2D(const CpuTexture& cpu) {
+		GLuint tex; 
+		glGenTextures(1, &tex);
+		glBindTexture(GL_TEXTURE_2D, tex);
+
+		GLenum format = GL_RGBA;
+		if (image.component == 1) format = GL_RED;
+		else if (image.component == 2) format = GL_RG;
+		else if (image.component == 3) format = GL_RGB;
+		else if (image.component == 4) format = GL_RGBA;
+
+		GLenum type = (image.bits == 16) ? GL_UNSIGNED_SHORT : GL_UNSIGNED_BYTE;
+
+		glTexImage2D(GL_TEXTURE_2D,
+			0,
+			format,
+			image.width,
+			image.height,
+			0,
+			format,
+			type,
+			image.image.data());
+
+		glGenerateMipmap(GL_TEXTURE_2D);
+
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+
+
+		const auto gls = ToGL(cpu.desc);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, gls.minFilterGL);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, gls.magFilterGL);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, gls.wrapSGL);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, gls.wrapTGL);
+
+		glBindTexture(GL_TEXTURE_2D, 0);
+		return tex;
+	}
+
 
 	void BeginFrame() override {
 	}

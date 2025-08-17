@@ -41,8 +41,9 @@ const CpuStaticModel* AssetManager::GetCpuStaticModel(ModelHandle h) const {
 	return nullptr;
 }
 
-MaterialHandle AssetManager::CreateMaterial(const CpuMaterial& mat) {
+MaterialHandle AssetManager::CreateMaterial(CpuMaterial& mat) {
 	MaterialHandle matHandle = MakeMaterialHandle();
+	mat.baseColorH = CreateTexture(mat.baseColor);
 	m_cpuMaterials[matHandle] = std::make_unique<CpuMaterial>(mat);
 	return matHandle;
 }

@@ -9,6 +9,44 @@
 #include "GLTFImporter.h"
 #include "Logger.h"
 
+static SamplerDesc MapGltfSampler(const tinygltf::Sampler* s) {
+	SamplerDesc out{};
+	if (!s) return out;
+
+	// Wrap
+	auto toWrap = [](int w)->AddressMode {
+		switch (w) {
+		case TINYGLTF_TEXTURE_WRAP_CLAMP_TO_EDGE:   return AddressMode::ClampToEdge;
+		case TINYGLTF_TEXTURE_WRAP_MIRRORED_REPEAT: return AddressMode::MirrorRepeat;
+		case TINYGLTF_TEXTURE_WRAP_REPEAT:
+		default:                                    return AddressMode::Repeat;
+		}
+		};
+	out.wrapS = toWrap(s->wrapS);
+	out.wrapT = toWrap(s->wrapT);
+
+	auto setMinMip = [&](int minFilter) {
+		switch (minFilter) {
+		case TINYGLTF_TEXTURE_FILTER_NEAREST:                out.minFilter = TexFilter::Nearest; out.mipFilter = MipFilter::None;    break;
+		case TINYGLTF_TEXTURE_FILTER_LINEAR:                 out.minFilter = TexFilter::Linear;  out.mipFilter = MipFilter::None;    break;
+		case TINYGLTF_TEXTURE_FILTER_NEAREST_MIPMAP_NEAREST: out.minFilter = TexFilter::Nearest; out.mipFilter = MipFilter::Nearest; break;
+		case TINYGLTF_TEXTURE_FILTER_LINEAR_MIPMAP_NEAREST:  out.minFilter = TexFilter::Linear;  out.mipFilter = MipFilter::Nearest; break;
+		case TINYGLTF_TEXTURE_FILTER_NEAREST_MIPMAP_LINEAR:  out.minFilter = TexFilter::Nearest; out.mipFilter = MipFilter::Linear;  break;
+		case TINYGLTF_TEXTURE_FILTER_LINEAR_MIPMAP_LINEAR:   out.minFilter = TexFilter::Linear;  out.mipFilter = MipFilter::Linear;  break;
+		default: /* keep defaults */ break;
+		}
+		};
+	setMinMip(s->minFilter);
+
+	switch (s->magFilter) {
+	case TINYGLTF_TEXTURE_FILTER_NEAREST: out.magFilter = TexFilter::Nearest; break;
+	case TINYGLTF_TEXTURE_FILTER_LINEAR:  out.magFilter = TexFilter::Linear;  break;
+	default: /* keep default */ break;
+	}
+
+	return out;
+}
+
 
 struct VertexLayoutKey {
 	bool hasNormal = false;
@@ -110,7 +148,70 @@ static void ReadFloatAttrib2(const tinygltf::Model& model,
 	}
 }
 
-// ----- main importer -----
+static PixelFormat ChoosePixelFormat(int components, int bits, int pixelType) {
+	const bool isFloat = (pixelType == TINYGLTF_COMPONENT_TYPE_FLOAT);
+
+	if (!isFloat) {
+		if (bits == 8) {
+			switch (components) {
+			case 1: return PixelFormat::R8_UNORM;
+			case 2: return PixelFormat::RG8_UNORM;
+			case 3: return PixelFormat::RGB8_UNORM;
+			case 4: return PixelFormat::RGBA8_UNORM;
+			}
+		}
+		else if (bits == 16) {
+			switch (components) {
+			case 1: return PixelFormat::R16_UNORM;
+			case 2: return PixelFormat::RG16_UNORM;
+			case 3: return PixelFormat::RGB16_UNORM;
+			case 4: return PixelFormat::RGBA16_UNORM;
+			}
+		}
+	}
+	else {
+		if (bits == 16) {
+			switch (components) {
+			case 1: return PixelFormat::R16_FLOAT;
+			case 2: return PixelFormat::RG16_FLOAT;
+			case 3: return PixelFormat::RGB16_FLOAT;
+			case 4: return PixelFormat::RGBA16_FLOAT;
+			}
+		}
+		else if (bits == 32) {
+			switch (components) {
+			case 1: return PixelFormat::R32_FLOAT;
+			case 2: return PixelFormat::RG32_FLOAT;
+			case 3: return PixelFormat::RGB32_FLOAT;
+			case 4: return PixelFormat::RGBA32_FLOAT;
+			}
+		}
+	}
+
+	return PixelFormat::RGBA8_UNORM;
+}
+
+static ColorSpace ColorSpaceForSlot(const std::string& usageTag) {
+	if (usageTag == "baseColor" || usageTag == "emissive")
+		return ColorSpace::SRGB;
+	return ColorSpace::Linear;
+}
+
+static CpuTexture BuildCpuTextureFromGltfImage(const tinygltf::Image& img,
+	const SamplerDesc& samp,
+	const std::string& usageTag)
+{
+	CpuTexture out{};
+	out.desc.width = static_cast<uint32_t>(img.width);
+	out.desc.height = static_cast<uint32_t>(img.height);
+	out.desc.sampler = samp;
+	out.desc.colorSpace = ColorSpaceForSlot(usageTag);
+	out.desc.format = ChoosePixelFormat(img.component, img.bits, img.pixel_type);
+
+	out.pixels.assign(img.image.begin(), img.image.end());
+	return out;
+}
+
 
 bool ImportStaticModelFromGltf(const std::string& gltfPath,
 	CpuStaticModel& outCpuModel,
@@ -135,7 +236,6 @@ bool ImportStaticModelFromGltf(const std::string& gltfPath,
 	outCpuModel.materials.clear();
 	outMaterials.clear();
 
-	// ----- collect materials once -----
 	for (const auto& m : model.materials) {
 		CpuMaterial cm{};
 		if (m.pbrMetallicRoughness.baseColorFactor.size() == 4) {
@@ -148,6 +248,19 @@ bool ImportStaticModelFromGltf(const std::string& gltfPath,
 		}
 		if (m.pbrMetallicRoughness.metallicFactor >= 0.0f) cm.metallic = (float)m.pbrMetallicRoughness.metallicFactor;
 		if (m.pbrMetallicRoughness.roughnessFactor >= 0.0f) cm.roughness = (float)m.pbrMetallicRoughness.roughnessFactor;
+		
+		uint8_t texIndex;
+		if (m.pbrMetallicRoughness.baseColorTexture.index)
+			texIndex = m.pbrMetallicRoughness.baseColorTexture.index;
+
+		const tinygltf::Texture& gltfTex = model.textures[texIndex];
+		const tinygltf::Image& gltfImg = model.images[gltfTex.source];
+
+		SamplerDesc sampler = MapGltfSampler(&model.samplers[gltfTex.source]);
+		CpuTexture cpuTex = BuildCpuTextureFromGltfImage(gltfImg, sampler, "baseColor");
+
+		cm.baseColor = cpuTex;
+		
 		outMaterials.push_back(cm);
 	}
 
@@ -167,6 +280,20 @@ bool ImportStaticModelFromGltf(const std::string& gltfPath,
 
 	for (size_t im = 0; im < model.meshes.size(); ++im) {
 		const tinygltf::Mesh& gmesh = model.meshes[im];
+
+		const tinygltf::Value& val = gmesh.extras.Get("isBox");
+		const tinygltf::Value& val2 = gmesh.extras.Get("isCollider");
+		if (val.IsInt() && val.Get<int>() == 1 && val2.IsInt() && val2.Get<int>() == 1) {
+			Logger::Log(1, "Mesh is a box collider, skipping\n");
+			continue;
+		}
+
+		const tinygltf::Value& planeVal = gmesh.extras.Get("isPlane");
+		const tinygltf::Value& planeVal2 = gmesh.extras.Get("isCollider");
+		if (planeVal.IsInt() && planeVal.Get<int>() == 1 && planeVal2.IsInt() && planeVal2.Get<int>() == 1) {
+			Logger::Log(1, "Mesh is a plane collider, skipping\n");
+			continue;
+		}
 
 		VertexLayoutKey layoutKey{};
 

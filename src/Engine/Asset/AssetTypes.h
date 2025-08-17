@@ -13,7 +13,17 @@ enum class TextureUsage : uint8_t {
 	BaseColorSRGB,
 	NormalLinear,
 	MetalRoughLinear,
-	EmissiveSRGB
+	EmissiveSRGB,
+	Unknown
+};
+
+enum class ColorSpace : uint8_t { Linear, SRGB };
+
+enum class PixelFormat : uint8_t {
+	R8_UNORM, RG8_UNORM, RGB8_UNORM, RGBA8_UNORM,
+	R16_UNORM, RG16_UNORM, RGB16_UNORM, RGBA16_UNORM,
+	R16_FLOAT, RG16_FLOAT, RGB16_FLOAT, RGBA16_FLOAT,
+	R32_FLOAT, RG32_FLOAT, RGB32_FLOAT, RGBA32_FLOAT,
 };
 
 struct CpuSubmesh {
@@ -25,33 +35,58 @@ struct CpuSubmesh {
 	std::vector<uint8_t> indexData;
 	uint32_t vertexCount = 0;
 	uint32_t vertexStride = 0;
-	bool     index32 = false;
+	bool     index32 = true;
 	float aabbMin[3] = { 0.0f, 0.0f, 0.0f };
 	float aabbMax[3] = { 0.0f, 0.0f, 0.0f };
+	MaterialHandle material = InvalidHandle;
 };
 
 struct CpuStaticMesh {
 	std::vector<CpuSubmesh> submeshes;
 };
 
-struct CpuTexture {
-	uint32_t width = 0;
-	uint32_t height = 0;
-	uint32_t mipCount = 1;
-	bool isCompressed = false;
+struct TextureDesc {
+	uint32_t    width = 0;
+	uint32_t    height = 0;
+	uint32_t    mipLevels = 1;   // you can compute/generate later
+	PixelFormat format = PixelFormat::RGBA8_UNORM;
+	ColorSpace  colorSpace = ColorSpace::Linear;
+	SamplerDesc sampler{};
+};
 
-	std::vector<uint8_t> data;
+struct CpuTexture {
+	TextureDesc desc;
+
+	std::vector<uint8_t> pixels;
+	uint32_t rowStride = 0;
+	TextureUsage usage = TextureUsage::Unknown;
+};
+
+struct MaterialTexcoordSets {
+	int baseColor = 0;
+	int normal = 0;
+	int metallicRoughness = 0;
+	int occlusion = 0;
+	int emissive = 0;
 };
 
 struct CpuMaterial {
-	TextureHandle baseColor = 0;
-	TextureHandle metallicRoughness = 0;
-	TextureHandle normal = 0;
-	TextureHandle emissive = 0;
+	CpuTexture baseColor;
+	CpuTexture metallicRoughness;
+	CpuTexture normal;
+	CpuTexture emissive;
+
+	TextureHandle baseColorH;
+	TextureHandle metallicRoughnessH;
+	TextureHandle normalH;
+	TextureHandle emissiveH;
+
+	MaterialTexcoordSets texcoordSets{};
 
 	float baseColorFactor[4] = { 1.0f,1.0f,1.0f,1.0f };
 	float metallic = 0.0f;
 	float roughness = 1.0f;
+	float emissiveFactor[3] = { 0.0f, 0.0f, 0.0f };
 };
 
 struct CpuStaticModel {
@@ -60,4 +95,15 @@ struct CpuStaticModel {
 	std::vector<CpuMaterial> materialsData;
 };
 
+enum class TexFilter : uint8_t { Nearest, Linear };
+enum class MipFilter : uint8_t { None, Nearest, Linear };
+enum class AddressMode : uint8_t { Repeat, ClampToEdge, MirrorRepeat };
+
+struct SamplerDesc {
+	TexFilter  minFilter = TexFilter::Linear;
+	TexFilter  magFilter = TexFilter::Linear;
+	MipFilter  mipFilter = MipFilter::Linear;
+	AddressMode wrapS = AddressMode::Repeat;
+	AddressMode wrapT = AddressMode::Repeat;
+};
 
