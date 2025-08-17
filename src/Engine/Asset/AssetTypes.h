@@ -6,7 +6,15 @@
 
 using ModelHandle = uint32_t;
 using MaterialHandle = uint32_t;
+using TextureHandle = uint32_t;
 constexpr uint32_t InvalidHandle = 0;
+
+enum class TextureUsage : uint8_t {
+	BaseColorSRGB,
+	NormalLinear,
+	MetalRoughLinear,
+	EmissiveSRGB
+};
 
 struct CpuSubmesh {
 	uint32_t firstIndex = 0;
@@ -26,8 +34,21 @@ struct CpuStaticMesh {
 	std::vector<CpuSubmesh> submeshes;
 };
 
+struct CpuTexture {
+	uint32_t width = 0;
+	uint32_t height = 0;
+	uint32_t mipCount = 1;
+	bool isCompressed = false;
+
+	std::vector<uint8_t> data;
+};
+
 struct CpuMaterial {
-	//uint32_t baseColorTexture = 0;
+	TextureHandle baseColor = 0;
+	TextureHandle metallicRoughness = 0;
+	TextureHandle normal = 0;
+	TextureHandle emissive = 0;
+
 	float baseColorFactor[4] = { 1.0f,1.0f,1.0f,1.0f };
 	float metallic = 0.0f;
 	float roughness = 1.0f;

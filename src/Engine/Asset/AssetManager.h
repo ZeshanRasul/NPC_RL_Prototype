@@ -13,6 +13,9 @@ public:
 	MaterialHandle CreateMaterial(const CpuMaterial& mat);
 	const CpuMaterial* GetCpuMaterial(MaterialHandle h) const;
 
+	TextureHandle CreateTexture(CpuTexture tex);
+	const Texture* GetCpuTexture(TextureHandle h) const;
+
 private:
 	ModelHandle MakeModelHandle();
 	MaterialHandle MakeMaterialHandle();
