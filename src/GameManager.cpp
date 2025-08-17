@@ -881,14 +881,14 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 	PipelineDesc pipelineDesc{};
 	pipelineDesc.vertexShaderPath = "src/Shaders/leveltestvert.glsl";
 	pipelineDesc.fragmentShaderPath =  "src/Shaders/leveltestfrag.glsl";
-	pipelineDesc.vertexStride = sizeof(float) * 8;
+	pipelineDesc.vertexStride = sizeof(float) * 12;
 
 	pipes.staticPbr = m_renderBackend->CreatePipeline(pipelineDesc);
 	
 	uploader = new GpuUploader(m_renderBackend, m_assetManager);
 
 	auto& reg = m_activeScene->GetRegistry();
-	std::string levelPath = "Assets/Models/Game_Scene/V4/Aviary-Environment-V4-Box-Plane-Collider.glb";
+	std::string levelPath = "Assets/Models/Game_Scene/V5/Aviary-Environment-V4-Box-Plane-Collider2.gltf";
 	CreateLevel(reg, *m_assetManager, levelPath);
 
 	BufferCreateInfo bufferCreateInfo = {};
@@ -931,7 +931,7 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 	m_enemy4MuzzleFlashQuad->LoadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/Assets/Textures/muzzleflash.png");
 
 
-	m_player = new Player(glm::vec3(-9.0f, 354.6f, 163.0f), glm::vec3(5.0f), &playerShader, &groundShadowShader, true, this, 180.0f);
+	m_player = new Player(glm::vec3(-9.0f, 354.6f, 166.0f), glm::vec3(5.0f), &playerShader, &groundShadowShader, true, this, 180.0f);
 	//player = new Player( (glm::vec3(23.0f, 0.0f, 37.0f)), glm::vec3(3.0f), &playerShader, &playerShadowMapShader, true, this);
 
 	m_player->SetAABBShader(&aabbShader);
@@ -1956,22 +1956,11 @@ void GameManager::Render(bool isMinimapRenderPass, bool isShadowMapRenderPass, b
 	m_renderer->ResetRenderStates();
 
 
-	std::vector<glm::mat4> matrixData;
-	matrixData.push_back(m_view);
-	matrixData.push_back(m_projection);
-	glm::mat4 modelMat = glm::mat4(1.0f);
-	modelMat = glm::translate(modelMat, glm::vec3(0.0f));
-	modelMat = glm::scale(modelMat, glm::vec3(5.0f));
-
-	matrixData.push_back(modelMat);
-
 	//bufferCreateInfo.initialData = matrices.data();
 
 	//m_renderBackend->UpdateBuffer(h, 0, matrices.data(), 3 * sizeof(glm::mat4));
 	//m_renderBackend->UploadCameraMatrices(h, matrices, 0);
 	//m_renderBackend->CreateBuffer(bufferCreateInfo);
-	m_renderBackend->UpdateBuffer(h, 0, matrixData.data(), 3 * sizeof(glm::mat4));
-	m_renderBackend->BindUniformBuffer(h, 0);
 
 	if (!isShadowMapRenderPass)
 	{
@@ -1986,7 +1975,6 @@ void GameManager::Render(bool isMinimapRenderPass, bool isShadowMapRenderPass, b
 		m_renderer->BindShadowMapFbo(SHADOW_WIDTH, SHADOW_HEIGHT);
 
 
-	RenderStaticModels(m_activeScene->GetRegistry(), *m_renderBackend, *uploader, pipes);
 
 	for (auto obj : m_gameObjects) {
 		if (obj->IsDestroyed())
@@ -2004,6 +1992,33 @@ void GameManager::Render(bool isMinimapRenderPass, bool isShadowMapRenderPass, b
 			m_renderer->Draw(obj, m_view, m_projection, m_camera->GetPosition(), false, m_lightSpaceMatrix);
 		}
 	}
+
+	auto view = m_activeScene->GetRegistry().view<TransformComponent, StaticModelRendererComponent>();
+
+	glm::mat4 modelMat = glm::mat4(1.0f);
+	for (auto [e, t, comp] : view.each())
+	{
+		auto& t = view.get<TransformComponent>(e);
+		modelMat = glm::translate(modelMat, t.Position);
+		modelMat = glm::rotate(modelMat, glm::radians(t.Rotation.x), glm::vec3(1.0f, 0.0f, 0.0f));
+		modelMat = glm::rotate(modelMat, glm::radians(t.Rotation.y), glm::vec3(0.0f, 1.0f, 0.0f));
+		modelMat = glm::rotate(modelMat, glm::radians(t.Rotation.z), glm::vec3(0.0f, 0.0f, 1.0f));
+		modelMat = glm::scale(modelMat, t.Scale);
+	}
+
+	std::vector<glm::mat4> matrixData;
+	matrixData.push_back(m_view);
+	matrixData.push_back(m_projection);
+	//modelMat = glm::translate(modelMat, glm::vec3(0.0f));
+	//modelMat = glm::scale(modelMat, glm::vec3(5.0f));
+
+	matrixData.push_back(modelMat);
+	m_renderBackend->UpdateBuffer(h, 0, matrixData.data(), 3 * sizeof(glm::mat4));
+	m_renderBackend->BindUniformBuffer(h, 0);
+
+
+	if (!isMinimapRenderPass && !isShadowMapRenderPass)
+		RenderStaticModels(m_activeScene->GetRegistry(), *m_renderBackend, *uploader, pipes);
 
 	navMeshShader.Use();
 	navMeshShader.SetMat4("view", m_view);

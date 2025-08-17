@@ -31,7 +31,7 @@ inline void RenderStaticModels(entt::registry& reg, RenderBackend& rb,
 	GpuUploader& up, const Pipelines& pipes)
 {
 	std::vector<DrawItem> draws;
-	draws.reserve(1024);
+	//draws.reserve(25000);
 
 	auto view = reg.view<TransformComponent, StaticModelRendererComponent>();
 
@@ -50,16 +50,25 @@ inline void RenderStaticModels(entt::registry& reg, RenderBackend& rb,
 		for (size_t i = 0; i < gpuModel->meshes.size(); ++i)
 		{
 			const auto& mesh = gpuModel->meshes[i];
+			
 
-			DrawItem item{};
-			item.pipeline = pipes.staticPbr;
-			item.vao = mesh.vao;
-			item.vertexBuffer = mesh.vertexBuffer;
-			item.indexBuffer = mesh.indexBuffer;
-			item.indexType = mesh.indexType;
-			item.indexCount = mesh.indexCount;
+			for (const auto& submesh : mesh.submeshes)
+			{
+				DrawItem item{};
+				item.pipeline = pipes.staticPbr;
+				item.vao = submesh.vao;
+				item.vertexBuffer = submesh.vertexBuffer;
+				item.indexBuffer = submesh.indexBuffer;
+				item.indexType = submesh.indexType;
 
-			draws.push_back(item);
+				item.firstIndex = submesh.firstIndex;
+				item.indexCount = submesh.indexCount;
+
+				item.materialHandle = submesh.material;
+				item.materialId = up.MatId(submesh.material);
+				draws.push_back(item);
+			}
+
 		}
 	}
 

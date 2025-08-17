@@ -8,8 +8,8 @@ entt::entity CreateLevel(entt::registry& registry, AssetManager& assetManager, c
 	entt::entity groundEntity = registry.create();
 	ModelHandle groundModel = assetManager.LoadStaticModel(pathToGltf);
 
+	registry.emplace<TransformComponent>(groundEntity, glm::vec3(0.0f), glm::quat(1.0f, 0.0f, 0.0f, 0.0f), glm::vec3(5.0f));
 	registry.emplace<StaticModelRendererComponent>(groundEntity, groundModel);
-	registry.emplace<TransformComponent>(groundEntity, glm::vec3(0.0f), glm::quat(1.0f, 0.0f, 0.0f, 0.0f), glm::vec3(3.0f));
 
 	return groundEntity;
 }

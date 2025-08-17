@@ -454,7 +454,7 @@ private:
 	std::vector<unsigned int> hfnavRenderMeshIndices;
 
 	glm::vec3 mapScale = glm::vec3(5.0f);
-	glm::vec3 mapPos = glm::vec3(0, 0.f, 0.0f);
+	glm::vec3 mapPos = glm::vec3(0.0f, 0.0f, 0.0f);
 
 	Scene* m_activeScene;
 	RenderBackend* m_renderBackend;

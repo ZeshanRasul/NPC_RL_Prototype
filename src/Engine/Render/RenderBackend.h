@@ -4,6 +4,7 @@
 
 using GpuBufferHandle = uint32_t;
 using GpuPipelineHandle = uint32_t;
+using GpuMaterialHandle = uint32_t;
 using GpuMaterialId = uint32_t;
 
 enum class RenderBackendType {
@@ -70,7 +71,8 @@ struct DrawItem {
 	uint32_t firstIndex = 0;
 	uint32_t indexCount = 0;
 	uint32_t instanceCount = 1;
-	GpuMaterialId material = 0;
+	GpuMaterialHandle materialHandle = 0;
+	GpuMaterialId materialId = 0;
 };
 
 class RenderBackend {

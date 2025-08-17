@@ -167,13 +167,13 @@ public:
 		return handle;
 	}
 
-	GpuMaterialId CreateMaterial(const MaterialGpuDesc& desc) {
+	GpuMaterialId CreateMaterial(const MaterialGpuDesc& desc) override {
 		GpuMaterialId id = ++m_nextMat;
-		m_materials[id] = GLMat{ desc };
+		m_materials[id] = GpuMaterial{ desc };
 		return id;
 	}
 
-	void UpdateMaterial(GpuMaterialId id, const MaterialGpuDesc& desc) {
+	void UpdateMaterial(GpuMaterialId id, const MaterialGpuDesc& desc) override {
 		auto it = m_materials.find(id);
 		if (it != m_materials.end()) {
 			it->second.desc = desc;
@@ -183,7 +183,7 @@ public:
 		}
 	}
 
-	void DestroyMaterial(GpuMaterialId materialId) {
+	void DestroyMaterial(GpuMaterialId materialId) override {
 		auto it = m_materials.find(materialId);
 		if (it != m_materials.end()) {
 			m_materials.erase(it);
@@ -203,28 +203,39 @@ public:
 			const auto& vb = m_buffers[di.vertexBuffer];
 			const auto& ib = m_buffers[di.indexBuffer];
 
+			const auto& vbuf = std::get<GLVertexIndexBuffer>(vb);
+			const auto& ibuf = std::get<GLVertexIndexBuffer>(ib);
+
+			const auto& mat = m_materials[di.materialHandle];
+
 			glUseProgram(glPipe.program.GetProgram());
+			GLint loc = glGetUniformLocation(glPipe.program.GetProgram(), "uBaseColorFactor");
+			if (loc >= 0) glUniform4fv(loc, 1, mat.desc.baseColorFactor);
+			loc = glGetUniformLocation(glPipe.program.GetProgram(), "uMetallicRoughness");
+			if (loc >= 0) glUniform2f(loc, mat.desc.metallic, mat.desc.roughness);
+
 			if (di.vao) {
 				glBindVertexArray(di.vao);
+
 				glDrawElements(GL_TRIANGLES, di.indexCount,
 					di.indexType == IndexType::U32 ? GL_UNSIGNED_INT : GL_UNSIGNED_SHORT,
 					(void*)(di.firstIndex * (di.indexType == IndexType::U32 ? sizeof(uint32_t) : sizeof(uint16_t))));
 				glBindVertexArray(0);
 			}
 			else {
-				/*	GLsizei stride = (GLsizei)glPipe.vertexStride;
-					glBindBuffer(GL_ARRAY_BUFFER, vb.);
-					glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ib.id);
+				GLsizei stride = (GLsizei)glPipe.vertexStride;
+				glBindBuffer(GL_ARRAY_BUFFER, vbuf.id);
+				glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibuf.id);
 
-					glEnableVertexAttribArray(0);
-					glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, stride, (void*)0);
-					glEnableVertexAttribArray(1);
-					glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, stride, (void*)(3 * sizeof(float)));
-					glEnableVertexAttribArray(2);
-					glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, stride, (void*)(6 * sizeof(float)));
+				glEnableVertexAttribArray(0);
+				glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, stride, (void*)0);
+				glEnableVertexAttribArray(1);
+				glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, stride, (void*)(3 * sizeof(float)));
+				glEnableVertexAttribArray(2);
+				glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, stride, (void*)(6 * sizeof(float)));
 
-					GLenum iType = (di.indexType == IndexType::U32) ? GL_UNSIGNED_INT : GL_UNSIGNED_SHORT;
-					glDrawElements(GL_TRIANGLES, (GLsizei)di.indexCount, iType, (void*)(uintptr_t)(di.firstIndex * (di.indexType == IndexType::U32 ? sizeof(uint32_t) : sizeof(uint16_t))));*/
+				GLenum iType = (di.indexType == IndexType::U32) ? GL_UNSIGNED_INT : GL_UNSIGNED_SHORT;
+				glDrawElements(GL_TRIANGLES, (GLsizei)di.indexCount, iType, (void*)(uintptr_t)(di.firstIndex * (di.indexType == IndexType::U32 ? sizeof(uint32_t) : sizeof(uint16_t))));
 
 			}
 		}
@@ -241,7 +252,7 @@ public:
 private:
 	std::unordered_map<GpuPipelineHandle, GLPipeline> m_pipelines;
 	std::unordered_map<GpuBufferHandle, GLBuffer> m_buffers;
-	std::unordered_map<GpuMaterialId, GLMat> m_materials;
+	std::unordered_map < GpuMaterialId, GpuMaterial> m_materials;
 	GpuBufferHandle m_nextBuf = 1;
 	GpuMaterialId m_nextMat = 1;
 	GpuPipelineHandle m_nextPipe = 1;

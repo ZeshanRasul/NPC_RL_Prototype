@@ -19,13 +19,16 @@ ModelHandle AssetManager::LoadStaticModel(const std::string& gltfPath) {
 		return InvalidHandle;
 	}
 
-	ModelHandle mh = MakeModelHandle();
-	m_cpuStaticModels[mh] = std::make_unique<CpuStaticModel>(std::move(cpu));
+	m_cpuMaterials.reserve(outMaterials.size());
 
 	for (const auto& mat : outMaterials) {
 		MaterialHandle matHandle = CreateMaterial(mat);
+		cpu.materials.push_back(matHandle);
 		m_cpuMaterials[matHandle] = std::make_unique<CpuMaterial>(mat);
 	}
+
+	ModelHandle mh = MakeModelHandle();
+	m_cpuStaticModels[mh] = std::make_unique<CpuStaticModel>(std::move(cpu));
 
 	return mh;
 }
