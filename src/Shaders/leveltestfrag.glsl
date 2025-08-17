@@ -1,10 +1,8 @@
 #version 460 core
 
-in vec2 TexCoords;
-in vec3 WorldPos;
-in vec3 Normal;
+layout (location = 0) in vec3 Normal;
 out vec4 FragColor;
 
 void main() {
-    FragColor = vec4(Normal, 0.0);
+    FragColor = vec4(Normal, 1.0);
 }

@@ -891,6 +891,12 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 	std::string levelPath = "Assets/Models/Game_Scene/V4/Aviary-Environment-V4-Box-Plane-Collider.glb";
 	CreateLevel(reg, *m_assetManager, levelPath);
 
+	BufferCreateInfo bufferCreateInfo = {};
+	bufferCreateInfo.size = 3 * sizeof(glm::mat4);
+	bufferCreateInfo.usage = BufferUsage::Uniform;
+	bufferCreateInfo.initialData = nullptr;
+	h = m_renderBackend->CreateBuffer(bufferCreateInfo);
+
 	m_camera = new Camera(glm::vec3(50.0f, 3.0f, 80.0f));
 
 	m_minimapQuad = new Quad();
@@ -1950,28 +1956,22 @@ void GameManager::Render(bool isMinimapRenderPass, bool isShadowMapRenderPass, b
 	m_renderer->ResetRenderStates();
 
 
-
-	BufferCreateInfo bufferCreateInfo = {};
-	bufferCreateInfo.size = 3 * sizeof(glm::mat4);
-	bufferCreateInfo.usage = BufferUsage::Uniform;
-
-	std::vector<glm::mat4> matrices;
-	matrices.resize(3, glm::mat4(1.0f));
-	matrices[0] = m_view;
-	matrices[1] = m_projection;
+	std::vector<glm::mat4> matrixData;
+	matrixData.push_back(m_view);
+	matrixData.push_back(m_projection);
 	glm::mat4 modelMat = glm::mat4(1.0f);
 	modelMat = glm::translate(modelMat, glm::vec3(0.0f));
-	modelMat = glm::scale(modelMat, glm::vec3(3.0f));
+	modelMat = glm::scale(modelMat, glm::vec3(5.0f));
 
-	matrices[2] = modelMat;
-	
-	bufferCreateInfo.initialData = matrices.data();
+	matrixData.push_back(modelMat);
 
-	GpuBufferHandle h = m_renderBackend->CreateBuffer(bufferCreateInfo);
+	//bufferCreateInfo.initialData = matrices.data();
 
-	m_renderBackend->UploadCameraMatrices(h, matrices, 0);	
-
-	RenderStaticModels(m_activeScene->GetRegistry(), *m_renderBackend, *uploader, pipes);
+	//m_renderBackend->UpdateBuffer(h, 0, matrices.data(), 3 * sizeof(glm::mat4));
+	//m_renderBackend->UploadCameraMatrices(h, matrices, 0);
+	//m_renderBackend->CreateBuffer(bufferCreateInfo);
+	m_renderBackend->UpdateBuffer(h, 0, matrixData.data(), 3 * sizeof(glm::mat4));
+	m_renderBackend->BindUniformBuffer(h, 0);
 
 	if (!isShadowMapRenderPass)
 	{
@@ -1986,6 +1986,7 @@ void GameManager::Render(bool isMinimapRenderPass, bool isShadowMapRenderPass, b
 		m_renderer->BindShadowMapFbo(SHADOW_WIDTH, SHADOW_HEIGHT);
 
 
+	RenderStaticModels(m_activeScene->GetRegistry(), *m_renderBackend, *uploader, pipes);
 
 	for (auto obj : m_gameObjects) {
 		if (obj->IsDestroyed())

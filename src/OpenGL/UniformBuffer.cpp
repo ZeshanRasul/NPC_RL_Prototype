@@ -45,3 +45,5 @@ void UniformBuffer::Cleanup()
 {
 	glDeleteBuffers(1, &m_uboBuffer);
 }
+
+

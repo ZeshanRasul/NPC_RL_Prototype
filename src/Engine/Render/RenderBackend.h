@@ -80,6 +80,7 @@ public:
 	virtual void Shutdown() = 0;
 
 	virtual GpuBufferHandle CreateBuffer(const BufferCreateInfo& createInfo) = 0;
+	virtual void UpdateBuffer(GpuBufferHandle h, size_t offset, const void* data, size_t size) = 0;		
 	virtual void DestroyBuffer(GpuBufferHandle buffer) = 0;
 
 	virtual GpuPipelineHandle CreatePipeline(const PipelineDesc& desc) = 0;
@@ -92,5 +93,6 @@ public:
 	virtual void Submit(const DrawItem* items, uint32_t itemCount) = 0;
 	virtual void EndFrame() = 0;
 
+	virtual void BindUniformBuffer(GpuBufferHandle h, uint32_t binding) = 0;
 	virtual void UploadCameraMatrices(GpuBufferHandle h, const std::vector<glm::mat4>& mats, int bindingPoint) = 0;
 };

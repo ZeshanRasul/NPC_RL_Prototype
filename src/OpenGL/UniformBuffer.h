@@ -10,6 +10,7 @@ public:
 	void UploadUboData(std::vector<glm::mat4> bufferData, int bindingPoint);
 	void UploadColorUboData(std::vector<glm::vec3> bufferData, int bindingPoint);
 	void Cleanup();
+	GLuint GetBuffer() const { return m_uboBuffer; }
 
 private:
 	size_t m_bufferSize;

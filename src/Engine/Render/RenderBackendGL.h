@@ -30,6 +30,7 @@ struct GLVertexIndexBuffer {
 struct GLUniformBuffer {
 	UniformBuffer ubo;
 	size_t size = 0;
+	GLuint id = 0;
 };
 
 struct GLStorageBuffer {
@@ -74,6 +75,7 @@ public:
 			GLUniformBuffer u{};
 			u.size = createInfo.size;
 			u.ubo.Init(createInfo.size);
+			u.id = u.ubo.GetBuffer();
 			if (createInfo.initialData)
 				UpdateBuffer(h, 0, createInfo.initialData, createInfo.size);
 			m_buffers.emplace(h, std::move(u));
@@ -97,7 +99,7 @@ public:
 		return h;
 	}
 
-	void UpdateBuffer(GpuBufferHandle h, size_t offset, const void* data, size_t size) {
+	void UpdateBuffer(GpuBufferHandle h, size_t offset, const void* data, size_t size) override {
 		auto it = m_buffers.find(h); assert(it != m_buffers.end());
 		auto& buf = it->second;
 		if (std::holds_alternative<GLVertexIndexBuffer>(buf)) {
@@ -107,18 +109,24 @@ public:
 			glBindBuffer(b.target, 0);
 		}
 		else if (std::holds_alternative<GLUniformBuffer>(buf)) {
-			glBindBuffer(GL_UNIFORM_BUFFER, 0);
-			GLuint id;
-			glBindBuffer(GL_UNIFORM_BUFFER, 0);
+			auto& b = std::get<GLUniformBuffer>(buf);
+			glBindBuffer(GL_UNIFORM_BUFFER, b.id);
 			glBufferSubData(GL_UNIFORM_BUFFER, (GLintptr)offset, (GLsizeiptr)size, data);
 			glBindBuffer(GL_UNIFORM_BUFFER, 0);
 		}
 		else {
 			glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
-			glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 			glBufferSubData(GL_SHADER_STORAGE_BUFFER, (GLintptr)offset, (GLsizeiptr)size, data);
 			glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 		}
+	}
+
+	virtual void BindUniformBuffer(GpuBufferHandle h, uint32_t binding) override {
+		auto it = m_buffers.find(h); assert(it != m_buffers.end());
+		auto& buf = it->second;
+
+		const auto& u = std::get<GLUniformBuffer>(buf);
+		glBindBufferBase(GL_UNIFORM_BUFFER, binding, u.id);
 	}
 
 	void DestroyBuffer(GpuBufferHandle h) override {
@@ -186,7 +194,6 @@ public:
 	}
 
 	void BeginFrame() override {
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	}
 
 	void Submit(const DrawItem* items, uint32_t itemCount) override {
@@ -195,8 +202,6 @@ public:
 			const auto& glPipe = m_pipelines[di.pipeline];
 			const auto& vb = m_buffers[di.vertexBuffer];
 			const auto& ib = m_buffers[di.indexBuffer];
-
-			glPipe.program.Use();
 
 			glUseProgram(glPipe.program.GetProgram());
 			if (di.vao) {
@@ -228,17 +233,19 @@ public:
 	void EndFrame() override {}
 
 	void UploadCameraMatrices(GpuBufferHandle h, const std::vector<glm::mat4>& mats, int bindingPoint) override {
-		auto& ub = std::get<GLUniformBuffer>(m_buffers.at(h)).ubo;
-		ub.UploadUboData(mats, bindingPoint);
+		/*auto& ub = std::get<GLUniformBuffer>(m_buffers.at(h)).ubo;
+		ub.UploadUboData(mats, bindingPoint);*/
+		m_cameraData = mats;
 	}
 
 private:
+	std::unordered_map<GpuPipelineHandle, GLPipeline> m_pipelines;
 	std::unordered_map<GpuBufferHandle, GLBuffer> m_buffers;
 	std::unordered_map<GpuMaterialId, GLMat> m_materials;
-	std::unordered_map<GpuPipelineHandle, GLPipeline> m_pipelines;
 	GpuBufferHandle m_nextBuf = 1;
 	GpuMaterialId m_nextMat = 1;
 	GpuPipelineHandle m_nextPipe = 1;
+	std::vector<glm::mat4> m_cameraData; // For camera matrices, can be used in UBOs or SSBOs
 };
 
 RenderBackend* CreateRenderBackend() {
