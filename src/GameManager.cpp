@@ -1,10 +1,12 @@
 #include "GameManager.h"
 #include "Components/AudioComponent.h"
+#include "Game/Prefabs.h"
 
 #include "imgui/imgui.h"
 #include "imgui/backend/imgui_impl_glfw.h"
 #include "imgui/backend/imgui_impl_opengl3.h"
-
+#include "Engine/Render/RenderBackend.h"
+#include "Engine/Render/RenderBackendGL.h"
 
 DirLight dirLight = {
 		glm::vec3(-0.5f, -1.0f, -0.3f),
@@ -18,7 +20,7 @@ const float AGENT_RADIUS = 0.6f;
 
 glm::vec3 dirLightPBRColour = glm::vec3(300.f, 300.0f, 300.0f);
 
-bool GameManager::BuildTile(int tx, int ty, float* bmin, float* bmax,  rcConfig cfg, unsigned char*& navData, int* navDataSize, dtNavMeshParams parameters)
+bool GameManager::BuildTile(int tx, int ty, float* bmin, float* bmax, rcConfig cfg, unsigned char*& navData, int* navDataSize, dtNavMeshParams parameters)
 {
 	rcConfig config = cfg;
 
@@ -48,9 +50,9 @@ bool GameManager::BuildTile(int tx, int ty, float* bmin, float* bmax,  rcConfig 
 
 	//rcContext ctx;
 
-	std::vector<float> tileVerts;             
-	std::vector<int> tileIndices;             
-	std::vector<unsigned char> tileAreas;     
+	std::vector<float> tileVerts;
+	std::vector<int> tileIndices;
+	std::vector<unsigned char> tileAreas;
 	std::unordered_map<int, int> globalToLocalVert;
 
 	int triCount = static_cast<int>(navMeshIndices.size()) / 3;
@@ -576,29 +578,29 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 	m_physicsWorld = new PhysicsWorld();
 
 	m_cubemapFaces = {
-		"src/Assets/Textures/Skybox/T3Nebula/right.png",
-		"src/Assets/Textures/Skybox/T3Nebula/left.png",
-		"src/Assets/Textures/Skybox/T3Nebula/top.png",
-		"src/Assets/Textures/Skybox/T3Nebula/bottom.png",
-		"src/Assets/Textures/Skybox/T3Nebula/front.png",
-		"src/Assets/Textures/Skybox/T3Nebula/back.png"
+		"Assets/Textures/Skybox/T3Nebula/right.png",
+		"Assets/Textures/Skybox/T3Nebula/left.png",
+		"Assets/Textures/Skybox/T3Nebula/top.png",
+		"Assets/Textures/Skybox/T3Nebula/bottom.png",
+		"Assets/Textures/Skybox/T3Nebula/front.png",
+		"Assets/Textures/Skybox/T3Nebula/back.png"
 	};
 
 	m_cubemap = new Cubemap(&m_cubemapShader);
 	m_cubemap->LoadMesh();
 	m_cubemap->LoadCubemap(m_cubemapFaces);
 
-	ground = new Ground(mapPos, mapScale, &groundShader, &groundShadowShader, false, this);
-
-	ground->SetAABBShader(&aabbShader);
-	ground->SetUpAABB();
-	ground->SetPlaneShader(&m_lineShader);
-
-	std::vector<Ground::GLTFMesh> meshDataGrnd = ground->meshData;
-	int mapVertCount = 0;
-	int mapIndCount = 0;
-	int triCount = 0;
-	int vertexOffset = 0;
+	//ground = new Ground(mapPos, mapScale, &groundShader, &groundShadowShader, false, this);
+	//
+	//ground->SetAABBShader(&aabbShader);
+	//ground->SetUpAABB();
+	//ground->SetPlaneShader(&m_lineShader);
+	//
+	//std::vector<Ground::GLTFMesh> meshDataGrnd = ground->meshData;
+	//int mapVertCount = 0;
+	//int mapIndCount = 0;
+	//int triCount = 0;
+	//int vertexOffset = 0;
 
 	//for (Ground::GLTFMesh& mesh : meshDataGrnd)
 	//{
@@ -632,7 +634,7 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 	//}
 
 
-	
+
 
 	//Logger::Log(1, "Map vertices count: %i\n", mapVerts.size());
 	//
@@ -871,8 +873,23 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 	//			tile->header->bmax[0], tile->header->bmax[1], tile->header->bmax[2]);
 	//	}
 	//}
+	m_assetManager = new AssetManager();
 
+	m_renderBackend = CreateRenderBackend();
+	m_renderBackend->Initialize();
 
+	PipelineDesc pipelineDesc{};
+	pipelineDesc.vertexShaderPath = "src/Shaders/leveltestvert.glsl";
+	pipelineDesc.fragmentShaderPath =  "src/Shaders/leveltestfrag.glsl";
+	pipelineDesc.vertexStride = sizeof(float) * 8;
+
+	pipes.staticPbr = m_renderBackend->CreatePipeline(pipelineDesc);
+	
+	uploader = new GpuUploader(m_renderBackend, m_assetManager);
+
+	auto& reg = m_activeScene->GetRegistry();
+	std::string levelPath = "Assets/Models/Game_Scene/V4/Aviary-Environment-V4-Box-Plane-Collider.glb";
+	CreateLevel(reg, *m_assetManager, levelPath);
 
 	m_camera = new Camera(glm::vec3(50.0f, 3.0f, 80.0f));
 
@@ -885,27 +902,27 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 	m_playerMuzzleFlashQuad = new Quad();
 	m_playerMuzzleFlashQuad->SetUpVAO(true);
 	m_playerMuzzleFlashQuad->SetShader(&playerMuzzleFlashShader);
-	m_playerMuzzleFlashQuad->LoadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/muzzleflash.png");
+	m_playerMuzzleFlashQuad->LoadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/Assets/Textures/muzzleflash.png");
 
 	m_enemyMuzzleFlashQuad = new Quad();
 	m_enemyMuzzleFlashQuad->SetUpVAO(true);
 	m_enemyMuzzleFlashQuad->SetShader(&playerMuzzleFlashShader);
-	m_enemyMuzzleFlashQuad->LoadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/muzzleflash.png");
+	m_enemyMuzzleFlashQuad->LoadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/Assets/Textures/muzzleflash.png");
 
 	m_enemy2MuzzleFlashQuad = new Quad();
 	m_enemy2MuzzleFlashQuad->SetUpVAO(true);
 	m_enemy2MuzzleFlashQuad->SetShader(&playerMuzzleFlashShader);
-	m_enemy2MuzzleFlashQuad->LoadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/muzzleflash.png");
+	m_enemy2MuzzleFlashQuad->LoadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/Assets/Textures/muzzleflash.png");
 
 	m_enemy3MuzzleFlashQuad = new Quad();
 	m_enemy3MuzzleFlashQuad->SetUpVAO(true);
 	m_enemy3MuzzleFlashQuad->SetShader(&playerMuzzleFlashShader);
-	m_enemy3MuzzleFlashQuad->LoadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/muzzleflash.png");
+	m_enemy3MuzzleFlashQuad->LoadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/Assets/Textures/muzzleflash.png");
 
 	m_enemy4MuzzleFlashQuad = new Quad();
 	m_enemy4MuzzleFlashQuad->SetUpVAO(true);
 	m_enemy4MuzzleFlashQuad->SetShader(&playerMuzzleFlashShader);
-	m_enemy4MuzzleFlashQuad->LoadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/muzzleflash.png");
+	m_enemy4MuzzleFlashQuad->LoadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/Assets/Textures/muzzleflash.png");
 
 
 	m_player = new Player(glm::vec3(-9.0f, 354.6f, 163.0f), glm::vec3(5.0f), &playerShader, &groundShadowShader, true, this, 180.0f);
@@ -914,10 +931,10 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 	m_player->SetAABBShader(&aabbShader);
 	m_player->SetUpAABB();
 
-	std::string texture = "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Models/GLTF/Enemies/Ely/EnemyEly_ely_vanguardsoldier_kerwinatienza_M2_BaseColor.png";
-	std::string texture2 = "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Models/GLTF/Enemies/Ely/ely-vanguardsoldier-kerwinatienza_diffuse_2.png";
-	std::string texture3 = "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Models/GLTF/Enemies/Ely/ely-vanguardsoldier-kerwinatienza_diffuse_3.png";
-	std::string texture4 = "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Models/GLTF/Enemies/Ely/ely-vanguardsoldier-kerwinatienza_diffuse_4.png";
+	std::string texture = "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/Assets/Models/GLTF/Enemies/Ely/EnemyEly_ely_vanguardsoldier_kerwinatienza_M2_BaseColor.png";
+	std::string texture2 = "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/Assets/Models/GLTF/Enemies/Ely/ely-vanguardsoldier-kerwinatienza_diffuse_2.png";
+	std::string texture3 = "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/Assets/Models/GLTF/Enemies/Ely/ely-vanguardsoldier-kerwinatienza_diffuse_3.png";
+	std::string texture4 = "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/Assets/Models/GLTF/Enemies/Ely/ely-vanguardsoldier-kerwinatienza_diffuse_4.png";
 
 
 	m_enemy = new Enemy(glm::vec3(-9.0f, 354.6f, 166.0f), glm::vec3(5.0f), &playerShader, &enemyShadowMapShader, true, this, texture, 0, GetEventManager(), *m_player);
@@ -938,7 +955,7 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 
 	m_crosshair = new Crosshair(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.3f), &crosshairShader, &shadowMapShader, false, this);
 	m_crosshair->LoadMesh();
-	m_crosshair->LoadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/Crosshair.png");
+	m_crosshair->LoadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/Assets/Textures/Crosshair.png");
 	m_playerLine = new Line(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f), &lineShader, &shadowMapShader, false, this);
 	m_playerLine->LoadMesh();
 
@@ -967,7 +984,7 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 	m_gameObjects.push_back(m_enemy2);
 	m_gameObjects.push_back(m_enemy3);
 	m_gameObjects.push_back(m_enemy4);
-	m_gameObjects.push_back(ground);
+	//m_gameObjects.push_back(ground);
 
 	/*for (Cube* coverSpot : coverSpots)
 	{
@@ -1223,7 +1240,8 @@ void GameManager::SetupCamera(unsigned int width, unsigned int height, float del
 			}
 			m_view = m_camera->UpdateCameraLerp(m_camera->GetPosition() + (glm::vec3(0.0f, 1.0f, 0.0f) * m_camera->GetPlayerCamHeightOffset()), m_player->GetPosition() + (m_player->GetPlayerFront() * m_camera->GetPlayerPosOffset()), m_player->GetPlayerFront(), glm::vec3(0.0f, 1.0f, 0.0f), deltaTime);
 
-		} else {
+		}
+		else {
 			//m_camera->SetPitch(45.0f);
 			m_camera->FollowTarget(m_player->GetPosition() + (m_player->GetPlayerFront() * m_camera->GetPlayerPosOffset()), m_player->GetPlayerFront(), m_camera->GetPlayerCamRearOffset(), m_camera->GetPlayerCamHeightOffset());
 			if (m_camera->HasSwitched())
@@ -1275,7 +1293,7 @@ void GameManager::SetupCamera(unsigned int width, unsigned int height, float del
 			//	(m_player->GetPosition())  +
 			//	(m_player->GetPlayerFront() * m_camera->GetPlayerPosOffset()) +
 			//	(m_player->GetPlayerRight() * m_camera->GetPlayerAimRightOffset());
-			
+
 			//if (newPos.y < m_player->GetPosition().y)
 			//newPos.y = m_player->GetPosition().y + m_camera->playerCamHeightOffset;
 
@@ -1301,14 +1319,15 @@ void GameManager::SetupCamera(unsigned int width, unsigned int height, float del
 				m_player->GetPosition() + (m_player->GetPlayerFront() * m_camera->GetPlayerPosOffset()) + (m_player->GetPlayerRight() * m_camera->GetPlayerAimRightOffset()),
 				m_player->GetPlayerFront(), m_player->GetPlayerAimUp(), deltaTime);
 			m_camera->StorePrevCam(m_camera->GetPosition(), target);
-		
-		} else {
+
+		}
+		else {
 
 			glm::vec3 camPos = m_camera->GetPosition();
 
 			m_camera->FollowTarget(m_player->GetPosition() + (m_player->GetPlayerFront() * m_camera->GetPlayerPosOffset()) + (m_player->GetPlayerRight() * m_camera->GetPlayerAimRightOffset()),
 				m_player->GetPlayerFront(), m_camera->GetPlayerAimCamRearOffset(), m_camera->GetPlayerAimCamHeightOffset());
-			
+
 			if (m_camera->HasSwitched())
 				m_camera->StorePrevCam(m_camera->GetPosition() + m_player->GetPlayerAimUp() * m_camera->GetPlayerAimCamHeightOffset(), m_player->GetPosition() + (m_player->GetPlayerFront() * m_camera->GetPlayerPosOffset()) + (m_player->GetPlayerRight() * m_camera->GetPlayerAimRightOffset()) + (m_player->GetPlayerAimUp() * m_camera->GetPlayerAimCamHeightOffset()));
 
@@ -1386,12 +1405,12 @@ void GameManager::ShowCameraControlWindow(Camera& cam)
 
 	ImGui::Text("Position");
 	ImGui::DragFloat3("Position", (float*)&mapPos, mapPos.x, mapPos.y, mapPos.z);
-	ground->SetPosition(mapPos);
+	//ground->SetPosition(mapPos);
 
 	ImGui::Text("Scale");
 	ImGui::DragFloat3("Scale", (float*)&mapScale, mapScale.x, mapScale.y, mapScale.z);
-	ground->SetScale(mapScale);
-	
+	//ground->SetScale(mapScale);
+
 
 	ImGui::End();
 
@@ -1522,7 +1541,7 @@ void GameManager::SetUpAndRenderNavMesh()
 void GameManager::CreateLightSpaceMatrices()
 {
 	// TODO: Set up light space matrices for shadow mapping based on new model
-	
+
 	glm::vec3 sceneCenter = glm::vec3(500.0f / 2.0f, 0.0f, 500.0f / 2.0f);
 
 	glm::vec3 lightDir = glm::normalize(dirLight.m_direction);
@@ -1930,6 +1949,29 @@ void GameManager::Render(bool isMinimapRenderPass, bool isShadowMapRenderPass, b
 
 	m_renderer->ResetRenderStates();
 
+
+
+	BufferCreateInfo bufferCreateInfo = {};
+	bufferCreateInfo.size = 3 * sizeof(glm::mat4);
+	bufferCreateInfo.usage = BufferUsage::Uniform;
+
+	std::vector<glm::mat4> matrices;
+	matrices.resize(3, glm::mat4(1.0f));
+	matrices[0] = m_view;
+	matrices[1] = m_projection;
+	glm::mat4 modelMat = glm::mat4(1.0f);
+	modelMat = glm::translate(modelMat, glm::vec3(0.0f));
+	modelMat = glm::scale(modelMat, glm::vec3(3.0f));
+
+	matrices[2] = modelMat;
+	
+	bufferCreateInfo.initialData = matrices.data();
+
+	GpuBufferHandle h = m_renderBackend->CreateBuffer(bufferCreateInfo);
+
+	m_renderBackend->UploadCameraMatrices(h, matrices, 0);	
+
+	RenderStaticModels(m_activeScene->GetRegistry(), *m_renderBackend, *uploader, pipes);
 
 	if (!isShadowMapRenderPass)
 	{

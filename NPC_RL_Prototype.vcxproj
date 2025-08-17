@@ -368,6 +368,7 @@
     <ClInclude Include="src\Engine\Asset\TextureLoader.h" />
     <ClInclude Include="src\Engine\Render\GpuUploader.h" />
     <ClInclude Include="src\Engine\Render\RenderBackend.h" />
+    <ClInclude Include="src\Engine\Render\RenderBackendGL.h" />
     <ClInclude Include="src\GameManager.h" />
     <ClInclude Include="src\GameObjects\Crosshair.h" />
     <ClInclude Include="src\GameObjects\Enemy.h" />
@@ -398,6 +399,7 @@
     <ClInclude Include="src\Engine\ECS\Scene.h" />
     <ClInclude Include="src\Engine\ECS\Systems\RenderSystem.h" />
     <ClInclude Include="src\Engine\ECS\Systems\TransformSystem.h" />
+    <ClInclude Include="src\Shaders\leveltestvert.glsl" />
     <ClInclude Include="src\tinygltf\json.hpp" />
     <ClInclude Include="src\tinygltf\tiny_gltf.h" />
     <ClInclude Include="src\Tools\Logger.h" />
@@ -407,6 +409,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="src\Shaders\fragment_pbr_skinned.glsl" />
+    <None Include="src\Shaders\leveltestfrag.glsl" />
     <None Include="src\Shaders\muzzle_flash_fragment.glsl" />
     <None Include="src\Shaders\muzzle_flash_vertex.glsl" />
     <None Include="src\Shaders\navmesh_frag.glsl" />

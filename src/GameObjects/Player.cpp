@@ -217,7 +217,7 @@ std::vector<GLuint> Player::LoadGLTFTextures(tinygltf::Model* model) {
 		textureIDs[i] = texID;
 	}
 
-	m_ao.LoadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Models/New/Updated/Atlas_00001.png", false);
+	m_ao.LoadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/Assets/Models/New/Updated/Atlas_00001.png", false);
 
 
 	glBindTexture(GL_TEXTURE_2D, 0);
@@ -234,9 +234,9 @@ Player::Player(glm::vec3 pos, glm::vec3 scale, Shader* shdr, Shader* shadowMapSh
 	//m_model = std::make_shared<GltfModel>();
 
 	//std::string modelFilename =
-	//	"src/Assets/Models/GLTF/SwatPlayer/Swat.gltf";
+	//	"Assets/Models/GLTF/SwatPlayer/Swat.gltf";
 	//std::string modelTextureFilename =
-	//	"src/Assets/Models/GLTF/SwatPlayer/Swat_Ch15_body_BaseColor.png";
+	//	"Assets/Models/GLTF/SwatPlayer/Swat_Ch15_body_BaseColor.png";
 
 	//if (!m_model->LoadModel(modelFilename))
 	//{
@@ -245,7 +245,7 @@ Player::Player(glm::vec3 pos, glm::vec3 scale, Shader* shdr, Shader* shadowMapSh
 
 	playerModel = new tinygltf::Model;
 
-	std::string modelFilename = "src/Assets/Models/Soldier/Animations.glb";
+	std::string modelFilename = "Assets/Models/Soldier/Animations.glb";
 
 
 	tinygltf::TinyGLTF gltfLoader;	
@@ -279,13 +279,13 @@ Player::Player(glm::vec3 pos, glm::vec3 scale, Shader* shdr, Shader* shadowMapSh
 	//m_tex = m_model->LoadTexture(modelTextureFilename, false);
 	//
 	//m_normal.LoadTexture(
-	//	"src/Assets/Models/GLTF/SwatPlayer/Swat_Ch15_body_Normal.png");
+	//	"Assets/Models/GLTF/SwatPlayer/Swat_Ch15_body_Normal.png");
 	//m_metallic.LoadTexture(
-	//	"src/Assets/Models/GLTF/SwatPlayer/Swat_Ch15_body_Metallic.png");
+	//	"Assets/Models/GLTF/SwatPlayer/Swat_Ch15_body_Metallic.png");
 	//m_roughness.LoadTexture(
-	//	"src/Assets/Models/GLTF/SwatPlayer/Swat_Ch15_body_Roughness.png");
+	//	"Assets/Models/GLTF/SwatPlayer/Swat_Ch15_body_Roughness.png");
 	//m_ao.LoadTexture(
-		//"src/Assets/Models/GLTF/SwatPlayer/Swat_Ch15_body_AO.png");
+		//"Assets/Models/GLTF/SwatPlayer/Swat_Ch15_body_AO.png");
 
 	//m_model->uploadIndexBuffer();
 	//Logger::Log(1, "%s: glTF m_model '%s' successfully loaded\n", __FUNCTION__, modelFilename.c_str());

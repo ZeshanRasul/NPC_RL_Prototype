@@ -1,5 +1,6 @@
 #pragma once
 #include <cstdint>
+#include <string>
 
 using GpuBufferHandle = uint32_t;
 using GpuPipelineHandle = uint32_t;
@@ -28,12 +29,15 @@ enum class IndexType : uint32_t {
 struct BufferCreateInfo {
 	size_t size;
 	BufferUsage usage = BufferUsage::Vertex;
-	const void* data = nullptr;
+	const void* initialData = nullptr;
 };
 
 struct PipelineDesc {
 	RenderBackendType backendType;
 	GpuMaterialId materialId;
+	std::string vertexShaderPath;
+	std::string fragmentShaderPath;
+	std::string computeShaderPath;
 	uint32_t vertexShaderId;
 	uint32_t fragmentShaderId;
 	uint32_t computeShaderId;
@@ -88,4 +92,5 @@ public:
 	virtual void Submit(const DrawItem* items, uint32_t itemCount) = 0;
 	virtual void EndFrame() = 0;
 
+	virtual void UploadCameraMatrices(GpuBufferHandle h, const std::vector<glm::mat4>& mats, int bindingPoint) = 0;
 };

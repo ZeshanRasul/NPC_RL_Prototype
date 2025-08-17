@@ -494,6 +494,12 @@
     <ClInclude Include="src\Game\Prefabs.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\Engine\Render\RenderBackendGL.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Shaders\leveltestvert.glsl">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="src\Shaders\vertex.glsl" />
@@ -538,5 +544,6 @@
     <None Include="src\Shaders\vertex2.glsl" />
     <None Include="src\Shaders\fragment_pbr_skinned.glsl" />
     <None Include="src\Shaders\vertex_pbr_skinned.glsl" />
+    <None Include="src\Shaders\leveltestfrag.glsl" />
   </ItemGroup>
 </Project>

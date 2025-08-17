@@ -36,6 +36,9 @@
 #include "AI/Events.h"
 
 #include "Engine/ECS/Scene.h"
+#include "Engine/Render/RenderBackend.h"
+#include "Engine/ECS/Systems/RenderSystem.h"
+#include "Engine/Render/GpuUploader.h"
 
 class GameManager {
 private:
@@ -454,6 +457,10 @@ private:
 	glm::vec3 mapPos = glm::vec3(0, 0.f, 0.0f);
 
 	Scene* m_activeScene;
+	RenderBackend* m_renderBackend;
+	AssetManager* m_assetManager;
+	Pipelines pipes;
+	GpuUploader* uploader;
 };
 
 struct DebugVertex {

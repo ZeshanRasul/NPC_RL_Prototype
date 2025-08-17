@@ -521,7 +521,7 @@ Ground::Ground(glm::vec3 pos, glm::vec3 scale, Shader* shdr, Shader* shadowMapSh
 {
 	mapModel = new tinygltf::Model;
 
-	std::string modelFilename = "src/Assets/Models/Game_Scene/V4/Aviary-Environment-V4-Box-Plane-Collider.glb";
+	std::string modelFilename = "Assets/Models/Game_Scene/V4/Aviary-Environment-V4-Box-Plane-Collider.glb";
 
 	tinygltf::TinyGLTF gltfLoader;
 	std::string loaderErrors;
@@ -551,11 +551,11 @@ Ground::Ground(glm::vec3 pos, glm::vec3 scale, Shader* shdr, Shader* shadowMapSh
 	for (int texID : LoadGLTFTextures(mapModel))
 		glTextures.push_back(texID);
 
-	mTex.LoadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Models/New/Updated/Atlas_00001.png", false);
+	mTex.LoadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/Assets/Models/New/Updated/Atlas_00001.png", false);
 
 	//plane01Model = new tinygltf::Model;
 
-	//std::string planeModelFilename = "src/Assets/Models/Game_Scene/V2/CollisionMeshTest/SlopePlanes/Plane01.gltf";
+	//std::string planeModelFilename = "Assets/Models/Game_Scene/V2/CollisionMeshTest/SlopePlanes/Plane01.gltf";
 
 	//result = gltfLoader.LoadASCIIFromFile(plane01Model, &loaderErrors, &loaderWarnings,
 	//	planeModelFilename);

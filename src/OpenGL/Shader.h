@@ -21,6 +21,8 @@ public:
 	void SetVec3(const std::string& name, float x, float y, float z) const;
 	void SetVec2(const std::string& name, float x, float y) const;
 
+	GLuint GetProgram() const { return m_shaderProgram; }
+
 private:
 	GLuint m_shaderProgram = 0;
 
