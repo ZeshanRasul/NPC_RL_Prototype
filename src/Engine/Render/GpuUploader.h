@@ -74,7 +74,7 @@ public:
 		auto it = m_TextureCache.find(th);
 		if (it != m_TextureCache.end()) return it->second;
 
-		const CpuTexture& cpu = *m_assetManager->GetCpuTexture(th);
+		const CpuTexture& cpu = *(m_assetManager->GetCpuTexture(th));
 
 		GpuTextureId gpu = m_backend->CreateTexture2D(cpu);
 		m_TextureCache.emplace(th, gpu);

@@ -6,4 +6,4 @@
 #include "AssetTypes.h"
 
 bool ImportStaticModelFromGltf(const std::string& gltfPath, CpuStaticModel& outCpuModel,
-	std::vector<CpuMaterial>& outMaterials);
+	std::vector<CpuMaterial>& outMaterials, std::vector<CpuTexture>& outTextures);

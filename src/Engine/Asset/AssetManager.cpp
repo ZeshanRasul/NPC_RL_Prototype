@@ -12,7 +12,7 @@ MaterialHandle AssetManager::MakeMaterialHandle() {
 
 TextureHandle AssetManager::MakeTextureHandle()
 {
-	return m_nextTextureHandle++;
+	return ++m_nextTextureHandle;
 }
 
 
@@ -20,10 +20,17 @@ TextureHandle AssetManager::MakeTextureHandle()
 ModelHandle AssetManager::LoadStaticModel(const std::string& gltfPath) {
 	CpuStaticModel cpu{};
 	std::vector<CpuMaterial> outMaterials{};
+	std::vector<CpuTexture> outTextures{};
 
-	if (!ImportStaticModelFromGltf(gltfPath, cpu, outMaterials)) {
+	if (!ImportStaticModelFromGltf(gltfPath, cpu, outMaterials, outTextures)) {
 		Logger::Log(0, "Failed to load static model from %s\n", gltfPath.c_str());
 		return InvalidHandle;
+	}
+
+	std::vector<TextureHandle> textureHandles;
+	textureHandles.reserve(outTextures.size());
+	for (auto tex : outTextures) {
+		textureHandles.push_back(CreateTexture(std::move(tex)));
 	}
 
 	m_cpuMaterials.reserve(outMaterials.size());
@@ -50,8 +57,6 @@ const CpuStaticModel* AssetManager::GetCpuStaticModel(ModelHandle h) const {
 
 MaterialHandle AssetManager::CreateMaterial(CpuMaterial mat) {
 	MaterialHandle matHandle = MakeMaterialHandle();
-	if (mat.baseColor.desc.height >= 0)
-		mat.baseColorH = CreateTexture(mat.baseColor);
 	m_cpuMaterials[matHandle] = std::make_unique<CpuMaterial>(std::move(mat));
 	return matHandle;
 }
@@ -64,12 +69,27 @@ const CpuMaterial* AssetManager::GetCpuMaterial(MaterialHandle h) const {
 	return nullptr;
 }
 
+static int bytesPerPixel(PixelFormat f) {
+	switch (f) {
+	case PixelFormat::RGB8_UNORM:  return 3;
+	case PixelFormat::RGBA8_UNORM: return 4;
+		// add others you use
+	default: return 0;
+	}
+}
+
 TextureHandle AssetManager::CreateTexture(CpuTexture tex)
 {
 	TextureHandle texHandle = MakeTextureHandle();
+	while (GetCpuTexture(texHandle)) {
+		texHandle = MakeTextureHandle();
+	}
+
 	m_cpuTextures[texHandle] = std::make_unique<CpuTexture>(std::move(tex));
+
 	return texHandle;
 }
+
 
 const CpuTexture* AssetManager::GetCpuTexture(TextureHandle h) const
 {

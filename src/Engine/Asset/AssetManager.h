@@ -7,6 +7,10 @@
 
 class AssetManager {
 public:
+	AssetManager() = default;
+	AssetManager(const AssetManager&) = delete;
+	AssetManager& operator=(const AssetManager&) = delete;
+
 	ModelHandle LoadStaticModel(const std::string& gltfPath);
 	const CpuStaticModel* GetCpuStaticModel(ModelHandle h) const;
 

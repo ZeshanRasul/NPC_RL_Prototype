@@ -215,7 +215,8 @@ static CpuTexture BuildCpuTextureFromGltfImage(const tinygltf::Image& img,
 
 bool ImportStaticModelFromGltf(const std::string& gltfPath,
 	CpuStaticModel& outCpuModel,
-	std::vector<CpuMaterial>& outMaterials)
+	std::vector<CpuMaterial>& outMaterials,
+	std::vector<CpuTexture>& outTextures)
 {
 	tinygltf::Model model;
 	tinygltf::TinyGLTF loader;
@@ -235,6 +236,7 @@ bool ImportStaticModelFromGltf(const std::string& gltfPath,
 	outCpuModel.meshes.clear();
 	outCpuModel.materials.clear();
 	outMaterials.clear();
+	outTextures.clear();
 
 	for (const auto& m : model.materials) {
 		CpuMaterial cm{};
@@ -249,9 +251,9 @@ bool ImportStaticModelFromGltf(const std::string& gltfPath,
 		if (m.pbrMetallicRoughness.metallicFactor >= 0.0f) cm.metallic = (float)m.pbrMetallicRoughness.metallicFactor;
 		if (m.pbrMetallicRoughness.roughnessFactor >= 0.0f) cm.roughness = (float)m.pbrMetallicRoughness.roughnessFactor;
 		
-		uint8_t texIndex;
-		if (m.pbrMetallicRoughness.baseColorTexture.index > 0)
+		if (m.pbrMetallicRoughness.baseColorTexture.index >= 0)
 		{
+			uint8_t texIndex;
 			texIndex = m.pbrMetallicRoughness.baseColorTexture.index;
 
 			const tinygltf::Texture& gltfTex = model.textures[texIndex];
@@ -261,6 +263,7 @@ bool ImportStaticModelFromGltf(const std::string& gltfPath,
 			CpuTexture cpuTex = BuildCpuTextureFromGltfImage(gltfImg, sampler, "baseColor");
 
 			cm.baseColor = cpuTex;
+			outTextures.push_back(std::move(cpuTex));
 		}
 			
 		
