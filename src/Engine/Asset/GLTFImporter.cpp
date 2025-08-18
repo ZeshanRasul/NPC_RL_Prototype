@@ -197,8 +197,8 @@ static ColorSpace ColorSpaceForSlot(const std::string& usageTag) {
 	return ColorSpace::Linear;
 }
 
-static CpuTexture BuildCpuTextureFromGltfImage(const tinygltf::Image& img,
-	const SamplerDesc& samp,
+static CpuTexture BuildCpuTextureFromGltfImage(tinygltf::Image& img,
+	SamplerDesc& samp,
 	const std::string& usageTag)
 {
 	CpuTexture out{};
@@ -207,7 +207,7 @@ static CpuTexture BuildCpuTextureFromGltfImage(const tinygltf::Image& img,
 	out.desc.sampler = samp;
 	out.desc.colorSpace = ColorSpaceForSlot(usageTag);
 	out.desc.format = ChoosePixelFormat(img.component, img.bits, img.pixel_type);
-
+	out.usage = TextureUsage::BaseColorSRGB;
 	out.pixels.assign(img.image.begin(), img.image.end());
 	return out;
 }
@@ -257,7 +257,7 @@ bool ImportStaticModelFromGltf(const std::string& gltfPath,
 			texIndex = m.pbrMetallicRoughness.baseColorTexture.index;
 
 			const tinygltf::Texture& gltfTex = model.textures[texIndex];
-			const tinygltf::Image& gltfImg = model.images[gltfTex.source];
+			tinygltf::Image& gltfImg = model.images[gltfTex.source];
 
 			SamplerDesc sampler = MapGltfSampler(&model.samplers[gltfTex.source]);
 			CpuTexture cpuTex = BuildCpuTextureFromGltfImage(gltfImg, sampler, "baseColor");

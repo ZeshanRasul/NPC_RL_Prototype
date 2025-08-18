@@ -71,7 +71,7 @@ struct CpuTexture {
 
 	std::vector<uint8_t> pixels;
 	uint32_t rowStride = 0;
-	TextureUsage usage = TextureUsage::Unknown;
+	TextureUsage usage = TextureUsage::BaseColorSRGB;
 };
 
 struct MaterialTexcoordSets {

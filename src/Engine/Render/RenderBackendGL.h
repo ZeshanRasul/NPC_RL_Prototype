@@ -52,57 +52,26 @@ struct GLTexFormat { GLenum internalFormat; GLenum externalFormat; GLenum type; 
 static GLTexFormat ToGLFmt(PixelFormatGpu pf, ColorSpaceGpu cs) {
 	switch (pf) {
 	case PixelFormatGpu::RGB8_UNORM:
-		return { (cs == ColorSpaceGpu::SRGB) ? GL_SRGB8 : GL_RGB8, GL_RGB, GL_UNSIGNED_BYTE };
+		//return { (cs == ColorSpaceGpu::SRGB) ? GL_SRGB8 : GL_RGB8, GL_RGB, GL_UNSIGNED_BYTE };
 	case PixelFormatGpu::RGBA8_UNORM:
-		return { (cs == ColorSpaceGpu::SRGB) ? GL_SRGB8_ALPHA8 : GL_RGBA8, GL_RGBA, GL_UNSIGNED_BYTE };
+		//return { (cs == ColorSpaceGpu::SRGB) ? GL_SRGB8_ALPHA8 : GL_RGBA8, GL_RGBA, GL_UNSIGNED_BYTE };
 	case PixelFormatGpu::R8_UNORM:
-		return { GL_R8, GL_RED, GL_UNSIGNED_BYTE };
+		//return { GL_R8, GL_RED, GL_UNSIGNED_BYTE };
 	case PixelFormatGpu::RG8_UNORM:
-		return { GL_RG8, GL_RG, GL_UNSIGNED_BYTE };
+		//return { GL_RG8, GL_RG, GL_UNSIGNED_BYTE };
 	default: return { GL_RGBA8, GL_RGBA, GL_UNSIGNED_BYTE };
 	}
 }
 
-struct GLSamplerParams { GLint minFilterGL; GLint magFilterGL; GLint wrapSGL; GLint wrapTGL; };
-
-static GLint ToGLMinFilter(SamplerDescGpu::Filter f) {
-	switch (f) {
-	case SamplerDescGpu::Filter::Nearest:            return GL_NEAREST;
-	case SamplerDescGpu::Filter::Linear:             return GL_LINEAR;
-	case SamplerDescGpu::Filter::LinearMipmapLinear: return GL_LINEAR_MIPMAP_LINEAR;
-	default:                                      return GL_LINEAR;
-	}
-}
-static GLint ToGLMagFilter(SamplerDescGpu::Filter f) {
-	switch (f) {
-	case SamplerDescGpu::Filter::Nearest: return GL_NEAREST;
-	case SamplerDescGpu::Filter::Linear:  return GL_LINEAR;
-	default:                           return GL_LINEAR;
-	}
-}
-static GLint ToGLWrap(SamplerDescGpu::Wrap w) {
-	switch (w) {
-	case SamplerDescGpu::Wrap::Repeat:       return GL_REPEAT;
-	case SamplerDescGpu::Wrap::ClampToEdge:  return GL_CLAMP_TO_EDGE;
-	case SamplerDescGpu::Wrap::MirrorRepeat: return GL_MIRRORED_REPEAT;
-	default:                               return GL_REPEAT;
-	}
-}
 static GLSamplerParams ToGL(const SamplerDescGpu& s) {
 	return {
-		ToGLMinFilter(s.minFilter),
-		ToGLMagFilter(s.magFilter),
-		ToGLWrap(s.wrapS),
-		ToGLWrap(s.wrapT)
+		GL_NEAREST,
+		GL_NEAREST,
+		GL_REPEAT,
+		GL_REPEAT
 	};
 }
 
-
-struct GLTexFormat {
-	GLint internalFormat;  // storage (sRGB vs linear lives here)
-	GLenum externalFormat;  // data layout provided (GL_RED/RG/RGB/RGBA)
-	GLenum type;            // GL_UNSIGNED_BYTE, GL_UNSIGNED_SHORT, GL_FLOAT, etc.
-};
 
 class RenderBackendGL : public RenderBackend {
 public:

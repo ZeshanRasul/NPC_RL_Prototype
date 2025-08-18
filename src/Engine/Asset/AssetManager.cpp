@@ -12,7 +12,7 @@ MaterialHandle AssetManager::MakeMaterialHandle() {
 
 TextureHandle AssetManager::MakeTextureHandle()
 {
-	return ++m_nextTextureHandle;
+	return m_nextTextureHandle++;
 }
 
 
@@ -27,11 +27,11 @@ ModelHandle AssetManager::LoadStaticModel(const std::string& gltfPath) {
 		return InvalidHandle;
 	}
 
-	std::vector<TextureHandle> textureHandles;
-	textureHandles.reserve(outTextures.size());
-	for (auto tex : outTextures) {
-		textureHandles.push_back(CreateTexture(std::move(tex)));
-	}
+	//std::vector<TextureHandle> textureHandles;
+	//textureHandles.reserve(outTextures.size());
+	//for (CpuTexture tex : outTextures) {
+	//	textureHandles.push_back(CreateTexture(tex));
+	//}
 
 	m_cpuMaterials.reserve(outMaterials.size());
 
@@ -57,6 +57,7 @@ const CpuStaticModel* AssetManager::GetCpuStaticModel(ModelHandle h) const {
 
 MaterialHandle AssetManager::CreateMaterial(CpuMaterial mat) {
 	MaterialHandle matHandle = MakeMaterialHandle();
+	CreateTexture(mat.baseColor);
 	m_cpuMaterials[matHandle] = std::make_unique<CpuMaterial>(std::move(mat));
 	return matHandle;
 }
@@ -77,17 +78,47 @@ static int bytesPerPixel(PixelFormat f) {
 	default: return 0;
 	}
 }
-
-TextureHandle AssetManager::CreateTexture(CpuTexture tex)
+static void ExpandRGBToRGBA(std::vector<uint8_t>& data, int w, int h)
 {
-	TextureHandle texHandle = MakeTextureHandle();
-	while (GetCpuTexture(texHandle)) {
-		texHandle = MakeTextureHandle();
+	const size_t srcBytes = static_cast<size_t>(w) * h * 3;
+	if (data.size() != srcBytes) return; // already RGBA or invalid
+
+	std::vector<uint8_t> out;
+	out.resize(static_cast<size_t>(w) * h * 4);
+
+	const uint8_t* src = data.data();
+	uint8_t* dst = out.data();
+
+	for (size_t i = 0, j = 0; i < srcBytes; i += 3, j += 4) {
+		dst[j + 0] = src[i + 0]; // R
+		dst[j + 1] = src[i + 1]; // G
+		dst[j + 2] = src[i + 2]; // B
+		dst[j + 3] = 255;        // A = fully opaque
 	}
 
-	m_cpuTextures[texHandle] = std::make_unique<CpuTexture>(std::move(tex));
+	data.swap(out);
+}
+TextureHandle AssetManager::CreateTexture(CpuTexture tex)
+{
+	// Own the texture immediately
+	auto handle = MakeTextureHandle();
+	m_cpuTextures[handle] = std::make_unique<CpuTexture>(std::move(tex));
+	CpuTexture& newtex = *m_cpuTextures[handle];
 
-	return texHandle;
+	// Validate
+
+	// Expand to RGBA if needed (e.g. JPG source)
+	ExpandRGBToRGBA(newtex.pixels, newtex.desc.width, newtex.desc.width);
+		
+
+	// Force consistency: everything is RGBA8 UNORM
+	newtex.desc.format = PixelFormat::RGBA8_UNORM;
+;
+
+	// Optionally generate a single mip chain here (CPU side)
+	// or just store base level; renderer can generate GPU mips.
+
+	return handle;
 }
 
 
