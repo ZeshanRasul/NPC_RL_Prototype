@@ -265,7 +265,7 @@ public:
 			else {
 				glActiveTexture(GL_TEXTURE0);
 				glBindTexture(GL_TEXTURE_2D, 168);
-				glPipe.program.SetBool("useTex", true);
+				glPipe.program.SetBool("useTex", false);
 				glPipe.program.SetVec2("uMetallicRoughness", mat.desc.metallic, mat.desc.roughness);
 				glPipe.program.SetInt("uBaseColorTexture", 0);
 				glPipe.program.SetVec3("uBaseColorFactor", mat.desc.baseColorFactor[0], mat.desc.baseColorFactor[1], mat.desc.baseColorFactor[2]);
@@ -315,9 +315,9 @@ public:
 		TextureCreateInfo ci{};
 		ci.width = cpu.desc.width;
 		ci.height = cpu.desc.height;
-		ci.mipLevels = cpu.desc.mipLevels;
-		ci.format = (PixelFormatGpu)cpu.desc.format;
-		ci.colorSpace = (ColorSpaceGpu)cpu.desc.colorSpace;
+		ci.mipLevels = 1;
+		ci.format = PixelFormatGpu::RGB8_UNORM;
+		ci.colorSpace = ColorSpaceGpu::SRGB;
 		ci.initialData = cpu.pixels.data();
 		ci.initialDataSize = cpu.pixels.size();
 
@@ -330,9 +330,9 @@ public:
 		// Upload one level (assumes tightly packed data).
 		// If you need strides, expose that in TextureCreateInfo.
 		glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_SRGB8_ALPHA8,
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB8,
 			ci.width, ci.height, 0,
-			GL_RGBA, GL_UNSIGNED_BYTE,
+			GL_RGB, GL_UNSIGNED_BYTE,
 			ci.initialData);
 
 		if (ci.mipLevels >= 1) {
