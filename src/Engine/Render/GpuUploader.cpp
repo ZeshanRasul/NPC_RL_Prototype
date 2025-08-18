@@ -15,6 +15,13 @@ void GpuUploader::EnsureResident(ModelHandle modelHandle)
 
 	GpuModel gpuModel;
 	gpuModel.meshes.reserve(cpu->meshes.size());
+	
+	materialHandles = cpu->materials;
+
+	for (auto mat : materialHandles)
+	{
+		EnsureMatResident(mat);
+	}
 
 	for (auto& cm : cpu->meshes) {
 		
@@ -45,9 +52,8 @@ void GpuUploader::EnsureResident(ModelHandle modelHandle)
 			gpuSubmesh.firstIndex = sm.firstIndex;
 			gpuSubmesh.indexCount = sm.indexCount;
 			
-			MaterialHandle mh = (sm.materialIndex < cpu->materials.size()) ? cpu->materials[sm.materialIndex] : 0;
+			MaterialHandle mh = (sm.materialIndex < materialHandles.size()) ? materialHandles[sm.materialIndex] : 0;
 			gpuSubmesh.material = mh;
-			
 			EnsureMatResident(mh);
 			gpuSubmesh.materialId = MatId(mh);
 
@@ -60,22 +66,22 @@ void GpuUploader::EnsureResident(ModelHandle modelHandle)
 			GLsizei stride = (GLsizei)gpuSubmesh.vertexStride;
 
 			glEnableVertexAttribArray(0); // Position
-			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 12 * sizeof(float), (void*)0);
-			glEnableVertexAttribArray(1); // Normal
-			glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 12 * sizeof(float), (void*)(sizeof(float) * 0));
-			glEnableVertexAttribArray(2); // TexCoord
-			glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 12 * sizeof(float), (void*)(sizeof(float) * 0));
-			glEnableVertexAttribArray(3); // TexCoord2
-			glVertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE, 12 * sizeof(float), (void*)(sizeof(float) * 0));
-			glEnableVertexAttribArray(4); // TexCoord3
-			glVertexAttribPointer(4, 2, GL_FLOAT, GL_FALSE, 12 * sizeof(float), (void*)(sizeof(float) * 0));
+			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, stride, (void*)0);
+			glEnableVertexAttribArray(1); // Normal			stride
+			glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, stride, (void*)(sizeof(float) * 3));
+			glEnableVertexAttribArray(2); // TexCoord		stride
+			glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, stride, (void*)(sizeof(float) * 6));
+			glEnableVertexAttribArray(3); // TexCoord2		stride
+			glVertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE, stride, (void*)(sizeof(float) * 8));
+			glEnableVertexAttribArray(4); // TexCoord3		stride
+			glVertexAttribPointer(4, 2, GL_FLOAT, GL_FALSE, stride, (void*)(sizeof(float) * 10));
 
 
 			glBindVertexArray(0);
 
 			gpuSubmesh.vao = vao;
 
-			gpuMesh.submeshes.push_back(std::move(gpuSubmesh));
+			gpuMesh.submeshes.push_back(gpuSubmesh);
 		}
 
 #ifdef ENGINE_BACKEND_OPENGL

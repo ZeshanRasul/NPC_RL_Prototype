@@ -18,7 +18,7 @@ struct DirLight {
 	vec3 specular;
 };
 
-DirLight dirLight = DirLight(vec3(-0.5, -1.0, 2.0), vec3(0.2, 0.1, 0.2), vec3(0.5, 0.5, 0.5), vec3(0.1, 0.2, 0.3));
+DirLight dirLight = DirLight(vec3(-0.5, -1.0, 2.0), vec3(1.0, 1.0, 1.0), vec3(0.5, 0.5, 0.5), vec3(0.1, 0.2, 0.3));
 
 
 vec3 CalcDirLight(DirLight light, vec3 normal)
@@ -48,14 +48,9 @@ void main() {
 	vec4 texColor;
 
 	vec3 norm = normalize(Normal);
-	if (useTex)
-	{
-		texColor = texture(uBaseColorTexture, TexCoords);
-	} else
-	{
-		texColor = vec4(TexCoords, 0.2, 1.0);
-	}
+	vec3 result = CalcDirLight(dirLight, norm);
 
 
-    FragColor = vec4(texColor);
+
+    FragColor = vec4(result, 1.0);
 }

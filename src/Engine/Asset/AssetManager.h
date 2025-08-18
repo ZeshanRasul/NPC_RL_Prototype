@@ -26,11 +26,11 @@ private:
 	TextureHandle MakeTextureHandle();
 
 	std::unordered_map<ModelHandle, std::unique_ptr<CpuStaticModel>> m_cpuStaticModels;
-	ModelHandle m_nextModelHandle{ 2 };
+	ModelHandle m_nextModelHandle{ 1 };
 
 	std::unordered_map<MaterialHandle, std::unique_ptr<CpuMaterial>> m_cpuMaterials;
-	MaterialHandle m_nextMaterialHandle{ 2 };
+	MaterialHandle m_nextMaterialHandle{ 1 };
 
 	std::unordered_map<TextureHandle, std::unique_ptr<CpuTexture>> m_cpuTextures;
-	TextureHandle m_nextTextureHandle{ 2 };
+	TextureHandle m_nextTextureHandle{ 1 };
 };

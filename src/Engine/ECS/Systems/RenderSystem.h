@@ -31,7 +31,7 @@ inline void RenderStaticModels(entt::registry& reg, RenderBackend& rb,
 	GpuUploader& up, const Pipelines& pipes)
 {
 	std::vector<DrawItem> draws;
-	//draws.reserve(25000);
+	draws.reserve(1024);
 
 	auto view = reg.view<StaticModelRendererComponent>();
 
@@ -67,6 +67,7 @@ inline void RenderStaticModels(entt::registry& reg, RenderBackend& rb,
 				up.EnsureMatResident(submesh.material);
 				item.materialId = up.MatId(submesh.material);
 				item.materialHandle = submesh.material;
+				//Logger::Log(1, "RenderStaticModels: submesh matHandle=%u\n", item.materialHandle);
 				draws.push_back(item);
 			}
 

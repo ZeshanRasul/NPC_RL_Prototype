@@ -97,6 +97,7 @@ private:
 	std::unordered_map<ModelHandle, GpuModel> m_modelBuffers;
 	std::unordered_map<MaterialHandle, GpuMaterial> m_materialBuffers;
 	std::unordered_map<TextureHandle, GpuTextureId> m_TextureCache;
+	std::vector<MaterialHandle> materialHandles;
 };
 
 

@@ -253,18 +253,19 @@ public:
 			//
 			//GLint samplerLoc = glGetUniformLocation(glPipe.program.GetProgram(), "uBaseColorTexture");
 			GLint useTexLoc = glGetUniformLocation(glPipe.program.GetProgram(), "useTex");
-
-			if (mat.desc.baseColor) {
+			 
+			if (mat.desc.baseColor != InvalidHandle) {
 				glActiveTexture(GL_TEXTURE0);
 				glBindTexture(GL_TEXTURE_2D, mat.desc.baseColor);
 				glPipe.program.SetBool("useTex", true);
 				glPipe.program.SetVec2("uMetallicRoughness", mat.desc.metallic, mat.desc.roughness);
 				glPipe.program.SetInt("uBaseColorTexture", 0);
+				glPipe.program.SetVec3("uBaseColorFactor", mat.desc.baseColorFactor[0], mat.desc.baseColorFactor[1], mat.desc.baseColorFactor[2]);
 			}
 			else {
 				glActiveTexture(GL_TEXTURE0);
-				glBindTexture(GL_TEXTURE_2D, 0);
-				glPipe.program.SetBool("useTex", false);
+				glBindTexture(GL_TEXTURE_2D, 168);
+				glPipe.program.SetBool("useTex", true);
 				glPipe.program.SetVec2("uMetallicRoughness", mat.desc.metallic, mat.desc.roughness);
 				glPipe.program.SetInt("uBaseColorTexture", 0);
 				glPipe.program.SetVec3("uBaseColorFactor", mat.desc.baseColorFactor[0], mat.desc.baseColorFactor[1], mat.desc.baseColorFactor[2]);
