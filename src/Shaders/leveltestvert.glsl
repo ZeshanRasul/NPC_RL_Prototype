@@ -7,7 +7,6 @@ layout (location = 4) in vec2 aTexCoord_2;
 
 
 out vec2 TexCoords;
-out vec3 WorldPos;
 out vec3 Normal;
 
 layout (std140, binding = 0) uniform Matrices {
@@ -19,7 +18,6 @@ layout (std140, binding = 0) uniform Matrices {
 void main() {
 
     TexCoords = aTexCoord;
-    WorldPos = vec3(model * vec4(aPos, 1.0));
 //    mat3 normalMatrix = transpose(inverse(mat3(model)));
     Normal = aNormal;   
 

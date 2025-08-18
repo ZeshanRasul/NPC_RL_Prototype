@@ -2,10 +2,9 @@
 out vec4 FragColor;
 
 in vec2 TexCoords;
-in vec3 WorldPos;
 in vec3 Normal;
 
-uniform vec4 uBaseColorFactor;
+uniform vec3 uBaseColorFactor;
 uniform vec2 uMetallicRoughness;
 uniform bool useTex;
 
@@ -35,6 +34,7 @@ vec3 CalcDirLight(DirLight light, vec3 normal)
  	if (useTex) {
 		ambient = light.ambient * vec3(texture(uBaseColorTexture, TexCoords));
 		diffuse = light.diffuse * diff * vec3(texture(uBaseColorTexture, TexCoords));
+
 	} else {
 		ambient = light.ambient * uBaseColorFactor.xyz;
 		diffuse = light.diffuse * diff * uBaseColorFactor.xyz;
@@ -45,8 +45,15 @@ vec3 CalcDirLight(DirLight light, vec3 normal)
 }
 
 void main() {
-    vec4 texColor = texture(uBaseColorTexture, TexCoords);
-	vec3 color = CalcDirLight(dirLight, normalize(Normal));
+	vec4 texColor;
+	if (useTex)
+	{
+		texColor = texture(uBaseColorTexture, TexCoords);
+	} else
+	{
+		texColor = vec4(uBaseColorFactor, 1.0);
+	}
 
-    FragColor = vec4(color, 1.0);
+
+    FragColor = vec4(texColor);
 }
