@@ -41,7 +41,7 @@ public:
 
 	void EnsureResident(ModelHandle ModelHandle);
 	void EnsureMatResident(MaterialHandle matHandle);
-	const CpuTexture* EnsureTexResident(TextureHandle texHandle);
+	//const CpuTexture* EnsureTexResident(TextureHandle texHandle);
 
 	const GpuModel* Model(ModelHandle handle) const {
 		auto it = m_modelBuffers.find(handle);

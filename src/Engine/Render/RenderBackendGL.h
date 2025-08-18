@@ -65,8 +65,8 @@ static GLTexFormat ToGLFmt(PixelFormatGpu pf, ColorSpaceGpu cs) {
 
 static GLSamplerParams ToGL(const SamplerDescGpu& s) {
 	return {
-		GL_NEAREST,
-		GL_NEAREST,
+		GL_LINEAR,
+		GL_LINEAR,
 		GL_REPEAT,
 		GL_REPEAT
 	};
@@ -201,7 +201,7 @@ public:
 
 	GpuMaterialId CreateMaterial(MaterialGpuDesc& desc) override {
 		GpuMaterialId id = ++m_nextMat;
-		m_materials[id] = GpuMaterial{ desc };
+		m_materials[id] = GpuMaterial{ desc, id };
 		return id;
 	}
 
@@ -248,12 +248,13 @@ public:
 			glActiveTexture(GL_TEXTURE0);
 
 			if (mat.desc.baseColor) {
-				glActiveTexture(GL_TEXTURE0);
-				glBindTexture(GL_TEXTURE_2D, static_cast<GLuint>(mat.desc.baseColor));
-				loc = glGetUniformLocation(glPipe.program.GetProgram(), "uBaseColorTexture");
-				if (loc >= 0)
-					glUniform1i(loc, 0);
-			}			if (di.vao) {
+			}
+			glActiveTexture(GL_TEXTURE0);
+			glBindTexture(GL_TEXTURE_2D, static_cast<GLuint>(mat.desc.baseColor));
+			loc = glGetUniformLocation(glPipe.program.GetProgram(), "uBaseColorTexture");
+			if (loc >= 0)
+				glUniform1i(loc, 0);
+			if (di.vao) {
 				glBindVertexArray(di.vao);
 
 				glDrawElements(GL_TRIANGLES, di.indexCount,

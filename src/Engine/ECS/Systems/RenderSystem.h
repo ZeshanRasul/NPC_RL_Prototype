@@ -64,6 +64,7 @@ inline void RenderStaticModels(entt::registry& reg, RenderBackend& rb,
 				item.firstIndex = submesh.firstIndex;
 				item.indexCount = submesh.indexCount;
 
+				up.EnsureMatResident(submesh.material);
 				item.materialHandle = submesh.material;
 				item.materialId = up.MatId(submesh.material);
 				draws.push_back(item);

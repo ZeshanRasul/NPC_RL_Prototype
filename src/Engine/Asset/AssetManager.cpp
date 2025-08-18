@@ -27,16 +27,25 @@ ModelHandle AssetManager::LoadStaticModel(const std::string& gltfPath) {
 		return InvalidHandle;
 	}
 
-	//std::vector<TextureHandle> textureHandles;
-	//textureHandles.reserve(outTextures.size());
-	//for (CpuTexture tex : outTextures) {
-	//	textureHandles.push_back(CreateTexture(tex));
-	//}
+	std::vector<TextureHandle> textureHandles;
+	textureHandles.reserve(outTextures.size());
+	for (auto& tex : outTextures) {
+		TextureHandle th = CreateTexture(std::move(tex));
+		textureHandles.push_back(th);
+	}
 
 	m_cpuMaterials.reserve(outMaterials.size());
 
 	for (auto& mat : outMaterials) {
 		MaterialHandle matHandle = CreateMaterial(mat);
+		if (mat.baseColorTexIdx >= 0 && mat.baseColorTexIdx < textureHandles.size()) {
+			mat.baseColorH = textureHandles[mat.baseColorTexIdx];
+			mat.baseColorTexIdx = -1;
+			Logger::Log(1, "Material baseColorH %u for material with handle %u\n", 
+				mat.baseColorH, matHandle);
+		} else {
+			mat.baseColorH = InvalidHandle; 
+		}
 		cpu.materials.push_back(matHandle);
 		m_cpuMaterials[matHandle] = std::make_unique<CpuMaterial>(std::move(mat));
 	}
@@ -57,7 +66,8 @@ const CpuStaticModel* AssetManager::GetCpuStaticModel(ModelHandle h) const {
 
 MaterialHandle AssetManager::CreateMaterial(CpuMaterial mat) {
 	MaterialHandle matHandle = MakeMaterialHandle();
-	CreateTexture(mat.baseColor);
+	//mat.baseColorH = CreateTexture(*mat.baseColor);
+	//m_cpuTextures.emplace(std::make_uniqueh);
 	m_cpuMaterials[matHandle] = std::make_unique<CpuMaterial>(std::move(mat));
 	return matHandle;
 }
@@ -74,7 +84,6 @@ static int bytesPerPixel(PixelFormat f) {
 	switch (f) {
 	case PixelFormat::RGB8_UNORM:  return 3;
 	case PixelFormat::RGBA8_UNORM: return 4;
-		// add others you use
 	default: return 0;
 	}
 }
@@ -114,10 +123,6 @@ TextureHandle AssetManager::CreateTexture(CpuTexture tex)
 	// Force consistency: everything is RGBA8 UNORM
 	newtex.desc.format = PixelFormat::RGBA8_UNORM;
 ;
-
-	// Optionally generate a single mip chain here (CPU side)
-	// or just store base level; renderer can generate GPU mips.
-
 	return handle;
 }
 

@@ -197,17 +197,23 @@ static ColorSpace ColorSpaceForSlot(const std::string& usageTag) {
 	return ColorSpace::Linear;
 }
 
-static CpuTexture BuildCpuTextureFromGltfImage(tinygltf::Image& img,
+static CpuTexture& BuildCpuTextureFromGltfImage(tinygltf::Image& img,
 	SamplerDesc& samp,
-	const std::string& usageTag)
+	const std::string& usageTag, CpuTexture& out)
 {
-	CpuTexture out{};
 	out.desc.width = static_cast<uint32_t>(img.width);
 	out.desc.height = static_cast<uint32_t>(img.height);
 	out.desc.sampler = samp;
 	out.desc.colorSpace = ColorSpaceForSlot(usageTag);
 	out.desc.format = ChoosePixelFormat(img.component, img.bits, img.pixel_type);
 	out.usage = TextureUsage::BaseColorSRGB;
+	out.desc.mipLevels = 1;
+	Logger::Log(1, "%s: image %s, size %ux%u, format %d, components %d, bits %d\n",
+		__FUNCTION__, img.uri.c_str(), img.width, img.height,
+		out.desc.format, img.component, img.bits);
+	Logger::Log(1, "%s: image %s, width: %u height: %u, format %d, components %d, bits %d\n",
+		__FUNCTION__, img.uri.c_str(), out.desc.width, out.desc.height,
+		out.desc.format, img.component, img.bits);
 	out.pixels.assign(img.image.begin(), img.image.end());
 	return out;
 }
@@ -238,8 +244,14 @@ bool ImportStaticModelFromGltf(const std::string& gltfPath,
 	outMaterials.clear();
 	outTextures.clear();
 
+	outCpuModel.meshes.reserve(model.meshes.size());
+	outCpuModel.materials.reserve(model.materials.size());
+	outMaterials.reserve(model.materials.size());
+	outTextures.reserve(model.images.size());
+
 	for (const auto& m : model.materials) {
 		CpuMaterial cm{};
+		CpuTexture baseColorTex{};
 		if (m.pbrMetallicRoughness.baseColorFactor.size() == 4) {
 			for (int k = 0; k < 4; ++k)
 				cm.baseColorFactor[k] = (float)m.pbrMetallicRoughness.baseColorFactor[k];
@@ -250,7 +262,7 @@ bool ImportStaticModelFromGltf(const std::string& gltfPath,
 		}
 		if (m.pbrMetallicRoughness.metallicFactor >= 0.0f) cm.metallic = (float)m.pbrMetallicRoughness.metallicFactor;
 		if (m.pbrMetallicRoughness.roughnessFactor >= 0.0f) cm.roughness = (float)m.pbrMetallicRoughness.roughnessFactor;
-		
+
 		if (m.pbrMetallicRoughness.baseColorTexture.index >= 0)
 		{
 			uint8_t texIndex;
@@ -259,14 +271,38 @@ bool ImportStaticModelFromGltf(const std::string& gltfPath,
 			const tinygltf::Texture& gltfTex = model.textures[texIndex];
 			tinygltf::Image& gltfImg = model.images[gltfTex.source];
 
-			SamplerDesc sampler = MapGltfSampler(&model.samplers[gltfTex.source]);
-			CpuTexture cpuTex = BuildCpuTextureFromGltfImage(gltfImg, sampler, "baseColor");
+			SamplerDesc sampler{};
+			if (gltfTex.sampler >= 0 && gltfTex.sampler < (int)model.samplers.size()) {
+				sampler = MapGltfSampler(&model.samplers[gltfTex.sampler]);
+			}
+			else {
+				sampler = MapGltfSampler(nullptr); // or a default SamplerDesc
+			}
 
-			cm.baseColor = cpuTex;
-			outTextures.push_back(std::move(cpuTex));
+			BuildCpuTextureFromGltfImage(gltfImg, sampler, "baseColor", baseColorTex);
+
+			//cm.baseColor = &baseColorTex;
+			Logger::Log(1, "%s: baseColor texture %u for material %s\n",
+				__FUNCTION__, texIndex, m.name.c_str());
+			Logger::Log(1, "%s: Mat baseColor texture %u for material %s\n",
+				__FUNCTION__, baseColorTex.desc.width, m.name.c_str());
+
+			outTextures.push_back(std::move(baseColorTex));
+			cm.baseColorTexIdx = (int)outTextures.size() - 1;
+
+			Logger::Log(1, "%s: baseColorTexIdx %d for material %s\n",
+				__FUNCTION__, cm.baseColorTexIdx, m.name.c_str());
 		}
-			
+
+		Logger::Log(1, "%s: material %s, baseColorFactor: %.2f, %.2f, %.2f, %.2f\n",
+			__FUNCTION__, m.name.c_str(),
+			cm.baseColorFactor[0], cm.baseColorFactor[1],
+			cm.baseColorFactor[2], cm.baseColorFactor[3]);
+		Logger::Log(1, "%s: material %s, metallic: %.2f, roughness: %.2f\n", __FUNCTION__,
+			m.name.c_str(), cm.metallic, cm.roughness);
 		
+		Logger::Log(1, "%s: material %s, baseColorH: %u\n", __FUNCTION__,
+			m.name.c_str(), cm.baseColorH);
 		outMaterials.push_back(cm);
 	}
 

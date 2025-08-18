@@ -83,15 +83,17 @@ struct MaterialTexcoordSets {
 };
 
 struct CpuMaterial {
-	CpuTexture baseColor;
-	CpuTexture metallicRoughness;
-	CpuTexture normal;
-	CpuTexture emissive;
+	//CpuTexture* baseColor;
+	//CpuTexture* metallicRoughness;
+	//CpuTexture* normal;
+	//CpuTexture* emissive;
 
 	TextureHandle baseColorH;
 	TextureHandle metallicRoughnessH;
 	TextureHandle normalH;
 	TextureHandle emissiveH;
+
+	int baseColorTexIdx = -1;
 
 	MaterialTexcoordSets texcoordSets{};
 

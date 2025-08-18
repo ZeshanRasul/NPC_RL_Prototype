@@ -91,29 +91,37 @@ void GpuUploader::EnsureResident(ModelHandle modelHandle)
 void GpuUploader::EnsureMatResident(MaterialHandle matHandle)
 {
 	if (matHandle == 0 || m_materialBuffers.count(matHandle)) return;
+	
 	const CpuMaterial* cm = m_assetManager->GetCpuMaterial(matHandle);
 	if (!cm) return;
+
 
 	MaterialGpuDesc gd{};
 	std::memcpy(gd.baseColorFactor, cm->baseColorFactor, sizeof(gd.baseColorFactor));
 	gd.metallic = cm->metallic;
 	gd.roughness = cm->roughness;
-	const CpuTexture* cpu = EnsureTexResident(cm->baseColorH);
 
-	gd.baseColor = TexId(cm->baseColorH);
+	gd.baseColor = EnsureTextureResident(cm->baseColorH);
 
-	auto matId = m_backend->CreateMaterial(gd);
+	GpuMaterialId matId = m_backend->CreateMaterial(gd);
+
+	Logger::Log(1, "GpuUploader: Created material %u for handle %u\n", matId, matHandle);
+	Logger::Log(1, "GpuUploader: Material desc: baseColor=%u, metallic=%.2f, roughness=%.2f\n",
+		gd.baseColor, gd.metallic, gd.roughness);
+	Logger::Log(1, "GpuUploader: Material baseColorFactor: %.2f, %.2f, %.2f, %.2f\n",
+		gd.baseColorFactor[0], gd.baseColorFactor[1], gd.baseColorFactor[2], gd.baseColorFactor[3]);
+	Logger::Log(1, "GpuUploader: baseColorH %u\n", cm->baseColorH);
 	GpuMaterial gpuMaterial{};
 	gpuMaterial.desc = gd;
 	gpuMaterial.id = matId;
-	m_materialBuffers[matHandle] = std::move(gpuMaterial);
+	m_materialBuffers.emplace(matHandle, std::move(gpuMaterial));
 }
-
-const CpuTexture* GpuUploader::EnsureTexResident(TextureHandle texHandle)
-{
-	if (texHandle == 0 || m_materialBuffers.count(texHandle)) return nullptr;
-	const CpuTexture* ct = m_assetManager->GetCpuTexture(texHandle);
-	if (!ct) return nullptr;
-	return ct;
-}
+//
+//const CpuTexture* GpuUploader::EnsureTexResident(TextureHandle texHandle)
+//{
+//	if (texHandle == 0 || m_materialBuffers.count(texHandle)) return nullptr;
+//	const CpuTexture* ct = m_assetManager->GetCpuTexture(texHandle);
+//	if (!ct) return nullptr;
+//	return ct;
+//}
 
