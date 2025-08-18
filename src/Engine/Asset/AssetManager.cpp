@@ -10,6 +10,13 @@ MaterialHandle AssetManager::MakeMaterialHandle() {
 	return m_nextMaterialHandle++;
 }
 
+TextureHandle AssetManager::MakeTextureHandle()
+{
+	return m_nextTextureHandle++;
+}
+
+
+
 ModelHandle AssetManager::LoadStaticModel(const std::string& gltfPath) {
 	CpuStaticModel cpu{};
 	std::vector<CpuMaterial> outMaterials{};
@@ -21,10 +28,10 @@ ModelHandle AssetManager::LoadStaticModel(const std::string& gltfPath) {
 
 	m_cpuMaterials.reserve(outMaterials.size());
 
-	for (const auto& mat : outMaterials) {
+	for (auto& mat : outMaterials) {
 		MaterialHandle matHandle = CreateMaterial(mat);
 		cpu.materials.push_back(matHandle);
-		m_cpuMaterials[matHandle] = std::make_unique<CpuMaterial>(mat);
+		m_cpuMaterials[matHandle] = std::make_unique<CpuMaterial>(std::move(mat));
 	}
 
 	ModelHandle mh = MakeModelHandle();
@@ -41,16 +48,33 @@ const CpuStaticModel* AssetManager::GetCpuStaticModel(ModelHandle h) const {
 	return nullptr;
 }
 
-MaterialHandle AssetManager::CreateMaterial(CpuMaterial& mat) {
+MaterialHandle AssetManager::CreateMaterial(CpuMaterial mat) {
 	MaterialHandle matHandle = MakeMaterialHandle();
-	mat.baseColorH = CreateTexture(mat.baseColor);
-	m_cpuMaterials[matHandle] = std::make_unique<CpuMaterial>(mat);
+	if (mat.baseColor.desc.height >= 0)
+		mat.baseColorH = CreateTexture(mat.baseColor);
+	m_cpuMaterials[matHandle] = std::make_unique<CpuMaterial>(std::move(mat));
 	return matHandle;
 }
 
 const CpuMaterial* AssetManager::GetCpuMaterial(MaterialHandle h) const {
 	auto it = m_cpuMaterials.find(h);
 	if (it != m_cpuMaterials.end()) {
+		return it->second.get();
+	}
+	return nullptr;
+}
+
+TextureHandle AssetManager::CreateTexture(CpuTexture tex)
+{
+	TextureHandle texHandle = MakeTextureHandle();
+	m_cpuTextures[texHandle] = std::make_unique<CpuTexture>(std::move(tex));
+	return texHandle;
+}
+
+const CpuTexture* AssetManager::GetCpuTexture(TextureHandle h) const
+{
+	auto it = m_cpuTextures.find(h);
+	if (it != m_cpuTextures.end()) {
 		return it->second.get();
 	}
 	return nullptr;

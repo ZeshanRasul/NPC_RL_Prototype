@@ -6,6 +6,8 @@ using GpuBufferHandle = uint32_t;
 using GpuPipelineHandle = uint32_t;
 using GpuMaterialHandle = uint32_t;
 using GpuMaterialId = uint32_t;
+using GpuTextureId = uint32_t;
+struct CpuTexture;
 
 enum class RenderBackendType {
 	OpenGL,
@@ -33,6 +35,32 @@ struct BufferCreateInfo {
 	const void* initialData = nullptr;
 };
 
+enum class PixelFormatGpu { RGB8_UNORM, RGBA8_UNORM, R8_UNORM, RG8_UNORM};
+enum class ColorSpaceGpu { Linear, SRGB };
+
+enum class TexFilter : uint8_t { Nearest, Linear };
+enum class MipFilter : uint8_t { None, Nearest, Linear };
+enum class AddressMode : uint8_t { Repeat, ClampToEdge, MirrorRepeat };
+
+struct SamplerDescGpu {
+	TexFilter  minFilter = TexFilter::Linear;
+	TexFilter  magFilter = TexFilter::Linear;
+	MipFilter  mipFilter = MipFilter::Linear;
+	AddressMode wrapS = AddressMode::Repeat;
+	AddressMode wrapT = AddressMode::Repeat;
+};
+
+struct TextureCreateInfo {
+    int width  = 0;
+    int height = 0;
+    int mipLevels = 1;
+    PixelFormatGpu format = PixelFormatGpu::RGBA8_UNORM;
+    ColorSpaceGpu colorSpace = ColorSpaceGpu::Linear;
+	SamplerDescGpu sampler{};
+    const void* initialData = nullptr;  
+    size_t initialDataSize = 0;  
+};
+
 struct PipelineDesc {
 	RenderBackendType backendType;
 	GpuMaterialId materialId;
@@ -52,6 +80,7 @@ struct PipelineDesc {
 };
 
 struct MaterialGpuDesc {
+	GpuTextureId baseColor = 0;
 	float baseColorFactor[4];
 	float metallic;
 	float roughness;
@@ -87,9 +116,11 @@ public:
 
 	virtual GpuPipelineHandle CreatePipeline(const PipelineDesc& desc) = 0;
 
-	virtual GpuMaterialId CreateMaterial(const MaterialGpuDesc& desc) = 0;
+	virtual GpuMaterialId CreateMaterial(MaterialGpuDesc& desc) = 0;
 	virtual void UpdateMaterial(GpuMaterialId materialId, const MaterialGpuDesc& desc) = 0;
 	virtual void DestroyMaterial(GpuMaterialId materialId) = 0;
+
+	virtual GpuTextureId CreateTexture2D(const CpuTexture& cpu) = 0;
 
 	virtual void BeginFrame() = 0;
 	virtual void Submit(const DrawItem* items, uint32_t itemCount) = 0;

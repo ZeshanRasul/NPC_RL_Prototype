@@ -17,6 +17,18 @@ enum class TextureUsage : uint8_t {
 	Unknown
 };
 
+enum class TexFilterGpu : uint8_t { Nearest, Linear };
+enum class MipFilterGpu : uint8_t { None, Nearest, Linear };
+enum class AddressModeGpu : uint8_t { Repeat, ClampToEdge, MirrorRepeat };
+
+struct SamplerDesc {
+	TexFilterGpu  minFilter = TexFilterGpu::Linear;
+	TexFilterGpu  magFilter = TexFilterGpu::Linear;
+	MipFilterGpu  mipFilter = MipFilterGpu::Linear;
+	AddressModeGpu wrapS = AddressModeGpu::Repeat;
+	AddressModeGpu wrapT = AddressModeGpu::Repeat;
+};
+
 enum class ColorSpace : uint8_t { Linear, SRGB };
 
 enum class PixelFormat : uint8_t {
@@ -48,7 +60,7 @@ struct CpuStaticMesh {
 struct TextureDesc {
 	uint32_t    width = 0;
 	uint32_t    height = 0;
-	uint32_t    mipLevels = 1;   // you can compute/generate later
+	uint32_t    mipLevels = 1;  
 	PixelFormat format = PixelFormat::RGBA8_UNORM;
 	ColorSpace  colorSpace = ColorSpace::Linear;
 	SamplerDesc sampler{};
@@ -95,15 +107,5 @@ struct CpuStaticModel {
 	std::vector<CpuMaterial> materialsData;
 };
 
-enum class TexFilter : uint8_t { Nearest, Linear };
-enum class MipFilter : uint8_t { None, Nearest, Linear };
-enum class AddressMode : uint8_t { Repeat, ClampToEdge, MirrorRepeat };
 
-struct SamplerDesc {
-	TexFilter  minFilter = TexFilter::Linear;
-	TexFilter  magFilter = TexFilter::Linear;
-	MipFilter  mipFilter = MipFilter::Linear;
-	AddressMode wrapS = AddressMode::Repeat;
-	AddressMode wrapT = AddressMode::Repeat;
-};
 

@@ -98,11 +98,22 @@ void GpuUploader::EnsureMatResident(MaterialHandle matHandle)
 	std::memcpy(gd.baseColorFactor, cm->baseColorFactor, sizeof(gd.baseColorFactor));
 	gd.metallic = cm->metallic;
 	gd.roughness = cm->roughness;
+	const CpuTexture* cpu = EnsureTexResident(cm->baseColorH);
+
+	gd.baseColor = TexId(cm->baseColorH);
 
 	auto matId = m_backend->CreateMaterial(gd);
 	GpuMaterial gpuMaterial{};
 	gpuMaterial.desc = gd;
 	gpuMaterial.id = matId;
 	m_materialBuffers[matHandle] = std::move(gpuMaterial);
+}
+
+const CpuTexture* GpuUploader::EnsureTexResident(TextureHandle texHandle)
+{
+	if (texHandle == 0 || m_materialBuffers.count(texHandle)) return nullptr;
+	const CpuTexture* ct = m_assetManager->GetCpuTexture(texHandle);
+	if (!ct) return nullptr;
+	return ct;
 }
 

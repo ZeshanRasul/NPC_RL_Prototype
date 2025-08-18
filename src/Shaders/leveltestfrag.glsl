@@ -8,6 +8,9 @@ in vec3 Normal;
 uniform vec4 uBaseColorFactor;
 uniform vec2 uMetallicRoughness;
 
+uniform sampler2D uBaseColorTexture;
+
 void main() {
-    FragColor = vec4(Normal, 1.0);
+    vec4 texColor = texture(uBaseColorTexture, TexCoords);
+    FragColor = texColor;
 }

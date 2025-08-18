@@ -14,12 +14,12 @@ static SamplerDesc MapGltfSampler(const tinygltf::Sampler* s) {
 	if (!s) return out;
 
 	// Wrap
-	auto toWrap = [](int w)->AddressMode {
+	auto toWrap = [](int w)->AddressModeGpu {
 		switch (w) {
-		case TINYGLTF_TEXTURE_WRAP_CLAMP_TO_EDGE:   return AddressMode::ClampToEdge;
-		case TINYGLTF_TEXTURE_WRAP_MIRRORED_REPEAT: return AddressMode::MirrorRepeat;
+		case TINYGLTF_TEXTURE_WRAP_CLAMP_TO_EDGE:   return AddressModeGpu::ClampToEdge;
+		case TINYGLTF_TEXTURE_WRAP_MIRRORED_REPEAT: return AddressModeGpu::MirrorRepeat;
 		case TINYGLTF_TEXTURE_WRAP_REPEAT:
-		default:                                    return AddressMode::Repeat;
+		default:                                    return AddressModeGpu::Repeat;
 		}
 		};
 	out.wrapS = toWrap(s->wrapS);
@@ -27,21 +27,21 @@ static SamplerDesc MapGltfSampler(const tinygltf::Sampler* s) {
 
 	auto setMinMip = [&](int minFilter) {
 		switch (minFilter) {
-		case TINYGLTF_TEXTURE_FILTER_NEAREST:                out.minFilter = TexFilter::Nearest; out.mipFilter = MipFilter::None;    break;
-		case TINYGLTF_TEXTURE_FILTER_LINEAR:                 out.minFilter = TexFilter::Linear;  out.mipFilter = MipFilter::None;    break;
-		case TINYGLTF_TEXTURE_FILTER_NEAREST_MIPMAP_NEAREST: out.minFilter = TexFilter::Nearest; out.mipFilter = MipFilter::Nearest; break;
-		case TINYGLTF_TEXTURE_FILTER_LINEAR_MIPMAP_NEAREST:  out.minFilter = TexFilter::Linear;  out.mipFilter = MipFilter::Nearest; break;
-		case TINYGLTF_TEXTURE_FILTER_NEAREST_MIPMAP_LINEAR:  out.minFilter = TexFilter::Nearest; out.mipFilter = MipFilter::Linear;  break;
-		case TINYGLTF_TEXTURE_FILTER_LINEAR_MIPMAP_LINEAR:   out.minFilter = TexFilter::Linear;  out.mipFilter = MipFilter::Linear;  break;
+		case TINYGLTF_TEXTURE_FILTER_NEAREST:                out.minFilter = TexFilterGpu::Nearest; out.mipFilter = MipFilterGpu::None;    break;
+		case TINYGLTF_TEXTURE_FILTER_LINEAR:                 out.minFilter = TexFilterGpu::Linear;  out.mipFilter = MipFilterGpu::None;    break;
+		case TINYGLTF_TEXTURE_FILTER_NEAREST_MIPMAP_NEAREST: out.minFilter = TexFilterGpu::Nearest; out.mipFilter = MipFilterGpu::Nearest; break;
+		case TINYGLTF_TEXTURE_FILTER_LINEAR_MIPMAP_NEAREST:  out.minFilter = TexFilterGpu::Linear;  out.mipFilter = MipFilterGpu::Nearest; break;
+		case TINYGLTF_TEXTURE_FILTER_NEAREST_MIPMAP_LINEAR:  out.minFilter = TexFilterGpu::Nearest; out.mipFilter = MipFilterGpu::Linear;  break;
+		case TINYGLTF_TEXTURE_FILTER_LINEAR_MIPMAP_LINEAR:   out.minFilter = TexFilterGpu::Linear;  out.mipFilter = MipFilterGpu::Linear;  break;
 		default: /* keep defaults */ break;
 		}
 		};
 	setMinMip(s->minFilter);
 
 	switch (s->magFilter) {
-	case TINYGLTF_TEXTURE_FILTER_NEAREST: out.magFilter = TexFilter::Nearest; break;
-	case TINYGLTF_TEXTURE_FILTER_LINEAR:  out.magFilter = TexFilter::Linear;  break;
-	default: /* keep default */ break;
+	case TINYGLTF_TEXTURE_FILTER_NEAREST: out.magFilter = TexFilterGpu::Nearest; break;
+	case TINYGLTF_TEXTURE_FILTER_LINEAR:  out.magFilter = TexFilterGpu::Linear;  break;
+	default: break;
 	}
 
 	return out;
@@ -250,16 +250,19 @@ bool ImportStaticModelFromGltf(const std::string& gltfPath,
 		if (m.pbrMetallicRoughness.roughnessFactor >= 0.0f) cm.roughness = (float)m.pbrMetallicRoughness.roughnessFactor;
 		
 		uint8_t texIndex;
-		if (m.pbrMetallicRoughness.baseColorTexture.index)
+		if (m.pbrMetallicRoughness.baseColorTexture.index > 0)
+		{
 			texIndex = m.pbrMetallicRoughness.baseColorTexture.index;
 
-		const tinygltf::Texture& gltfTex = model.textures[texIndex];
-		const tinygltf::Image& gltfImg = model.images[gltfTex.source];
+			const tinygltf::Texture& gltfTex = model.textures[texIndex];
+			const tinygltf::Image& gltfImg = model.images[gltfTex.source];
 
-		SamplerDesc sampler = MapGltfSampler(&model.samplers[gltfTex.source]);
-		CpuTexture cpuTex = BuildCpuTextureFromGltfImage(gltfImg, sampler, "baseColor");
+			SamplerDesc sampler = MapGltfSampler(&model.samplers[gltfTex.source]);
+			CpuTexture cpuTex = BuildCpuTextureFromGltfImage(gltfImg, sampler, "baseColor");
 
-		cm.baseColor = cpuTex;
+			cm.baseColor = cpuTex;
+		}
+			
 		
 		outMaterials.push_back(cm);
 	}

@@ -517,7 +517,7 @@ void Enemy::DrawGLTFModel(glm::mat4 viewMat, glm::mat4 projMat, glm::vec3 camPos
 			else {
 				glDrawArrays(prim.mode, 0, prim.vertexCount);
 			}
-
+			glBindTexture(GL_TEXTURE_2D, 0);
 			glBindVertexArray(0);
 
 		}

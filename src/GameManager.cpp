@@ -1974,25 +1974,6 @@ void GameManager::Render(bool isMinimapRenderPass, bool isShadowMapRenderPass, b
 	if (isShadowMapRenderPass)
 		m_renderer->BindShadowMapFbo(SHADOW_WIDTH, SHADOW_HEIGHT);
 
-
-
-	for (auto obj : m_gameObjects) {
-		if (obj->IsDestroyed())
-			continue;
-		if (isMinimapRenderPass)
-		{
-			m_renderer->Draw(obj, m_minimapView, m_minimapProjection, m_camera->GetPosition(), false, m_lightSpaceMatrix);
-		}
-		else if (isShadowMapRenderPass)
-		{
-			m_renderer->Draw(obj, m_lightSpaceView, m_lightSpaceProjection, m_camera->GetPosition(), true, m_lightSpaceMatrix);
-		}
-		else
-		{
-			m_renderer->Draw(obj, m_view, m_projection, m_camera->GetPosition(), false, m_lightSpaceMatrix);
-		}
-	}
-
 	auto view = m_activeScene->GetRegistry().view<TransformComponent, StaticModelRendererComponent>();
 
 	glm::mat4 modelMat = glm::mat4(1.0f);
@@ -2016,9 +1997,28 @@ void GameManager::Render(bool isMinimapRenderPass, bool isShadowMapRenderPass, b
 	m_renderBackend->UpdateBuffer(h, 0, matrixData.data(), 3 * sizeof(glm::mat4));
 	m_renderBackend->BindUniformBuffer(h, 0);
 
-
+	glBindTexture(GL_TEXTURE_2D, 0);
 	if (!isMinimapRenderPass && !isShadowMapRenderPass)
 		RenderStaticModels(m_activeScene->GetRegistry(), *m_renderBackend, *uploader, pipes);
+
+
+	for (auto obj : m_gameObjects) {
+		if (obj->IsDestroyed())
+			continue;
+		if (isMinimapRenderPass)
+		{
+			m_renderer->Draw(obj, m_minimapView, m_minimapProjection, m_camera->GetPosition(), false, m_lightSpaceMatrix);
+		}
+		else if (isShadowMapRenderPass)
+		{
+			m_renderer->Draw(obj, m_lightSpaceView, m_lightSpaceProjection, m_camera->GetPosition(), true, m_lightSpaceMatrix);
+		}
+		else
+		{
+			m_renderer->Draw(obj, m_view, m_projection, m_camera->GetPosition(), false, m_lightSpaceMatrix);
+		}
+	}
+
 
 	navMeshShader.Use();
 	navMeshShader.SetMat4("view", m_view);

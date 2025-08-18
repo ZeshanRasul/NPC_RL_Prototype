@@ -47,29 +47,62 @@ struct GLSamplerParams {
 	GLint wrapTGL;
 };
 
-static GLSamplerParams ToGL(const SamplerDesc& s) {
-	auto toGLWrap = [](AddressMode m)->GLint {
-		switch (m) {
-		case AddressMode::ClampToEdge:  return GL_CLAMP_TO_EDGE;
-		case AddressMode::MirrorRepeat: return GL_MIRRORED_REPEAT;
-		case AddressMode::Repeat:
-		default:                         return GL_REPEAT;
-		}
-		};
+struct GLTexFormat { GLenum internalFormat; GLenum externalFormat; GLenum type; };
 
-	auto minBase = (s.minFilter == TexFilter::Nearest) ? GL_NEAREST : GL_LINEAR;
-	GLint minGL = minBase;
-	switch (s.mipFilter) {
-	case MipFilter::None:    /* leave minGL as base */ break;
-	case MipFilter::Nearest: minGL = (minBase == GL_NEAREST) ? GL_NEAREST_MIPMAP_NEAREST : GL_LINEAR_MIPMAP_NEAREST; break;
-	case MipFilter::Linear:  minGL = (minBase == GL_NEAREST) ? GL_NEAREST_MIPMAP_LINEAR : GL_LINEAR_MIPMAP_LINEAR;  break;
+static GLTexFormat ToGLFmt(PixelFormatGpu pf, ColorSpaceGpu cs) {
+	switch (pf) {
+	case PixelFormatGpu::RGB8_UNORM:
+		return { (cs == ColorSpaceGpu::SRGB) ? GL_SRGB8 : GL_RGB8, GL_RGB, GL_UNSIGNED_BYTE };
+	case PixelFormatGpu::RGBA8_UNORM:
+		return { (cs == ColorSpaceGpu::SRGB) ? GL_SRGB8_ALPHA8 : GL_RGBA8, GL_RGBA, GL_UNSIGNED_BYTE };
+	case PixelFormatGpu::R8_UNORM:
+		return { GL_R8, GL_RED, GL_UNSIGNED_BYTE };
+	case PixelFormatGpu::RG8_UNORM:
+		return { GL_RG8, GL_RG, GL_UNSIGNED_BYTE };
+	default: return { GL_RGBA8, GL_RGBA, GL_UNSIGNED_BYTE };
 	}
-
-	GLint magGL = (s.magFilter == TexFilter::Nearest) ? GL_NEAREST : GL_LINEAR;
-
-	return { minGL, magGL, toGLWrap(s.wrapS), toGLWrap(s.wrapT) };
 }
 
+struct GLSamplerParams { GLint minFilterGL; GLint magFilterGL; GLint wrapSGL; GLint wrapTGL; };
+
+static GLint ToGLMinFilter(SamplerDescGpu::Filter f) {
+	switch (f) {
+	case SamplerDescGpu::Filter::Nearest:            return GL_NEAREST;
+	case SamplerDescGpu::Filter::Linear:             return GL_LINEAR;
+	case SamplerDescGpu::Filter::LinearMipmapLinear: return GL_LINEAR_MIPMAP_LINEAR;
+	default:                                      return GL_LINEAR;
+	}
+}
+static GLint ToGLMagFilter(SamplerDescGpu::Filter f) {
+	switch (f) {
+	case SamplerDescGpu::Filter::Nearest: return GL_NEAREST;
+	case SamplerDescGpu::Filter::Linear:  return GL_LINEAR;
+	default:                           return GL_LINEAR;
+	}
+}
+static GLint ToGLWrap(SamplerDescGpu::Wrap w) {
+	switch (w) {
+	case SamplerDescGpu::Wrap::Repeat:       return GL_REPEAT;
+	case SamplerDescGpu::Wrap::ClampToEdge:  return GL_CLAMP_TO_EDGE;
+	case SamplerDescGpu::Wrap::MirrorRepeat: return GL_MIRRORED_REPEAT;
+	default:                               return GL_REPEAT;
+	}
+}
+static GLSamplerParams ToGL(const SamplerDescGpu& s) {
+	return {
+		ToGLMinFilter(s.minFilter),
+		ToGLMagFilter(s.magFilter),
+		ToGLWrap(s.wrapS),
+		ToGLWrap(s.wrapT)
+	};
+}
+
+
+struct GLTexFormat {
+	GLint internalFormat;  // storage (sRGB vs linear lives here)
+	GLenum externalFormat;  // data layout provided (GL_RED/RG/RGB/RGBA)
+	GLenum type;            // GL_UNSIGNED_BYTE, GL_UNSIGNED_SHORT, GL_FLOAT, etc.
+};
 
 class RenderBackendGL : public RenderBackend {
 public:
@@ -197,7 +230,7 @@ public:
 		return handle;
 	}
 
-	GpuMaterialId CreateMaterial(const MaterialGpuDesc& desc) override {
+	GpuMaterialId CreateMaterial(MaterialGpuDesc& desc) override {
 		GpuMaterialId id = ++m_nextMat;
 		m_materials[id] = GpuMaterial{ desc };
 		return id;
@@ -221,50 +254,7 @@ public:
 		else {
 			Logger::Log(1, "Material ID %u not found for destruction\n", materialId);
 		}
-	}
-
-	GLuint CreateTexture2D(const CpuTexture& cpu) {
-		GLuint tex; 
-		glGenTextures(1, &tex);
-		glBindTexture(GL_TEXTURE_2D, tex);
-
-		GLenum format = GL_RGBA;
-		if (image.component == 1) format = GL_RED;
-		else if (image.component == 2) format = GL_RG;
-		else if (image.component == 3) format = GL_RGB;
-		else if (image.component == 4) format = GL_RGBA;
-
-		GLenum type = (image.bits == 16) ? GL_UNSIGNED_SHORT : GL_UNSIGNED_BYTE;
-
-		glTexImage2D(GL_TEXTURE_2D,
-			0,
-			format,
-			image.width,
-			image.height,
-			0,
-			format,
-			type,
-			image.image.data());
-
-		glGenerateMipmap(GL_TEXTURE_2D);
-
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-
-
-		const auto gls = ToGL(cpu.desc);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, gls.minFilterGL);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, gls.magFilterGL);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, gls.wrapSGL);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, gls.wrapTGL);
-
-		glBindTexture(GL_TEXTURE_2D, 0);
-		return tex;
-	}
-
+	};
 
 	void BeginFrame() override {
 	}
@@ -286,8 +276,15 @@ public:
 			if (loc >= 0) glUniform4fv(loc, 1, mat.desc.baseColorFactor);
 			loc = glGetUniformLocation(glPipe.program.GetProgram(), "uMetallicRoughness");
 			if (loc >= 0) glUniform2f(loc, mat.desc.metallic, mat.desc.roughness);
+			glActiveTexture(GL_TEXTURE0);
 
-			if (di.vao) {
+			if (mat.desc.baseColor) {
+				glActiveTexture(GL_TEXTURE0);
+				glBindTexture(GL_TEXTURE_2D, static_cast<GLuint>(mat.desc.baseColor));
+				loc = glGetUniformLocation(glPipe.program.GetProgram(), "uBaseColorTexture");
+				if (loc >= 0)
+					glUniform1i(loc, 0);
+			}			if (di.vao) {
 				glBindVertexArray(di.vao);
 
 				glDrawElements(GL_TRIANGLES, di.indexCount,
@@ -311,6 +308,7 @@ public:
 				glDrawElements(GL_TRIANGLES, (GLsizei)di.indexCount, iType, (void*)(uintptr_t)(di.firstIndex * (di.indexType == IndexType::U32 ? sizeof(uint32_t) : sizeof(uint16_t))));
 
 			}
+			glBindTexture(GL_TEXTURE_2D, 0);
 		}
 	}
 
@@ -320,6 +318,43 @@ public:
 		/*auto& ub = std::get<GLUniformBuffer>(m_buffers.at(h)).ubo;
 		ub.UploadUboData(mats, bindingPoint);*/
 		m_cameraData = mats;
+	}
+
+	GpuTextureId CreateTexture2D(const CpuTexture& cpu) override {
+		TextureCreateInfo ci{};
+		ci.width = cpu.desc.width;
+		ci.height = cpu.desc.height;
+		ci.mipLevels = cpu.desc.mipLevels;
+		ci.format = (PixelFormatGpu)cpu.desc.format;
+		ci.colorSpace = (ColorSpaceGpu)cpu.desc.colorSpace;
+		ci.initialData = cpu.pixels.data();
+		ci.initialDataSize = cpu.pixels.size();
+
+		const auto glf = ToGLFmt(ci.format, ci.colorSpace);
+
+		GLuint tex = 0;
+		glGenTextures(1, &tex);
+		glBindTexture(GL_TEXTURE_2D, tex);
+
+		// Upload one level (assumes tightly packed data).
+		// If you need strides, expose that in TextureCreateInfo.
+		glTexImage2D(GL_TEXTURE_2D, 0, glf.internalFormat,
+			ci.width, ci.height, 0,
+			glf.externalFormat, glf.type,
+			ci.initialData);
+
+		if (ci.mipLevels > 1) {
+			glGenerateMipmap(GL_TEXTURE_2D);
+		}
+		SamplerDescGpu sdg;
+		const auto gls = ToGL(sdg);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, gls.minFilterGL);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, gls.magFilterGL);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, gls.wrapSGL);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, gls.wrapTGL);
+
+		glBindTexture(GL_TEXTURE_2D, 0);
+		return static_cast<GpuTextureId>(tex);
 	}
 
 private:
