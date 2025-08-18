@@ -244,7 +244,6 @@ public:
 			glDisable(GL_CULL_FACE);
 
 			glUseProgram(glPipe.program.GetProgram());
-			Logger::Log(1, "Submit: matId=%u baseColorGpu=%u\n", mat.id, mat.desc.baseColor); // expect 169
 
 			//GLint bcloc = glGetUniformLocation(glPipe.program.GetProgram(), "uBaseColorFactor");
 			//if (bcloc >= 0) glUniform4fv(bcloc, 1, mat.desc.baseColorFactor);
@@ -257,7 +256,7 @@ public:
 
 			if (mat.desc.baseColor) {
 				glActiveTexture(GL_TEXTURE0);
-				glBindTexture(GL_TEXTURE_2D, 0);
+				glBindTexture(GL_TEXTURE_2D, mat.desc.baseColor);
 				glPipe.program.SetBool("useTex", true);
 				glPipe.program.SetVec2("uMetallicRoughness", mat.desc.metallic, mat.desc.roughness);
 				glPipe.program.SetInt("uBaseColorTexture", 0);
@@ -267,6 +266,7 @@ public:
 				glBindTexture(GL_TEXTURE_2D, 0);
 				glPipe.program.SetBool("useTex", false);
 				glPipe.program.SetVec2("uMetallicRoughness", mat.desc.metallic, mat.desc.roughness);
+				glPipe.program.SetInt("uBaseColorTexture", 0);
 				glPipe.program.SetVec3("uBaseColorFactor", mat.desc.baseColorFactor[0], mat.desc.baseColorFactor[1], mat.desc.baseColorFactor[2]);
 			}
 
@@ -286,13 +286,13 @@ public:
 				glEnableVertexAttribArray(0);
 				glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, stride, (void*)0);
 				glEnableVertexAttribArray(1);
-				glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, stride, (void*)(3 * sizeof(float)));
+				glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, stride, (void*)0);
 				glEnableVertexAttribArray(2);
-				glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, stride, (void*)(6 * sizeof(float)));
+				glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, stride, (void*)0);
 				glEnableVertexAttribArray(3);
-				glVertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE, stride, (void*)(8 * sizeof(float)));
+				glVertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE, stride, (void*)0);
 				glEnableVertexAttribArray(4);
-				glVertexAttribPointer(4, 2, GL_FLOAT, GL_FALSE, stride, (void*)(10 * sizeof(float)));
+				glVertexAttribPointer(4, 2, GL_FLOAT, GL_FALSE, stride, (void*)0);
 
 				GLenum iType = (di.indexType == IndexType::U32) ? GL_UNSIGNED_INT : GL_UNSIGNED_SHORT;
 				glDrawElements(GL_TRIANGLES, (GLsizei)di.indexCount, iType, (void*)(uintptr_t)(di.firstIndex * (di.indexType == IndexType::U32 ? sizeof(uint32_t) : sizeof(uint16_t))));

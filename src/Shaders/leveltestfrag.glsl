@@ -46,12 +46,14 @@ vec3 CalcDirLight(DirLight light, vec3 normal)
 
 void main() {
 	vec4 texColor;
+
+	vec3 norm = normalize(Normal);
 	if (useTex)
 	{
 		texColor = texture(uBaseColorTexture, TexCoords);
 	} else
 	{
-		texColor = vec4(uBaseColorFactor, 1.0);
+		texColor = vec4(TexCoords, 0.2, 1.0);
 	}
 
 

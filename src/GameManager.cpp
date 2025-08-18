@@ -879,9 +879,9 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 	m_renderBackend->Initialize();
 
 	PipelineDesc pipelineDesc{};
-	pipelineDesc.vertexShaderPath = "src/Shaders/leveltestvert.glsl";
+	pipelineDesc.vertexShaderPath = "src/Shaders/vertex2.glsl";
 	pipelineDesc.fragmentShaderPath =  "src/Shaders/leveltestfrag.glsl";
-	pipelineDesc.vertexStride = sizeof(float) * 12;
+	pipelineDesc.vertexStride = (uint32_t)((int)(sizeof(float)) * 12);
 
 	pipes.staticPbr = m_renderBackend->CreatePipeline(pipelineDesc);
 	
@@ -1974,34 +1974,6 @@ void GameManager::Render(bool isMinimapRenderPass, bool isShadowMapRenderPass, b
 	if (isShadowMapRenderPass)
 		m_renderer->BindShadowMapFbo(SHADOW_WIDTH, SHADOW_HEIGHT);
 
-	auto view = m_activeScene->GetRegistry().view<TransformComponent, StaticModelRendererComponent>();
-
-	glm::mat4 modelMat = glm::mat4(1.0f);
-	for (auto [e, t, comp] : view.each())
-	{
-		auto& t = view.get<TransformComponent>(e);
-		modelMat = glm::translate(modelMat, t.Position);
-		modelMat = glm::rotate(modelMat, glm::radians(t.Rotation.x), glm::vec3(1.0f, 0.0f, 0.0f));
-		modelMat = glm::rotate(modelMat, glm::radians(t.Rotation.y), glm::vec3(0.0f, 1.0f, 0.0f));
-		modelMat = glm::rotate(modelMat, glm::radians(t.Rotation.z), glm::vec3(0.0f, 0.0f, 1.0f));
-		modelMat = glm::scale(modelMat, t.Scale);
-	}
-
-	std::vector<glm::mat4> matrixData;
-	matrixData.push_back(m_view);
-	matrixData.push_back(m_projection);
-	//modelMat = glm::translate(modelMat, glm::vec3(0.0f));
-	//modelMat = glm::scale(modelMat, glm::vec3(5.0f));
-
-	matrixData.push_back(modelMat);
-	m_renderBackend->UpdateBuffer(h, 0, matrixData.data(), 3 * sizeof(glm::mat4));
-	m_renderBackend->BindUniformBuffer(h, 0);
-
-	glBindTexture(GL_TEXTURE_2D, 0);
-	if (!isMinimapRenderPass && !isShadowMapRenderPass)
-		RenderStaticModels(m_activeScene->GetRegistry(), *m_renderBackend, *uploader, pipes);
-
-
 	for (auto obj : m_gameObjects) {
 		if (obj->IsDestroyed())
 			continue;
@@ -2016,13 +1988,31 @@ void GameManager::Render(bool isMinimapRenderPass, bool isShadowMapRenderPass, b
 		else
 		{
 			m_renderer->Draw(obj, m_view, m_projection, m_camera->GetPosition(), false, m_lightSpaceMatrix);
+			
 		}
 	}
 
+	glm::mat4 modelMat = glm::mat4(1.0f);
 
-	navMeshShader.Use();
-	navMeshShader.SetMat4("view", m_view);
-	navMeshShader.SetMat4("projection", m_projection);
+	std::vector<glm::mat4> matrixData;
+	matrixData.push_back(m_view);
+	matrixData.push_back(m_projection);
+	modelMat = glm::translate(modelMat, glm::vec3(0.0f));
+	modelMat = glm::scale(modelMat, glm::vec3(5.0f));
+
+	matrixData.push_back(modelMat);
+	m_renderBackend->UpdateBuffer(h, 0, matrixData.data(), 3 * sizeof(glm::mat4));
+	m_renderBackend->BindUniformBuffer(h, 0);
+		
+	if (!isMinimapRenderPass && !isShadowMapRenderPass)
+		RenderStaticModels(m_activeScene->GetRegistry(), *m_renderBackend, *uploader, pipes);
+
+
+
+
+	//navMeshShader.Use();
+	//navMeshShader.SetMat4("view", m_view);
+	//navMeshShader.SetMat4("projection", m_projection);
 	//glBindVertexArray(vao);
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	//glCullFace(GL_FRONT);

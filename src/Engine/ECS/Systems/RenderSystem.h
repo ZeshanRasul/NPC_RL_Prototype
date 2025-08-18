@@ -33,9 +33,9 @@ inline void RenderStaticModels(entt::registry& reg, RenderBackend& rb,
 	std::vector<DrawItem> draws;
 	//draws.reserve(25000);
 
-	auto view = reg.view<TransformComponent, StaticModelRendererComponent>();
+	auto view = reg.view<StaticModelRendererComponent>();
 
-	for (auto [e, t, comp] : view.each())
+	for (auto [e, comp] : view.each())
 	{
 		up.EnsureResident(comp.model);
 

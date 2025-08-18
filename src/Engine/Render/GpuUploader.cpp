@@ -62,13 +62,13 @@ void GpuUploader::EnsureResident(ModelHandle modelHandle)
 			glEnableVertexAttribArray(0); // Position
 			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 12 * sizeof(float), (void*)0);
 			glEnableVertexAttribArray(1); // Normal
-			glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 12 * sizeof(float), (void*)(sizeof(float) * 3));
+			glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 12 * sizeof(float), (void*)(sizeof(float) * 0));
 			glEnableVertexAttribArray(2); // TexCoord
-			glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 12 * sizeof(float), (void*)(sizeof(float) * 6));
+			glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 12 * sizeof(float), (void*)(sizeof(float) * 0));
 			glEnableVertexAttribArray(3); // TexCoord2
-			glVertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE, 12 * sizeof(float), (void*)(sizeof(float) * 8));
+			glVertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE, 12 * sizeof(float), (void*)(sizeof(float) * 0));
 			glEnableVertexAttribArray(4); // TexCoord3
-			glVertexAttribPointer(4, 2, GL_FLOAT, GL_FALSE, 12 * sizeof(float), (void*)(sizeof(float) * 10));
+			glVertexAttribPointer(4, 2, GL_FLOAT, GL_FALSE, 12 * sizeof(float), (void*)(sizeof(float) * 0));
 
 
 			glBindVertexArray(0);
@@ -105,12 +105,6 @@ void GpuUploader::EnsureMatResident(MaterialHandle matHandle)
 
 	GpuMaterialId matId = m_backend->CreateMaterial(gd);
 
-	Logger::Log(1, "GpuUploader: Created material %u for handle %u\n", matId, matHandle);
-	Logger::Log(1, "GpuUploader: Material desc: baseColor=%u, metallic=%.2f, roughness=%.2f\n",
-		gd.baseColor, gd.metallic, gd.roughness);
-	Logger::Log(1, "GpuUploader: Material baseColorFactor: %.2f, %.2f, %.2f, %.2f\n",
-		gd.baseColorFactor[0], gd.baseColorFactor[1], gd.baseColorFactor[2], gd.baseColorFactor[3]);
-	Logger::Log(1, "GpuUploader: baseColorH %u\n", cm->baseColorH);
 	GpuMaterial gpuMaterial{};
 	gpuMaterial.desc = gd;
 	gpuMaterial.id = matId;

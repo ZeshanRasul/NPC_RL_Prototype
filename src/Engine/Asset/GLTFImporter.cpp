@@ -188,7 +188,7 @@ static PixelFormat ChoosePixelFormat(int components, int bits, int pixelType) {
 		}
 	}
 
-	return PixelFormat::RGBA8_UNORM;
+	return PixelFormat::RGB8_UNORM;
 }
 
 static ColorSpace ColorSpaceForSlot(const std::string& usageTag) {
@@ -205,7 +205,7 @@ static CpuTexture& BuildCpuTextureFromGltfImage(tinygltf::Image& img,
 	out.desc.height = static_cast<uint32_t>(img.height);
 	out.desc.sampler = samp;
 	out.desc.colorSpace = ColorSpaceForSlot(usageTag);
-	out.desc.format = ChoosePixelFormat(img.component, img.bits, img.pixel_type);
+	out.desc.format = PixelFormat::RGB8_UNORM;
 	out.usage = TextureUsage::BaseColorSRGB;
 	out.desc.mipLevels = 1;
 	Logger::Log(1, "%s: image %s, size %ux%u, format %d, components %d, bits %d\n",
@@ -252,6 +252,8 @@ bool ImportStaticModelFromGltf(const std::string& gltfPath,
 	for (const auto& m : model.materials) {
 		CpuMaterial cm{};
 		CpuTexture baseColorTex{};
+		CpuTexture metRoughTex{};
+		CpuTexture normalTex{};
 		if (m.pbrMetallicRoughness.baseColorFactor.size() == 4) {
 			for (int k = 0; k < 4; ++k)
 				cm.baseColorFactor[k] = (float)m.pbrMetallicRoughness.baseColorFactor[k];
@@ -294,6 +296,68 @@ bool ImportStaticModelFromGltf(const std::string& gltfPath,
 				__FUNCTION__, cm.baseColorTexIdx, m.name.c_str());
 		}
 
+		//if (m.pbrMetallicRoughness.baseColorTexture.index >= 0)
+		//{
+		//	uint8_t texIndex;
+		//	texIndex = m.pbrMetallicRoughness.baseColorTexture.index;
+
+		//	const tinygltf::Texture& gltfTex = model.textures[texIndex];
+		//	tinygltf::Image& gltfImg = model.images[gltfTex.source];
+
+		//	SamplerDesc sampler{};
+		//	if (gltfTex.sampler >= 0 && gltfTex.sampler < (int)model.samplers.size()) {
+		//		sampler = MapGltfSampler(&model.samplers[gltfTex.sampler]);
+		//	}
+		//	else {
+		//		sampler = MapGltfSampler(nullptr); // or a default SamplerDesc
+		//	}
+
+		//	BuildCpuTextureFromGltfImage(gltfImg, sampler, "baseColor", baseColorTex);
+
+		//	//cm.baseColor = &baseColorTex;
+		//	Logger::Log(1, "%s: baseColor texture %u for material %s\n",
+		//		__FUNCTION__, texIndex, m.name.c_str());
+		//	Logger::Log(1, "%s: Mat baseColor texture %u for material %s\n",
+		//		__FUNCTION__, baseColorTex.desc.width, m.name.c_str());
+
+		//	outTextures.push_back(std::move(baseColorTex));
+		//	cm.baseColorTexIdx = (int)outTextures.size() - 1;
+
+		//	Logger::Log(1, "%s: baseColorTexIdx %d for material %s\n",
+		//		__FUNCTION__, cm.baseColorTexIdx, m.name.c_str());
+		//}
+
+		//if (m.pbrMetallicRoughness.metallicRoughnessTexture.index >= 0)
+		//{
+		//	uint8_t texIndex;
+		//	texIndex = m.pbrMetallicRoughness.metallicRoughnessTexture.index;
+
+		//	const tinygltf::Texture& gltfTex = model.textures[texIndex];
+		//	tinygltf::Image& gltfImg = model.images[gltfTex.source];
+
+		//	SamplerDesc sampler{};
+		//	if (gltfTex.sampler >= 0 && gltfTex.sampler < (int)model.samplers.size()) {
+		//		sampler = MapGltfSampler(&model.samplers[gltfTex.sampler]);
+		//	}
+		//	else {
+		//		sampler = MapGltfSampler(nullptr); // or a default SamplerDesc
+		//	}
+
+		//	BuildCpuTextureFromGltfImage(gltfImg, sampler, "", baseColorTex);
+
+		//	//cm.baseColor = &baseColorTex;
+		//	Logger::Log(1, "%s: metrough texture %u for material %s\n",
+		//		__FUNCTION__, texIndex, m.name.c_str());
+		//	Logger::Log(1, "%s: Mat metrough texture %u for material %s\n",
+		//		__FUNCTION__, baseColorTex.desc.width, m.name.c_str());
+
+		//	outTextures.push_back(std::move(baseColorTex));
+		//	cm.baseColorTexIdx = (int)outTextures.size() - 1;
+
+		//	Logger::Log(1, "%s: metrough %d for material %s\n",
+		//		__FUNCTION__, cm.baseColorTexIdx, m.name.c_str());
+		//}
+
 		Logger::Log(1, "%s: material %s, baseColorFactor: %.2f, %.2f, %.2f, %.2f\n",
 			__FUNCTION__, m.name.c_str(),
 			cm.baseColorFactor[0], cm.baseColorFactor[1],
@@ -305,6 +369,8 @@ bool ImportStaticModelFromGltf(const std::string& gltfPath,
 			m.name.c_str(), cm.baseColorH);
 		outMaterials.push_back(cm);
 	}
+
+
 
 	// Vertex with uv0/uv1/uv2
 	struct Vtx {
@@ -437,12 +503,7 @@ bool ImportStaticModelFromGltf(const std::string& gltfPath,
 					im, maxIdx, vertices.size());
 			}
 
-			uint64_t sum = 0;
-			for (const auto& sm : cpu.submeshes) sum += sm.indexCount;
-			if (sum != idx.size()) {
-				Logger::Log(1, "[DEBUG] mesh %zu: sum(submesh.indexCount)=%llu != idx.size()=%zu  <-- firstIndex/indexCount bookkeeping\n",
-					im, (unsigned long long)sum, idx.size());
-			}
+
 
 			Logger::Log(1, "ImportStaticModelFromGltf: mesh %zu name='%s' prims=%zu verts=%zu idx=%zu\n",
 				im,
@@ -462,6 +523,13 @@ bool ImportStaticModelFromGltf(const std::string& gltfPath,
 			for (uint32_t v : idx) maxIdx = std::max(maxIdx, v);
 			const bool fitsU16 = (maxIdx <= 0xFFFF);
 			sm.index32 = !fitsU16;
+
+			uint64_t sum = 0;
+			for (const auto& sm : cpu.submeshes) sum += sm.indexCount;
+			if (sum != idx.size()) {
+				Logger::Log(1, "[DEBUG] mesh %zu: sum(submesh.indexCount)=%llu != idx.size()=%zu  <-- firstIndex/indexCount bookkeeping\n",
+					im, (unsigned long long)sum, idx.size());
+			}
 
 			if (fitsU16) {
 				std::vector<uint16_t> idx16(idx.begin(), idx.end());

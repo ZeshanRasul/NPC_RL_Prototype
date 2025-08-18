@@ -91,9 +91,11 @@ struct CpuMaterial {
 	TextureHandle baseColorH;
 	TextureHandle metallicRoughnessH;
 	TextureHandle normalH;
-	TextureHandle emissiveH;
+	//TextureHandle emissiveH;
 
 	int baseColorTexIdx = -1;
+	int metRoughTexIdx = -1;
+	int normalTexIdx = -1;
 
 	MaterialTexcoordSets texcoordSets{};
 
