@@ -245,46 +245,26 @@ public:
 
 			glUseProgram(glPipe.program.GetProgram());
 			
-			GLint loc = glGetUniformLocation(glPipe.program.GetProgram(), "uBaseColorFactor");
-			if (loc >= 0) glUniform4fv(loc, 1, mat.desc.baseColorFactor);
+			GLint bcloc = glGetUniformLocation(glPipe.program.GetProgram(), "uBaseColorFactor");
+			if (bcloc >= 0) glUniform4fv(bcloc, 1, mat.desc.baseColorFactor);
 			
-			loc = glGetUniformLocation(glPipe.program.GetProgram(), "uMetallicRoughness");
-			if (loc >= 0) glUniform2f(loc, mat.desc.metallic, mat.desc.roughness);
+			GLint mrloc = glGetUniformLocation(glPipe.program.GetProgram(), "uMetallicRoughness");
+			if (mrloc >= 0) glUniform2f(mrloc, mat.desc.metallic, mat.desc.roughness);
 			
-			glActiveTexture(GL_TEXTURE0);
-			loc = glGetUniformLocation(glPipe.program.GetProgram(), "useTex");
-
 			GLint samplerLoc = glGetUniformLocation(glPipe.program.GetProgram(), "uBaseColorTexture");
 			GLint useTexLoc = glGetUniformLocation(glPipe.program.GetProgram(), "useTex");
-
-
+			if (samplerLoc >= 0) glUniform1i(samplerLoc, 0);   // texture unit 0
 
 			if (mat.desc.baseColor) {
 				glActiveTexture(GL_TEXTURE0);
-				glBindTexture(GL_TEXTURE_2D, static_cast<GLuint>(mat.desc.baseColor));
-				Logger::Log(1, "Binding texture %u for material %u\n", 
-					static_cast<GLuint>(mat.desc.baseColor), di.materialHandle);
-				if (samplerLoc >= 0) {
-					glUniform1i(samplerLoc, 0);
-				}
-				if (useTexLoc) {
-					glUniform1i(useTexLoc, 1);
-				}
-
-			} else {
-				glActiveTexture(GL_TEXTURE0);
-				glBindTexture(GL_TEXTURE_2D, 2);
-				Logger::Log(1, "Binding texture 2, baseColor is: %u for material %u\n",
-					static_cast<GLuint>(mat.desc.baseColor), di.materialHandle);
-				if (samplerLoc >= 0) {
-					glUniform1i(samplerLoc, 0);
-				}
-				if (useTexLoc >= 0) {
-					glUniform1i(useTexLoc, 0);
-				}
-
+				glBindTexture(GL_TEXTURE_2D, 12);
+				if (useTexLoc >= 0) glUniform1i(useTexLoc, 1);
 			}
-
+			else {
+				glActiveTexture(GL_TEXTURE0);
+				glBindTexture(GL_TEXTURE_2D, 12);
+				if (useTexLoc >= 0) glUniform1i(useTexLoc, 0);
+			}
 
 			if (di.vao) {
 				glBindVertexArray(di.vao);
@@ -305,6 +285,10 @@ public:
 				glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, stride, (void*)(3 * sizeof(float)));
 				glEnableVertexAttribArray(2);
 				glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, stride, (void*)(6 * sizeof(float)));
+				glEnableVertexAttribArray(3);
+				glVertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE, stride, (void*)(8 * sizeof(float)));
+				glEnableVertexAttribArray(4);
+				glVertexAttribPointer(4, 2, GL_FLOAT, GL_FALSE, stride, (void*)(10 * sizeof(float)));
 
 				GLenum iType = (di.indexType == IndexType::U32) ? GL_UNSIGNED_INT : GL_UNSIGNED_SHORT;
 				glDrawElements(GL_TRIANGLES, (GLsizei)di.indexCount, iType, (void*)(uintptr_t)(di.firstIndex * (di.indexType == IndexType::U32 ? sizeof(uint32_t) : sizeof(uint16_t))));
@@ -340,9 +324,10 @@ public:
 
 		// Upload one level (assumes tightly packed data).
 		// If you need strides, expose that in TextureCreateInfo.
-		glTexImage2D(GL_TEXTURE_2D, 0, glf.internalFormat,
+		glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_SRGB8_ALPHA8,
 			ci.width, ci.height, 0,
-			glf.externalFormat, glf.type,
+			GL_RGBA, GL_UNSIGNED_BYTE,
 			ci.initialData);
 
 		if (ci.mipLevels > 1) {
@@ -350,10 +335,10 @@ public:
 		}
 		SamplerDescGpu sdg;
 		const auto gls = ToGL(sdg);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, gls.minFilterGL);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, gls.magFilterGL);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, gls.wrapSGL);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, gls.wrapTGL);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
 		glBindTexture(GL_TEXTURE_2D, 0);
 
@@ -362,7 +347,6 @@ public:
 
 		return static_cast<GpuTextureId>(tex);
 	}
-	RenderBackend* CreateRenderBackend();
 
 private:
 	std::unordered_map<GpuPipelineHandle, GLPipeline> m_pipelines;
@@ -374,3 +358,6 @@ private:
 	std::vector<glm::mat4> m_cameraData; // For camera matrices, can be used in UBOs or SSBOs
 };
 
+static RenderBackend* CreateRenderBackend() {
+	return new RenderBackendGL();
+}

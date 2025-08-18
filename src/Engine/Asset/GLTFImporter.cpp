@@ -320,22 +320,22 @@ bool ImportStaticModelFromGltf(const std::string& gltfPath,
 		return false;
 	}
 
-	for (size_t im = 0; im < model.meshes.size(); ++im) {
+	for (size_t im = 0; im < model.meshes.size(); im++) {
 		const tinygltf::Mesh& gmesh = model.meshes[im];
 
-		const tinygltf::Value& val = gmesh.extras.Get("isBox");
-		const tinygltf::Value& val2 = gmesh.extras.Get("isCollider");
-		if (val.IsInt() && val.Get<int>() == 1 && val2.IsInt() && val2.Get<int>() == 1) {
-			Logger::Log(1, "Mesh is a box collider, skipping\n");
-			continue;
-		}
+		//const tinygltf::Value& val = gmesh.extras.Get("isBox");
+		//const tinygltf::Value& val2 = gmesh.extras.Get("isCollider");
+		//if (val.IsInt() && val.Get<int>() == 1 && val2.IsInt() && val2.Get<int>() == 1) {
+		//	Logger::Log(1, "Mesh is a box collider, skipping\n");
+		//	continue;
+		//}
 
-		const tinygltf::Value& planeVal = gmesh.extras.Get("isPlane");
-		const tinygltf::Value& planeVal2 = gmesh.extras.Get("isCollider");
-		if (planeVal.IsInt() && planeVal.Get<int>() == 1 && planeVal2.IsInt() && planeVal2.Get<int>() == 1) {
-			Logger::Log(1, "Mesh is a plane collider, skipping\n");
-			continue;
-		}
+		//const tinygltf::Value& planeVal = gmesh.extras.Get("isPlane");
+		//const tinygltf::Value& planeVal2 = gmesh.extras.Get("isCollider");
+		//if (planeVal.IsInt() && planeVal.Get<int>() == 1 && planeVal2.IsInt() && planeVal2.Get<int>() == 1) {
+		//	Logger::Log(1, "Mesh is a plane collider, skipping\n");
+		//	continue;
+		//}
 
 		VertexLayoutKey layoutKey{};
 

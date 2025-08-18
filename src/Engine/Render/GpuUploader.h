@@ -71,7 +71,6 @@ public:
 	}
 
 	GpuTextureId EnsureTextureResident(TextureHandle th) {
-		Logger::Log(1, "Ensuring texture %u is resident\n", th);
 		if (!th) return 0;
 		auto it = m_TextureCache.find(th);
 		if (it != m_TextureCache.end()) return it->second;

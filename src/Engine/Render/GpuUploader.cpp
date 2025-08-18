@@ -114,7 +114,7 @@ void GpuUploader::EnsureMatResident(MaterialHandle matHandle)
 	GpuMaterial gpuMaterial{};
 	gpuMaterial.desc = gd;
 	gpuMaterial.id = matId;
-	m_materialBuffers.emplace(matHandle, std::move(gpuMaterial));
+	m_materialBuffers.emplace(matHandle, gpuMaterial);
 }
 //
 //const CpuTexture* GpuUploader::EnsureTexResident(TextureHandle texHandle)

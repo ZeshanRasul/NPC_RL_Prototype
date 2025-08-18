@@ -20,8 +20,8 @@ void main() {
 
     TexCoords = aTexCoord;
     WorldPos = vec3(model * vec4(aPos, 1.0));
-    mat3 normalMatrix = transpose(inverse(mat3(model)));
-    Normal = normalMatrix * aNormal;   
+//    mat3 normalMatrix = transpose(inverse(mat3(model)));
+    Normal = aNormal;   
 
-    gl_Position =  projection * view * vec4(WorldPos, 1.0);
+    gl_Position =  projection * view * model * vec4(aPos, 1.0);
 }
