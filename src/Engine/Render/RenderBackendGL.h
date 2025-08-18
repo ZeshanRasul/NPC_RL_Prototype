@@ -244,19 +244,20 @@ public:
 			glDisable(GL_CULL_FACE);
 
 			glUseProgram(glPipe.program.GetProgram());
-			
-			GLint bcloc = glGetUniformLocation(glPipe.program.GetProgram(), "uBaseColorFactor");
-			if (bcloc >= 0) glUniform4fv(bcloc, 1, mat.desc.baseColorFactor);
-			
-			GLint mrloc = glGetUniformLocation(glPipe.program.GetProgram(), "uMetallicRoughness");
-			if (mrloc >= 0) glUniform2f(mrloc, mat.desc.metallic, mat.desc.roughness);
-			
-			GLint samplerLoc = glGetUniformLocation(glPipe.program.GetProgram(), "uBaseColorTexture");
+			Logger::Log(1, "Submit: matId=%u baseColorGpu=%u\n", mat.id, mat.desc.baseColor); // expect 169
+
+			//GLint bcloc = glGetUniformLocation(glPipe.program.GetProgram(), "uBaseColorFactor");
+			//if (bcloc >= 0) glUniform4fv(bcloc, 1, mat.desc.baseColorFactor);
+			//
+			//GLint mrloc = glGetUniformLocation(glPipe.program.GetProgram(), "uMetallicRoughness");
+			//if (mrloc >= 0) glUniform2f(mrloc, mat.desc.metallic, mat.desc.roughness);
+			//
+			//GLint samplerLoc = glGetUniformLocation(glPipe.program.GetProgram(), "uBaseColorTexture");
 			GLint useTexLoc = glGetUniformLocation(glPipe.program.GetProgram(), "useTex");
 
 			if (mat.desc.baseColor) {
 				glActiveTexture(GL_TEXTURE0);
-				glBindTexture(GL_TEXTURE_2D, mat.desc.baseColor);
+				glBindTexture(GL_TEXTURE_2D, 0);
 				glPipe.program.SetBool("useTex", true);
 				glPipe.program.SetVec2("uMetallicRoughness", mat.desc.metallic, mat.desc.roughness);
 				glPipe.program.SetInt("uBaseColorTexture", 0);
@@ -333,7 +334,7 @@ public:
 			GL_RGBA, GL_UNSIGNED_BYTE,
 			ci.initialData);
 
-		if (ci.mipLevels > 1) {
+		if (ci.mipLevels >= 1) {
 			glGenerateMipmap(GL_TEXTURE_2D);
 		}
 		SamplerDescGpu sdg;
