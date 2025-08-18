@@ -127,5 +127,5 @@ public:
 	virtual void EndFrame() = 0;
 
 	virtual void BindUniformBuffer(GpuBufferHandle h, uint32_t binding) = 0;
-	virtual void UploadCameraMatrices(GpuBufferHandle h, const std::vector<glm::mat4>& mats, int bindingPoint) = 0;
+	//virtual void UploadCameraMatrices(GpuBufferHandle h, const std::vector<glm::mat4>& mats, int bindingPoint) = 0;
 };

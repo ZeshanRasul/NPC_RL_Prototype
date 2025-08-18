@@ -10,8 +10,6 @@ out vec2 TexCoords;
 out vec3 WorldPos;
 out vec3 Normal;
 
-
-
 layout (std140, binding = 0) uniform Matrices {
     mat4 view;
     mat4 projection;

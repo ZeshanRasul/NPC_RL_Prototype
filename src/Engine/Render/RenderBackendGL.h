@@ -4,6 +4,7 @@
 #include <glad/glad.h>
 
 #include "Engine/Render/RenderBackend.h"
+#include "Engine/Render/GpuUploader.h"
 #include "OpenGL/Shader.h"
 #include "OpenGL/UniformBuffer.h"
 #include "OpenGL/ShaderStorageBuffer.h"
@@ -239,21 +240,52 @@ public:
 			const auto& ibuf = std::get<GLVertexIndexBuffer>(ib);
 
 			const auto& mat = m_materials[di.materialHandle];
+			
+			glDisable(GL_CULL_FACE);
 
 			glUseProgram(glPipe.program.GetProgram());
+			
 			GLint loc = glGetUniformLocation(glPipe.program.GetProgram(), "uBaseColorFactor");
 			if (loc >= 0) glUniform4fv(loc, 1, mat.desc.baseColorFactor);
+			
 			loc = glGetUniformLocation(glPipe.program.GetProgram(), "uMetallicRoughness");
 			if (loc >= 0) glUniform2f(loc, mat.desc.metallic, mat.desc.roughness);
+			
 			glActiveTexture(GL_TEXTURE0);
+			loc = glGetUniformLocation(glPipe.program.GetProgram(), "useTex");
+
+			GLint samplerLoc = glGetUniformLocation(glPipe.program.GetProgram(), "uBaseColorTexture");
+			GLint useTexLoc = glGetUniformLocation(glPipe.program.GetProgram(), "useTex");
+
+
 
 			if (mat.desc.baseColor) {
+				glActiveTexture(GL_TEXTURE0);
+				glBindTexture(GL_TEXTURE_2D, static_cast<GLuint>(mat.desc.baseColor));
+				Logger::Log(1, "Binding texture %u for material %u\n", 
+					static_cast<GLuint>(mat.desc.baseColor), di.materialHandle);
+				if (samplerLoc >= 0) {
+					glUniform1i(samplerLoc, 0);
+				}
+				if (useTexLoc) {
+					glUniform1i(useTexLoc, 1);
+				}
+
+			} else {
+				glActiveTexture(GL_TEXTURE0);
+				glBindTexture(GL_TEXTURE_2D, 2);
+				Logger::Log(1, "Binding texture 2, baseColor is: %u for material %u\n",
+					static_cast<GLuint>(mat.desc.baseColor), di.materialHandle);
+				if (samplerLoc >= 0) {
+					glUniform1i(samplerLoc, 0);
+				}
+				if (useTexLoc >= 0) {
+					glUniform1i(useTexLoc, 0);
+				}
+
 			}
-			glActiveTexture(GL_TEXTURE0);
-			glBindTexture(GL_TEXTURE_2D, static_cast<GLuint>(mat.desc.baseColor));
-			loc = glGetUniformLocation(glPipe.program.GetProgram(), "uBaseColorTexture");
-			if (loc >= 0)
-				glUniform1i(loc, 0);
+
+
 			if (di.vao) {
 				glBindVertexArray(di.vao);
 
@@ -284,11 +316,11 @@ public:
 
 	void EndFrame() override {}
 
-	void UploadCameraMatrices(GpuBufferHandle h, const std::vector<glm::mat4>& mats, int bindingPoint) override {
-		/*auto& ub = std::get<GLUniformBuffer>(m_buffers.at(h)).ubo;
-		ub.UploadUboData(mats, bindingPoint);*/
-		m_cameraData = mats;
-	}
+	//void UploadCameraMatrices(GpuBufferHandle h, const std::vector<glm::mat4>& mats, int bindingPoint) override {
+	//	/*auto& ub = std::get<GLUniformBuffer>(m_buffers.at(h)).ubo;
+	//	ub.UploadUboData(mats, bindingPoint);*/
+	//	m_cameraData = mats;
+	//}
 
 	GpuTextureId CreateTexture2D(const CpuTexture& cpu) override {
 		TextureCreateInfo ci{};
@@ -324,19 +356,21 @@ public:
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, gls.wrapTGL);
 
 		glBindTexture(GL_TEXTURE_2D, 0);
+
+		Logger::Log(1, "Created OpenGL texture %u, size %ux%u, format %d\n",
+			tex, ci.width, ci.height, (int)ci.format);
+
 		return static_cast<GpuTextureId>(tex);
 	}
+	RenderBackend* CreateRenderBackend();
 
 private:
 	std::unordered_map<GpuPipelineHandle, GLPipeline> m_pipelines;
 	std::unordered_map<GpuBufferHandle, GLBuffer> m_buffers;
-	std::unordered_map < GpuMaterialId, GpuMaterial> m_materials;
+	std::unordered_map <GpuMaterialId, GpuMaterial> m_materials;
 	GpuBufferHandle m_nextBuf = 1;
 	GpuMaterialId m_nextMat = 1;
 	GpuPipelineHandle m_nextPipe = 1;
 	std::vector<glm::mat4> m_cameraData; // For camera matrices, can be used in UBOs or SSBOs
 };
 
-RenderBackend* CreateRenderBackend() {
-	return new RenderBackendGL();
-}

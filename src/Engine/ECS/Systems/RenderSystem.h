@@ -74,10 +74,12 @@ inline void RenderStaticModels(entt::registry& reg, RenderBackend& rb,
 	}
 
 	rb.BeginFrame();
+
 	if (!draws.empty())
 	{
 		rb.Submit(draws.data(), static_cast<uint32_t>(draws.size()));
 	}
+	
 	rb.EndFrame();
 
 }
