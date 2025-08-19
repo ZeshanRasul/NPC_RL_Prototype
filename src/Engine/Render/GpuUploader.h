@@ -32,6 +32,7 @@ struct GpuModel {
 struct GpuMaterial {
 	MaterialGpuDesc desc;
 	GpuMaterialId id = 0;
+	GpuTextureId baseColor = (uint32_t)-1;
 };
 
 class GpuUploader {
@@ -62,29 +63,29 @@ public:
 		return 0;
 	}
 
-	GpuTextureId TexId(MaterialHandle handle) const {
-		auto it = m_materialBuffers.find(handle);
-		if (it != m_materialBuffers.end()) {
-			return it->second.desc.baseColor;
+	GpuTextureId* TexId(MaterialHandle handle) {
+		auto it = m_TextureCache.find(handle);
+		if (it != m_TextureCache.end()) {
+			return it->second;
 		}
 		return 0;
 	}
 
-	GpuTextureId EnsureTextureResident(TextureHandle th) {
-		if (!th) return 0;
+	GpuTextureId* EnsureTextureResident(TextureHandle th, MaterialHandle matHandle) {
+		if (!th) return nullptr;
 		auto it = m_TextureCache.find(th);
 		if (it != m_TextureCache.end()) return it->second;
 
 		const CpuTexture& cpu = *(m_assetManager->GetCpuTexture(th));
 
-		GpuTextureId gpu = m_backend->CreateTexture2D(cpu);
-		m_TextureCache.emplace(th, gpu);
+		GpuTextureId* gpu = &m_backend->CreateTexture2D(cpu, matHandle);
+		m_TextureCache.emplace(matHandle, gpu);
 		return gpu;
 	}
 
 	GpuMaterial UploadMaterial(const CpuMaterial& cm) {
 		GpuMaterial gm{};
-		gm.desc.baseColor = EnsureTextureResident(cm.baseColorH);
+	//	gm.desc.baseColor = EnsureTextureResident(cm.baseColorH, );
 		//gm.desc.normal = EnsureTextureResident(cm.normalTex);
 		//gm.desc.orm = EnsureTextureResident(cm.ormTex);
 		return gm;
@@ -96,7 +97,7 @@ private:
 	AssetManager* m_assetManager;
 	std::unordered_map<ModelHandle, GpuModel> m_modelBuffers;
 	std::unordered_map<MaterialHandle, GpuMaterial> m_materialBuffers;
-	std::unordered_map<TextureHandle, GpuTextureId> m_TextureCache;
+	std::unordered_map<MaterialHandle, GpuTextureId*> m_TextureCache;
 	std::vector<MaterialHandle> materialHandles;
 };
 

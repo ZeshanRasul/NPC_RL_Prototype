@@ -240,7 +240,7 @@ public:
 			const auto& ibuf = std::get<GLVertexIndexBuffer>(ib);
 
 			const auto& mat = m_materials[di.materialHandle];
-			
+			const auto& baseColorTex = m_textures[di.materialHandle];
 			glDisable(GL_CULL_FACE);
 
 			glUseProgram(glPipe.program.GetProgram());
@@ -252,11 +252,10 @@ public:
 			//if (mrloc >= 0) glUniform2f(mrloc, mat.desc.metallic, mat.desc.roughness);
 			//
 			//GLint samplerLoc = glGetUniformLocation(glPipe.program.GetProgram(), "uBaseColorTexture");
-			GLint useTexLoc = glGetUniformLocation(glPipe.program.GetProgram(), "useTex");
 			 
-			if (mat.desc.baseColor != InvalidHandle) {
+			if (baseColorTex){
 				glActiveTexture(GL_TEXTURE0);
-				glBindTexture(GL_TEXTURE_2D, mat.desc.baseColor);
+				glBindTexture(GL_TEXTURE_2D, baseColorTex);
 				glPipe.program.SetBool("useTex", true);
 				glPipe.program.SetVec2("uMetallicRoughness", mat.desc.metallic, mat.desc.roughness);
 				glPipe.program.SetInt("uBaseColorTexture", 0);
@@ -264,7 +263,7 @@ public:
 			}
 			else {
 				glActiveTexture(GL_TEXTURE0);
-				glBindTexture(GL_TEXTURE_2D, 168);
+				glBindTexture(GL_TEXTURE_2D, 0);
 				glPipe.program.SetBool("useTex", false);
 				glPipe.program.SetVec2("uMetallicRoughness", mat.desc.metallic, mat.desc.roughness);
 				glPipe.program.SetInt("uBaseColorTexture", 0);
@@ -311,13 +310,13 @@ public:
 	//	m_cameraData = mats;
 	//}
 
-	GpuTextureId CreateTexture2D(const CpuTexture& cpu) override {
+	GpuTextureId& CreateTexture2D(const CpuTexture& cpu, MaterialHandle matHandle) override {
 		TextureCreateInfo ci{};
 		ci.width = cpu.desc.width;
 		ci.height = cpu.desc.height;
-		ci.mipLevels = 1;
-		ci.format = PixelFormatGpu::RGB8_UNORM;
-		ci.colorSpace = ColorSpaceGpu::SRGB;
+		ci.mipLevels = cpu.desc.mipLevels;
+		ci.format = (PixelFormatGpu)cpu.desc.format;
+		ci.colorSpace = (ColorSpaceGpu)cpu.desc.colorSpace;
 		ci.initialData = cpu.pixels.data();
 		ci.initialDataSize = cpu.pixels.size();
 
@@ -330,9 +329,9 @@ public:
 		// Upload one level (assumes tightly packed data).
 		// If you need strides, expose that in TextureCreateInfo.
 		glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB8,
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_SRGB8_ALPHA8,
 			ci.width, ci.height, 0,
-			GL_RGB, GL_UNSIGNED_BYTE,
+			GL_RGBA, GL_UNSIGNED_BYTE,
 			ci.initialData);
 
 		if (ci.mipLevels >= 1) {
@@ -350,13 +349,15 @@ public:
 		Logger::Log(1, "Created OpenGL texture %u, size %ux%u, format %d\n",
 			tex, ci.width, ci.height, (int)ci.format);
 
-		return static_cast<GpuTextureId>(tex);
+		m_textures[matHandle] = tex;
+		return tex;
 	}
 
 private:
 	std::unordered_map<GpuPipelineHandle, GLPipeline> m_pipelines;
 	std::unordered_map<GpuBufferHandle, GLBuffer> m_buffers;
 	std::unordered_map <GpuMaterialId, GpuMaterial> m_materials;
+	std::unordered_map <GpuMaterialId, GpuTextureId> m_textures;
 	GpuBufferHandle m_nextBuf = 1;
 	GpuMaterialId m_nextMat = 1;
 	GpuPipelineHandle m_nextPipe = 1;

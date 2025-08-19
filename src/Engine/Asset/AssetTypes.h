@@ -108,7 +108,9 @@ struct CpuMaterial {
 struct CpuStaticModel {
 	std::vector<CpuStaticMesh> meshes;
 	std::vector<MaterialHandle> materials;
+	std::vector<TextureHandle> textures;
 	std::vector<CpuMaterial> materialsData;
+	std::vector<CpuTexture> textureData;
 };
 
 

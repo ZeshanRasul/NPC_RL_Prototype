@@ -879,9 +879,9 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 	m_renderBackend->Initialize();
 
 	PipelineDesc pipelineDesc{};
-	pipelineDesc.vertexShaderPath = "src/Shaders/vertex2.glsl";
+	pipelineDesc.vertexShaderPath = "src/Shaders/leveltestvert.glsl";
 	pipelineDesc.fragmentShaderPath =  "src/Shaders/leveltestfrag.glsl";
-	pipelineDesc.vertexStride = (uint32_t)((int)(sizeof(float)) * 12	);
+	pipelineDesc.vertexStride = (uint32_t)((int)(sizeof(float)) * 12);
 
 	pipes.staticPbr = m_renderBackend->CreatePipeline(pipelineDesc);
 	

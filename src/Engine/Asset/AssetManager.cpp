@@ -32,6 +32,8 @@ ModelHandle AssetManager::LoadStaticModel(const std::string& gltfPath) {
 	for (auto& tex : outTextures) {
 		TextureHandle th = CreateTexture(std::move(tex));
 		textureHandles.push_back(th);
+		cpu.textures.push_back(th);
+		m_cpuTextures[th] = std::make_unique<CpuTexture>(std::move(tex));
 	}
 
 	m_cpuMaterials.reserve(outMaterials.size());
@@ -68,7 +70,7 @@ MaterialHandle AssetManager::CreateMaterial(CpuMaterial mat) {
 	MaterialHandle matHandle = MakeMaterialHandle();
 	//mat.baseColorH = CreateTexture(*mat.baseColor);
 	//m_cpuTextures.emplace(std::make_uniqueh);
-	m_cpuMaterials[matHandle] = std::make_unique<CpuMaterial>(std::move(mat));
+	//m_cpuMaterials[matHandle] = std::make_unique<CpuMaterial>(std::move(mat));
 	return matHandle;
 }
 
@@ -77,7 +79,8 @@ const CpuMaterial* AssetManager::GetCpuMaterial(MaterialHandle h) const {
 	if (it != m_cpuMaterials.end()) {
 		return it->second.get();
 	}
-	return nullptr;
+	return m_cpuMaterials.at(0).get();
+	//TODO : handle invalid material handle gracefully
 }
 
 static int bytesPerPixel(PixelFormat f) {
@@ -111,17 +114,17 @@ TextureHandle AssetManager::CreateTexture(CpuTexture tex)
 {
 	// Own the texture immediately
 	auto handle = MakeTextureHandle();
-	m_cpuTextures[handle] = std::make_unique<CpuTexture>(std::move(tex));
-	CpuTexture& newtex = *m_cpuTextures[handle];
+//	m_cpuTextures[handle] = std::make_unique<CpuTexture>(std::move(tex));
+//	CpuTexture& newtex = *m_cpuTextures[handle];
 
 	// Validate
 
 	// Expand to RGBA if needed (e.g. JPG source)
-	ExpandRGBToRGBA(newtex.pixels, newtex.desc.width, newtex.desc.width);
+//	ExpandRGBToRGBA(newtex.pixels, newtex.desc.width, newtex.desc.width);
 		
 
 	// Force consistency: everything is RGBA8 UNORM
-	newtex.desc.format = PixelFormat::RGBA8_UNORM;
+//	newtex.desc.format = PixelFormat::RGBA8_UNORM;
 ;
 	return handle;
 }

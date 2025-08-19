@@ -107,7 +107,7 @@ void GpuUploader::EnsureMatResident(MaterialHandle matHandle)
 	gd.metallic = cm->metallic;
 	gd.roughness = cm->roughness;
 
-	gd.baseColor = EnsureTextureResident(cm->baseColorH);
+	gd.baseColor = EnsureTextureResident(cm->baseColorH, matHandle);
 
 	GpuMaterialId matId = m_backend->CreateMaterial(gd);
 

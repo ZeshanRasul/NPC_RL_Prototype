@@ -281,7 +281,7 @@ bool ImportStaticModelFromGltf(const std::string& gltfPath,
 				sampler = MapGltfSampler(nullptr); // or a default SamplerDesc
 			}
 
-			BuildCpuTextureFromGltfImage(gltfImg, sampler, "baseColor", baseColorTex);
+			baseColorTex = BuildCpuTextureFromGltfImage(gltfImg, sampler, "baseColor", baseColorTex);
 
 			//cm.baseColor = &baseColorTex;
 			Logger::Log(1, "%s: baseColor texture %u for material %s\n",
