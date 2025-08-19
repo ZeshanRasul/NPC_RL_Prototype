@@ -31,7 +31,7 @@ inline void RenderStaticModels(entt::registry& reg, RenderBackend& rb,
 	GpuUploader& up, const Pipelines& pipes)
 {
 	std::vector<DrawItem> draws;
-	draws.reserve(1024);
+	draws.reserve(300000);
 
 	auto view = reg.view<StaticModelRendererComponent>();
 

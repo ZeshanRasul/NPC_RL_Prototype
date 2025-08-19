@@ -31,9 +31,10 @@ vec3 CalcDirLight(DirLight light, vec3 normal)
 	// combine results
 	vec3 ambient;
 	vec3 diffuse;
+
  	if (useTex) {
-		ambient = light.ambient * vec3(texture(uBaseColorTexture, TexCoords));
-		diffuse = light.diffuse * diff * vec3(texture(uBaseColorTexture, TexCoords));
+		ambient = light.ambient * vec3(texture(uBaseColorTexture, TexCoords)) * uBaseColorFactor.xyz;
+		diffuse = light.diffuse * diff * vec3(texture(uBaseColorTexture, TexCoords)) * uBaseColorFactor.xyz;
 
 	} else {
 		ambient = light.ambient * uBaseColorFactor.xyz;

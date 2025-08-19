@@ -590,12 +590,12 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 	m_cubemap->LoadMesh();
 	m_cubemap->LoadCubemap(m_cubemapFaces);
 
-	//ground = new Ground(mapPos, mapScale, &groundShader, &groundShadowShader, false, this);
-	//
-	//ground->SetAABBShader(&aabbShader);
-	//ground->SetUpAABB();
-	//ground->SetPlaneShader(&m_lineShader);
-	//
+	/*ground = new Ground(mapPos, mapScale, &groundShader, &groundShadowShader, false, this);
+
+	ground->SetAABBShader(&aabbShader);
+	ground->SetUpAABB();
+	ground->SetPlaneShader(&m_lineShader);
+	*///
 	//std::vector<Ground::GLTFMesh> meshDataGrnd = ground->meshData;
 	//int mapVertCount = 0;
 	//int mapIndCount = 0;
@@ -990,7 +990,7 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 	m_gameObjects.push_back(m_enemy2);
 	m_gameObjects.push_back(m_enemy3);
 	m_gameObjects.push_back(m_enemy4);
-	//m_gameObjects.push_back(ground);
+//	m_gameObjects.push_back(ground);
 
 	/*for (Cube* coverSpot : coverSpots)
 	{
@@ -1350,7 +1350,7 @@ void GameManager::SetupCamera(unsigned int width, unsigned int height, float del
 
 	m_cubemapView = glm::mat4(glm::mat3(m_camera->GetViewMatrixPlayerFollow(m_player->GetPosition(), glm::vec3(0.0f, 1.0f, 0.0f))));
 
-	m_projection = glm::perspective(glm::radians(m_camera->GetZoom()), (float)width / (float)height, 0.1f, 500.0f);
+	m_projection = glm::perspective(glm::radians(m_camera->GetZoom()), (float)width / (float)height, 0.1f, 50000.0f);
 
 	m_minimapView = glm::mat4(1.0f);
 	m_minimapProjection = glm::perspective(glm::radians(m_camera->GetZoom()), (float)width / (float)height, 0.1f, 500.0f);
@@ -1988,25 +1988,25 @@ void GameManager::Render(bool isMinimapRenderPass, bool isShadowMapRenderPass, b
 		else
 		{
 			m_renderer->Draw(obj, m_view, m_projection, m_camera->GetPosition(), false, m_lightSpaceMatrix);
-			
+
+			glm::mat4 modelMat = glm::mat4(1.0f);
+
+			std::vector<glm::mat4> matrixData;
+			matrixData.push_back(m_view);
+			matrixData.push_back(m_projection);
+			modelMat = glm::translate(modelMat, glm::vec3(0.0f));
+			modelMat = glm::scale(modelMat, glm::vec3(5.0f));
+
+			matrixData.push_back(modelMat);
+			m_renderBackend->UpdateBuffer(h, 0, matrixData.data(), 3 * sizeof(glm::mat4));
+			m_renderBackend->BindUniformBuffer(h, 0);
+
+			if (isMainRenderPass)
+				RenderStaticModels(m_activeScene->GetRegistry(), *m_renderBackend, *uploader, pipes);
+
+
 		}
 	}
-
-	glm::mat4 modelMat = glm::mat4(1.0f);
-
-	std::vector<glm::mat4> matrixData;
-	matrixData.push_back(m_view);
-	matrixData.push_back(m_projection);
-	modelMat = glm::translate(modelMat, glm::vec3(0.0f));
-	modelMat = glm::scale(modelMat, glm::vec3(5.0f));
-
-	matrixData.push_back(modelMat);
-	m_renderBackend->UpdateBuffer(h, 0, matrixData.data(), 3 * sizeof(glm::mat4));
-	m_renderBackend->BindUniformBuffer(h, 0);
-		
-	if (!isMinimapRenderPass && !isShadowMapRenderPass)
-		RenderStaticModels(m_activeScene->GetRegistry(), *m_renderBackend, *uploader, pipes);
-
 
 
 

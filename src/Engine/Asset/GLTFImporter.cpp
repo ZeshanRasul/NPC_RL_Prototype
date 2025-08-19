@@ -373,42 +373,48 @@ bool ImportStaticModelFromGltf(const std::string& gltfPath,
 
 
 	// Vertex with uv0/uv1/uv2
-	struct Vtx {
-		float px, py, pz;
-		float nx, ny, nz;
-		float u0, v0;
-		float u1, v1;
-		float u2, v2;
+	struct Vertex {
+		glm::vec3 pos;
+		glm::vec3 norm;
+		glm::vec2 uv;
+		glm::vec2 uv1;
+		glm::vec2 uv2;
 	};
 
 	if (model.meshes.empty()) {
 		Logger::Log(1, "%s: no meshes in file\n", __FUNCTION__);
 		return false;
 	}
+	outCpuModel.meshes.reserve(model.meshes.size());
 
-	for (size_t im = 0; im < model.meshes.size(); im++) {
+	for (size_t im = 0; im < model.meshes.size(); ++im) {
 		const tinygltf::Mesh& gmesh = model.meshes[im];
 
-		//const tinygltf::Value& val = gmesh.extras.Get("isBox");
-		//const tinygltf::Value& val2 = gmesh.extras.Get("isCollider");
-		//if (val.IsInt() && val.Get<int>() == 1 && val2.IsInt() && val2.Get<int>() == 1) {
-		//	Logger::Log(1, "Mesh is a box collider, skipping\n");
-		//	continue;
-		//}
+		const tinygltf::Value& val = gmesh.extras.Get("isBox");
+		const tinygltf::Value& val2 = gmesh.extras.Get("isCollider");
+		if (val.IsInt() && val.Get<int>() == 1 && val2.IsInt() && val2.Get<int>() == 1) {
+			Logger::Log(1, "Mesh is a box collider, skipping\n");
+			continue;
+		}
 
-		//const tinygltf::Value& planeVal = gmesh.extras.Get("isPlane");
-		//const tinygltf::Value& planeVal2 = gmesh.extras.Get("isCollider");
-		//if (planeVal.IsInt() && planeVal.Get<int>() == 1 && planeVal2.IsInt() && planeVal2.Get<int>() == 1) {
-		//	Logger::Log(1, "Mesh is a plane collider, skipping\n");
-		//	continue;
-		//}
+		const tinygltf::Value& planeVal = gmesh.extras.Get("isPlane");
+		const tinygltf::Value& planeVal2 = gmesh.extras.Get("isCollider");
+		if (planeVal.IsInt() && planeVal.Get<int>() == 1 && planeVal2.IsInt() && planeVal2.Get<int>() == 1) {
+			Logger::Log(1, "Mesh is a plane collider, skipping\n");
+			continue;
+		}
 
 		VertexLayoutKey layoutKey{};
 
 		CpuStaticMesh cpu{};
-		std::vector<Vtx>         vertices;
+		std::vector<Vertex>         vertices;
 		std::vector<uint32_t>    idx;
+		size_t indexCount = 0;
+		// indices
+		uint32_t firstIndex = 0;
+		uint64_t sum = 0;
 
+		cpu.submeshes.reserve(gmesh.primitives.size());
 		for (const auto& prim : gmesh.primitives) {
 			// position (required)
 			auto itPos = prim.attributes.find("POSITION");
@@ -440,58 +446,63 @@ bool ImportStaticModelFromGltf(const std::string& gltfPath,
 				ReadFloatAttrib2(model, model.accessors[it->second], UV2);
 			else
 				UV2.assign(P.size(), glm::vec2(0, 0));
-
-			// append vertices
+			
 			const uint32_t baseV = (uint32_t)vertices.size();
 			vertices.reserve(vertices.size() + P.size());
-			for (size_t v = 0; v < P.size(); ++v) {
-				Vtx out{};
-				out.px = P[v].x;  out.py = P[v].y;  out.pz = P[v].z;
-				out.nx = N[v].x;  out.ny = N[v].y;  out.nz = N[v].z;
-				out.u0 = UV0[v].x; out.v0 = UV0[v].y;
-				out.u1 = UV1[v].x; out.v1 = UV1[v].y;
-				out.u2 = UV2[v].x; out.v2 = UV2[v].y;
-				vertices.push_back(out);
+
+			for (size_t i = 0; i < P.size(); ++i) {
+				Vertex v{};
+				v.pos = P[i];
+				v.norm = i < N.size() ? N[i] : glm::vec3(0, 1, 0);
+				v.uv = i < UV0.size() ? UV0[i] : glm::vec2(0);
+				v.uv1 = i < UV1.size() ? UV1[i] : glm::vec2(0);
+				v.uv2 = i < UV2.size() ? UV2[i] : glm::vec2(0);
+				vertices.push_back(v);
 			}
 
-			// indices
-			const uint32_t firstIndex = (uint32_t)idx.size();
 			uint32_t added = 0;
-
+			std::vector<uint32_t> localIdx;
 			if (prim.indices >= 0) {
-				const tinygltf::Accessor& aIdx = model.accessors[prim.indices];
-				const uint8_t* pIdx = AccessorPtr(model, aIdx);
-				if (!pIdx) return false;
+				const tinygltf::Accessor& indexAccessor = model.accessors[prim.indices];
+				const tinygltf::BufferView& bufferView = model.bufferViews[indexAccessor.bufferView];
+				const tinygltf::Buffer& buffer = model.buffers[bufferView.buffer];
 
-				idx.reserve(idx.size() + aIdx.count);
-				if (aIdx.componentType == TINYGLTF_COMPONENT_TYPE_UNSIGNED_SHORT) {
-					const uint16_t* p = reinterpret_cast<const uint16_t*>(pIdx);
-					for (size_t i = 0; i < aIdx.count; ++i) idx.push_back(baseV + p[i]);
+
+
+				// Pointer to the actual index data
+				const unsigned char* dataPtr = buffer.data.data() + bufferView.byteOffset + indexAccessor.byteOffset;
+
+				// Loop through and extract indices based on the component type
+				for (size_t i = 0; i < indexAccessor.count; ++i) {
+					switch (indexAccessor.componentType) {
+					case TINYGLTF_PARAMETER_TYPE_UNSIGNED_BYTE: {
+						idx.push_back(static_cast<unsigned int>(reinterpret_cast<const uint8_t*>(dataPtr)[i]));
+						break;
+					}
+					case TINYGLTF_PARAMETER_TYPE_UNSIGNED_SHORT: {
+						idx.push_back(static_cast<unsigned int>(reinterpret_cast<const uint16_t*>(dataPtr)[i]));
+						break;
+					}
+					case TINYGLTF_PARAMETER_TYPE_UNSIGNED_INT: {
+						idx.push_back(reinterpret_cast<const uint32_t*>(dataPtr)[i]);
+						break;
+					}
+					default:
+						Logger::Log(1, " << indexAccessor.componentType, %zu", indexAccessor.componentType);
+						break;
+					}
 				}
-				else if (aIdx.componentType == TINYGLTF_COMPONENT_TYPE_UNSIGNED_INT) {
-					const uint32_t* p = reinterpret_cast<const uint32_t*>(pIdx);
-					for (size_t i = 0; i < aIdx.count; ++i) idx.push_back(baseV + p[i]);
-				}
-				else if (aIdx.componentType == TINYGLTF_COMPONENT_TYPE_UNSIGNED_BYTE) {
-					const uint8_t* p = reinterpret_cast<const uint8_t*>(pIdx);
-					for (size_t i = 0; i < aIdx.count; ++i) idx.push_back(baseV + p[i]);
-				}
-				else {
-					Logger::Log(1, "%s: unsupported index component type %d\n", __FUNCTION__, aIdx.componentType);
-					return false;
-				}
-				added = (uint32_t)aIdx.count;
+				added = (uint32_t)idx.size() - firstIndex;
 			}
 			else {
-				// non-indexed primitive
-				idx.reserve(idx.size() + P.size());
-				for (uint32_t i = 0; i < (uint32_t)P.size(); ++i) idx.push_back(baseV + i);
-				added = (uint32_t)P.size();
+				localIdx.resize(P.size());
+				//std::iota(localIdx.begin(), localIdx.end(), 0u);
 			}
 
 			CpuSubmesh sm{};
 			sm.firstIndex = firstIndex;
-			sm.indexCount = added; // or (uint32_t)idx.size() - firstIndex
+			firstIndex += added;
+			sm.indexCount = idx.size() - sm.firstIndex; // or (uint32_t)idx.size() - firstIndex
 			sm.materialIndex = (prim.material >= 0) ? (uint32_t)prim.material : 0;
 			sm.firstVertex = baseV; // optional
 
@@ -503,7 +514,16 @@ bool ImportStaticModelFromGltf(const std::string& gltfPath,
 					im, maxIdx, vertices.size());
 			}
 
+			for (auto& i : localIdx) i += baseV;
 
+			sm.firstVertex = baseV;
+			//sm.firstIndex = (uint32_t)idx.size();
+			//sm.indexCount = (uint32_t)localIdx.size();
+
+	/*		for (uint32_t i = firstIndex; i < added; i++)
+			{
+				sm.indexData.push_back(idx[i]);
+			}*/
 
 			Logger::Log(1, "ImportStaticModelFromGltf: mesh %zu name='%s' prims=%zu verts=%zu idx=%zu\n",
 				im,
@@ -512,20 +532,24 @@ bool ImportStaticModelFromGltf(const std::string& gltfPath,
 				vertices.size(),
 				idx.size());
 
-			sm.vertexCount = (uint32_t)vertices.size();
-			sm.vertexStride = sizeof(Vtx);
+			sm.vertexCount = (uint32_t)vertices.size() - baseV;
+			sm.vertexStride = sizeof(Vertex);
 			sm.vertexData.resize(sm.vertexStride * vertices.size());
 			if (!vertices.empty())
 				std::memcpy(sm.vertexData.data(), vertices.data(), sm.vertexData.size());
 
-			sm.indexCount = (uint32_t)idx.size();
+			//sm.indexCount = (uint32_t)indexCount;
 			maxIdx = 0;
 			for (uint32_t v : idx) maxIdx = std::max(maxIdx, v);
 			const bool fitsU16 = (maxIdx <= 0xFFFF);
 			sm.index32 = !fitsU16;
-
-			uint64_t sum = 0;
-			for (const auto& sm : cpu.submeshes) sum += sm.indexCount;
+			
+			
+			// TODO indexCount += sm.indexData.size();
+			
+			
+			
+			for (const auto& sm : cpu.submeshes) sum += sm.indexData.size();
 			if (sum != idx.size()) {
 				Logger::Log(1, "[DEBUG] mesh %zu: sum(submesh.indexCount)=%llu != idx.size()=%zu  <-- firstIndex/indexCount bookkeeping\n",
 					im, (unsigned long long)sum, idx.size());
@@ -534,24 +558,13 @@ bool ImportStaticModelFromGltf(const std::string& gltfPath,
 			if (fitsU16) {
 				std::vector<uint16_t> idx16(idx.begin(), idx.end());
 				sm.indexData.resize(idx16.size() * sizeof(uint16_t));
-				if (!idx16.empty())
-					std::memcpy(sm.indexData.data(), idx16.data(), sm.indexData.size());
+				std::memcpy(sm.indexData.data(), idx16.data(), sm.indexData.size());
 			}
 			else {
 				sm.indexData.resize(idx.size() * sizeof(uint32_t));
-				if (!idx.empty())
-					std::memcpy(sm.indexData.data(), idx.data(), sm.indexData.size());
+				std::memcpy(sm.indexData.data(), idx.data(), sm.indexData.size());
 			}
 
-			if (!vertices.empty()) {
-				glm::vec3 mn(FLT_MAX), mx(-FLT_MAX);
-				for (const auto& v : vertices) {
-					mn.x = std::min(mn.x, v.px); mn.y = std::min(mn.y, v.py); mn.z = std::min(mn.z, v.pz);
-					mx.x = std::max(mx.x, v.px); mx.y = std::max(mx.y, v.py); mx.z = std::max(mx.z, v.pz);
-				}
-				std::memcpy(sm.aabbMin, &mn[0], sizeof(float) * 3);
-				std::memcpy(sm.aabbMax, &mx[0], sizeof(float) * 3);
-			}
 			cpu.submeshes.push_back(sm);
 
 		}

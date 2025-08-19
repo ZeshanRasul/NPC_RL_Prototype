@@ -32,5 +32,5 @@ private:
 	MaterialHandle m_nextMaterialHandle{ 1 };
 
 	std::unordered_map<TextureHandle, std::unique_ptr<CpuTexture>> m_cpuTextures;
-	TextureHandle m_nextTextureHandle{ 1 };
+	TextureHandle m_nextTextureHandle{ 0 };
 };
