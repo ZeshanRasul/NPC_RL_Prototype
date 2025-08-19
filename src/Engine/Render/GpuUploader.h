@@ -18,6 +18,7 @@ struct GpuSubmeshBuffer {
 	GpuBufferHandle indexBuffer = 0;
 	IndexType indexType = IndexType::U32;
 	int vertexStride = 0;
+	glm::mat4 transform = glm::mat4(1.0f); // Optional, for static meshes
 };
 
 struct GpuMeshBuffer {

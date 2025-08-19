@@ -33,6 +33,7 @@ void RenderBackendGL::Submit(const DrawItem* items, uint32_t itemCount) {
 			glPipe.program.SetVec2("uMetallicRoughness", mat.desc.metallic, mat.desc.roughness);
 			glPipe.program.SetBool("useTex", true);
 			glPipe.program.SetInt("uBaseColorTexture", 0);
+			glPipe.program.SetMat4("Transform", di.transform);
 		}
 		else {
 			glActiveTexture(GL_TEXTURE0);
@@ -41,6 +42,7 @@ void RenderBackendGL::Submit(const DrawItem* items, uint32_t itemCount) {
 			glPipe.program.SetVec2("uMetallicRoughness", mat.desc.metallic, mat.desc.roughness);
 			glPipe.program.SetBool("useTex", false);
 			glPipe.program.SetInt("uBaseColorTexture", 0);
+			glPipe.program.SetMat4("Transform", di.transform);
 		}
 
 		if (di.vao) {

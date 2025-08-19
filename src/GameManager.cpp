@@ -884,7 +884,6 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 	pipelineDesc.vertexStride = (uint32_t)((int)(sizeof(float)) * 12);
 
 	pipes.staticPbr = m_renderBackend->CreatePipeline(pipelineDesc);
-	
 	uploader = new GpuUploader(m_renderBackend, m_assetManager);
 
 	auto& reg = m_activeScene->GetRegistry();
@@ -1990,7 +1989,7 @@ void GameManager::Render(bool isMinimapRenderPass, bool isShadowMapRenderPass, b
 			m_renderer->Draw(obj, m_view, m_projection, m_camera->GetPosition(), false, m_lightSpaceMatrix);
 
 			glm::mat4 modelMat = glm::mat4(1.0f);
-
+			
 			std::vector<glm::mat4> matrixData;
 			matrixData.push_back(m_view);
 			matrixData.push_back(m_projection);

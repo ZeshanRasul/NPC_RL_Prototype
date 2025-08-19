@@ -22,10 +22,12 @@ ModelHandle AssetManager::LoadStaticModel(const std::string& gltfPath) {
 	std::vector<CpuMaterial> outMaterials{};
 	std::vector<CpuTexture> outTextures{};
 
-	if (!ImportStaticModelFromGltf(gltfPath, cpu, outMaterials, outTextures)) {
-		Logger::Log(0, "Failed to load static model from %s\n", gltfPath.c_str());
-		return InvalidHandle;
-	}
+	//if (!ImportStaticModelFromGltf(gltfPath, cpu, outMaterials, outTextures)) {
+	//	Logger::Log(0, "Failed to load static model from %s\n", gltfPath.c_str());
+	//	return InvalidHandle;
+	//}
+
+	cpu = ImportModel(gltfPath, outMaterials, outTextures);
 
 	std::vector<TextureHandle> textureHandles;
 	textureHandles.reserve(outTextures.size());

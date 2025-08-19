@@ -68,6 +68,7 @@ inline void RenderStaticModels(entt::registry& reg, RenderBackend& rb,
 				item.materialId = up.MatId(submesh.material);
 				item.materialHandle = submesh.material;
 				item.textureId = up.TexId(submesh.material);
+				item.transform = submesh.transform;
 				//Logger::Log(1, "%s Draw Item Tex ID %u\n", __FUNCTION__, item.textureId);
 				draws.push_back(item);
 			}

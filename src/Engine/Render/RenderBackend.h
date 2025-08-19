@@ -1,6 +1,7 @@
 #pragma once
 #include <cstdint>
 #include <string>
+#include "glm/glm.hpp"
 
 using GpuBufferHandle = uint32_t;
 using GpuPipelineHandle = uint32_t;
@@ -103,6 +104,7 @@ struct DrawItem {
 	GpuMaterialHandle materialHandle = 0;
 	GpuMaterialId materialId = 0;
 	GpuTextureId textureId = -1;
+	glm::mat4 transform = glm::mat4(1.0f); // Optional, for static meshes
 };
 
 class RenderBackend {

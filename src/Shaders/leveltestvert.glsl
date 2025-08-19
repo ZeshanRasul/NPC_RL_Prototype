@@ -15,11 +15,13 @@ layout (std140, binding = 0) uniform Matrices {
 	mat4 model;
 };
 
+uniform mat4 Transform;
+
 void main() {
 
     TexCoords = aTexCoord;
-//    mat3 normalMatrix = transpose(inverse(mat3(model)));
+    mat3 normalMatrix = transpose(inverse(mat3(model)));
     Normal = aNormal;   
 
-    gl_Position =  projection * view * model * vec4(aPos, 1.0);
+    gl_Position =  projection * view * Transform * vec4(aPos, 1.0);
 }

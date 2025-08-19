@@ -51,7 +51,7 @@ void GpuUploader::EnsureResident(ModelHandle modelHandle)
 
 			gpuSubmesh.firstIndex = sm.firstIndex;
 			gpuSubmesh.indexCount = sm.indexCount;
-			
+			gpuSubmesh.transform = sm.transform;
 			MaterialHandle mh = (sm.materialIndex < materialHandles.size()) ? materialHandles[sm.materialIndex] : 0;
 			gpuSubmesh.material = mh;
 			EnsureMatResident(mh);

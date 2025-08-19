@@ -135,6 +135,8 @@ public:
 	void UpdateBuffer(GpuBufferHandle h, size_t offset, const void* data, size_t size) override {
 		auto it = m_buffers.find(h); assert(it != m_buffers.end());
 		auto& buf = it->second;
+		m_pipelines[0].program.Use();
+
 		if (std::holds_alternative<GLVertexIndexBuffer>(buf)) {
 			auto& b = std::get<GLVertexIndexBuffer>(buf);
 			glBindBuffer(b.target, b.id);
@@ -157,6 +159,7 @@ public:
 	virtual void BindUniformBuffer(GpuBufferHandle h, uint32_t binding) override {
 		auto it = m_buffers.find(h); assert(it != m_buffers.end());
 		auto& buf = it->second;
+		m_pipelines[0].program.Use();
 
 		const auto& u = std::get<GLUniformBuffer>(buf);
 		glBindBufferBase(GL_UNIFORM_BUFFER, binding, u.id);
@@ -197,6 +200,7 @@ public:
 
 		GpuPipelineHandle handle = m_nextPipe++;
 		m_pipelines.emplace(handle, std::move(pipeline));
+		pipeline.program.Use();
 		return handle;
 	}
 
