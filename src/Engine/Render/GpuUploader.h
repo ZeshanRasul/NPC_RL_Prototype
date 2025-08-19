@@ -63,22 +63,22 @@ public:
 		return 0;
 	}
 
-	GpuTextureId* TexId(MaterialHandle handle) {
+	GpuTextureId TexId(MaterialHandle handle) {
 		auto it = m_TextureCache.find(handle);
 		if (it != m_TextureCache.end()) {
 			return it->second;
 		}
-		return 0;
+		return -1;
 	}
 
-	GpuTextureId* EnsureTextureResident(TextureHandle th, MaterialHandle matHandle) {
-		if (!th) return nullptr;
+	GpuTextureId EnsureTextureResident(TextureHandle th, MaterialHandle matHandle) {
+		if (!th) return 158u;
 		auto it = m_TextureCache.find(th);
 		if (it != m_TextureCache.end()) return it->second;
 
 		const CpuTexture& cpu = *(m_assetManager->GetCpuTexture(th));
 
-		GpuTextureId* gpu = &m_backend->CreateTexture2D(cpu, matHandle);
+		GpuTextureId gpu = m_backend->CreateTexture2D(cpu, matHandle);
 		m_TextureCache.emplace(matHandle, gpu);
 		return gpu;
 	}
@@ -97,7 +97,7 @@ private:
 	AssetManager* m_assetManager;
 	std::unordered_map<ModelHandle, GpuModel> m_modelBuffers;
 	std::unordered_map<MaterialHandle, GpuMaterial> m_materialBuffers;
-	std::unordered_map<MaterialHandle, GpuTextureId*> m_TextureCache;
+	std::unordered_map<MaterialHandle, GpuTextureId> m_TextureCache;
 	std::vector<MaterialHandle> materialHandles;
 };
 

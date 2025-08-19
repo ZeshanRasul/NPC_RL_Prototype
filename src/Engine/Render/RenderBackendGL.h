@@ -201,7 +201,7 @@ public:
 	}
 
 	GpuMaterialId CreateMaterial(MaterialGpuDesc& desc) override {
-		GpuMaterialId id = ++m_nextMat;
+		GpuMaterialId id = m_nextMat++;
 		m_materials[id] = GpuMaterial{ desc, id };
 		return id;
 	}
@@ -242,7 +242,7 @@ public:
 			const auto& mat = m_materials[di.materialHandle];
 			const auto& baseColorTex = m_textures[di.materialHandle];
 			glDisable(GL_CULL_FACE);
-
+			//Logger::Log(1, "%s base color tex: %u\n", __FUNCTION__, baseColorTex);
 			glUseProgram(glPipe.program.GetProgram());
 
 			//GLint bcloc = glGetUniformLocation(glPipe.program.GetProgram(), "uBaseColorFactor");
@@ -256,18 +256,18 @@ public:
 			if (baseColorTex){
 				glActiveTexture(GL_TEXTURE0);
 				glBindTexture(GL_TEXTURE_2D, baseColorTex);
-				glPipe.program.SetBool("useTex", true);
-				glPipe.program.SetVec2("uMetallicRoughness", mat.desc.metallic, mat.desc.roughness);
-				glPipe.program.SetInt("uBaseColorTexture", 0);
 				glPipe.program.SetVec3("uBaseColorFactor", mat.desc.baseColorFactor[0], mat.desc.baseColorFactor[1], mat.desc.baseColorFactor[2]);
+				glPipe.program.SetVec2("uMetallicRoughness", mat.desc.metallic, mat.desc.roughness);
+				glPipe.program.SetBool("useTex", true);
+				glPipe.program.SetInt("uBaseColorTexture", 0);
 			}
 			else {
 				glActiveTexture(GL_TEXTURE0);
-				glBindTexture(GL_TEXTURE_2D, 0);
-				glPipe.program.SetBool("useTex", false);
-				glPipe.program.SetVec2("uMetallicRoughness", mat.desc.metallic, mat.desc.roughness);
-				glPipe.program.SetInt("uBaseColorTexture", 0);
+				glBindTexture(GL_TEXTURE_2D, baseColorTex);
 				glPipe.program.SetVec3("uBaseColorFactor", mat.desc.baseColorFactor[0], mat.desc.baseColorFactor[1], mat.desc.baseColorFactor[2]);
+				glPipe.program.SetVec2("uMetallicRoughness", mat.desc.metallic, mat.desc.roughness);
+				glPipe.program.SetBool("useTex", false);
+				glPipe.program.SetInt("uBaseColorTexture", 0);
 			}
 
 			if (di.vao) {
@@ -310,7 +310,7 @@ public:
 	//	m_cameraData = mats;
 	//}
 
-	GpuTextureId& CreateTexture2D(const CpuTexture& cpu, MaterialHandle matHandle) override {
+	GpuTextureId CreateTexture2D(const CpuTexture& cpu, GpuMaterialHandle matHandle) override {
 		TextureCreateInfo ci{};
 		ci.width = cpu.desc.width;
 		ci.height = cpu.desc.height;

@@ -888,7 +888,7 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 	uploader = new GpuUploader(m_renderBackend, m_assetManager);
 
 	auto& reg = m_activeScene->GetRegistry();
-	std::string levelPath = "Assets/Models/Game_Scene/V6/Aviary-Environment-V5-Box-Collider.gltf";
+	std::string levelPath = "Assets/Models/Game_Scene/V4/Aviary-Environment-V4-Box-Collider.glb";
 	CreateLevel(reg, *m_assetManager, levelPath);
 
 	BufferCreateInfo bufferCreateInfo = {};

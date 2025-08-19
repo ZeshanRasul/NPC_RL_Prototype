@@ -108,7 +108,7 @@ void GpuUploader::EnsureMatResident(MaterialHandle matHandle)
 	gd.roughness = cm->roughness;
 
 	gd.baseColor = EnsureTextureResident(cm->baseColorH, matHandle);
-
+	Logger::Log(1, "%s Base Color is %u\n", __FUNCTION__, gd.baseColor);
 	GpuMaterialId matId = m_backend->CreateMaterial(gd);
 
 	GpuMaterial gpuMaterial{};

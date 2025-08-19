@@ -80,7 +80,7 @@ struct PipelineDesc {
 };
 
 struct MaterialGpuDesc {
-	GpuTextureId* baseColor = nullptr;
+	GpuTextureId baseColor = -1;
 	float baseColorFactor[4];
 	float metallic;
 	float roughness;
@@ -121,7 +121,7 @@ public:
 	virtual void UpdateMaterial(GpuMaterialId materialId, const MaterialGpuDesc& desc) = 0;
 	virtual void DestroyMaterial(GpuMaterialId materialId) = 0;
 
-	virtual GpuTextureId& CreateTexture2D(const CpuTexture& cpu, GpuMaterialId matID) = 0;
+	virtual GpuTextureId CreateTexture2D(const CpuTexture& cpu, GpuMaterialHandle matHandle) = 0;
 
 	virtual void BeginFrame() = 0;
 	virtual void Submit(const DrawItem* items, uint32_t itemCount) = 0;
