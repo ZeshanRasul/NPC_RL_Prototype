@@ -48,7 +48,7 @@ void GpuUploader::EnsureResident(ModelHandle modelHandle)
 			gpuSubmesh.indexBuffer = ib;
 			gpuSubmesh.indexType = sm.index32 ? IndexType::U32 : IndexType::U16;
 			gpuSubmesh.vertexStride = sm.vertexStride;
-
+			gpuSubmesh.vertexCount = sm.vertexCount;
 			gpuSubmesh.firstIndex = sm.firstIndex;
 			gpuSubmesh.indexCount = sm.indexCount;
 			gpuSubmesh.transform = sm.transform;

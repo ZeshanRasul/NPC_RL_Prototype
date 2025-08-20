@@ -101,6 +101,7 @@ struct DrawItem {
 	uint32_t firstIndex = 0;
 	uint32_t indexCount = 0;
 	uint32_t instanceCount = 1;
+	uint32_t vertexCount = 0;
 	GpuMaterialHandle materialHandle = 0;
 	GpuMaterialId materialId = 0;
 	GpuTextureId textureId = -1;

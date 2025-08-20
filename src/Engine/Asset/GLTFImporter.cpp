@@ -143,6 +143,29 @@ static void ReadFloatAttrib2(const tinygltf::Model& model,
 	}
 }
 
+template<typename T>
+static void ReadAccessorData(const tinygltf::Model& model,
+	const tinygltf::Accessor& acc,
+	std::vector<T>& out,
+	size_t compCount)
+{
+	const tinygltf::BufferView& bv = model.bufferViews[acc.bufferView];
+	const tinygltf::Buffer& buf = model.buffers[bv.buffer];
+
+	size_t stride = bv.byteStride ? bv.byteStride : compCount * sizeof(T);
+	const unsigned char* src = buf.data.data() + bv.byteOffset + acc.byteOffset;
+
+	size_t start = out.size();
+	out.resize(start + acc.count * compCount);
+
+	for (size_t i = 0; i < acc.count; ++i) {
+		const T* val = reinterpret_cast<const T*>(src + i * stride);
+		for (size_t c = 0; c < compCount; ++c)
+			out[start + i * compCount + c] = val[c];
+	}
+}
+
+
 static PixelFormat ChoosePixelFormat(int components, int bits, int pixelType) {
 	const bool isFloat = (pixelType == TINYGLTF_COMPONENT_TYPE_FLOAT);
 
@@ -279,166 +302,172 @@ void ProcessNode(const tinygltf::Model& model,
 			// Store transform per mesh
 			cpuMesh.submeshes.reserve(mesh.primitives.size());
 			for (const auto& prim : mesh.primitives) {
-				// position (required)
-				auto itPos = prim.attributes.find("POSITION");
-				if (itPos == prim.attributes.end())
-					continue;
-				const tinygltf::Accessor& aPos = model.accessors[itPos->second];
-
-				// prepare streams
-				std::vector<glm::vec3> P, N;
-				std::vector<glm::vec2> UV0, UV1, UV2;
-				ReadFloatAttrib3(model, aPos, P);
-
-				if (auto it = prim.attributes.find("NORMAL"); it != prim.attributes.end())
-					ReadFloatAttrib3(model, model.accessors[it->second], N);
-				else
-					N.assign(P.size(), glm::vec3(0, 1, 0));
-
-				if (auto it = prim.attributes.find("TEXCOORD_0"); it != prim.attributes.end())
-					ReadFloatAttrib2(model, model.accessors[it->second], UV0);
-				else
-					UV0.assign(P.size(), glm::vec2(0, 0));
-
-				if (auto it = prim.attributes.find("TEXCOORD_1"); it != prim.attributes.end())
-					ReadFloatAttrib2(model, model.accessors[it->second], UV1);
-				else
-					UV1.assign(P.size(), glm::vec2(0, 0));
-
-				if (auto it = prim.attributes.find("TEXCOORD_2"); it != prim.attributes.end())
-					ReadFloatAttrib2(model, model.accessors[it->second], UV2);
-				else
-					UV2.assign(P.size(), glm::vec2(0, 0));
-
-				const uint32_t baseV = (uint32_t)vertices.size();
-				vertices.reserve(vertices.size() + P.size());
-
-				for (size_t i = 0; i < P.size(); ++i) {
-					Vertex v{};
-					v.pos = P[i];
-					v.norm = i < N.size() ? N[i] : glm::vec3(0, 1, 0);
-					v.uv = i < UV0.size() ? UV0[i] : glm::vec2(0);
-					v.uv1 = i < UV1.size() ? UV1[i] : glm::vec2(0);
-					v.uv2 = i < UV2.size() ? UV2[i] : glm::vec2(0);
-					vertices.push_back(v);
-					vertCount += 1;
-				}
-
-				uint32_t added = 0;
-				std::vector<uint32_t> localIdx;
-				if (prim.indices >= 0) {
-					const tinygltf::Accessor& indexAccessor = model.accessors[prim.indices];
-					const tinygltf::BufferView& bufferView = model.bufferViews[indexAccessor.bufferView];
-					const tinygltf::Buffer& buffer = model.buffers[bufferView.buffer];
-
-
-
-					// Pointer to the actual index data
-					const unsigned char* dataPtr = buffer.data.data() + bufferView.byteOffset + indexAccessor.byteOffset;
-
-					// Loop through and extract indices based on the component type
-					for (size_t i = 0; i < indexAccessor.count; ++i) {
-						switch (indexAccessor.componentType) {
-						case TINYGLTF_PARAMETER_TYPE_UNSIGNED_BYTE: {
-							idx.push_back(static_cast<unsigned int>(reinterpret_cast<const uint8_t*>(dataPtr)[i]));
-							break;
-						}
-						case TINYGLTF_PARAMETER_TYPE_UNSIGNED_SHORT: {
-							idx.push_back(static_cast<unsigned int>(reinterpret_cast<const uint16_t*>(dataPtr)[i]));
-							break;
-						}
-						case TINYGLTF_PARAMETER_TYPE_UNSIGNED_INT: {
-							idx.push_back(reinterpret_cast<const uint32_t*>(dataPtr)[i]);
-							break;
-						}
-						default:
-							Logger::Log(1, " << indexAccessor.componentType, %zu", indexAccessor.componentType);
-							break;
-						}
-					}
-					added = (uint32_t)idx.size() - firstIndex;
-				}
-				else {
-					localIdx.resize(P.size());
-					//std::iota(localIdx.begin(), localIdx.end(), 0u);
-				}
-
 				CpuSubmesh sm{};
-				sm.firstIndex = firstIndex;
-				firstIndex += added;
-				sm.indexCount = idx.size() - sm.firstIndex; // or (uint32_t)idx.size() - firstIndex
-				sm.materialIndex = (prim.material >= 0) ? (uint32_t)prim.material : 0;
-				sm.firstVertex = baseV; // optional
-				sm.vertexCount = vertices.size();
-				sm.transform = world;
-				uint32_t maxIdx = 0;
-				for (auto v : idx) maxIdx = std::max(maxIdx, v);
 
-				if (maxIdx >= vertices.size()) {
-					Logger::Log(1, "[DEBUG] mesh %zu: maxIdx=%u >= vertCount=%zu  <-- baseV/VAO issue\n",
-						mesh, maxIdx, vertices.size());
-				}
+				// gather attributes into temporary vectors
+				std::vector<float> pos, norm, tan, uv0, uv1, col;
 
-				for (auto& i : localIdx) i += baseV;
-
-				sm.firstVertex = 0;
-
-				Logger::Log(1, "ImportStaticModelFromGltf: mesh %zu name='%s' prims=%zu verts=%zu idx=%zu\n",
-					mesh,
-					mesh.name.c_str(),
-					mesh.primitives.size(),
-					vertices.size(),
-					idx.size());
-
-				sm.vertexCount = vertCount;
-				sm.vertexStride = sizeof(Vertex);
-				sm.vertexData.resize(sm.vertexStride * vertices.size());
-				if (!vertices.empty())
-					std::memcpy(sm.vertexData.data(), vertices.data(), sm.vertexData.size() * sizeof(Vertex));
-
-				//sm.indexCount = (uint32_t)indexCount;
-				maxIdx = 0;
-				for (uint32_t v : idx) maxIdx = std::max(maxIdx, v);
-				const bool fitsU16 = (maxIdx <= 0xFFFF);
-				sm.index32 = !fitsU16;
-
-
-				// TODO indexCount += sm.indexData.size();
-
-
-
-				for (const auto& sm : cpuMesh.submeshes) sum += sm.indexData.size();
-				if (sum != idx.size()) {
-					Logger::Log(1, "[DEBUG] mesh %zu: sum(submesh.indexCount)=%llu != idx.size()=%zu  <-- firstIndex/indexCount bookkeeping\n",
-						mesh, (unsigned long long)sum, idx.size());
-				}
-
-				if (fitsU16) {
-					std::vector<uint16_t> idx16(idx.begin(), idx.end());
-					sm.indexData.resize(idx16.size() * sizeof(uint16_t));
-					std::memcpy(sm.indexData.data(), idx16.data(), sm.indexData.size());
+				if (prim.attributes.count("POSITION")) {
+					const auto& acc = model.accessors.at(prim.attributes.at("POSITION"));
+					ReadAccessorData<float>(model, acc, pos, 3);
 				}
 				else {
-					sm.indexData.resize(idx.size() * sizeof(uint32_t));
-					std::memcpy(sm.indexData.data(), idx.data(), sm.indexData.size());
+					// glTF spec requires POSITION, but guard anyway
+					return;
 				}
+				if (prim.attributes.count("NORMAL")) {
+					const auto& acc = model.accessors.at(prim.attributes.at("NORMAL"));
+					ReadAccessorData<float>(model, acc, norm, 3);
+				}
+				if (prim.attributes.count("TANGENT")) {
+					const auto& acc = model.accessors.at(prim.attributes.at("TANGENT"));
+					ReadAccessorData<float>(model, acc, tan, 4);
+				}
+				if (prim.attributes.count("TEXCOORD_0")) {
+					const auto& acc = model.accessors.at(prim.attributes.at("TEXCOORD_0"));
+					ReadAccessorData<float>(model, acc, uv0, 2);
+				}
+				if (prim.attributes.count("TEXCOORD_1")) {
+					const auto& acc = model.accessors.at(prim.attributes.at("TEXCOORD_1"));
+					ReadAccessorData<float>(model, acc, uv1, 2);
+				}
+				if (prim.attributes.count("COLOR_0")) {
+					const auto& acc = model.accessors.at(prim.attributes.at("COLOR_0"));
+					size_t comps = (acc.type == TINYGLTF_TYPE_VEC3 ? 3 : 4);
+					ReadAccessorData<float>(model, acc, col, comps);
+				}
+
+				// stride = sum of enabled attributes
+				sm.vertexStride = 3 * sizeof(float);
+				if (!norm.empty()) sm.vertexStride += 3 * sizeof(float);
+				if (!tan.empty())  sm.vertexStride += 4 * sizeof(float);
+				if (!uv0.empty())  sm.vertexStride += 2 * sizeof(float);
+				if (!uv1.empty())  sm.vertexStride += 2 * sizeof(float);
+				if (!col.empty())  sm.vertexStride += (col.size() / (pos.size() / 3)) * sizeof(float);
+
+				// pack vertices interleaved
+				size_t vertCount = pos.size() / 3;
+				sm.vertexCount = (uint32_t)vertCount;
+				sm.vertexData.resize(sm.vertexCount * sm.vertexStride);
+
+				for (size_t i = 0; i < vertCount; ++i) {
+					unsigned char* dst = sm.vertexData.data() + i * sm.vertexStride;
+					float* f = reinterpret_cast<float*>(dst);
+
+					// position
+					f[0] = pos[i * 3 + 0]; f[1] = pos[i * 3 + 1]; f[2] = pos[i * 3 + 2];
+					size_t offset = 3;
+
+					if (!norm.empty()) {
+						f[offset + 0] = norm[i * 3 + 0];
+						f[offset + 1] = norm[i * 3 + 1];
+						f[offset + 2] = norm[i * 3 + 2];
+						offset += 3;
+					}
+					if (!tan.empty()) {
+						f[offset + 0] = tan[i * 4 + 0];
+						f[offset + 1] = tan[i * 4 + 1];
+						f[offset + 2] = tan[i * 4 + 2];
+						f[offset + 3] = tan[i * 4 + 3];
+						offset += 4;
+					}
+					if (!uv0.empty()) {
+						f[offset + 0] = uv0[i * 2 + 0];
+						f[offset + 1] = uv0[i * 2 + 1];
+						offset += 2;
+					}
+					if (!uv1.empty()) {
+						f[offset + 0] = uv1[i * 2 + 0];
+						f[offset + 1] = uv1[i * 2 + 1];
+						offset += 2;
+					}
+					if (!col.empty()) {
+						size_t comps = col.size() / vertCount;
+						for (size_t c = 0; c < comps; ++c)
+							f[offset + c] = col[i * comps + c];
+						offset += comps;
+					}
+				}
+
+				// indices
+				size_t idxBegin = 0;
+				if (prim.indices >= 0) {
+					const auto& acc = model.accessors[prim.indices];
+					const auto& bv = model.bufferViews[acc.bufferView];
+					const auto& buf = model.buffers[bv.buffer];
+
+					size_t stride = bv.byteStride ? bv.byteStride :
+						(acc.componentType == TINYGLTF_COMPONENT_TYPE_UNSIGNED_INT ? 4 :
+							acc.componentType == TINYGLTF_COMPONENT_TYPE_UNSIGNED_SHORT ? 2 : 1);
+
+					const unsigned char* base = buf.data.data() + bv.byteOffset + acc.byteOffset;
+					sm.indexCount = (uint32_t)acc.count;
+					sm.index32 = (acc.componentType == TINYGLTF_COMPONENT_TYPE_UNSIGNED_INT);
+
+					size_t elemSize = sm.index32 ? sizeof(uint32_t) : sizeof(uint16_t);
+					sm.indexData.resize(sm.indexCount * elemSize);
+
+					for (size_t i = 0; i < acc.count; ++i) {
+						const unsigned char* p = base + i * stride;
+						uint32_t v = 0;
+						switch (acc.componentType) {
+						case TINYGLTF_COMPONENT_TYPE_UNSIGNED_BYTE:  v = *reinterpret_cast<const uint8_t*>(p); break;
+						case TINYGLTF_COMPONENT_TYPE_UNSIGNED_SHORT: v = *reinterpret_cast<const uint16_t*>(p); break;
+						case TINYGLTF_COMPONENT_TYPE_UNSIGNED_INT:   v = *reinterpret_cast<const uint32_t*>(p); break;
+						default: break;
+						}
+						if (sm.index32)
+							reinterpret_cast<uint32_t*>(sm.indexData.data())[i] = v;
+						else
+							reinterpret_cast<uint16_t*>(sm.indexData.data())[i] = (uint16_t)v;
+					}
+				}
+				else {
+					// non-indexed: sequential indices
+					sm.indexCount = sm.vertexCount;
+					sm.index32 = (sm.vertexCount > 65535);
+					size_t elemSize = sm.index32 ? sizeof(uint32_t) : sizeof(uint16_t);
+					sm.indexData.resize(sm.indexCount * elemSize);
+					for (uint32_t i = 0; i < sm.vertexCount; ++i) {
+						if (sm.index32)
+							reinterpret_cast<uint32_t*>(sm.indexData.data())[i] = i;
+						else
+							reinterpret_cast<uint16_t*>(sm.indexData.data())[i] = (uint16_t)i;
+					}
+				}
+
+				// material
+				sm.materialIndex = prim.material >= 0 ? prim.material : 0;
+
+				// AABB
+				sm.aabbMin[0] = sm.aabbMin[1] = sm.aabbMin[2] = FLT_MAX;
+				sm.aabbMax[0] = sm.aabbMax[1] = sm.aabbMax[2] = -FLT_MAX;
+				for (size_t i = 0; i < vertCount; i++) {
+					float x = pos[i * 3 + 0], y = pos[i * 3 + 1], z = pos[i * 3 + 2];
+					sm.aabbMin[0] = std::min(sm.aabbMin[0], x); sm.aabbMax[0] = std::max(sm.aabbMax[0], x);
+					sm.aabbMin[1] = std::min(sm.aabbMin[1], y); sm.aabbMax[1] = std::max(sm.aabbMax[1], y);
+					sm.aabbMin[2] = std::min(sm.aabbMin[2], z); sm.aabbMax[2] = std::max(sm.aabbMax[2], z);
+				}
+
+
+				Logger::Log(1, "%s: loaded %zu meshes with %u vertices and %u indices\n",
+					__FUNCTION__,
+					outModel.meshes.size(),
+					(unsigned)sm.vertexData.size(),
+					(unsigned)sm.indexData.size());
 
 				cpuMesh.submeshes.push_back(sm);
 
 			}
 			outModel.meshes.emplace_back(std::move(cpuMesh));
-			Logger::Log(1, "%s: loaded %zu meshes with %u vertices and %u indices\n",
-				__FUNCTION__,
-				outModel.meshes.size(),
-				(unsigned)vertices.size(),
-				(unsigned)idx.size());
+		
+		}
 	}
-}
 
-// Recurse into children
-for (int childIndex : node.children) {
-	ProcessNode(model, childIndex, world, outModel, outMaterials, outTextures);
-}
+	// Recurse into children
+	for (int childIndex : node.children) {
+		ProcessNode(model, childIndex, world, outModel, outMaterials, outTextures);
+	}
 }
 
 CpuStaticModel ImportModel(const std::string& gltfPath, std::vector<CpuMaterial>& outMaterials, std::vector<CpuTexture>& outTextures) {
@@ -535,5 +564,6 @@ struct VertexLayoutKey {
 	uint8_t texCoordCount = 0;
 	bool hasColor0 = false;
 };
+
 
 

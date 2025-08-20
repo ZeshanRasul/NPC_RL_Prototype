@@ -18,6 +18,7 @@ struct GpuSubmeshBuffer {
 	GpuBufferHandle indexBuffer = 0;
 	IndexType indexType = IndexType::U32;
 	int vertexStride = 0;
+	uint32_t vertexCount = 0;
 	glm::mat4 transform = glm::mat4(1.0f); // Optional, for static meshes
 };
 
@@ -73,7 +74,7 @@ public:
 	}
 
 	GpuTextureId EnsureTextureResident(TextureHandle th, MaterialHandle matHandle) {
-		if (!th) return 158u;
+		if (!th) return InvalidHandle;
 		auto it = m_TextureCache.find(th);
 		if (it != m_TextureCache.end()) return it->second;
 
