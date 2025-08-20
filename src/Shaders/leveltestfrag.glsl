@@ -18,7 +18,7 @@ struct DirLight {
 	vec3 specular;
 };
 
-DirLight dirLight = DirLight(vec3(-0.5, -1.0, 2.0), vec3(1.0, 1.0, 1.0), vec3(0.5, 0.5, 0.5), vec3(0.1, 0.2, 0.3));
+DirLight dirLight = DirLight(vec3(-0.5, -1.0, 2.0), vec3(0.5, 0.5, 0.5), vec3(0.5, 0.1, 0.3), vec3(0.1, 0.2, 0.3));
 
 
 vec3 CalcDirLight(DirLight light, vec3 normal)
