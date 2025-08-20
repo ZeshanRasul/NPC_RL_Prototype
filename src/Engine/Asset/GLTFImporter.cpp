@@ -274,6 +274,8 @@ void ProcessNode(const tinygltf::Model& model,
 		const tinygltf::Mesh& mesh = model.meshes[node.mesh];
 		for (const auto& prim : mesh.primitives) {
 			CpuStaticMesh cpuMesh;
+
+			uint32_t vertCount = 0;
 			// Store transform per mesh
 			cpuMesh.submeshes.reserve(mesh.primitives.size());
 			for (const auto& prim : mesh.primitives) {
@@ -319,6 +321,7 @@ void ProcessNode(const tinygltf::Model& model,
 					v.uv1 = i < UV1.size() ? UV1[i] : glm::vec2(0);
 					v.uv2 = i < UV2.size() ? UV2[i] : glm::vec2(0);
 					vertices.push_back(v);
+					vertCount += 1;
 				}
 
 				uint32_t added = 0;
@@ -366,6 +369,7 @@ void ProcessNode(const tinygltf::Model& model,
 				sm.indexCount = idx.size() - sm.firstIndex; // or (uint32_t)idx.size() - firstIndex
 				sm.materialIndex = (prim.material >= 0) ? (uint32_t)prim.material : 0;
 				sm.firstVertex = baseV; // optional
+				sm.vertexCount = vertices.size();
 				sm.transform = world;
 				uint32_t maxIdx = 0;
 				for (auto v : idx) maxIdx = std::max(maxIdx, v);
@@ -377,14 +381,7 @@ void ProcessNode(const tinygltf::Model& model,
 
 				for (auto& i : localIdx) i += baseV;
 
-				sm.firstVertex = baseV;
-				//sm.firstIndex = (uint32_t)idx.size();
-				//sm.indexCount = (uint32_t)localIdx.size();
-
-		/*		for (uint32_t i = firstIndex; i < added; i++)
-				{
-					sm.indexData.push_back(idx[i]);
-				}*/
+				sm.firstVertex = 0;
 
 				Logger::Log(1, "ImportStaticModelFromGltf: mesh %zu name='%s' prims=%zu verts=%zu idx=%zu\n",
 					mesh,
@@ -393,11 +390,11 @@ void ProcessNode(const tinygltf::Model& model,
 					vertices.size(),
 					idx.size());
 
-				sm.vertexCount = (uint32_t)vertices.size() - baseV;
+				sm.vertexCount = vertCount;
 				sm.vertexStride = sizeof(Vertex);
 				sm.vertexData.resize(sm.vertexStride * vertices.size());
 				if (!vertices.empty())
-					std::memcpy(sm.vertexData.data(), vertices.data(), sm.vertexData.size());
+					std::memcpy(sm.vertexData.data(), vertices.data(), sm.vertexData.size() * sizeof(Vertex));
 
 				//sm.indexCount = (uint32_t)indexCount;
 				maxIdx = 0;
@@ -540,365 +537,3 @@ struct VertexLayoutKey {
 };
 
 
-
-
-bool ImportStaticModelFromGltf(const std::string& gltfPath,
-	CpuStaticModel& outCpuModel,
-	std::vector<CpuMaterial>& outMaterials,
-	std::vector<CpuTexture>& outTextures)
-{
-	tinygltf::Model model;
-	tinygltf::TinyGLTF loader;
-	std::string err, warn;
-
-	bool ok = loader.LoadASCIIFromFile(&model, &err, &warn, gltfPath);
-	if (!ok) ok = loader.LoadBinaryFromFile(&model, &err, &warn, gltfPath);
-
-	if (!warn.empty())
-		Logger::Log(1, "%s warnings:\n%s\n", __FUNCTION__, warn.c_str());
-	if (!ok) {
-		Logger::Log(1, "%s errors:\n%s\n", __FUNCTION__, err.c_str());
-		Logger::Log(1, "%s: failed to load %s\n", __FUNCTION__, gltfPath.c_str());
-		return false;
-	}
-
-	outCpuModel.meshes.clear();
-	outCpuModel.materials.clear();
-	outMaterials.clear();
-	outTextures.clear();
-
-	outCpuModel.meshes.reserve(model.meshes.size());
-	outCpuModel.materials.reserve(model.materials.size());
-	outMaterials.reserve(model.materials.size());
-	outTextures.reserve(model.images.size());
-
-	for (const auto& m : model.materials) {
-		CpuMaterial cm{};
-		CpuTexture baseColorTex{};
-		CpuTexture metRoughTex{};
-		CpuTexture normalTex{};
-		if (m.pbrMetallicRoughness.baseColorFactor.size() == 4) {
-			for (int k = 0; k < 4; ++k)
-				cm.baseColorFactor[k] = (float)m.pbrMetallicRoughness.baseColorFactor[k];
-		}
-		else {
-			cm.baseColorFactor[0] = cm.baseColorFactor[1] =
-				cm.baseColorFactor[2] = cm.baseColorFactor[3] = 1.0f;
-		}
-		if (m.pbrMetallicRoughness.metallicFactor >= 0.0f) cm.metallic = (float)m.pbrMetallicRoughness.metallicFactor;
-		if (m.pbrMetallicRoughness.roughnessFactor >= 0.0f) cm.roughness = (float)m.pbrMetallicRoughness.roughnessFactor;
-
-		if (m.pbrMetallicRoughness.baseColorTexture.index >= 0)
-		{
-			uint8_t texIndex;
-			texIndex = m.pbrMetallicRoughness.baseColorTexture.index;
-
-			const tinygltf::Texture& gltfTex = model.textures[texIndex];
-			tinygltf::Image& gltfImg = model.images[gltfTex.source];
-
-			SamplerDesc sampler{};
-			if (gltfTex.sampler >= 0 && gltfTex.sampler < (int)model.samplers.size()) {
-				sampler = MapGltfSampler(&model.samplers[gltfTex.sampler]);
-			}
-			else {
-				sampler = MapGltfSampler(nullptr); // or a default SamplerDesc
-			}
-
-			baseColorTex = BuildCpuTextureFromGltfImage(gltfImg, sampler, "baseColor", baseColorTex);
-
-			//cm.baseColor = &baseColorTex;
-			Logger::Log(1, "%s: baseColor texture %u for material %s\n",
-				__FUNCTION__, texIndex, m.name.c_str());
-			Logger::Log(1, "%s: Mat baseColor texture %u for material %s\n",
-				__FUNCTION__, baseColorTex.desc.width, m.name.c_str());
-
-			outTextures.push_back(std::move(baseColorTex));
-			cm.baseColorTexIdx = (int)outTextures.size() - 1;
-
-			Logger::Log(1, "%s: baseColorTexIdx %d for material %s\n",
-				__FUNCTION__, cm.baseColorTexIdx, m.name.c_str());
-		}
-
-		//if (m.pbrMetallicRoughness.baseColorTexture.index >= 0)
-		//{
-		//	uint8_t texIndex;
-		//	texIndex = m.pbrMetallicRoughness.baseColorTexture.index;
-
-		//	const tinygltf::Texture& gltfTex = model.textures[texIndex];
-		//	tinygltf::Image& gltfImg = model.images[gltfTex.source];
-
-		//	SamplerDesc sampler{};
-		//	if (gltfTex.sampler >= 0 && gltfTex.sampler < (int)model.samplers.size()) {
-		//		sampler = MapGltfSampler(&model.samplers[gltfTex.sampler]);
-		//	}
-		//	else {
-		//		sampler = MapGltfSampler(nullptr); // or a default SamplerDesc
-		//	}
-
-		//	BuildCpuTextureFromGltfImage(gltfImg, sampler, "baseColor", baseColorTex);
-
-		//	//cm.baseColor = &baseColorTex;
-		//	Logger::Log(1, "%s: baseColor texture %u for material %s\n",
-		//		__FUNCTION__, texIndex, m.name.c_str());
-		//	Logger::Log(1, "%s: Mat baseColor texture %u for material %s\n",
-		//		__FUNCTION__, baseColorTex.desc.width, m.name.c_str());
-
-		//	outTextures.push_back(std::move(baseColorTex));
-		//	cm.baseColorTexIdx = (int)outTextures.size() - 1;
-
-		//	Logger::Log(1, "%s: baseColorTexIdx %d for material %s\n",
-		//		__FUNCTION__, cm.baseColorTexIdx, m.name.c_str());
-		//}
-
-		//if (m.pbrMetallicRoughness.metallicRoughnessTexture.index >= 0)
-		//{
-		//	uint8_t texIndex;
-		//	texIndex = m.pbrMetallicRoughness.metallicRoughnessTexture.index;
-
-		//	const tinygltf::Texture& gltfTex = model.textures[texIndex];
-		//	tinygltf::Image& gltfImg = model.images[gltfTex.source];
-
-		//	SamplerDesc sampler{};
-		//	if (gltfTex.sampler >= 0 && gltfTex.sampler < (int)model.samplers.size()) {
-		//		sampler = MapGltfSampler(&model.samplers[gltfTex.sampler]);
-		//	}
-		//	else {
-		//		sampler = MapGltfSampler(nullptr); // or a default SamplerDesc
-		//	}
-
-		//	BuildCpuTextureFromGltfImage(gltfImg, sampler, "", baseColorTex);
-
-		//	//cm.baseColor = &baseColorTex;
-		//	Logger::Log(1, "%s: metrough texture %u for material %s\n",
-		//		__FUNCTION__, texIndex, m.name.c_str());
-		//	Logger::Log(1, "%s: Mat metrough texture %u for material %s\n",
-		//		__FUNCTION__, baseColorTex.desc.width, m.name.c_str());
-
-		//	outTextures.push_back(std::move(baseColorTex));
-		//	cm.baseColorTexIdx = (int)outTextures.size() - 1;
-
-		//	Logger::Log(1, "%s: metrough %d for material %s\n",
-		//		__FUNCTION__, cm.baseColorTexIdx, m.name.c_str());
-		//}
-
-		Logger::Log(1, "%s: material %s, baseColorFactor: %.2f, %.2f, %.2f, %.2f\n",
-			__FUNCTION__, m.name.c_str(),
-			cm.baseColorFactor[0], cm.baseColorFactor[1],
-			cm.baseColorFactor[2], cm.baseColorFactor[3]);
-		Logger::Log(1, "%s: material %s, metallic: %.2f, roughness: %.2f\n", __FUNCTION__,
-			m.name.c_str(), cm.metallic, cm.roughness);
-
-		Logger::Log(1, "%s: material %s, baseColorH: %u\n", __FUNCTION__,
-			m.name.c_str(), cm.baseColorH);
-		outMaterials.push_back(cm);
-	}
-
-
-
-	// Vertex with uv0/uv1/uv2
-	struct Vertex {
-		glm::vec3 pos;
-		glm::vec3 norm;
-		glm::vec2 uv;
-		glm::vec2 uv1;
-		glm::vec2 uv2;
-	};
-
-	if (model.meshes.empty()) {
-		Logger::Log(1, "%s: no meshes in file\n", __FUNCTION__);
-		return false;
-	}
-	outCpuModel.meshes.reserve(model.meshes.size());
-
-	for (size_t im = 0; im < model.meshes.size(); ++im) {
-		const tinygltf::Mesh& gmesh = model.meshes[im];
-
-		const tinygltf::Value& val = gmesh.extras.Get("isBox");
-		const tinygltf::Value& val2 = gmesh.extras.Get("isCollider");
-		if (val.IsInt() && val.Get<int>() == 1 && val2.IsInt() && val2.Get<int>() == 1) {
-			Logger::Log(1, "Mesh is a box collider, skipping\n");
-			continue;
-		}
-
-		const tinygltf::Value& planeVal = gmesh.extras.Get("isPlane");
-		const tinygltf::Value& planeVal2 = gmesh.extras.Get("isCollider");
-		if (planeVal.IsInt() && planeVal.Get<int>() == 1 && planeVal2.IsInt() && planeVal2.Get<int>() == 1) {
-			Logger::Log(1, "Mesh is a plane collider, skipping\n");
-			continue;
-		}
-
-		VertexLayoutKey layoutKey{};
-
-		CpuStaticMesh cpu{};
-		std::vector<Vertex>         vertices;
-		std::vector<uint32_t>    idx;
-		size_t indexCount = 0;
-		// indices
-		uint32_t firstIndex = 0;
-		uint64_t sum = 0;
-
-		cpu.submeshes.reserve(gmesh.primitives.size());
-		for (const auto& prim : gmesh.primitives) {
-			// position (required)
-			auto itPos = prim.attributes.find("POSITION");
-			if (itPos == prim.attributes.end())
-				continue;
-			const tinygltf::Accessor& aPos = model.accessors[itPos->second];
-
-			// prepare streams
-			std::vector<glm::vec3> P, N;
-			std::vector<glm::vec2> UV0, UV1, UV2;
-			ReadFloatAttrib3(model, aPos, P);
-
-			if (auto it = prim.attributes.find("NORMAL"); it != prim.attributes.end())
-				ReadFloatAttrib3(model, model.accessors[it->second], N);
-			else
-				N.assign(P.size(), glm::vec3(0, 1, 0));
-
-			if (auto it = prim.attributes.find("TEXCOORD_0"); it != prim.attributes.end())
-				ReadFloatAttrib2(model, model.accessors[it->second], UV0);
-			else
-				UV0.assign(P.size(), glm::vec2(0, 0));
-
-			if (auto it = prim.attributes.find("TEXCOORD_1"); it != prim.attributes.end())
-				ReadFloatAttrib2(model, model.accessors[it->second], UV1);
-			else
-				UV1.assign(P.size(), glm::vec2(0, 0));
-
-			if (auto it = prim.attributes.find("TEXCOORD_2"); it != prim.attributes.end())
-				ReadFloatAttrib2(model, model.accessors[it->second], UV2);
-			else
-				UV2.assign(P.size(), glm::vec2(0, 0));
-
-			const uint32_t baseV = (uint32_t)vertices.size();
-			vertices.reserve(vertices.size() + P.size());
-
-			for (size_t i = 0; i < P.size(); ++i) {
-				Vertex v{};
-				v.pos = P[i];
-				v.norm = i < N.size() ? N[i] : glm::vec3(0, 1, 0);
-				v.uv = i < UV0.size() ? UV0[i] : glm::vec2(0);
-				v.uv1 = i < UV1.size() ? UV1[i] : glm::vec2(0);
-				v.uv2 = i < UV2.size() ? UV2[i] : glm::vec2(0);
-				vertices.push_back(v);
-			}
-
-			uint32_t added = 0;
-			std::vector<uint32_t> localIdx;
-			if (prim.indices >= 0) {
-				const tinygltf::Accessor& indexAccessor = model.accessors[prim.indices];
-				const tinygltf::BufferView& bufferView = model.bufferViews[indexAccessor.bufferView];
-				const tinygltf::Buffer& buffer = model.buffers[bufferView.buffer];
-
-
-
-				// Pointer to the actual index data
-				const unsigned char* dataPtr = buffer.data.data() + bufferView.byteOffset + indexAccessor.byteOffset;
-
-				// Loop through and extract indices based on the component type
-				for (size_t i = 0; i < indexAccessor.count; ++i) {
-					switch (indexAccessor.componentType) {
-					case TINYGLTF_PARAMETER_TYPE_UNSIGNED_BYTE: {
-						idx.push_back(static_cast<unsigned int>(reinterpret_cast<const uint8_t*>(dataPtr)[i]));
-						break;
-					}
-					case TINYGLTF_PARAMETER_TYPE_UNSIGNED_SHORT: {
-						idx.push_back(static_cast<unsigned int>(reinterpret_cast<const uint16_t*>(dataPtr)[i]));
-						break;
-					}
-					case TINYGLTF_PARAMETER_TYPE_UNSIGNED_INT: {
-						idx.push_back(reinterpret_cast<const uint32_t*>(dataPtr)[i]);
-						break;
-					}
-					default:
-						Logger::Log(1, " << indexAccessor.componentType, %zu", indexAccessor.componentType);
-						break;
-					}
-				}
-				added = (uint32_t)idx.size() - firstIndex;
-			}
-			else {
-				localIdx.resize(P.size());
-				//std::iota(localIdx.begin(), localIdx.end(), 0u);
-			}
-
-			CpuSubmesh sm{};
-			sm.firstIndex = firstIndex;
-			firstIndex += added;
-			sm.indexCount = idx.size() - sm.firstIndex; // or (uint32_t)idx.size() - firstIndex
-			sm.materialIndex = (prim.material >= 0) ? (uint32_t)prim.material : 0;
-			sm.firstVertex = baseV; // optional
-
-			uint32_t maxIdx = 0;
-			for (auto v : idx) maxIdx = std::max(maxIdx, v);
-
-			if (maxIdx >= vertices.size()) {
-				Logger::Log(1, "[DEBUG] mesh %zu: maxIdx=%u >= vertCount=%zu  <-- baseV/VAO issue\n",
-					im, maxIdx, vertices.size());
-			}
-
-			for (auto& i : localIdx) i += baseV;
-
-			sm.firstVertex = baseV;
-			//sm.firstIndex = (uint32_t)idx.size();
-			//sm.indexCount = (uint32_t)localIdx.size();
-
-	/*		for (uint32_t i = firstIndex; i < added; i++)
-			{
-				sm.indexData.push_back(idx[i]);
-			}*/
-
-			Logger::Log(1, "ImportStaticModelFromGltf: mesh %zu name='%s' prims=%zu verts=%zu idx=%zu\n",
-				im,
-				gmesh.name.c_str(),
-				gmesh.primitives.size(),
-				vertices.size(),
-				idx.size());
-
-			sm.vertexCount = (uint32_t)vertices.size() - baseV;
-			sm.vertexStride = sizeof(Vertex);
-			sm.vertexData.resize(sm.vertexStride * vertices.size());
-			if (!vertices.empty())
-				std::memcpy(sm.vertexData.data(), vertices.data(), sm.vertexData.size());
-
-			//sm.indexCount = (uint32_t)indexCount;
-			maxIdx = 0;
-			for (uint32_t v : idx) maxIdx = std::max(maxIdx, v);
-			const bool fitsU16 = (maxIdx <= 0xFFFF);
-			sm.index32 = !fitsU16;
-
-
-			// TODO indexCount += sm.indexData.size();
-
-
-
-			for (const auto& sm : cpu.submeshes) sum += sm.indexData.size();
-			if (sum != idx.size()) {
-				Logger::Log(1, "[DEBUG] mesh %zu: sum(submesh.indexCount)=%llu != idx.size()=%zu  <-- firstIndex/indexCount bookkeeping\n",
-					im, (unsigned long long)sum, idx.size());
-			}
-
-			if (fitsU16) {
-				std::vector<uint16_t> idx16(idx.begin(), idx.end());
-				sm.indexData.resize(idx16.size() * sizeof(uint16_t));
-				std::memcpy(sm.indexData.data(), idx16.data(), sm.indexData.size());
-			}
-			else {
-				sm.indexData.resize(idx.size() * sizeof(uint32_t));
-				std::memcpy(sm.indexData.data(), idx.data(), sm.indexData.size());
-			}
-
-			cpu.submeshes.push_back(sm);
-
-		}
-		outCpuModel.meshes.emplace_back(std::move(cpu));
-		Logger::Log(1, "%s: loaded %zu meshes with %u vertices and %u indices\n",
-			__FUNCTION__,
-			outCpuModel.meshes.size(),
-			(unsigned)vertices.size(),
-			(unsigned)idx.size());
-	}
-
-	Logger::Log(1, "%s: loaded %zu materials\n", __FUNCTION__, outMaterials.size());
-	return true;
-}
