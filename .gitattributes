@@ -222,3 +222,4 @@ Assets/Models/Game_Scene/V6/Basement-2-Side-wall-Texture-Baked.png filter=lfs di
 Assets/Models/Game_Scene/V6/UV_SET_02_normal.png filter=lfs diff=lfs merge=lfs -text
 Assets/Models/Game_Scene/V6/coast_land_rocks_01_rough_2k.png filter=lfs diff=lfs merge=lfs -text
 Assets/Models/Game_Scene/V6/rusty_metal_sheet_diff_2k.png filter=lfs diff=lfs merge=lfs -text
+Assets/Models/Game_Scene/V4/Updated20.08/Aviary-Environment-V5-Box-Collider[[:space:]](444).glb filter=lfs diff=lfs merge=lfs -text
