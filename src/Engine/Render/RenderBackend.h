@@ -81,7 +81,7 @@ struct PipelineDesc {
 };
 
 struct MaterialGpuDesc {
-	GpuTextureId baseColor = -1;
+	GpuTextureId baseColor = 0;
 	float baseColorFactor[4];
 	float metallic;
 	float roughness;

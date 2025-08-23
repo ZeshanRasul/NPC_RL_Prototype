@@ -71,10 +71,10 @@ void GpuUploader::EnsureResident(ModelHandle modelHandle)
 			glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, stride, (void*)(sizeof(float) * 3));
 			glEnableVertexAttribArray(2); // TexCoord		stride
 			glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, stride, (void*)(sizeof(float) * 6));
-			glEnableVertexAttribArray(3); // TexCoord2		stride
-			glVertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE, stride, (void*)(sizeof(float) * 8));
-			glEnableVertexAttribArray(4); // TexCoord3		stride
-			glVertexAttribPointer(4, 2, GL_FLOAT, GL_FALSE, stride, (void*)(sizeof(float) * 10));
+			//glEnableVertexAttribArray(3); // TexCoord2		stride
+			//glVertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE, stride, (void*)(sizeof(float) * 8));
+			//glEnableVertexAttribArray(4); // TexCoord3		stride
+			//glVertexAttribPointer(4, 2, GL_FLOAT, GL_FALSE, stride, (void*)(sizeof(float) * 10));
 
 
 			glBindVertexArray(0);
@@ -102,7 +102,7 @@ void GpuUploader::EnsureMatResident(MaterialHandle matHandle)
 	if (!cm) return;
 
 
-	MaterialGpuDesc gd{};
+	MaterialGpuDesc gd;
 	std::memcpy(gd.baseColorFactor, cm->baseColorFactor, sizeof(gd.baseColorFactor));
 	gd.metallic = cm->metallic;
 	gd.roughness = cm->roughness;
@@ -114,6 +114,8 @@ void GpuUploader::EnsureMatResident(MaterialHandle matHandle)
 	GpuMaterial gpuMaterial{};
 	gpuMaterial.desc = gd;
 	gpuMaterial.id = matId;
+	Logger::Log(1, "%s Base Color is %u\n", __FUNCTION__, gpuMaterial.desc.baseColor);
+
 	m_materialBuffers.emplace(matHandle, gpuMaterial);
 }
 //

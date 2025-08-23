@@ -262,9 +262,9 @@ public:
 		// Upload one level (assumes tightly packed data).
 		// If you need strides, expose that in TextureCreateInfo.
 		glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_SRGB8_ALPHA8,
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_SRGB8,
 			ci.width, ci.height, 0,
-			GL_RGBA, GL_UNSIGNED_BYTE,
+			GL_RGB, GL_UNSIGNED_BYTE,
 			ci.initialData);
 
 		if (ci.mipLevels >= 1) {
@@ -272,8 +272,8 @@ public:
 		}
 		SamplerDescGpu sdg;
 		const auto gls = ToGL(sdg);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
@@ -283,6 +283,9 @@ public:
 			tex, ci.width, ci.height, (int)ci.format);
 
 		m_textures[matHandle] = tex;
+
+		Logger::Log(1, "%s: Tex ID: %u, for Material Handle %u\n", __FUNCTION__, tex, matHandle);
+
 		return tex;
 	}
 

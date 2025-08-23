@@ -62,7 +62,7 @@ public:
 		if (it != m_materialBuffers.end()) {
 			return it->second.id;
 		}
-		return 0;
+		return -1;
 	}
 
 	GpuTextureId TexId(MaterialHandle handle) {
@@ -87,7 +87,7 @@ public:
 
 	GpuMaterial UploadMaterial(const CpuMaterial& cm) {
 		GpuMaterial gm{};
-	//	gm.desc.baseColor = EnsureTextureResident(cm.baseColorH, );
+	//	gm.desc.baseColor = EnsureTextureResident(cm.baseColorH, cm.);
 		//gm.desc.normal = EnsureTextureResident(cm.normalTex);
 		//gm.desc.orm = EnsureTextureResident(cm.ormTex);
 		return gm;

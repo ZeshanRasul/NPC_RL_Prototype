@@ -14,7 +14,7 @@ void RenderBackendGL::Submit(const DrawItem* items, uint32_t itemCount) {
 
 		const auto& mat = m_materials[di.materialHandle];
 		const auto& baseColorTex = m_textures[di.materialHandle];
-		glDisable(GL_CULL_FACE);
+	//	glDisable(GL_CULL_FACE);
 		//Logger::Log(1, "%s base color tex: %u\n", __FUNCTION__, baseColorTex);
 		glUseProgram(glPipe.program.GetProgram());
 
@@ -47,10 +47,11 @@ void RenderBackendGL::Submit(const DrawItem* items, uint32_t itemCount) {
 
 		if (di.vao) {
 			glBindVertexArray(di.vao);
+			//glDisable(GL_CULL_FACE);
 
-			glDrawElements(GL_TRIANGLES, di.indexCount,
+			glDrawElements(GL_TRIANGLES, (GLsizei)di.indexCount,
 				di.indexType == IndexType::U32 ? GL_UNSIGNED_INT : GL_UNSIGNED_SHORT,
-				(void*)(di.firstIndex * (di.indexType == IndexType::U32 ? sizeof(uint32_t) : sizeof(uint16_t))));
+				(void*)(uintptr_t)(0 * (di.indexType == IndexType::U32 ? sizeof(uint32_t) : sizeof(uint16_t))));
 			glBindVertexArray(0);
 		}
 		else {
@@ -64,10 +65,11 @@ void RenderBackendGL::Submit(const DrawItem* items, uint32_t itemCount) {
 			glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, stride, (void*)3);
 			glEnableVertexAttribArray(2);
 			glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, stride, (void*)6);
-			glEnableVertexAttribArray(3);
-			glVertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE, stride, (void*)8);
-			glEnableVertexAttribArray(4);
-			glVertexAttribPointer(4, 2, GL_FLOAT, GL_FALSE, stride, (void*)10);
+			//glEnableVertexAttribArray(3);
+			//glVertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE, stride, (void*)8);
+			//glEnableVertexAttribArray(4);
+			//glVertexAttribPointer(4, 2, GL_FLOAT, GL_FALSE, stride, (void*)10);
+			glDisable(GL_CULL_FACE);
 
 			GLenum iType = (di.indexType == IndexType::U32) ? GL_UNSIGNED_INT : GL_UNSIGNED_SHORT;
 			glDrawElements(GL_TRIANGLES, (GLsizei)di.indexCount, iType, (void*)(uintptr_t)(di.firstIndex * (di.indexType == IndexType::U32 ? sizeof(uint32_t) : sizeof(uint16_t))));

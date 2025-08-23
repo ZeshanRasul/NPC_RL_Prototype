@@ -4,11 +4,12 @@ out vec4 FragColor;
 in vec2 TexCoords;
 in vec3 Normal;
 
+uniform sampler2D uBaseColorTexture;
+
 uniform vec3 uBaseColorFactor;
 uniform vec2 uMetallicRoughness;
 uniform bool useTex;
 
-uniform sampler2D uBaseColorTexture;
 
 struct DirLight {
 	vec3 direction;
@@ -53,5 +54,5 @@ void main() {
 
 //	vec4 col = texture(uBaseColorTexture, TexCoords);
 	
-    FragColor = vec4(result, 1.0);
+    FragColor = vec4(TexCoords, 1.0, 1.0);
 }

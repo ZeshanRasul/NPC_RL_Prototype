@@ -881,13 +881,13 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 	PipelineDesc pipelineDesc{};
 	pipelineDesc.vertexShaderPath = "src/Shaders/leveltestvert.glsl";
 	pipelineDesc.fragmentShaderPath =  "src/Shaders/leveltestfrag.glsl";
-	pipelineDesc.vertexStride = (uint32_t)((int)(sizeof(float)) * 12);
+	pipelineDesc.vertexStride = (uint32_t)((int)(sizeof(float)) * 8);
 
 	pipes.staticPbr = m_renderBackend->CreatePipeline(pipelineDesc);
 	uploader = new GpuUploader(m_renderBackend, m_assetManager);
 
 	auto& reg = m_activeScene->GetRegistry();
-	std::string levelPath = "Assets/Models/Game_Scene/V4/Aviary-Environment-V4-Box-Collider.glb";
+	std::string levelPath = "Assets/Models/Game_Scene/V7/Test1.glb";
 	CreateLevel(reg, *m_assetManager, levelPath);
 
 	BufferCreateInfo bufferCreateInfo = {};
