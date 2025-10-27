@@ -156,6 +156,7 @@ void Ground::SetupGLTFMeshes(tinygltf::Model* model)
 			glBindVertexArray(0);
 
 			gltfMesh.primitives.push_back(gltfPrim);
+
 		}
 
 		meshData[meshIndex] = gltfMesh;
@@ -174,8 +175,9 @@ void Ground::SetupGLTFMeshes(tinygltf::Model* model)
 			//planeData.resize(++planeCount);
 			planeData.push_back(gltfMesh);
 			continue;
+		}
 	}
-}
+
 }
 
 std::vector<GLuint> Ground::LoadGLTFTextures(tinygltf::Model* model) {
@@ -521,7 +523,7 @@ Ground::Ground(glm::vec3 pos, glm::vec3 scale, Shader* shdr, Shader* shadowMapSh
 {
 	mapModel = new tinygltf::Model;
 
-	std::string modelFilename = "Assets/Models/Game_Scene/Final/Environment-Final.glb";
+	std::string modelFilename = "Assets/Models/Game_Scene/Final/Aviary-Environment-Final-GLB-V1.glb";
 
 	tinygltf::TinyGLTF gltfLoader;
 	std::string loaderErrors;
@@ -577,36 +579,37 @@ Ground::Ground(glm::vec3 pos, glm::vec3 scale, Shader* shdr, Shader* shadowMapSh
 void Ground::DrawObject(glm::mat4 viewMat, glm::mat4 proj, bool shadowMap, glm::mat4 lightSpaceMat, GLuint shadowMapTexture, glm::vec3 camPos)
 {
 	DrawGLTFModel(viewMat, proj, camPos);
-	for (auto& debugPlane : debugPlanes)
-	{
-		glDisable(GL_DEPTH_TEST);
-		planeShader->Use();
-		planeShader->SetMat4("view", viewMat);
-		planeShader->SetMat4("projection", proj);
-		planeShader->SetMat4("lightSpaceMatrix", lightSpaceMat);
-		planeShader->SetVec3("lineColor", 1.0f, 0.0f, 1.0f);
-		glLineWidth(2.0f);
-		glBindVertexArray(debugPlane.vao);
-		glDrawArrays(GL_LINE_STRIP, 0, debugPlane.countNo);
-		glBindVertexArray(0);
-		glUseProgram(0);
-		glEnable(GL_DEPTH_TEST);
-	}
-
-	for (AABB* aabb : m_aabbs)
-	{
-		//m_aabbShader->Use();
-		glm::mat4 modelMat = glm::mat4(1.0f);
-		//modelMat = glm::translate(modelMat, glm::vec3(-9.0f, 354.6f, 163.0f));
-		//modelMat = glm::rotate(modelMat, glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-		modelMat = glm::scale(modelMat, m_scale);
-		glm::mat4 modelMatrix = glm::scale(glm::mat4(1.0f), m_scale);
-		aabb->Update(modelMatrix);
-		glDisable(GL_DEPTH_TEST);
-		//aabb->Render(viewMat, proj, modelMat, glm::vec3(0.0f, 1.0f, 0.0f));
-		glEnable(GL_DEPTH_TEST);
-	}
-}	
+	//for (auto& debugPlane : debugPlanes)
+	//{
+	//	glDisable(GL_DEPTH_TEST);
+	//	planeShader->Use();
+	//	planeShader->SetMat4("view", viewMat);
+	//	planeShader->SetMat4("projection", proj);
+	//	planeShader->SetMat4("lightSpaceMatrix", lightSpaceMat);
+	//	planeShader->SetVec3("lineColor", 1.0f, 0.0f, 1.0f);
+	//	glLineWidth(2.0f);
+	//	glBindVertexArray(debugPlane.vao);
+	//	glDrawArrays(GL_LINE_STRIP, 0, debugPlane.countNo);
+	//	glBindVertexArray(0);
+	//	glUseProgram(0);
+	//	glEnable(GL_DEPTH_TEST);
+	//}
+	//
+	//for (AABB* aabb : m_aabbs)
+	//{
+	//	//m_aabbShader->Use();
+	//	glm::mat4 modelMat = glm::mat4(1.0f);
+	//	//modelMat = glm::translate(modelMat, glm::vec3(-9.0f, 354.6f, 163.0f));
+	//	//modelMat = glm::rotate(modelMat, glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+	//	modelMat = glm::scale(modelMat, m_scale);
+	//	glm::mat4 modelMatrix = glm::scale(glm::mat4(1.0f), m_scale);
+	//	aabb->Update(modelMatrix);
+	//	glDisable(GL_DEPTH_TEST);
+	//	//aabb->Render(viewMat, proj, modelMat, glm::vec3(0.0f, 1.0f, 0.0f));
+	//	glEnable(GL_DEPTH_TEST);
+	//}
+		
+}
 
 void Ground::ComputeAudioWorldTransform()
 {
