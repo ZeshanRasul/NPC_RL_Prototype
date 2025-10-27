@@ -217,7 +217,7 @@ std::vector<GLuint> Player::LoadGLTFTextures(tinygltf::Model* model) {
 		textureIDs[i] = texID;
 	}
 
-	m_ao.LoadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/Assets/Models/New/Updated/Atlas_00001.png", false);
+//	m_ao.LoadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/Assets/Models/New/Updated/Atlas_00001.png", false);
 
 
 	glBindTexture(GL_TEXTURE_2D, 0);

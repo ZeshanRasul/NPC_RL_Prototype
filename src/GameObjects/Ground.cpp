@@ -174,8 +174,8 @@ void Ground::SetupGLTFMeshes(tinygltf::Model* model)
 			//planeData.resize(++planeCount);
 			planeData.push_back(gltfMesh);
 			continue;
-		}	
 	}
+}
 }
 
 std::vector<GLuint> Ground::LoadGLTFTextures(tinygltf::Model* model) {
@@ -521,7 +521,7 @@ Ground::Ground(glm::vec3 pos, glm::vec3 scale, Shader* shdr, Shader* shadowMapSh
 {
 	mapModel = new tinygltf::Model;
 
-	std::string modelFilename = "Assets/Models/Game_Scene/V7/test-final.glb";
+	std::string modelFilename = "Assets/Models/Game_Scene/Final/Environment-Final.glb";
 
 	tinygltf::TinyGLTF gltfLoader;
 	std::string loaderErrors;
@@ -551,7 +551,7 @@ Ground::Ground(glm::vec3 pos, glm::vec3 scale, Shader* shdr, Shader* shadowMapSh
 	for (int texID : LoadGLTFTextures(mapModel))
 		glTextures.push_back(texID);
 
-	mTex.LoadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/Assets/Models/New/Updated/Atlas_00001.png", false);
+//	mTex.LoadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/Assets/Models/New/Updated/Atlas_00001.png", false);
 
 	//plane01Model = new tinygltf::Model;
 

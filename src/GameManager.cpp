@@ -609,7 +609,7 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 //	pipes.staticPbr = m_renderBackend->CreatePipeline(pipelineDesc);
 //	uploader = new GpuUploader(m_renderBackend, m_assetManager);
 //
-//	auto& reg = m_activeScene->GetRegistry();
+	auto& reg = m_activeScene->GetRegistry();
 //	std::string levelPath = "Assets/Models/Game_Scene/V7/test-final.glb";
 //	//CreateLevel(reg, *m_assetManager, levelPath);
 //
@@ -1553,13 +1553,7 @@ void GameManager::Update(float deltaTime)
 	bool isPaused = m_inputManager->GetIsPaused();
 	bool isTimeScaled = m_inputManager->GetIsTimeScaled();
 
-	if (isPaused)
-		scaledDeltaTime *= pauseFactor;
-
-	if (isTimeScaled)
-		scaledDeltaTime *= timeScaleFactor;
-
-	//GetActiveScene()->OnUpdate(deltaTime);
+	GetActiveScene()->OnUpdate(deltaTime);
 
 	m_player->UpdatePlayerVectors();
 	m_player->UpdatePlayerAimVectors();
@@ -1664,8 +1658,8 @@ void GameManager::Update(float deltaTime)
 	//	}
 	//	e->SetPosition(glm::vec3(agentPos[0], agentPos[1], agentPos[2]));
 	//}
-	m_audioManager->Update(scaledDeltaTime);
-	m_audioSystem->Update(scaledDeltaTime);
+	m_audioManager->Update(deltaTime);
+	m_audioSystem->Update(deltaTime);
 
 	CalculatePerformance(deltaTime);
 }
@@ -1690,7 +1684,7 @@ void GameManager::Render(bool isMinimapRenderPass, bool isShadowMapRenderPass, b
 		m_renderer->Clear();
 	}
 
-	//if (isMinimapRenderPass)
+	if (isMinimapRenderPass)
 		//m_renderer->BindMinimapFbo(m_screenWidth, m_screenHeight);
 
 	if (isShadowMapRenderPass)
