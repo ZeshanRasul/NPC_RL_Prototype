@@ -281,11 +281,6 @@
     <ClCompile Include="src\Camera.cpp" />
     <ClCompile Include="src\Components\AudioComponent.cpp" />
     <ClCompile Include="src\Components\Component.cpp" />
-    <ClCompile Include="src\Engine\Asset\AssetManager.cpp" />
-    <ClCompile Include="src\Engine\Asset\GLTFImporter.cpp" />
-    <ClCompile Include="src\Engine\ECS\Systems\RenderSystem.cpp" />
-    <ClCompile Include="src\Engine\Render\GpuUploader.cpp" />
-    <ClCompile Include="src\Engine\Render\RenderBackendGL.cpp" />
     <ClCompile Include="src\GameManager.cpp" />
     <ClCompile Include="src\GameObjects\Crosshair.cpp" />
     <ClCompile Include="src\GameObjects\Enemy.cpp" />
@@ -293,7 +288,6 @@
     <ClCompile Include="src\GameObjects\Ground.cpp" />
     <ClCompile Include="src\GameObjects\Line.cpp" />
     <ClCompile Include="src\GameObjects\Player.cpp" />
-    <ClCompile Include="src\Game\Prefabs.cpp" />
     <ClCompile Include="src\glad.c" />
     <ClCompile Include="src\InputManager.cpp" />
     <ClCompile Include="src\main.cpp" />
@@ -310,7 +304,6 @@
     <ClCompile Include="src\OpenGL\VertexBuffer.cpp" />
     <ClCompile Include="src\Physics\AABB.cpp" />
     <ClCompile Include="src\Physics\PhysicsWorld.cpp" />
-    <ClCompile Include="src\Engine\ECS\Scene.cpp" />
     <ClCompile Include="src\tinygltf\tiny_gltf.cc" />
     <ClCompile Include="src\Tools\Logger.cpp" />
     <ClCompile Include="src\tracy\TracyClient.cpp" />
@@ -359,16 +352,6 @@
     <ClInclude Include="src\Camera.h" />
     <ClInclude Include="src\Components\AudioComponent.h" />
     <ClInclude Include="src\Components\Component.h" />
-    <ClInclude Include="src\Engine\Asset\AssetManager.h" />
-    <ClInclude Include="src\Engine\Asset\AssetTypes.h" />
-    <ClInclude Include="src\Engine\Asset\ColliderBuild.h" />
-    <ClInclude Include="src\Engine\Asset\GLTFExtrasHelpers.h" />
-    <ClInclude Include="src\Engine\Asset\GLTFImporter.h" />
-    <ClInclude Include="src\Engine\Asset\PhysicsAsset.h" />
-    <ClInclude Include="src\Engine\Asset\TextureLoader.h" />
-    <ClInclude Include="src\Engine\Render\GpuUploader.h" />
-    <ClInclude Include="src\Engine\Render\RenderBackend.h" />
-    <ClInclude Include="src\Engine\Render\RenderBackendGL.h" />
     <ClInclude Include="src\GameManager.h" />
     <ClInclude Include="src\GameObjects\Crosshair.h" />
     <ClInclude Include="src\GameObjects\Enemy.h" />
@@ -377,7 +360,6 @@
     <ClInclude Include="src\GameObjects\Line.h" />
     <ClInclude Include="src\GameObjects\Quad.h" />
     <ClInclude Include="src\GameObjects\Player.h" />
-    <ClInclude Include="src\Game\Prefabs.h" />
     <ClInclude Include="src\InputManager.h" />
     <ClInclude Include="src\Model\GltfAnimationChannel.h" />
     <ClInclude Include="src\Model\GltfAnimationClip.h" />
@@ -394,11 +376,6 @@
     <ClInclude Include="src\OpenGL\VertexBuffer.h" />
     <ClInclude Include="src\Physics\AABB.h" />
     <ClInclude Include="src\Physics\PhysicsWorld.h" />
-    <ClInclude Include="src\Engine\ECS\Components\StaticModelRendererComponent.h" />
-    <ClInclude Include="src\Engine\ECS\Components\TransformComponent.h" />
-    <ClInclude Include="src\Engine\ECS\Scene.h" />
-    <ClInclude Include="src\Engine\ECS\Systems\RenderSystem.h" />
-    <ClInclude Include="src\Engine\ECS\Systems\TransformSystem.h" />
     <ClInclude Include="src\Shaders\leveltestvert.glsl" />
     <ClInclude Include="src\tinygltf\json.hpp" />
     <ClInclude Include="src\tinygltf\tiny_gltf.h" />
