@@ -57,5 +57,5 @@ void main() {
 	} else {
 		texColor = vec4(uBaseColorFactor.xyz, 1.0);
 	}
-	FragColor = texColor;
+	FragColor = vec4(result, 1.0);
 }

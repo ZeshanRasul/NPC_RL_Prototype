@@ -103,20 +103,32 @@ void GpuUploader::EnsureMatResident(MaterialHandle matHandle)
 
 
 	MaterialGpuDesc gd;
-	std::memcpy(gd.baseColorFactor, cm->baseColorFactor, sizeof(gd.baseColorFactor));
+//	std::memcpy(gd.baseColorFactor, cm->baseColorFactor, sizeof(gd.baseColorFactor));
+
+	gd.baseColorFactor[0] = cm->baseColorFactor[0];
+	gd.baseColorFactor[1] = cm->baseColorFactor[1];
+	gd.baseColorFactor[2] = cm->baseColorFactor[2];
+	gd.baseColorFactor[3] = cm->baseColorFactor[3];
+
 	gd.metallic = cm->metallic;
 	gd.roughness = cm->roughness;
 
-	if (cm->baseColorH == InvalidHandle) return;
+	//if (cm->baseColorH == InvalidHandle) return;
 
 	gd.baseColor = EnsureTextureResident(cm->baseColorH, matHandle);
 	Logger::Log(1, "%s Base Color is %u\n", __FUNCTION__, gd.baseColor);
 	GpuMaterialHandle mathand = m_backend->CreateMaterial(gd);
 
 	GpuMaterial gpuMaterial{};
-	gpuMaterial.desc = gd;
+	gpuMaterial.desc.baseColor = gd.baseColor;
+	gpuMaterial.desc.baseColorFactor[0] = gd.baseColorFactor[0];
+	gpuMaterial.desc.baseColorFactor[1] = gd.baseColorFactor[1];
+	gpuMaterial.desc.baseColorFactor[2] = gd.baseColorFactor[2];
+	gpuMaterial.desc.baseColorFactor[3] = gd.baseColorFactor[3];
 	gpuMaterial.handle = mathand;
+	Logger::Log(1, "%s Mat Handle is is %u\n", __FUNCTION__, gpuMaterial.handle);
 	Logger::Log(1, "%s Base Color is %u\n", __FUNCTION__, gpuMaterial.desc.baseColor);
+	Logger::Log(1, "%s Base Color Factor is %f, %f, %f, %f \n", __FUNCTION__, gpuMaterial.desc.baseColorFactor[0], gpuMaterial.desc.baseColorFactor[1], gpuMaterial.desc.baseColorFactor[2], gpuMaterial.desc.baseColorFactor[3]);
 
 	m_materialBuffers.emplace(mathand, gpuMaterial);
 	m_TextureCache.emplace(mathand, gd.baseColor);
