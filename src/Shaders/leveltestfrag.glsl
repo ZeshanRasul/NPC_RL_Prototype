@@ -19,7 +19,7 @@ struct DirLight {
 	vec3 specular;
 };
 
-DirLight dirLight = DirLight(vec3(-0.5, -1.0, 2.0), vec3(0.5, 0.5, 0.5), vec3(0.5, 0.1, 0.3), vec3(0.1, 0.2, 0.3));
+DirLight dirLight = DirLight(vec3(-0.5, -1.0, 2.0), vec3(0.1, 0.1, 0.1), vec3(0.3, 0.3, 0.3), vec3(0.1, 0.2, 0.3));
 
 
 vec3 CalcDirLight(DirLight light, vec3 normal)
@@ -34,12 +34,12 @@ vec3 CalcDirLight(DirLight light, vec3 normal)
 	vec3 diffuse;
 
  	if (useTex) {
-		ambient = light.ambient * vec3(texture(uBaseColorTexture, TexCoords)) * uBaseColorFactor.xyz;
-		diffuse = light.diffuse * diff * vec3(texture(uBaseColorTexture, TexCoords)) * uBaseColorFactor.xyz;
+		ambient = light.ambient * vec3(texture(uBaseColorTexture, TexCoords)) * vec3(1.0, 1.0, 1.0);
+		diffuse = light.diffuse * diff * vec3(texture(uBaseColorTexture, TexCoords)) * vec3(1.0, 1.0, 1.0);
 
 	} else {
-		ambient = light.ambient * uBaseColorFactor.xyz;
-		diffuse = light.diffuse * diff * uBaseColorFactor.xyz;
+		ambient = light.ambient * vec3(1.0, 1.0, 1.0);
+		diffuse = light.diffuse * diff * vec3(1.0, 1.0, 1.0);
 	}
 
 
