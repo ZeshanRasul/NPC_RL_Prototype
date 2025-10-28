@@ -64,13 +64,21 @@ inline void RenderStaticModels(entt::registry& reg, RenderBackend& rb,
 				item.firstIndex = submesh.firstIndex;
 				item.indexCount = submesh.indexCount;
 				item.vertexCount = submesh.vertexCount;
-				up.EnsureMatResident(submesh.material);
 				item.materialId = up.MatId(submesh.material);
 				item.materialHandle = submesh.material;
+
+				//item.textureId = up.Mat(submesh.material)->baseColor;
 				item.textureId = up.TexId(submesh.material);
 				item.transform = submesh.transform;
 				//Logger::Log(1, "%s Draw Item Tex ID %u\n", __FUNCTION__, item.textureId);
 				draws.push_back(item);
+				Logger::Log(1, "%s: Submesh draw item: VB %u, IB %u, Mat %u, Tex %u, Indices %u\n",
+					__FUNCTION__,
+					item.vertexBuffer,
+					item.indexBuffer,
+					item.materialHandle,
+					item.textureId,
+					item.indexCount);  
 			}
 
 		}

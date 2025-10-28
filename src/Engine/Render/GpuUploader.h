@@ -13,6 +13,7 @@ struct GpuSubmeshBuffer {
 	uint32_t firstVertex;
 	MaterialHandle material;
 	GpuMaterialId materialId = 0;
+	TextureHandle texture;
 	uint32_t vao = 0;
 	GpuBufferHandle vertexBuffer = 0;
 	GpuBufferHandle indexBuffer = 0;
@@ -34,7 +35,7 @@ struct GpuModel {
 struct GpuMaterial {
 	MaterialGpuDesc desc;
 	GpuMaterialId id = 0;
-	GpuTextureId baseColor = (uint32_t)-1;
+	GpuTextureId baseColor = (uint32_t)0;
 };
 
 class GpuUploader {
@@ -70,12 +71,12 @@ public:
 		if (it != m_TextureCache.end()) {
 			return it->second;
 		}
-		return -1;
+		return 0;
 	}
 
 	GpuTextureId EnsureTextureResident(TextureHandle th, MaterialHandle matHandle) {
-		if (!th) return InvalidHandle;
-		auto it = m_TextureCache.find(th);
+		if (!matHandle) return InvalidHandle;
+		auto it = m_TextureCache.find(matHandle);
 		if (it != m_TextureCache.end()) return it->second;
 
 		const CpuTexture& cpu = *(m_assetManager->GetCpuTexture(th));

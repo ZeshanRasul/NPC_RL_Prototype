@@ -13,7 +13,7 @@ void RenderBackendGL::Submit(const DrawItem* items, uint32_t itemCount) {
 		const auto& ibuf = std::get<GLVertexIndexBuffer>(ib);
 
 		const auto& mat = m_materials[di.materialHandle];
-		const auto& baseColorTex = m_textures[di.materialHandle];
+		const auto& baseColorTex = di.textureId;
 	//	glDisable(GL_CULL_FACE);
 		//Logger::Log(1, "%s base color tex: %u\n", __FUNCTION__, baseColorTex);
 		glUseProgram(glPipe.program.GetProgram());

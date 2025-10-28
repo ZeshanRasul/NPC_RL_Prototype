@@ -52,7 +52,14 @@ void main() {
 	vec3 norm = normalize(Normal);
 	vec3 result = CalcDirLight(dirLight, norm);
 
-	vec4 col = texture(uBaseColorTexture, TexCoords);
-	
-    FragColor = vec4(col);
+	if (useTex) {
+		texColor = texture(uBaseColorTexture, TexCoords);
+	} else {
+		texColor = vec4(uBaseColorFactor.xyz, 1.0);
+	}
+	FragColor = texColor;
 }
+//	vec4 col = texture(uBaseColorTexture, TexCoords);
+//	
+//    FragColor = col`
+//}

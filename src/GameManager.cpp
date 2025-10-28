@@ -590,34 +590,35 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 	m_cubemap->LoadMesh();
 	m_cubemap->LoadCubemap(m_cubemapFaces);
 
-	ground = new Ground(mapPos, mapScale, &groundShader, &groundShadowShader, false, this);
+//	ground = new Ground(mapPos, mapScale, &groundShader, &groundShadowShader, false, this);
 
 	//ground->SetAABBShader(&aabbShader);
 	//ground->SetUpAABB();
 	//ground->SetPlaneShader(&m_lineShader);
 	
-//	m_assetManager = new AssetManager();
-//
-//	m_renderBackend = CreateRenderBackend();
-//	m_renderBackend->Initialize();
-//
-//	PipelineDesc pipelineDesc{};
-//	pipelineDesc.vertexShaderPath = "src/Shaders/leveltestvert.glsl";
-//	pipelineDesc.fragmentShaderPath =  "src/Shaders/leveltestfrag.glsl";
-//	pipelineDesc.vertexStride = (uint32_t)((int)(sizeof(float)) * 8);
-//
-//	pipes.staticPbr = m_renderBackend->CreatePipeline(pipelineDesc);
-//	uploader = new GpuUploader(m_renderBackend, m_assetManager);
-//
+	m_assetManager = new AssetManager();
+
+	m_renderBackend = CreateRenderBackend();
+	m_renderBackend->Initialize();
+
+	PipelineDesc pipelineDesc{};
+	pipelineDesc.vertexShaderPath = "src/Shaders/leveltestvert.glsl";
+	pipelineDesc.fragmentShaderPath =  "src/Shaders/leveltestfrag.glsl";
+	pipelineDesc.vertexStride = (uint32_t)((int)(sizeof(float)) * 8);
+
+	pipes.staticPbr = m_renderBackend->CreatePipeline(pipelineDesc);
+	uploader = new GpuUploader(m_renderBackend, m_assetManager);
+
 	auto& reg = m_activeScene->GetRegistry();
-//	std::string levelPath = "Assets/Models/Game_Scene/V7/test-final.glb";
-//	//CreateLevel(reg, *m_assetManager, levelPath);
-//
-//	BufferCreateInfo bufferCreateInfo = {};
-//	bufferCreateInfo.size = 3 * sizeof(glm::mat4);
-//	bufferCreateInfo.usage = BufferUsage::Uniform;
-//	bufferCreateInfo.initialData = nullptr;
-//	h = m_renderBackend->CreateBuffer(bufferCreateInfo);
+	std::string levelPath = "Assets/Models/Game_Scene/V7/test-final.glb";
+	
+	CreateLevel(reg, *m_assetManager, levelPath);
+
+	BufferCreateInfo bufferCreateInfo = {};
+	bufferCreateInfo.size = 3 * sizeof(glm::mat4);
+	bufferCreateInfo.usage = BufferUsage::Uniform;
+	bufferCreateInfo.initialData = nullptr;
+	h = m_renderBackend->CreateBuffer(bufferCreateInfo);
 
 	m_camera = new Camera(glm::vec3(50.0f, 3.0f, 80.0f));
 
@@ -712,7 +713,7 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 	m_gameObjects.push_back(m_enemy2);
 	m_gameObjects.push_back(m_enemy3);
 	m_gameObjects.push_back(m_enemy4);
-	m_gameObjects.push_back(ground);
+//	m_gameObjects.push_back(ground);
 
 	/*for (Cube* coverSpot : coverSpots)
 	{
@@ -1705,25 +1706,25 @@ void GameManager::Render(bool isMinimapRenderPass, bool isShadowMapRenderPass, b
 		{
 			m_renderer->Draw(obj, m_view, m_projection, m_camera->GetPosition(), false, m_lightSpaceMatrix);
 
-			//glm::mat4 modelMat = glm::mat4(1.0f);
-			//
-			//std::vector<glm::mat4> matrixData;
-			//matrixData.push_back(m_view);
-			//matrixData.push_back(m_projection);
-			//modelMat = glm::translate(modelMat, glm::vec3(0.0f));
-			//modelMat = glm::scale(modelMat, glm::vec3(5.0f));
-			//
-			//matrixData.push_back(modelMat);
-			//m_renderBackend->UpdateBuffer(h, 0, matrixData.data(), 3 * sizeof(glm::mat4));
-			//m_renderBackend->BindUniformBuffer(h, 0);
-			//
-			//if (isMainRenderPass)
-			//	RenderStaticModels(m_activeScene->GetRegistry(), *m_renderBackend, *uploader, pipes);
 
 
 		}
 	}
 
+	glm::mat4 modelMat = glm::mat4(1.0f);
+
+	std::vector<glm::mat4> matrixData;
+	matrixData.push_back(m_view);
+	matrixData.push_back(m_projection);
+	modelMat = glm::translate(modelMat, glm::vec3(0.0f));
+	modelMat = glm::scale(modelMat, glm::vec3(5.0f));
+
+	matrixData.push_back(modelMat);
+	m_renderBackend->UpdateBuffer(h, 0, matrixData.data(), 3 * sizeof(glm::mat4));
+	m_renderBackend->BindUniformBuffer(h, 0);
+
+	if (isMainRenderPass)
+		RenderStaticModels(m_activeScene->GetRegistry(), *m_renderBackend, *uploader, pipes);
 
 
 	//navMeshShader.Use();

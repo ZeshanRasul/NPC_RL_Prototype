@@ -116,17 +116,15 @@ TextureHandle AssetManager::CreateTexture(CpuTexture tex)
 {
 	// Own the texture immediately
 	auto handle = MakeTextureHandle();
-//	m_cpuTextures[handle] = std::make_unique<CpuTexture>(std::move(tex));
-//	CpuTexture& newtex = *m_cpuTextures[handle];
+	m_cpuTextures[handle] = std::make_unique<CpuTexture>(std::move(tex));
+	CpuTexture& newtex = *m_cpuTextures[handle];
 
-	// Validate
+	 
 
-	// Expand to RGBA if needed (e.g. JPG source)
-//	ExpandRGBToRGBA(newtex.pixels, newtex.desc.width, newtex.desc.width);
+	ExpandRGBToRGBA(newtex.pixels, newtex.desc.width, newtex.desc.width);
 		
 
-	// Force consistency: everything is RGBA8 UNORM
-//	newtex.desc.format = PixelFormat::RGBA8_UNORM;
+	newtex.desc.format = PixelFormat::RGBA8_UNORM;
 ;
 	return handle;
 }

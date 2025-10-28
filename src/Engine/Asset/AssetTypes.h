@@ -52,6 +52,7 @@ struct CpuSubmesh {
 	float aabbMin[3] = { 0.0f, 0.0f, 0.0f };
 	float aabbMax[3] = { 0.0f, 0.0f, 0.0f };
 	MaterialHandle material = InvalidHandle;
+	TextureHandle texture = InvalidHandle;
 	glm::mat4 transform = glm::mat4(1.0f); // Optional, for static meshes
 };
 

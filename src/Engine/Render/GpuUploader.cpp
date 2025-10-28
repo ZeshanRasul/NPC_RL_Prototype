@@ -56,6 +56,7 @@ void GpuUploader::EnsureResident(ModelHandle modelHandle)
 			gpuSubmesh.material = mh;
 			EnsureMatResident(mh);
 			gpuSubmesh.materialId = MatId(mh);
+			gpuSubmesh.texture = cpu->textures[sm.texture];
 
 			GLuint vao = 0;
 			glGenVertexArrays(1, &vao);
@@ -117,6 +118,7 @@ void GpuUploader::EnsureMatResident(MaterialHandle matHandle)
 	Logger::Log(1, "%s Base Color is %u\n", __FUNCTION__, gpuMaterial.desc.baseColor);
 
 	m_materialBuffers.emplace(matHandle, gpuMaterial);
+	m_TextureCache.emplace(matHandle, gd.baseColor);
 }
 //
 //const CpuTexture* GpuUploader::EnsureTexResident(TextureHandle texHandle)
