@@ -53,11 +53,11 @@ void main() {
 	vec3 result = CalcDirLight(dirLight, norm);
 
 	if (useTex) {
-		texColor = texture(uBaseColorTexture, TexCoords);
+		texColor = texture(uBaseColorTexture, TexCoords) * vec4(uBaseColorFactor.xyz, 1.0);
 	} else {
 		texColor = vec4(uBaseColorFactor.xyz, 1.0);
 	}
-	FragColor = texColor;
+	FragColor = vec4(result, 1.0);
 }
 //	vec4 col = texture(uBaseColorTexture, TexCoords);
 //	

@@ -104,7 +104,7 @@ struct DrawItem {
 	uint32_t vertexCount = 0;
 	GpuMaterialHandle materialHandle = 0;
 	GpuMaterialId materialId = 0;
-	GpuTextureId textureId = 1000000;
+	GpuTextureId textureId = 0;
 	glm::mat4 transform = glm::mat4(1.0f); // Optional, for static meshes
 };
 

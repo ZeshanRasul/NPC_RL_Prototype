@@ -20,7 +20,7 @@ void GpuUploader::EnsureResident(ModelHandle modelHandle)
 
 	for (auto mat : materialHandles)
 	{
-		EnsureMatResident(mat);
+	//	EnsureMatResident(mat);
 	}
 
 	for (auto& cm : cpu->meshes) {
@@ -52,7 +52,7 @@ void GpuUploader::EnsureResident(ModelHandle modelHandle)
 			gpuSubmesh.firstIndex = sm.firstIndex;
 			gpuSubmesh.indexCount = sm.indexCount;
 			gpuSubmesh.transform = sm.transform;
-			MaterialHandle mh = (sm.materialIndex < materialHandles.size()) ? materialHandles[sm.materialIndex] : 0;
+			MaterialHandle mh = (sm.material < materialHandles.size()) ? sm.material : 0;
 			gpuSubmesh.material = mh;
 			EnsureMatResident(mh);
 			gpuSubmesh.materialId = MatId(mh);
@@ -107,6 +107,8 @@ void GpuUploader::EnsureMatResident(MaterialHandle matHandle)
 	std::memcpy(gd.baseColorFactor, cm->baseColorFactor, sizeof(gd.baseColorFactor));
 	gd.metallic = cm->metallic;
 	gd.roughness = cm->roughness;
+
+	if (cm->baseColorH == InvalidHandle) return;
 
 	gd.baseColor = EnsureTextureResident(cm->baseColorH, matHandle);
 	Logger::Log(1, "%s Base Color is %u\n", __FUNCTION__, gd.baseColor);

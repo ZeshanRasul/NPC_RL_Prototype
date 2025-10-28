@@ -81,7 +81,7 @@ public:
 
 		const CpuTexture& cpu = *(m_assetManager->GetCpuTexture(th));
 
-		if (th == 0) {
+		if (matHandle == 0) {
 			Logger::Log(1, "%s: Invalid texture handle %u or empty texture\n", __FUNCTION__, th);
 			return 0;
 		}

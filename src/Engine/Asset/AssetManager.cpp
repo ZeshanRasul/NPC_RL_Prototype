@@ -3,16 +3,16 @@
 #include "Logger.h"
 
 ModelHandle AssetManager::MakeModelHandle() {
-	return m_nextModelHandle++;
+	return ++m_nextModelHandle;
 }
 
 MaterialHandle AssetManager::MakeMaterialHandle() {
-	return m_nextMaterialHandle++;
+	return ++m_nextMaterialHandle;
 }
 
 TextureHandle AssetManager::MakeTextureHandle()
 {
-	return m_nextTextureHandle++;
+	return ++m_nextTextureHandle;
 }
 
 
@@ -22,27 +22,25 @@ ModelHandle AssetManager::LoadStaticModel(const std::string& gltfPath) {
 	std::vector<CpuMaterial> outMaterials{};
 	std::vector<CpuTexture> outTextures{};
 
-	//if (!ImportStaticModelFromGltf(gltfPath, cpu, outMaterials, outTextures)) {
-	//	Logger::Log(0, "Failed to load static model from %s\n", gltfPath.c_str());
-	//	return InvalidHandle;
-	//}
-
 	cpu = ImportModel(gltfPath, outMaterials, outTextures);
 
 	std::vector<TextureHandle> textureHandles;
 	textureHandles.reserve(outTextures.size());
+	
+	m_cpuTextures.reserve(outTextures.size());
+
 	for (auto& tex : outTextures) {
-		TextureHandle th = CreateTexture(std::move(tex));
+		TextureHandle th = CreateTexture(tex);
 		textureHandles.push_back(th);
 		cpu.textures.push_back(th);
-		//m_cpuTextures[th] = std::make_unique<CpuTexture>(std::move(tex));
+		m_cpuTextures[th] = std::make_unique<CpuTexture>(std::move(tex));
 	}
 
 	m_cpuMaterials.reserve(outMaterials.size());
 
 	for (auto& mat : outMaterials) {
 		MaterialHandle matHandle = CreateMaterial(mat);
-		if (mat.baseColorTexIdx >= 0 && mat.baseColorTexIdx < textureHandles.size()) {
+		if (mat.baseColorTexIdx >= 0 && mat.baseColorTexIdx < (int(textureHandles.size()))) {
 			mat.baseColorH = textureHandles[mat.baseColorTexIdx];
 			mat.baseColorTexIdx = -1;
 			Logger::Log(1, "Material baseColorH %u for material with handle %u\n", 
@@ -52,6 +50,27 @@ ModelHandle AssetManager::LoadStaticModel(const std::string& gltfPath) {
 		}
 		cpu.materials.push_back(matHandle);
 		m_cpuMaterials[matHandle] = std::make_unique<CpuMaterial>(std::move(mat));
+	}		
+	
+	std::vector<MaterialHandle> gltfMatIdx_to_handle;
+	gltfMatIdx_to_handle.reserve(cpu.materials.size());
+	for (auto h : cpu.materials) gltfMatIdx_to_handle.push_back(h);
+
+	for (auto& mesh : cpu.meshes) {
+		for (auto& sm : mesh.submeshes) {
+			if (sm.materialIndex >= 0 && sm.materialIndex < (int)gltfMatIdx_to_handle.size()) {
+				sm.material = gltfMatIdx_to_handle[sm.materialIndex];
+				Logger::Log(1, "Submesh remap: glTF mat %d -> handle %u\n",
+					sm.materialIndex, sm.material);
+			}
+			else {
+				sm.material = InvalidHandle;
+				Logger::Log(1, "Submesh remap: glTF mat %d -> InvalidHandle\n", sm.materialIndex);
+			}
+
+
+			sm.materialIndex = -1;
+		}
 	}
 
 	ModelHandle mh = MakeModelHandle();
@@ -120,12 +139,13 @@ TextureHandle AssetManager::CreateTexture(CpuTexture tex)
 	CpuTexture& newtex = *m_cpuTextures[handle];
 
 	 
+	if (newtex.desc.format == PixelFormat::RGB8_UNORM) {
+		ExpandRGBToRGBA(newtex.pixels, newtex.desc.width, newtex.desc.height);
+		if (newtex.pixels.size() == size_t(newtex.desc.width) * newtex.desc.height * 4) {
+			newtex.desc.format = PixelFormat::RGBA8_UNORM;
+		}
+	};
 
-	ExpandRGBToRGBA(newtex.pixels, newtex.desc.width, newtex.desc.height);
-		
-
-	newtex.desc.format = PixelFormat::RGBA8_UNORM;
-;
 	return handle;
 }
 
