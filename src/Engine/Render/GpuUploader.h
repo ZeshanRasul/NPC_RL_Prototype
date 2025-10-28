@@ -81,6 +81,11 @@ public:
 
 		const CpuTexture& cpu = *(m_assetManager->GetCpuTexture(th));
 
+		if (th == 0) {
+			Logger::Log(1, "%s: Invalid texture handle %u or empty texture\n", __FUNCTION__, th);
+			return 0;
+		}
+
 		GpuTextureId gpu = m_backend->CreateTexture2D(cpu, matHandle);
 		m_TextureCache.emplace(matHandle, gpu);
 		return gpu;

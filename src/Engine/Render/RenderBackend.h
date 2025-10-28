@@ -52,9 +52,9 @@ struct SamplerDescGpu {
 };
 
 struct TextureCreateInfo {
-    int width  = 0;
-    int height = 0;
-    int mipLevels = 1;
+    uint32_t width  = 0;
+    uint32_t height = 0;
+    uint32_t mipLevels = 1;
     PixelFormatGpu format = PixelFormatGpu::RGBA8_UNORM;
     ColorSpaceGpu colorSpace = ColorSpaceGpu::Linear;
 	SamplerDescGpu sampler{};

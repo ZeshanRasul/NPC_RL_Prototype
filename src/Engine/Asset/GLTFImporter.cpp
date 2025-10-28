@@ -234,6 +234,7 @@ static CpuTexture& BuildCpuTextureFromGltfImage(tinygltf::Image& img,
 		__FUNCTION__, img.uri.c_str(), out.desc.width, out.desc.height,
 		out.desc.format, img.component, img.bits);
 	out.pixels.assign(img.image.begin(), img.image.end());
+
 	return out;
 }
 
@@ -531,8 +532,13 @@ CpuStaticModel ImportModel(const std::string& gltfPath, std::vector<CpuMaterial>
 			outTextures.push_back(std::move(baseColorTex));
 			cm.baseColorTexIdx = (int)outTextures.size() - 1;
 
-			Logger::Log(1, "%s: baseColorTexIdx %d for material %s\n",
-				__FUNCTION__, cm.baseColorTexIdx, m.name.c_str());
+
+			int texArrayIndex = (int)outTextures.size() - 1;
+			cm.baseColorTexIdx = texArrayIndex;
+
+			cm.baseColorH = (TextureHandle)(texArrayIndex + 1);
+			Logger::Log(1, "%s: baseColorTexIdx=%d, baseColorH=%u, material=%s\n",
+				__FUNCTION__, cm.baseColorTexIdx, cm.baseColorH, m.name.c_str());
 		}
 
 		Logger::Log(1, "%s: material %s, baseColorFactor: %.2f, %.2f, %.2f, %.2f\n",

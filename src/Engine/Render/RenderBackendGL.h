@@ -48,19 +48,21 @@ struct GLSamplerParams {
 	GLint wrapTGL;
 };
 
-struct GLTexFormat { GLenum internalFormat; GLenum externalFormat; GLenum type; };
+struct GLTexFormat { int internalFormat; int externalFormat; int type; };
 
 static GLTexFormat ToGLFmt(PixelFormatGpu pf, ColorSpaceGpu cs) {
+	const bool srgb = (cs == ColorSpaceGpu::SRGB);
 	switch (pf) {
 	case PixelFormatGpu::RGB8_UNORM:
-		//return { (cs == ColorSpaceGpu::SRGB) ? GL_SRGB8 : GL_RGB8, GL_RGB, GL_UNSIGNED_BYTE };
+		return { srgb ? GL_SRGB8 : GL_RGB8, GL_RGB, GL_UNSIGNED_BYTE };
 	case PixelFormatGpu::RGBA8_UNORM:
-		//return { (cs == ColorSpaceGpu::SRGB) ? GL_SRGB8_ALPHA8 : GL_RGBA8, GL_RGBA, GL_UNSIGNED_BYTE };
+		return { srgb ? GL_SRGB8_ALPHA8 : GL_RGBA8, GL_RGBA, GL_UNSIGNED_BYTE };
 	case PixelFormatGpu::R8_UNORM:
-		//return { GL_R8, GL_RED, GL_UNSIGNED_BYTE };
+		return { GL_R8, GL_RED, GL_UNSIGNED_BYTE };
 	case PixelFormatGpu::RG8_UNORM:
-		//return { GL_RG8, GL_RG, GL_UNSIGNED_BYTE };
-	default: return { GL_RGBA8, GL_RGBA, GL_UNSIGNED_BYTE };
+		return { GL_RG8, GL_RG, GL_UNSIGNED_BYTE };
+	default:
+		return { GL_RGBA8, GL_RGBA, GL_UNSIGNED_BYTE };
 	}
 }
 
@@ -245,6 +247,18 @@ public:
 
 	GpuTextureId CreateTexture2D(const CpuTexture& cpu, GpuMaterialHandle matHandle) override {
 		TextureCreateInfo ci{};
+		if (cpu.pixels.empty()) {
+			Logger::Log(1, "%s: CPU texture has no pixel data\n", __FUNCTION__);
+			return 0;
+		}
+
+		if (cpu.desc.width == 0 || cpu.desc.height == 0 || cpu.desc.width > 9000) {
+			Logger::Log(1, "%s: CPU texture has invalid dimensions %ux%u\n",
+				__FUNCTION__, cpu.desc.width, cpu.desc.height);
+			return 0;
+		}
+
+
 		ci.width = cpu.desc.width;
 		ci.height = cpu.desc.height;
 		ci.mipLevels = cpu.desc.mipLevels;
@@ -262,9 +276,9 @@ public:
 		// Upload one level (assumes tightly packed data).
 		// If you need strides, expose that in TextureCreateInfo.
 		glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_SRGB8,
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_SRGB8_ALPHA8,
 			ci.width, ci.height, 0,
-			GL_RGB, GL_UNSIGNED_BYTE,
+			GL_RGBA, GL_UNSIGNED_BYTE,
 			ci.initialData);
 
 		if (ci.mipLevels >= 1) {
@@ -281,6 +295,11 @@ public:
 
 		Logger::Log(1, "Created OpenGL texture %u, size %ux%u, format %d\n",
 			tex, ci.width, ci.height, (int)ci.format);
+
+		if ((int)ci.format == 0)
+		{
+			return 0;
+		}
 
 		m_textures[matHandle] = tex;
 

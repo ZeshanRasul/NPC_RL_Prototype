@@ -35,7 +35,7 @@ ModelHandle AssetManager::LoadStaticModel(const std::string& gltfPath) {
 		TextureHandle th = CreateTexture(std::move(tex));
 		textureHandles.push_back(th);
 		cpu.textures.push_back(th);
-		m_cpuTextures[th] = std::make_unique<CpuTexture>(std::move(tex));
+		//m_cpuTextures[th] = std::make_unique<CpuTexture>(std::move(tex));
 	}
 
 	m_cpuMaterials.reserve(outMaterials.size());
@@ -121,7 +121,7 @@ TextureHandle AssetManager::CreateTexture(CpuTexture tex)
 
 	 
 
-	ExpandRGBToRGBA(newtex.pixels, newtex.desc.width, newtex.desc.width);
+	ExpandRGBToRGBA(newtex.pixels, newtex.desc.width, newtex.desc.height);
 		
 
 	newtex.desc.format = PixelFormat::RGBA8_UNORM;
