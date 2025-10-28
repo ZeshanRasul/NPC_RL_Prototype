@@ -52,11 +52,10 @@ void GpuUploader::EnsureResident(ModelHandle modelHandle)
 			gpuSubmesh.firstIndex = sm.firstIndex;
 			gpuSubmesh.indexCount = sm.indexCount;
 			gpuSubmesh.transform = sm.transform;
-			MaterialHandle mh = (sm.material < materialHandles.size()) ? sm.material : 0;
-			gpuSubmesh.material = mh;
-			EnsureMatResident(mh);
-			gpuSubmesh.materialId = MatId(mh);
-			gpuSubmesh.texture = cpu->textures[sm.texture];
+			GpuMaterialHandle mh = MatHandle(sm.material);
+			gpuSubmesh.material = sm.material;
+			EnsureMatResident(sm.material);
+			gpuSubmesh.texture = cpu->textures[sm.material];
 
 			GLuint vao = 0;
 			glGenVertexArrays(1, &vao);
@@ -112,15 +111,15 @@ void GpuUploader::EnsureMatResident(MaterialHandle matHandle)
 
 	gd.baseColor = EnsureTextureResident(cm->baseColorH, matHandle);
 	Logger::Log(1, "%s Base Color is %u\n", __FUNCTION__, gd.baseColor);
-	GpuMaterialId matId = m_backend->CreateMaterial(gd);
+	GpuMaterialHandle mathand = m_backend->CreateMaterial(gd);
 
 	GpuMaterial gpuMaterial{};
 	gpuMaterial.desc = gd;
-	gpuMaterial.id = matId;
+	gpuMaterial.handle = mathand;
 	Logger::Log(1, "%s Base Color is %u\n", __FUNCTION__, gpuMaterial.desc.baseColor);
 
-	m_materialBuffers.emplace(matHandle, gpuMaterial);
-	m_TextureCache.emplace(matHandle, gd.baseColor);
+	m_materialBuffers.emplace(mathand, gpuMaterial);
+	m_TextureCache.emplace(mathand, gd.baseColor);
 }
 //
 //const CpuTexture* GpuUploader::EnsureTexResident(TextureHandle texHandle)

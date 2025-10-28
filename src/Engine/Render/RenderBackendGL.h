@@ -206,29 +206,29 @@ public:
 		return handle;
 	}
 
-	GpuMaterialId CreateMaterial(MaterialGpuDesc& desc) override {
-		GpuMaterialId id = m_nextMat++;
-		m_materials[id] = GpuMaterial{ desc, id };
-		return id;
+	GpuMaterialHandle CreateMaterial(MaterialGpuDesc& desc) override {
+		GpuMaterialHandle h = m_nextMat++;
+		m_materials[h] = GpuMaterial{ desc, h};
+		return h;
 	}
 
-	void UpdateMaterial(GpuMaterialId id, const MaterialGpuDesc& desc) override {
-		auto it = m_materials.find(id);
+	void UpdateMaterial(GpuMaterialHandle h, const MaterialGpuDesc& desc) override {
+		auto it = m_materials.find(h);
 		if (it != m_materials.end()) {
 			it->second.desc = desc;
 		}
 		else {
-			Logger::Log(1, "Material ID %u not found for update\n", id);
+			Logger::Log(1, "Material handle %u not found for update\n", h);
 		}
 	}
 
-	void DestroyMaterial(GpuMaterialId materialId) override {
-		auto it = m_materials.find(materialId);
+	void DestroyMaterial(GpuMaterialHandle h) override {
+		auto it = m_materials.find(h);
 		if (it != m_materials.end()) {
 			m_materials.erase(it);
 		}
 		else {
-			Logger::Log(1, "Material ID %u not found for destruction\n", materialId);
+			Logger::Log(1, "Material handle %u not found for destruction\n", h);
 		}
 	};
 
@@ -311,8 +311,8 @@ public:
 private:
 	std::unordered_map<GpuPipelineHandle, GLPipeline> m_pipelines;
 	std::unordered_map<GpuBufferHandle, GLBuffer> m_buffers;
-	std::unordered_map <GpuMaterialId, GpuMaterial> m_materials;
-	std::unordered_map <GpuMaterialId, GpuTextureId> m_textures;
+	std::unordered_map <GpuMaterialHandle, GpuMaterial> m_materials;
+	std::unordered_map <GpuMaterialHandle, GpuTextureId> m_textures;
 	GpuBufferHandle m_nextBuf = 1;
 	GpuMaterialId m_nextMat = 1;
 	GpuPipelineHandle m_nextPipe = 1;

@@ -34,8 +34,7 @@ struct GpuModel {
 
 struct GpuMaterial {
 	MaterialGpuDesc desc;
-	GpuMaterialId id = 0;
-	GpuTextureId baseColor = (uint32_t)0;
+	GpuMaterialHandle handle = InvalidHandle;
 };
 
 class GpuUploader {
@@ -58,18 +57,23 @@ public:
 		return (it == m_materialBuffers.end()) ? nullptr : &it->second;
 	}
 
-	GpuMaterialId MatId(MaterialHandle handle) const {
+	GpuMaterialHandle MatHandle(MaterialHandle handle) const {
 		auto it = m_materialBuffers.find(handle);
 		if (it != m_materialBuffers.end()) {
-			return it->second.id;
+			return it->second.handle;
 		}
-		return -1;
+		return 0;
 	}
 
 	GpuTextureId TexId(MaterialHandle handle) {
-		auto it = m_TextureCache.find(handle);
+		/*auto it = m_TextureCache.find(handle);
 		if (it != m_TextureCache.end()) {
 			return it->second;
+		}
+		return 0;*/
+		auto it = m_materialBuffers.find(handle);
+		if (it != m_materialBuffers.end()) {
+			return it->second.desc.baseColor;
 		}
 		return 0;
 	}

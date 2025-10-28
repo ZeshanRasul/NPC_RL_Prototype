@@ -24,53 +24,64 @@ ModelHandle AssetManager::LoadStaticModel(const std::string& gltfPath) {
 
 	cpu = ImportModel(gltfPath, outMaterials, outTextures);
 
-	std::vector<TextureHandle> textureHandles;
-	textureHandles.reserve(outTextures.size());
+	std::vector<TextureHandle> textureHandles(outTextures.size(), InvalidHandle);
 	
-	m_cpuTextures.reserve(outTextures.size());
+	m_cpuTextures.reserve(m_cpuTextures.size() + outTextures.size());
 
-	for (auto& tex : outTextures) {
-		TextureHandle th = CreateTexture(tex);
-		textureHandles.push_back(th);
-		cpu.textures.push_back(th);
-		m_cpuTextures[th] = std::make_unique<CpuTexture>(std::move(tex));
+	for (size_t i = 0; i < outTextures.size(); ++i) {
+		textureHandles[i] = CreateTexture(outTextures[i]);
+		cpu.textures.push_back(textureHandles[i]);
+		m_cpuTextures[textureHandles[i]] = std::make_unique<CpuTexture>(std::move(outTextures[i]));
 	}
 
-	m_cpuMaterials.reserve(outMaterials.size());
+	std::vector<MaterialHandle> gltfMatIdx_to_handle(outMaterials.size(), InvalidHandle);
+	m_cpuMaterials.reserve(m_cpuMaterials.size() + outMaterials.size());
 
-	for (auto& mat : outMaterials) {
-		MaterialHandle matHandle = CreateMaterial(mat);
-		if (mat.baseColorTexIdx >= 0 && mat.baseColorTexIdx < (int(textureHandles.size()))) {
+	for (size_t gi = 0; gi < outMaterials.size(); ++gi)
+	{
+		CpuMaterial& mat = outMaterials[gi];
+
+		if (mat.baseColorTexIdx >= 0 && mat.baseColorTexIdx < static_cast<int>(textureHandles.size()))
 			mat.baseColorH = textureHandles[mat.baseColorTexIdx];
-			mat.baseColorTexIdx = -1;
-			Logger::Log(1, "Material baseColorH %u for material with handle %u\n", 
-				mat.baseColorH, matHandle);
-		} else {
-			mat.baseColorH = InvalidHandle; 
-		}
-		cpu.materials.push_back(matHandle);
-		m_cpuMaterials[matHandle] = std::make_unique<CpuMaterial>(std::move(mat));
-	}		
-	
-	std::vector<MaterialHandle> gltfMatIdx_to_handle;
-	gltfMatIdx_to_handle.reserve(cpu.materials.size());
-	for (auto h : cpu.materials) gltfMatIdx_to_handle.push_back(h);
+		else
+			mat.baseColorH = InvalidHandle;
 
-	for (auto& mesh : cpu.meshes) {
-		for (auto& sm : mesh.submeshes) {
-			if (sm.materialIndex >= 0 && sm.materialIndex < (int)gltfMatIdx_to_handle.size()) {
-				sm.material = gltfMatIdx_to_handle[sm.materialIndex];
-				Logger::Log(1, "Submesh remap: glTF mat %d -> handle %u\n",
-					sm.materialIndex, sm.material);
+		mat.baseColorTexIdx = -1;
+
+		MaterialHandle mh = CreateMaterial(mat);
+		gltfMatIdx_to_handle[gi] = mh;
+		cpu.materials.push_back(mh);
+		m_cpuMaterials[mh] = std::make_unique<CpuMaterial>(std::move(mat));
+	}
+
+	for (auto& mesh : cpu.meshes)
+	{
+		for (auto& sm : mesh.submeshes)
+		{
+			const int gi = sm.materialIndex; // tinygltf prim.material
+			if (gi < 0)
+			{
+				sm.material = 0; // “no material” in glTF
 			}
-			else {
-				sm.material = InvalidHandle;
-				Logger::Log(1, "Submesh remap: glTF mat %d -> InvalidHandle\n", sm.materialIndex);
+			else if (static_cast<size_t>(gi) < gltfMatIdx_to_handle.size())
+			{
+				sm.material = gltfMatIdx_to_handle[gi];
 			}
-
-
-			sm.materialIndex = -1;
+			else
+			{
+				// Out-of-range guard: fall back to default to avoid UB
+				sm.material = 0;
+			}
 		}
+	}
+
+	Logger::Log(1, "[Model] %s: %zu mats, %zu tex, %zu meshes\n",
+		gltfPath.c_str(), outMaterials.size(), textureHandles.size(), cpu.meshes.size());
+
+	for (size_t i = 0; i < gltfMatIdx_to_handle.size(); ++i) {
+		auto mh = gltfMatIdx_to_handle[i];
+		auto* cm = m_cpuMaterials[mh].get();
+		Logger::Log(1, "  gi=%zu -> handle=%u baseColorH=%u\n", i, mh, cm ? cm->baseColorH : 0);
 	}
 
 	ModelHandle mh = MakeModelHandle();
