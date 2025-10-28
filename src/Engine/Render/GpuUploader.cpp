@@ -109,6 +109,9 @@ void GpuUploader::EnsureMatResident(MaterialHandle matHandle)
 	gd.baseColorFactor[1] = cm->baseColorFactor[1];
 	gd.baseColorFactor[2] = cm->baseColorFactor[2];
 	gd.baseColorFactor[3] = cm->baseColorFactor[3];
+	gd.emissiveFactor[0] = cm->emissiveFactor[0];
+	gd.emissiveFactor[1] = cm->emissiveFactor[1];
+	gd.emissiveFactor[2] = cm->emissiveFactor[2];
 
 	gd.metallic = cm->metallic;
 	gd.roughness = cm->roughness;
@@ -125,11 +128,17 @@ void GpuUploader::EnsureMatResident(MaterialHandle matHandle)
 	gpuMaterial.desc.baseColorFactor[1] = gd.baseColorFactor[1];
 	gpuMaterial.desc.baseColorFactor[2] = gd.baseColorFactor[2];
 	gpuMaterial.desc.baseColorFactor[3] = gd.baseColorFactor[3];
+	gpuMaterial.desc.metallic = gd.metallic;
+	gpuMaterial.desc.roughness = gd.roughness;
+	gpuMaterial.desc.emissiveFactor[0] = gd.emissiveFactor[0];
+	gpuMaterial.desc.emissiveFactor[1] = gd.emissiveFactor[1];
+	gpuMaterial.desc.emissiveFactor[2] = gd.emissiveFactor[2];
+		
 	gpuMaterial.handle = mathand;
 	Logger::Log(1, "%s Mat Handle is is %u\n", __FUNCTION__, gpuMaterial.handle);
 	Logger::Log(1, "%s Base Color is %u\n", __FUNCTION__, gpuMaterial.desc.baseColor);
 	Logger::Log(1, "%s Base Color Factor is %f, %f, %f, %f \n", __FUNCTION__, gpuMaterial.desc.baseColorFactor[0], gpuMaterial.desc.baseColorFactor[1], gpuMaterial.desc.baseColorFactor[2], gpuMaterial.desc.baseColorFactor[3]);
-
+	Logger::Log(1, "%s Emissive Factor is %f, %f, %f \n", __FUNCTION__, gpuMaterial.desc.emissiveFactor[0], gpuMaterial.desc.emissiveFactor[1], gpuMaterial.desc.emissiveFactor[2]);
 	m_materialBuffers.emplace(mathand, gpuMaterial);
 	m_TextureCache.emplace(mathand, gd.baseColor);
 }

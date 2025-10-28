@@ -30,6 +30,7 @@ void RenderBackendGL::Submit(const DrawItem* items, uint32_t itemCount) {
 			glActiveTexture(GL_TEXTURE0);
 			glBindTexture(GL_TEXTURE_2D, baseColorTex);
 			glPipe.program.SetVec3("uBaseColorFactor", mat.desc.baseColorFactor[0], mat.desc.baseColorFactor[1], mat.desc.baseColorFactor[2]);
+			glPipe.program.SetVec3("uEmissive", mat.desc.emissiveFactor[0], mat.desc.emissiveFactor[1], mat.desc.emissiveFactor[2]);
 			glPipe.program.SetVec2("uMetallicRoughness", mat.desc.metallic, mat.desc.roughness);
 			glPipe.program.SetBool("useTex", true);
 			glPipe.program.SetInt("uBaseColorTexture", 0);
@@ -39,6 +40,7 @@ void RenderBackendGL::Submit(const DrawItem* items, uint32_t itemCount) {
 			glActiveTexture(GL_TEXTURE0);
 			glBindTexture(GL_TEXTURE_2D, 0);
 			glPipe.program.SetVec3("uBaseColorFactor", mat.desc.baseColorFactor[0], mat.desc.baseColorFactor[1], mat.desc.baseColorFactor[2]);
+			glPipe.program.SetVec3("uEmissive", mat.desc.emissiveFactor[0], mat.desc.emissiveFactor[1], mat.desc.emissiveFactor[2]);
 			glPipe.program.SetVec2("uMetallicRoughness", mat.desc.metallic, mat.desc.roughness);
 			glPipe.program.SetBool("useTex", false);
 			glPipe.program.SetInt("uBaseColorTexture", 0);

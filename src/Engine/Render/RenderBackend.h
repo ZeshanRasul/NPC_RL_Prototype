@@ -85,6 +85,7 @@ struct MaterialGpuDesc {
 	float baseColorFactor[4];
 	float metallic;
 	float roughness;
+	float emissiveFactor[3];
 };
 
 struct DrawItem {

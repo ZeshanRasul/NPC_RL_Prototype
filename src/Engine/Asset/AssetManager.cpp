@@ -48,6 +48,9 @@ ModelHandle AssetManager::LoadStaticModel(const std::string& gltfPath) {
 
 		mat.baseColorTexIdx = -1;
 
+		if (mat.emissiveFactor[0] > 0.0f || mat.emissiveFactor[1] > 0.0f || mat.emissiveFactor[2] > 0.0f) {
+		}
+
 		MaterialHandle mh = CreateMaterial(mat);
 		gltfMatIdx_to_handle[gi] = mh;
 		cpu.materials.push_back(mh);

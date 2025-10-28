@@ -469,6 +469,16 @@ CpuStaticModel ImportModel(const std::string& gltfPath, std::vector<CpuMaterial>
 			cm.baseColorFactor[0] = cm.baseColorFactor[1] =
 				cm.baseColorFactor[2] = cm.baseColorFactor[3] = 1.0f;
 		}
+
+		if (m.emissiveFactor.size() == 3) {
+			cm.emissiveFactor[0] = (float)m.emissiveFactor[0];
+			cm.emissiveFactor[1] = (float)m.emissiveFactor[1];
+			cm.emissiveFactor[2] = (float)m.emissiveFactor[2];
+		}
+		else {
+			cm.emissiveFactor[0] = cm.emissiveFactor[1] = cm.emissiveFactor[2] = 0.0f;
+		}
+
 		if (m.pbrMetallicRoughness.metallicFactor >= 0.0f) cm.metallic = (float)m.pbrMetallicRoughness.metallicFactor;
 		if (m.pbrMetallicRoughness.roughnessFactor >= 0.0f) cm.roughness = (float)m.pbrMetallicRoughness.roughnessFactor;
 

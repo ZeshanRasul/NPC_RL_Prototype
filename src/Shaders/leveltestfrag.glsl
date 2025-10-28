@@ -7,6 +7,7 @@ in vec3 Normal;
 uniform sampler2D uBaseColorTexture;
 
 uniform vec3 uBaseColorFactor;
+uniform vec3 uEmissive;
 uniform vec2 uMetallicRoughness;
 uniform bool useTex;
 
@@ -34,12 +35,12 @@ vec3 CalcDirLight(DirLight light, vec3 normal)
 	vec3 diffuse;
 
  	if (useTex) {
-		ambient = light.ambient * vec3(texture(uBaseColorTexture, TexCoords)) * vec3(1.0, 1.0, 1.0);
-		diffuse = light.diffuse * diff * vec3(texture(uBaseColorTexture, TexCoords)) * vec3(1.0, 1.0, 1.0);
+		ambient = light.ambient * vec3(texture(uBaseColorTexture, TexCoords));
+		diffuse = light.diffuse * diff * vec3(texture(uBaseColorTexture, TexCoords));
 
 	} else {
-		ambient = light.ambient * vec3(1.0, 1.0, 1.0);
-		diffuse = light.diffuse * diff * vec3(1.0, 1.0, 1.0);
+		ambient = light.ambient * uBaseColorFactor.xyz;
+		diffuse = light.diffuse * diff * uBaseColorFactor.xyz;
 	}
 
 
