@@ -296,25 +296,7 @@ void ProcessNode(const tinygltf::Model& model,
 		const tinygltf::Mesh& mesh = model.meshes[node.mesh];
 
 
-		const tinygltf::Value& val = mesh.extras.Get("isBox");
-		const tinygltf::Value& val2 = mesh.extras.Get("isCollider");
-		if (val.IsInt() && val.Get<int>() == 1 && val2.IsInt() && val2.Get<int>() == 1) {
-			Logger::Log(1, "% Mesh is a box collider, setting up AABB\n", __FUNCTION__);
-			// Recurse into children
-			for (int childIndex : node.children) {
-				ProcessNode(model, childIndex, world, outModel, outMaterials, outTextures);
-			}
-		}
 
-		const tinygltf::Value& planeVal = mesh.extras.Get("isPlane");
-		const tinygltf::Value& planeVal2 = mesh.extras.Get("isCollider");
-		if (planeVal.IsInt() && planeVal.Get<int>() == 1 && planeVal2.IsInt() && planeVal2.Get<int>() == 1) {
-			Logger::Log(1, "% Mesh is a plane collider, setting up AABB\n", __FUNCTION__);
-			// Recurse into children
-			for (int childIndex : node.children) {
-				ProcessNode(model, childIndex, world, outModel, outMaterials, outTextures);
-			}
-		}
 
 		for (const auto& prim : mesh.primitives) {
 			CpuStaticMesh cpuMesh;
@@ -454,7 +436,19 @@ void ProcessNode(const tinygltf::Model& model,
 						outModel.meshes.size(),
 						(unsigned)sm.vertexData.size(),
 						(unsigned)sm.indexData.size());
+					const tinygltf::Value& val = mesh.extras.Get("isBox");
+					const tinygltf::Value& val2 = mesh.extras.Get("isCollider");
+					if (val.IsInt() && val.Get<int>() == 1 && val2.IsInt() && val2.Get<int>() == 1) {
+						Logger::Log(1, "% Mesh is a box collider, setting up AABB\n", __FUNCTION__);
+						continue;
+					}
 
+					const tinygltf::Value& planeVal = mesh.extras.Get("isPlane");
+					const tinygltf::Value& planeVal2 = mesh.extras.Get("isCollider");
+					if (planeVal.IsInt() && planeVal.Get<int>() == 1 && planeVal2.IsInt() && planeVal2.Get<int>() == 1) {
+						Logger::Log(1, "% Mesh is a plane collider, setting up AABB\n", __FUNCTION__);
+						continue;
+					}
 					cpuMesh.submeshes.push_back(sm);
 				}
 				outModel.meshes.emplace_back(std::move(cpuMesh));
