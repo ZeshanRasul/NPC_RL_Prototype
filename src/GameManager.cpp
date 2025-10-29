@@ -1724,7 +1724,7 @@ void GameManager::Render(bool isMinimapRenderPass, bool isShadowMapRenderPass, b
 	m_renderBackend->BindUniformBuffer(h, 0);
 
 	if (isMainRenderPass)
-		RenderStaticModels(m_activeScene->GetRegistry(), *m_renderBackend, *uploader, pipes);
+		RenderStaticModels(m_activeScene->GetRegistry(), *m_renderBackend, *uploader, pipes, m_camera->GetPosition());
 
 
 	//navMeshShader.Use();

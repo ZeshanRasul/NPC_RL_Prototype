@@ -128,7 +128,7 @@ public:
 	virtual GpuTextureId CreateTexture2D(const CpuTexture& cpu, GpuMaterialHandle matHandle) = 0;
 
 	virtual void BeginFrame() = 0;
-	virtual void Submit(const DrawItem* items, uint32_t itemCount) = 0;
+	virtual void Submit(const DrawItem* items, uint32_t itemCount, glm::vec3 camPos) = 0;
 	virtual void EndFrame() = 0;
 
 	virtual void BindUniformBuffer(GpuBufferHandle h, uint32_t binding) = 0;

@@ -2,7 +2,7 @@
 
 struct empty {};
 
-void RenderBackendGL::Submit(const DrawItem* items, uint32_t itemCount) {
+void RenderBackendGL::Submit(const DrawItem* items, uint32_t itemCount, glm::vec3 camPos) {
 	for (uint32_t i = 0; i < itemCount; ++i) {
 		const auto& di = items[i];
 		const auto& glPipe = m_pipelines[di.pipeline];
@@ -25,6 +25,7 @@ void RenderBackendGL::Submit(const DrawItem* items, uint32_t itemCount) {
 		//if (mrloc >= 0) glUniform2f(mrloc, mat.desc.metallic, mat.desc.roughness);
 		//
 		//GLint samplerLoc = glGetUniformLocation(glPipe.program.GetProgram(), "uBaseColorTexture");
+		glPipe.program.SetVec3("cameraPos", camPos);
 
 		if (baseColorTex) {
 			glActiveTexture(GL_TEXTURE0);

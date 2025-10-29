@@ -28,7 +28,7 @@ inline Shader* PickShader(const StaticModelRendererComponent& comp, bool shadowP
 }
 
 inline void RenderStaticModels(entt::registry& reg, RenderBackend& rb,
-	GpuUploader& up, const Pipelines& pipes)
+	GpuUploader& up, const Pipelines& pipe, glm::vec3 camPos)
 {
 	std::vector<DrawItem> draws;
 	draws.reserve(300000);
@@ -55,7 +55,7 @@ inline void RenderStaticModels(entt::registry& reg, RenderBackend& rb,
 			for (const auto& submesh : mesh.submeshes)
 			{
 				DrawItem item{};
-				item.pipeline = pipes.staticPbr;
+				item.pipeline = pipe.staticPbr;
 				item.vao = submesh.vao;
 				item.vertexBuffer = submesh.vertexBuffer;
 				item.indexBuffer = submesh.indexBuffer;
@@ -88,7 +88,7 @@ inline void RenderStaticModels(entt::registry& reg, RenderBackend& rb,
 
 	if (!draws.empty())
 	{
-		rb.Submit(draws.data(), static_cast<uint32_t>(draws.size()));
+		rb.Submit(draws.data(), static_cast<uint32_t>(draws.size()), camPos);
 	}
 	
 	rb.EndFrame();

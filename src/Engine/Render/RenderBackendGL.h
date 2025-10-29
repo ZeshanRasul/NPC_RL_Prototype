@@ -235,7 +235,7 @@ public:
 	void BeginFrame() override {
 	}
 
-	void Submit(const DrawItem* items, uint32_t itemCount) override;
+	void Submit(const DrawItem* items, uint32_t itemCount, glm::vec3 camPos) override;
 
 	void EndFrame() override {}
 
