@@ -610,7 +610,7 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 	uploader = new GpuUploader(m_renderBackend, m_assetManager);
 
 	auto& reg = m_activeScene->GetRegistry();
-	std::string levelPath = "Assets/Models/Game_Scene/Final/GLTF/final.2gltf.gltf";
+	std::string levelPath = "Assets/Models/Game_Scene/Final/GLTF/final.gltf";
 	
 	CreateLevel(reg, *m_assetManager, levelPath);
 
@@ -1073,7 +1073,7 @@ void GameManager::SetupCamera(unsigned int width, unsigned int height, float del
 
 	m_cubemapView = glm::mat4(glm::mat3(m_camera->GetViewMatrixPlayerFollow(m_player->GetPosition(), glm::vec3(0.0f, 1.0f, 0.0f))));
 
-	m_projection = glm::perspective(glm::radians(m_camera->GetZoom()), (float)width / (float)height, 0.1f, 500.0f);
+	m_projection = glm::perspective(glm::radians(m_camera->GetZoom()), (float)width / (float)height, 0.01f, 5000.0f);
 
 	m_minimapView = glm::mat4(1.0f);
 	m_minimapProjection = glm::perspective(glm::radians(m_camera->GetZoom()), (float)width / (float)height, 0.1f, 500.0f);

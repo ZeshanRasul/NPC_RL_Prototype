@@ -46,7 +46,7 @@ vec3 CalcDirLight(DirLight light, vec3 normal);
 
 
 
-DirLight dirLight = DirLight(vec3(-0.5, -1.0, -0.3), vec3(255.0, 255.0, 255.0), vec3(0.8, 0.8, 0.8), vec3(0.8, 0.9, 1.0));
+DirLight dirLight = DirLight(vec3(-0.5, -1.0, -0.3), vec3(6.5, 6.5, 6.5), vec3(10.5, 10.5, 10.5), vec3(0.8, 0.9, 1.0));
 
 float DistributionGGX(vec3 N, vec3 H, float roughness)
 {
@@ -215,9 +215,9 @@ void main() {
     }
 
     // ambient lighting
-    vec3 ambient = vec3(0.03) * albedo;
+    vec3 ambientLight = vec3(0.03) * albedo;
     
-    vec3 color = ambient + Lo;
+    vec3 color = ambientLight + Lo + (uEmissive * vec3(0.2));
 
     // HDR tonemapping
     color = color / (color + vec3(1.0));
