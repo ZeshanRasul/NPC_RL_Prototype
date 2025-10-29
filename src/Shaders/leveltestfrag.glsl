@@ -46,8 +46,7 @@ vec3 CalcDirLight(DirLight light, vec3 normal);
 
 
 
-
-DirLight dirLight = DirLight(vec3(-0.5, -1.0, 2.0), vec3(0.8, 0.8, 0.8), vec3(0.3, 0.3, 0.3), vec3(0.1, 0.2, 0.3));
+DirLight dirLight = DirLight(vec3(-0.5, -1.0, -0.3), vec3(255.0, 255.0, 255.0), vec3(0.8, 0.8, 0.8), vec3(0.8, 0.9, 1.0));
 
 float DistributionGGX(vec3 N, vec3 H, float roughness)
 {

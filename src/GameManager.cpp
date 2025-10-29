@@ -610,7 +610,7 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 	uploader = new GpuUploader(m_renderBackend, m_assetManager);
 
 	auto& reg = m_activeScene->GetRegistry();
-	std::string levelPath = "Assets/Models/Game_Scene/V7/test-final.glb";
+	std::string levelPath = "Assets/Models/Game_Scene/Final/GLTF/final.2gltf.gltf";
 	
 	CreateLevel(reg, *m_assetManager, levelPath);
 
