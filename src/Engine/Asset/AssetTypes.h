@@ -8,7 +8,7 @@
 using ModelHandle = uint32_t;
 using MaterialHandle = uint32_t;
 using TextureHandle = uint32_t;
-constexpr uint32_t InvalidHandle = 0;
+constexpr uint32_t InvalidHandle = 100000;
 
 enum class TextureUsage : uint8_t {
 	BaseColorSRGB,

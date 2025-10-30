@@ -298,15 +298,16 @@ void ProcessNode(const tinygltf::Model& model,
 
 
 
+			CpuStaticMesh cpuMesh;
 
-			for (const auto& prim : mesh.primitives) {
-				CpuStaticMesh cpuMesh;
+			uint32_t vertCount = 0;
+			// Store transform per mesh
+			cpuMesh.submeshes.reserve(mesh.primitives.size());
+
+
 
 		
 
-				uint32_t vertCount = 0;
-				// Store transform per mesh
-				cpuMesh.submeshes.reserve(mesh.primitives.size());
 				for (const auto& prim : mesh.primitives) {
 					CpuSubmesh sm{};
 
@@ -447,7 +448,7 @@ void ProcessNode(const tinygltf::Model& model,
 				}
 				outModel.meshes.emplace_back(std::move(cpuMesh));
 			
-			}
+		
 		
 	}
 	// Recurse into children
@@ -545,7 +546,10 @@ CpuStaticModel ImportModel(const std::string& gltfPath, std::vector<CpuMaterial>
 
 		Logger::Log(1, "%s: material %s, baseColorH: %u\n", __FUNCTION__,
 			m.name.c_str(), cm.baseColorH);
-		outMaterials.push_back(cm);
+		outMaterials.emplace_back(cm);
+
+		Logger::Log(1, "Second Check %s: material %s, baseColorH: %u\n", __FUNCTION__,
+			m.name.c_str(), cm.baseColorH);
 	}
 	glm::mat4 identity(1.0f);
 	for (int nodeIndex : scene.nodes) {

@@ -14,8 +14,10 @@ void RenderBackendGL::Submit(const DrawItem* items, uint32_t itemCount, glm::vec
 
 		const auto& mat = m_materials[di.materialHandle];
 		const auto& baseColorTex = m_textures[di.materialHandle];
+		glDisable(GL_CULL_FACE);
+
 	//	glDisable(GL_CULL_FACE);
-		//Logger::Log(1, "%s base color tex: %u\n", __FUNCTION__, baseColorTex);
+		Logger::Log(1, "%s base color tex: %u\n", __FUNCTION__, baseColorTex);
 		glUseProgram(glPipe.program.GetProgram());
 
 		//GLint bcloc = glGetUniformLocation(glPipe.program.GetProgram(), "uBaseColorFactor");
@@ -50,7 +52,6 @@ void RenderBackendGL::Submit(const DrawItem* items, uint32_t itemCount, glm::vec
 
 		if (di.vao) {
 			glBindVertexArray(di.vao);
-			//glDisable(GL_CULL_FACE);
 
 			glDrawElements(GL_TRIANGLES, (GLsizei)di.indexCount,
 				di.indexType == IndexType::U32 ? GL_UNSIGNED_INT : GL_UNSIGNED_SHORT,
@@ -78,6 +79,6 @@ void RenderBackendGL::Submit(const DrawItem* items, uint32_t itemCount, glm::vec
 			glDrawElements(GL_TRIANGLES, (GLsizei)di.indexCount, iType, (void*)(uintptr_t)(di.firstIndex * (di.indexType == IndexType::U32 ? sizeof(uint32_t) : sizeof(uint16_t))));
 
 		}
-		glBindTexture(GL_TEXTURE_2D, 0);
+	//	glBindTexture(GL_TEXTURE_2D, 0);
 	}
 }

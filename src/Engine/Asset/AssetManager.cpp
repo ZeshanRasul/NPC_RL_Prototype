@@ -3,16 +3,16 @@
 #include "Logger.h"
 
 ModelHandle AssetManager::MakeModelHandle() {
-	return ++m_nextModelHandle;
+	return m_nextModelHandle++;
 }
 
 MaterialHandle AssetManager::MakeMaterialHandle() {
-	return ++m_nextMaterialHandle;
+	return m_nextMaterialHandle++;
 }
 
 TextureHandle AssetManager::MakeTextureHandle()
 {
-	return ++m_nextTextureHandle;
+	return m_nextTextureHandle++;
 }
 
 
@@ -30,6 +30,8 @@ ModelHandle AssetManager::LoadStaticModel(const std::string& gltfPath) {
 
 	for (size_t i = 0; i < outTextures.size(); ++i) {
 		textureHandles[i] = CreateTexture(outTextures[i]);
+		Logger::Log(1, "[Model] %s: Created texture handle %u for texture %zu\n",
+			gltfPath.c_str(), textureHandles[i], i);
 		cpu.textures.push_back(textureHandles[i]);
 		m_cpuTextures[textureHandles[i]] = std::make_unique<CpuTexture>(std::move(outTextures[i]));
 	}
@@ -37,12 +39,13 @@ ModelHandle AssetManager::LoadStaticModel(const std::string& gltfPath) {
 	std::vector<MaterialHandle> gltfMatIdx_to_handle(outMaterials.size(), InvalidHandle);
 	m_cpuMaterials.reserve(m_cpuMaterials.size() + outMaterials.size());
 
-	for (size_t gi = 0; gi < outMaterials.size(); gi++)
+	for (size_t gi = 0; gi < outMaterials.size(); ++gi)
 	{
 		CpuMaterial& mat = outMaterials[gi];
+		MaterialHandle mh = CreateMaterial(mat);
 
 		if (mat.baseColorTexIdx >= 0)
-			mat.baseColorH = textureHandles[mat.baseColorTexIdx];
+			mat.baseColorH = 1;
 		else
 			mat.baseColorH = InvalidHandle;
 
@@ -51,10 +54,9 @@ ModelHandle AssetManager::LoadStaticModel(const std::string& gltfPath) {
 		if (mat.emissiveFactor[0] > 0.0f || mat.emissiveFactor[1] > 0.0f || mat.emissiveFactor[2] > 0.0f) {
 		}
 
-		MaterialHandle mh = CreateMaterial(mat);
 		gltfMatIdx_to_handle[gi] = mh;
-		cpu.materials.push_back(mh);
-		m_cpuMaterials[mh] = std::make_unique<CpuMaterial>(std::move(mat));
+		cpu.materials.push_back(gltfMatIdx_to_handle[gi]);
+		m_cpuMaterials[gltfMatIdx_to_handle[gi]] = std::make_unique<CpuMaterial>(std::move(mat));
 	}
 
 	for (auto& mesh : cpu.meshes)
@@ -84,7 +86,7 @@ ModelHandle AssetManager::LoadStaticModel(const std::string& gltfPath) {
 	for (size_t i = 0; i < gltfMatIdx_to_handle.size(); ++i) {
 		auto mh = gltfMatIdx_to_handle[i];
 		auto* cm = m_cpuMaterials[mh].get();
-		Logger::Log(1, "  gi=%zu -> handle=%u baseColorH=%u\n", i, mh, cm->baseColorH);
+		Logger::Log(1, "  gi=%zu -> handle=%u baseColorH=%u\n", i, mh, cm->baseColorH != InvalidHandle ? cm->baseColorH : 0);
 	}
 
 	ModelHandle mh = MakeModelHandle();
@@ -149,7 +151,7 @@ TextureHandle AssetManager::CreateTexture(CpuTexture tex)
 {
 	// Own the texture immediately
 	auto handle = MakeTextureHandle();
-	m_cpuTextures[handle] = std::make_unique<CpuTexture>(std::move(tex));
+	m_cpuTextures[handle] = std::make_unique<CpuTexture>(tex);
 	CpuTexture& newtex = *m_cpuTextures[handle];
 
 	 

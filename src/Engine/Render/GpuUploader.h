@@ -79,10 +79,10 @@ public:
 	}
 
 	GpuTextureId EnsureTextureResident(TextureHandle th, MaterialHandle matHandle) {
-		if (!matHandle) return InvalidHandle;
-		if (!th) return InvalidHandle;
 		auto it = m_TextureCache.find(matHandle);
 		if (it != m_TextureCache.end()) return it->second;
+		if (!matHandle) return InvalidHandle;
+		if (!th) return InvalidHandle;
 
 		const CpuTexture& cpu = *(m_assetManager->GetCpuTexture(th));
 
