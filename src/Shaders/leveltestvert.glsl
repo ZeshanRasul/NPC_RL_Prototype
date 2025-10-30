@@ -19,7 +19,8 @@ uniform mat4 Transform;
 void main() {
 
     TexCoords = aTexCoord;
-    WorldPos = vec3(model * vec4(aPos, 1.0));
+    mat4 modelTr = model * Transform;
+    WorldPos = vec3(modelTr * vec4(aPos, 1.0));
     mat3 normalMatrix = transpose(inverse(mat3(model)));
     Normal = normalMatrix * aNormal;   
 

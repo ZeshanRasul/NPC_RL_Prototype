@@ -610,7 +610,7 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 	uploader = new GpuUploader(m_renderBackend, m_assetManager);
 
 	auto& reg = m_activeScene->GetRegistry();
-	std::string levelPath = "Assets/Models/Game_Scene/Final/GLTF/final.gltf";
+	std::string levelPath = "Assets/Models/Game_Scene/Final/Aviary-Environment-Final-GLB-V1.glb";
 	
 	CreateLevel(reg, *m_assetManager, levelPath);
 

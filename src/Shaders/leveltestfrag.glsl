@@ -46,7 +46,7 @@ vec3 CalcDirLight(DirLight light, vec3 normal);
 
 
 
-DirLight dirLight = DirLight(vec3(-0.5, -1.0, -0.3), vec3(6.5, 6.5, 6.5), vec3(10.5, 10.5, 10.5), vec3(0.8, 0.9, 1.0));
+DirLight dirLight = DirLight(vec3(-0.5, -1.0, -0.3), vec3(31.5, 31.5, 31.5), vec3(13.5, 13.5, 13.5), vec3(0.8, 0.9, 1.0));
 
 float DistributionGGX(vec3 N, vec3 H, float roughness)
 {
@@ -150,6 +150,11 @@ vec3 CalcDirLight(DirLight light, vec3 normal)
 
 void main() {
     vec3 albedo     = pow(texture(uBaseColorTexture, TexCoords).rgb, vec3(2.2));
+
+    if (!useTex) {
+        albedo = pow(uBaseColorFactor.xyz, vec3(2.2));
+    }
+
     float metallic  = uMetallicRoughness.r;
     float roughness = uMetallicRoughness.g;
     vec3 N = normalize(Normal);

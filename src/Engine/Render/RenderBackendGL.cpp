@@ -50,7 +50,7 @@ void RenderBackendGL::Submit(const DrawItem* items, uint32_t itemCount, glm::vec
 
 		if (di.vao) {
 			glBindVertexArray(di.vao);
-			//glDisable(GL_CULL_FACE);
+			glDisable(GL_CULL_FACE);
 
 			glDrawElements(GL_TRIANGLES, (GLsizei)di.indexCount,
 				di.indexType == IndexType::U32 ? GL_UNSIGNED_INT : GL_UNSIGNED_SHORT,

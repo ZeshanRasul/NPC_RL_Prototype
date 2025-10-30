@@ -290,7 +290,16 @@ void ProcessNode(const tinygltf::Model& model,
 	uint64_t sum = 0;
 
 
-
+	for (int i = 0; i < model.nodes.size(); ++i) {
+		const auto& node = model.nodes[i];
+		glm::mat4 world = parentTransform * GetNodeTransform(node);
+		float det = glm::determinant(glm::mat3(world));
+		Logger::Log(1, "Node %d (%s)  mesh=%d  det=%f\n",
+			i,
+			node.name.c_str(),
+			node.mesh,
+			det);
+	}
 
 	if (node.mesh >= 0) {
 		const tinygltf::Mesh& mesh = model.meshes[node.mesh];
@@ -315,6 +324,8 @@ void ProcessNode(const tinygltf::Model& model,
 				cpuMesh.submeshes.reserve(mesh.primitives.size());
 				for (const auto& prim : mesh.primitives) {
 					CpuSubmesh sm{};
+
+					sm.transform = world;
 
 					// gather attributes into temporary vectors
 					std::vector<float> pos, norm, tan, uv0, uv1, col;
@@ -448,6 +459,28 @@ void ProcessNode(const tinygltf::Model& model,
 					if (planeVal.IsInt() && planeVal.Get<int>() == 1 && planeVal2.IsInt() && planeVal2.Get<int>() == 1) {
 						Logger::Log(1, "% Mesh is a plane collider, setting up AABB\n", __FUNCTION__);
 						continue;
+					}
+
+
+
+					if (glm::determinant(glm::mat3(world)) < 0.0f) {
+						// Invert one axis of the transform to restore right-handedness
+						world[2] = -world[2]; // flip X axis, or pick whichever axis was mirrored
+
+						// Then reverse index order on the CPU (once, not every frame)
+						for (size_t i = 0; i < sm.indexCount; i += 3) {
+							if (sm.index32) {
+								auto* indices = reinterpret_cast<uint32_t*>(sm.indexData.data());
+								std::swap(indices[i + 0], indices[i + 2]);
+							}
+							else {
+								auto* indices = reinterpret_cast<uint16_t*>(sm.indexData.data());
+								std::swap(indices[i + 0], indices[i + 2]);
+							}
+						}
+
+						sm.transform = world;
+
 					}
 					cpuMesh.submeshes.push_back(sm);
 				}

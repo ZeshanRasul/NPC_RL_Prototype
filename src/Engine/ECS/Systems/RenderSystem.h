@@ -31,7 +31,7 @@ inline void RenderStaticModels(entt::registry& reg, RenderBackend& rb,
 	GpuUploader& up, const Pipelines& pipe, glm::vec3 camPos)
 {
 	std::vector<DrawItem> draws;
-	draws.reserve(300000);
+	//draws.reserve(300000);
 
 	auto view = reg.view<StaticModelRendererComponent>();
 

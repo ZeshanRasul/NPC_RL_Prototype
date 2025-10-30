@@ -52,7 +52,7 @@ ModelHandle AssetManager::LoadStaticModel(const std::string& gltfPath) {
 		}
 
 		MaterialHandle mh = CreateMaterial(mat);
-		gltfMatIdx_to_handle[gi] = mh;
+		gltfMatIdx_to_handle[mh] = mh;
 		cpu.materials.push_back(mh);
 		m_cpuMaterials[mh] = std::make_unique<CpuMaterial>(std::move(mat));
 	}

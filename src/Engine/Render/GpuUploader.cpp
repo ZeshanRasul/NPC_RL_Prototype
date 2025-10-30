@@ -56,6 +56,7 @@ void GpuUploader::EnsureResident(ModelHandle modelHandle)
 			gpuSubmesh.material = sm.material;
 			EnsureMatResident(sm.material);
 			gpuSubmesh.texture = cpu->textures[sm.material];
+			gpuSubmesh.transform = sm.transform;
 
 			GLuint vao = 0;
 			glGenVertexArrays(1, &vao);
