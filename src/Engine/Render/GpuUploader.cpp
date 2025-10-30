@@ -55,7 +55,15 @@ void GpuUploader::EnsureResident(ModelHandle modelHandle)
 			GpuMaterialHandle mh = MatHandle(sm.material);
 			gpuSubmesh.material = sm.material;
 			EnsureMatResident(sm.material);
-			gpuSubmesh.texture = cpu->textures[sm.material];
+			if (cpu->textures.size() > 0 && cpu->textures[sm.material])
+			{
+				Logger::Log(1, "%s: Texture for material %u found in model %u\n", __FUNCTION__, sm.material, modelHandle);
+				gpuSubmesh.texture = cpu->textures[sm.material];
+			}
+			else
+			{
+				Logger::Log(1, "%s: Texture for material %u not found in model %u\n", __FUNCTION__, sm.material, modelHandle);
+			}
 
 			GLuint vao = 0;
 			glGenVertexArrays(1, &vao);
@@ -116,7 +124,7 @@ void GpuUploader::EnsureMatResident(MaterialHandle matHandle)
 	gd.metallic = cm->metallic;
 	gd.roughness = cm->roughness;
 
-	//if (cm->baseColorH == InvalidHandle) return;
+	if (cm->baseColorH == InvalidHandle || cm->baseColorH > 1000) return;
 
 	gd.baseColor = EnsureTextureResident(cm->baseColorH, matHandle);
 	Logger::Log(1, "%s Base Color is %u\n", __FUNCTION__, gd.baseColor);

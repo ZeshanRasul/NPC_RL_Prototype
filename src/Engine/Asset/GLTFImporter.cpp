@@ -298,12 +298,6 @@ void ProcessNode(const tinygltf::Model& model,
 
 
 
-		for (const auto& prim : mesh.primitives) {
-			CpuStaticMesh cpuMesh;
-
-			uint32_t vertCount = 0;
-			// Store transform per mesh
-			cpuMesh.submeshes.reserve(mesh.primitives.size());
 
 			for (const auto& prim : mesh.primitives) {
 				CpuStaticMesh cpuMesh;
@@ -452,9 +446,9 @@ void ProcessNode(const tinygltf::Model& model,
 					cpuMesh.submeshes.push_back(sm);
 				}
 				outModel.meshes.emplace_back(std::move(cpuMesh));
-
+			
 			}
-		}
+		
 	}
 	// Recurse into children
 	for (int childIndex : node.children) {

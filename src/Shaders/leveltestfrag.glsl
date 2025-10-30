@@ -223,7 +223,9 @@ void main() {
     color = color / (color + vec3(1.0));
     // gamma correct
     color = pow(color, vec3(1.0/2.2)); 
+    vec3 res = CalcDirLight(dirLight, N);
 
 
-	FragColor = vec4(color, 1.0);
+
+	FragColor = vec4(1.0, 1.0, 1.0, 1.0);
 }

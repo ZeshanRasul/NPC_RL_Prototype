@@ -37,11 +37,11 @@ ModelHandle AssetManager::LoadStaticModel(const std::string& gltfPath) {
 	std::vector<MaterialHandle> gltfMatIdx_to_handle(outMaterials.size(), InvalidHandle);
 	m_cpuMaterials.reserve(m_cpuMaterials.size() + outMaterials.size());
 
-	for (size_t gi = 0; gi < outMaterials.size(); ++gi)
+	for (size_t gi = 0; gi < outMaterials.size(); gi++)
 	{
 		CpuMaterial& mat = outMaterials[gi];
 
-		if (mat.baseColorTexIdx >= 0 && mat.baseColorTexIdx < static_cast<int>(textureHandles.size()))
+		if (mat.baseColorTexIdx >= 0)
 			mat.baseColorH = textureHandles[mat.baseColorTexIdx];
 		else
 			mat.baseColorH = InvalidHandle;
@@ -84,7 +84,7 @@ ModelHandle AssetManager::LoadStaticModel(const std::string& gltfPath) {
 	for (size_t i = 0; i < gltfMatIdx_to_handle.size(); ++i) {
 		auto mh = gltfMatIdx_to_handle[i];
 		auto* cm = m_cpuMaterials[mh].get();
-		Logger::Log(1, "  gi=%zu -> handle=%u baseColorH=%u\n", i, mh, cm ? cm->baseColorH : 0);
+		Logger::Log(1, "  gi=%zu -> handle=%u baseColorH=%u\n", i, mh, cm->baseColorH);
 	}
 
 	ModelHandle mh = MakeModelHandle();
@@ -114,7 +114,7 @@ const CpuMaterial* AssetManager::GetCpuMaterial(MaterialHandle h) const {
 	if (it != m_cpuMaterials.end()) {
 		return it->second.get();
 	}
-	return m_cpuMaterials.at(0).get();
+	return m_cpuMaterials.at(1).get();
 	//TODO : handle invalid material handle gracefully
 }
 

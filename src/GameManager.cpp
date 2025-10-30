@@ -610,7 +610,7 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 	uploader = new GpuUploader(m_renderBackend, m_assetManager);
 
 	auto& reg = m_activeScene->GetRegistry();
-	std::string levelPath = "Assets/Models/Game_Scene/Final/GLTF/final.gltf";
+	std::string levelPath = "Assets/Models/Game_Scene/Final/GLTF/Untitled1.glb";
 	
 	CreateLevel(reg, *m_assetManager, levelPath);
 
@@ -1073,7 +1073,7 @@ void GameManager::SetupCamera(unsigned int width, unsigned int height, float del
 
 	m_cubemapView = glm::mat4(glm::mat3(m_camera->GetViewMatrixPlayerFollow(m_player->GetPosition(), glm::vec3(0.0f, 1.0f, 0.0f))));
 
-	m_projection = glm::perspective(glm::radians(m_camera->GetZoom()), (float)width / (float)height, 0.01f, 5000.0f);
+	m_projection = glm::perspective(glm::radians(m_camera->GetZoom()), (float)width / (float)height, 0.01f, 10000.0f);
 
 	m_minimapView = glm::mat4(1.0f);
 	m_minimapProjection = glm::perspective(glm::radians(m_camera->GetZoom()), (float)width / (float)height, 0.1f, 500.0f);
@@ -1716,15 +1716,20 @@ void GameManager::Render(bool isMinimapRenderPass, bool isShadowMapRenderPass, b
 	std::vector<glm::mat4> matrixData;
 	matrixData.push_back(m_view);
 	matrixData.push_back(m_projection);
-	modelMat = glm::translate(modelMat, glm::vec3(0.0f));
-	modelMat = glm::scale(modelMat, glm::vec3(5.0f));
+	modelMat = glm::translate(modelMat, mapPos);
+	modelMat = glm::rotate(modelMat, glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+	modelMat = glm::scale(modelMat, mapScale);
 
 	matrixData.push_back(modelMat);
 	m_renderBackend->UpdateBuffer(h, 0, matrixData.data(), 3 * sizeof(glm::mat4));
 	m_renderBackend->BindUniformBuffer(h, 0);
 
 	if (isMainRenderPass)
+	{
+		glCullFace(GL_NONE);
 		RenderStaticModels(m_activeScene->GetRegistry(), *m_renderBackend, *uploader, pipes, m_camera->GetPosition());
+		
+	}
 
 
 	//navMeshShader.Use();
