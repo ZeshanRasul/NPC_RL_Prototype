@@ -598,277 +598,277 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 	int triCount = 0;
 	int vertexOffset = 0;
 
-	//for (Ground::GLTFMesh& mesh : meshDataGrnd)
-	//{
-	//	for (Ground::GLTFPrimitive& prim : mesh.primitives)
-	//	{
-	//		for (glm::vec3 vert : prim.verts)
-	//		{
-	//			glm::vec4 newVert = glm::vec4(vert.x, vert.y, vert.z, 1.0f);
-	//			glm::mat4 model = glm::mat4(1.0f);
-	//			model = glm::translate(model, mapPos);
-	//			//model = glm::rotate(model, glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-	//			model = glm::scale(model, mapScale);
-	//			glm::vec4 newVertTr = model * newVert;
-	//
-	//			// Add transformed vertices
-	//			mapVerts.push_back(glm::vec3(newVertTr.x, newVertTr.y, newVertTr.z));
-	//			navMeshVertices.push_back(newVertTr.x);
-	//			navMeshVertices.push_back(newVertTr.y);
-	//			navMeshVertices.push_back(newVertTr.z);
-	//			mapVertCount += 3;
-	//		}
-	//
-	//		for (unsigned int idx : prim.indices)
-	//		{
-	//			navMeshIndices.push_back(idx + vertexOffset);
-	//			mapIndCount++;
-	//		}
-	//
-	//		vertexOffset += static_cast<int>(prim.verts.size());
-	//	}
-	//}
+	for (Ground::GLTFMesh& mesh : meshDataGrnd)
+	{
+		for (Ground::GLTFPrimitive& prim : mesh.primitives)
+		{
+			for (glm::vec3 vert : prim.verts)
+			{
+				glm::vec4 newVert = glm::vec4(vert.x, vert.y, vert.z, 1.0f);
+				glm::mat4 model = glm::mat4(1.0f);
+				model = glm::translate(model, mapPos);
+				//model = glm::rotate(model, glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+				model = glm::scale(model, mapScale);
+				glm::vec4 newVertTr = model * newVert;
+	
+				// Add transformed vertices
+				mapVerts.push_back(glm::vec3(newVertTr.x, newVertTr.y, newVertTr.z));
+				navMeshVertices.push_back(newVertTr.x);
+				navMeshVertices.push_back(newVertTr.y);
+				navMeshVertices.push_back(newVertTr.z);
+				mapVertCount += 3;
+			}
+	
+			for (unsigned int idx : prim.indices)
+			{
+				navMeshIndices.push_back(idx + vertexOffset);
+				mapIndCount++;
+			}
+	
+			vertexOffset += static_cast<int>(prim.verts.size());
+		}
+	}
 
 
 	
 
-	//Logger::Log(1, "Map vertices count: %i\n", mapVerts.size());
-	//
-	//
-	//Logger::Log(1, "navMeshVertices count: %zu\n", navMeshVertices.size());
-	//for (size_t i = 0; i < std::min((size_t)10, navMeshVertices.size() / 3); ++i)
-	//{
-	//	Logger::Log(1, "Vertex %zu: %.2f %.2f %.2f\n",
-	//		i,
-	//		navMeshVertices[i * 3],
-	//		navMeshVertices[i * 3 + 1],
-	//		navMeshVertices[i * 3 + 2]);
-	//}
+	Logger::Log(1, "Map vertices count: %i\n", mapVerts.size());
+	
+	
+	Logger::Log(1, "navMeshVertices count: %zu\n", navMeshVertices.size());
+	for (size_t i = 0; i < std::min((size_t)10, navMeshVertices.size() / 3); ++i)
+	{
+		Logger::Log(1, "Vertex %zu: %.2f %.2f %.2f\n",
+			i,
+			navMeshVertices[i * 3],
+			navMeshVertices[i * 3 + 1],
+			navMeshVertices[i * 3 + 2]);
+	}
 
 
-	//int indexCount = (int)navMeshIndices.size();
-	//Logger::Log(1, "Index Count: %zu\n", (int)navMeshIndices.size());
-	//
-	//triIndices = new int[indexCount];
-	//
-	//for (int i = 0; i < navMeshIndices.size(); i++)
-	//{
-	//	triIndices[i] = navMeshIndices[i];
-	//}
-	//
-	//Logger::Log(1, "Index Count: %zu\n", indexCount);
+	int indexCount = (int)navMeshIndices.size();
+	Logger::Log(1, "Index Count: %zu\n", (int)navMeshIndices.size());
+	
+	triIndices = new int[indexCount];
+	
+	for (int i = 0; i < navMeshIndices.size(); i++)
+	{
+		triIndices[i] = navMeshIndices[i];
+	}
+	
+	Logger::Log(1, "Index Count: %zu\n", indexCount);
 
 
 
 
-	//int triangleCount = indexCount / 3;
-	//
-	//triAreas = new unsigned char[triangleCount];
-	//
-	//filter.setIncludeFlags(0xFFFF); // Include all polygons for testing
-	//filter.setExcludeFlags(0);      // Exclude no polygons
-	//
-	//Logger::Log(1, "Tri Areas: %s", triAreas);
-	//
-	//int vertexCount = navMeshVertices.size() / 3;
-	//
-	//for (int i = 0; i < triangleCount * 3; i++) {
-	//	if (triIndices[i] < 0 || triIndices[i] >= vertexCount) {
-	//		Logger::Log(1, "Invalid triangle index %d: %d (vertexCount=%d)\n",
-	//			i, triIndices[i], vertexCount);
-	//	}
-	//}
+	int triangleCount = indexCount / 3;
+	
+	triAreas = new unsigned char[triangleCount];
+	
+	filter.setIncludeFlags(0xFFFF); // Include all polygons for testing
+	filter.setExcludeFlags(0);      // Exclude no polygons
+	
+	Logger::Log(1, "Tri Areas: %s", triAreas);
+	
+	int vertexCount = navMeshVertices.size() / 3;
+	
+	for (int i = 0; i < triangleCount * 3; i++) {
+		if (triIndices[i] < 0 || triIndices[i] >= vertexCount) {
+			Logger::Log(1, "Invalid triangle index %d: %d (vertexCount=%d)\n",
+				i, triIndices[i], vertexCount);
+		}
+	}
 
 
 	// Slope threshold (in degrees) � typical value for shooters is 45
-	//const float WALKABLE_SLOPE = 45.0f;
-	//ctx = new rcContext();
-	//
-	//for (int i = 0; i < triangleCount; ++i) {
-	//	float norm[3];
-	//	const float* v0 = &navMeshVertices[triIndices[i * 3 + 0] * 3];
-	//	const float* v1 = &navMeshVertices[triIndices[i * 3 + 1] * 3];
-	//	const float* v2 = &navMeshVertices[triIndices[i * 3 + 2] * 3];
-	//
-	//	glm::vec3 v0_glm(v0[0], v0[1], v0[2]);
-	//	glm::vec3 v1_glm(v1[0], v1[1], v1[2]);
-	//	glm::vec3 v2_glm(v2[0], v2[1], v2[2]);
-	//
-	//	// Compute edges
-	//	glm::vec3 e0 = v1_glm - v0_glm;
-	//	glm::vec3 e1 = v2_glm - v0_glm;
-	//
-	//	// Compute face normal
-	//	glm::vec3 faceNormal = glm::normalize(glm::cross(e0, e1));
-	//
-	//	// Flip winding if normal points down
-	//	if (faceNormal.y < 0.0f) {
-	//	//	std::swap(triIndices[i * 3 + 1], triIndices[i * 3 + 2]);
-	//	}
-	//
-	//}
+	const float WALKABLE_SLOPE = 45.0f;
+	ctx = new rcContext();
+	
+	for (int i = 0; i < triangleCount; ++i) {
+		float norm[3];
+		const float* v0 = &navMeshVertices[triIndices[i * 3 + 0] * 3];
+		const float* v1 = &navMeshVertices[triIndices[i * 3 + 1] * 3];
+		const float* v2 = &navMeshVertices[triIndices[i * 3 + 2] * 3];
+	
+		glm::vec3 v0_glm(v0[0], v0[1], v0[2]);
+		glm::vec3 v1_glm(v1[0], v1[1], v1[2]);
+		glm::vec3 v2_glm(v2[0], v2[1], v2[2]);
+	
+		// Compute edges
+		glm::vec3 e0 = v1_glm - v0_glm;
+		glm::vec3 e1 = v2_glm - v0_glm;
+	
+		// Compute face normal
+		glm::vec3 faceNormal = glm::normalize(glm::cross(e0, e1));
+	
+		// Flip winding if normal points down
+		if (faceNormal.y < 0.0f) {
+		//	std::swap(triIndices[i * 3 + 1], triIndices[i * 3 + 2]);
+		}
+	
+	}
 
 
-	// Mark which triangles are walkable based on slope
-	//rcMarkWalkableTriangles(&ctx,
-	//	WALKABLE_SLOPE,
-	//	navMeshVertices.data(), navMeshVertices.size() / 3,
-	//	triIndices, triangleCount,
-	//	triAreas);
-	//// Count how many triangles are walkable
-	//int walkableCount = 0;
+//	 Mark which triangles are walkable based on slope
+	rcMarkWalkableTriangles(&ctx,
+		WALKABLE_SLOPE,
+		navMeshVertices.data(), navMeshVertices.size() / 3,
+		triIndices, triangleCount,
+		triAreas);
+	// Count how many triangles are walkable
+	int walkableCount = 0;
+	for (int i = 0; i < triangleCount; ++i)
+	{
+		if (triAreas[i] == RC_WALKABLE_AREA)
+			walkableCount++;
+	}
+	
+	Logger::Log(1, "[Recast] Triangles processed: %d\n", triangleCount);
+	Logger::Log(1, "[Recast] Walkable triangles:  %d\n", walkableCount);
+	Logger::Log(1, "[Recast] Non-walkable:        %d\n", triangleCount - walkableCount);
+	
+	// Optional sanity check: Print first few triangles and their walkable flag
+	for (int i = 0; i < std::min(triangleCount, 5); ++i)
+	{
+		Logger::Log(1, "  Tri %d: %s\n", i,
+			(triAreas[i] == RC_WALKABLE_AREA) ? "WALKABLE" : "NOT WALKABLE");
+	}
 	//for (int i = 0; i < triangleCount; ++i)
 	//{
-	//	if (triAreas[i] == RC_WALKABLE_AREA)
-	//		walkableCount++;
+	//	triAreas[i] = RC_WALKABLE_AREA;
 	//}
-	//
-	//Logger::Log(1, "[Recast] Triangles processed: %d\n", triangleCount);
-	//Logger::Log(1, "[Recast] Walkable triangles:  %d\n", walkableCount);
-	//Logger::Log(1, "[Recast] Non-walkable:        %d\n", triangleCount - walkableCount);
-	//
-	//// Optional sanity check: Print first few triangles and their walkable flag
-	//for (int i = 0; i < std::min(triangleCount, 5); ++i)
-	//{
-	//	Logger::Log(1, "  Tri %d: %s\n", i,
-	//		(triAreas[i] == RC_WALKABLE_AREA) ? "WALKABLE" : "NOT WALKABLE");
-	//}
-	////for (int i = 0; i < triangleCount; ++i)
-	////{
-	////	triAreas[i] = RC_WALKABLE_AREA;
-	////}
-	//for (int i = 0; i < std::min(triangleCount, 5); ++i)
-	//{
-	//	Logger::Log(1, "  Tri %d: %s\n", i,
-	//		(triAreas[i] == RC_WALKABLE_AREA) ? "WALKABLE" : "NOT WALKABLE");
-	//}
-	//
-	//
-	//
-	//
-	//rcConfig cfg{};
-	//
-	//cfg.cs = 0.3f;                      // Cell size
-	//cfg.ch = 0.2f;                      // Cell height
-	//cfg.walkableSlopeAngle = WALKABLE_SLOPE;     // Steeper slopes allowed
-	//cfg.walkableHeight = (int)ceilf(2.0f / cfg.ch);          // Min agent height
-	//cfg.walkableClimb = (int)floorf(0.4f / cfg.ch);           // Step height
-	//cfg.walkableRadius = (int)ceilf(AGENT_RADIUS / cfg.cs);          // Agent radius
-	//cfg.maxEdgeLen = (int)(12.0f / cfg.cs);                // Longer edges for smoother polys
-	//cfg.minRegionArea = rcSqr(12);              // Retain smaller regions
-	//cfg.mergeRegionArea = rcSqr(30);           // Merge small regions
-	//cfg.maxSimplificationError = 0.1f;  // Less aggressive simplification
-	//cfg.detailSampleDist = cfg.cs * 6;  // Balanced detail
-	//cfg.maxVertsPerPoly = 6;            // Max verts per poly
-	//cfg.tileSize = 248;                  // Tile size
-	//
-	//rcCalcGridSize(cfg.bmin, cfg.bmax, cfg.cs, &cfg.width, &cfg.height);
-	//cfg.borderSize = cfg.walkableRadius + 3;      // cells (important)
-	//
-	//cfg.borderSize = (int)ceil(cfg.walkableRadius / cfg.cs);
+	for (int i = 0; i < std::min(triangleCount, 5); ++i)
+	{
+		Logger::Log(1, "  Tri %d: %s\n", i,
+			(triAreas[i] == RC_WALKABLE_AREA) ? "WALKABLE" : "NOT WALKABLE");
+	}
+	
+	
+	
+	
+	rcConfig cfg{};
+	
+	cfg.cs = 0.3f;                      // Cell size
+	cfg.ch = 0.2f;                      // Cell height
+	cfg.walkableSlopeAngle = WALKABLE_SLOPE;     // Steeper slopes allowed
+	cfg.walkableHeight = (int)ceilf(2.0f / cfg.ch);          // Min agent height
+	cfg.walkableClimb = (int)floorf(0.4f / cfg.ch);           // Step height
+	cfg.walkableRadius = (int)ceilf(AGENT_RADIUS / cfg.cs);          // Agent radius
+	cfg.maxEdgeLen = (int)(12.0f / cfg.cs);                // Longer edges for smoother polys
+	cfg.minRegionArea = rcSqr(12);              // Retain smaller regions
+	cfg.mergeRegionArea = rcSqr(30);           // Merge small regions
+	cfg.maxSimplificationError = 0.1f;  // Less aggressive simplification
+	cfg.detailSampleDist = cfg.cs * 6;  // Balanced detail
+	cfg.maxVertsPerPoly = 6;            // Max verts per poly
+	cfg.tileSize = 248;                  // Tile size
+	
+	rcCalcGridSize(cfg.bmin, cfg.bmax, cfg.cs, &cfg.width, &cfg.height);
+	cfg.borderSize = cfg.walkableRadius + 3;      // cells (important)
+	
+	cfg.borderSize = (int)ceil(cfg.walkableRadius / cfg.cs);
 #	//
-	//rcCalcBounds(navMeshVertices.data(), navMeshVertices.size() / 3, cfg.bmin, cfg.bmax);
-	//
-	////cfg.width = (int)((cfg.bmax[0] - cfg.bmin[0]) / cfg.cs + 0.5f);
-	////cfg.height = (int)((cfg.bmax[2] - cfg.bmin[2]) / cfg.cs + 0.5f);
-	//
-	//int mapVoxelsX = int((cfg.bmax[0] - cfg.bmin[0]) / cfg.cs + 0.5f);
-	//int mapVoxelsZ = int((cfg.bmax[2] - cfg.bmin[2]) / cfg.cs + 0.5f);
-	//
-	//int tileCountX = (mapVoxelsX + cfg.tileSize - 1) / cfg.tileSize;
-	//int tileCountY = (mapVoxelsZ + cfg.tileSize - 1) / cfg.tileSize;
-	//
-	////int tileWidth, tileHeight;
-	////tileWidth = (cfg.width + cfg.tileSize - 1) / cfg.tileSize;
-	////tileHeight = (cfg.height + cfg.tileSize - 1) / cfg.tileSize;
-	//
-	//Logger::Log(1, "Num verts %zu", navMeshVertices.size());
-	//
-	//Logger::Log(1, "navMeshVertices count: %zu", navMeshVertices.size());
-	//for (size_t i = 0; i < std::min((size_t)10, navMeshVertices.size() / 3); ++i)
-	//{
-	//	Logger::Log(1, "Vertex %zu: %.2f %.2f %.2f",
-	//		i,
-	//		navMeshVertices[i * 3],
-	//		navMeshVertices[i * 3 + 1],
-	//		navMeshVertices[i * 3 + 2]);
-	//}
-	//
-	//
-	//float minBounds[3] = { -261.04f, -2.39, -231.76 };
-	//float maxBounds[3] = { 251.37f, 213.66f, 304.81f };
-	//
-	//rcCalcBounds(navMeshVertices.data(), navMeshVertices.size() / 3, cfg.bmin, cfg.bmax);
-	//
-	//
-	//
-	//
-	//tileWorldSize = cfg.tileSize * cfg.cs;
-	//
-	//dtNavMeshParams params = {};
-	//float tileWorldSize = cfg.tileSize * cfg.cs;
-	//params.orig[0] = floor(cfg.bmin[0] / tileWorldSize) * tileWorldSize;
-	//params.orig[1] = cfg.bmin[1];
-	//params.orig[2] = floor(cfg.bmin[2] / tileWorldSize) * tileWorldSize;
-	//params.tileWidth = tileWorldSize;
-	//params.tileHeight = tileWorldSize;
-	//params.maxTiles = tileCountX * tileCountY;   // now > 1
-	//params.maxPolys = 2048; // Set a reasonable limit for the number of polygons per tile
-	//Logger::Log(1, "Navmesh origin: %.2f %.2f %.2f\n", params.orig[0], params.orig[1], params.orig[2]);
-	//
-	//navMesh = dtAllocNavMesh();
-	//
-	//dtStatus navInitStatus = navMesh->init(&params);
-	//
-	//for (int y = 0; y < tileCountY; ++y)
-	//{
-	//	for (int x = 0; x < tileCountX; ++x)
-	//	{
-	//		unsigned char* navData = nullptr;
-	//		int navDataSize = 0;
-	//
-	//		if (BuildTile(x, y, cfg.bmin, cfg.bmax, cfg, navData, &navDataSize, params))
-	//		{
-	//			// Add tile to Detour navmesh
-	//			dtStatus status = navMesh->addTile(navData, navDataSize, DT_TILE_FREE_DATA, 0, nullptr);
-	//		
-	//			if (dtStatusFailed(status))
-	//			{
-	//				Logger::Log(1, "Error: Could not add tile to navmesh\n", __FUNCTION__);
-	//			}
-	//		}
-	//	}
-	//}
-	//
-	//navMeshQuery = dtAllocNavMeshQuery();
-	//
-	//dtStatus status = navMeshQuery->init(navMesh, 4096);
-	//if (dtStatusFailed(status))
-	//{
-	//	Logger::Log(1, "%s error: Could not init Detour navMeshQuery\n", __FUNCTION__);
-	//}
-	//else
-	//{
-	//	Logger::Log(1, "%s: Detour navMeshQuery successfully initialized\n", __FUNCTION__);
-	//
-	//}
-	//
-	//
-	//
-	//const dtNavMeshParams* nmparams = navMesh->getParams();
-	//Logger::Log(1, "Navmesh origin: %.2f %.2f %.2f\n", nmparams->orig[0], nmparams->orig[1], nmparams->orig[2]);
-	//
-	//for (int y = 0; y < navMesh->getMaxTiles(); ++y) {
-	//	for (int x = 0; x < navMesh->getMaxTiles(); ++x) {
-	//		const dtMeshTile* tile = navMesh->getTileAt(x, y, 0);  // layer = 0
-	//		if (!tile || !tile->header) continue;
-	//
-	//		Logger::Log(1, "Tile at (%d,%d): Bmin(%.2f %.2f %.2f) Bmax(%.2f %.2f %.2f)\n",
-	//			x, y,
-	//			tile->header->bmin[0], tile->header->bmin[1], tile->header->bmin[2],
-	//			tile->header->bmax[0], tile->header->bmax[1], tile->header->bmax[2]);
-	//	}
-	//}
+	rcCalcBounds(navMeshVertices.data(), navMeshVertices.size() / 3, cfg.bmin, cfg.bmax);
+	
+	//cfg.width = (int)((cfg.bmax[0] - cfg.bmin[0]) / cfg.cs + 0.5f);
+	//cfg.height = (int)((cfg.bmax[2] - cfg.bmin[2]) / cfg.cs + 0.5f);
+	
+	int mapVoxelsX = int((cfg.bmax[0] - cfg.bmin[0]) / cfg.cs + 0.5f);
+	int mapVoxelsZ = int((cfg.bmax[2] - cfg.bmin[2]) / cfg.cs + 0.5f);
+	
+	int tileCountX = (mapVoxelsX + cfg.tileSize - 1) / cfg.tileSize;
+	int tileCountY = (mapVoxelsZ + cfg.tileSize - 1) / cfg.tileSize;
+	
+	//int tileWidth, tileHeight;
+	//tileWidth = (cfg.width + cfg.tileSize - 1) / cfg.tileSize;
+	//tileHeight = (cfg.height + cfg.tileSize - 1) / cfg.tileSize;
+	
+	Logger::Log(1, "Num verts %zu", navMeshVertices.size());
+	
+	Logger::Log(1, "navMeshVertices count: %zu", navMeshVertices.size());
+	for (size_t i = 0; i < std::min((size_t)10, navMeshVertices.size() / 3); ++i)
+	{
+		Logger::Log(1, "Vertex %zu: %.2f %.2f %.2f",
+			i,
+			navMeshVertices[i * 3],
+			navMeshVertices[i * 3 + 1],
+			navMeshVertices[i * 3 + 2]);
+	}
+	
+	
+	float minBounds[3] = { -261.04f, -2.39, -231.76 };
+	float maxBounds[3] = { 251.37f, 213.66f, 304.81f };
+	
+	rcCalcBounds(navMeshVertices.data(), navMeshVertices.size() / 3, cfg.bmin, cfg.bmax);
+	
+	
+	
+	
+	tileWorldSize = cfg.tileSize * cfg.cs;
+	
+	dtNavMeshParams params = {};
+	float tileWorldSize = cfg.tileSize * cfg.cs;
+	params.orig[0] = floor(cfg.bmin[0] / tileWorldSize) * tileWorldSize;
+	params.orig[1] = cfg.bmin[1];
+	params.orig[2] = floor(cfg.bmin[2] / tileWorldSize) * tileWorldSize;
+	params.tileWidth = tileWorldSize;
+	params.tileHeight = tileWorldSize;
+	params.maxTiles = tileCountX * tileCountY;   // now > 1
+	params.maxPolys = 2048; // Set a reasonable limit for the number of polygons per tile
+	Logger::Log(1, "Navmesh origin: %.2f %.2f %.2f\n", params.orig[0], params.orig[1], params.orig[2]);
+	
+	navMesh = dtAllocNavMesh();
+	
+	dtStatus navInitStatus = navMesh->init(&params);
+	
+	for (int y = 0; y < tileCountY; ++y)
+	{
+		for (int x = 0; x < tileCountX; ++x)
+		{
+			unsigned char* navData = nullptr;
+			int navDataSize = 0;
+	
+			if (BuildTile(x, y, cfg.bmin, cfg.bmax, cfg, navData, &navDataSize, params))
+			{
+				// Add tile to Detour navmesh
+				dtStatus status = navMesh->addTile(navData, navDataSize, DT_TILE_FREE_DATA, 0, nullptr);
+			
+				if (dtStatusFailed(status))
+				{
+					Logger::Log(1, "Error: Could not add tile to navmesh\n", __FUNCTION__);
+				}
+			}
+		}
+	}
+	
+	navMeshQuery = dtAllocNavMeshQuery();
+	
+	dtStatus status = navMeshQuery->init(navMesh, 4096);
+	if (dtStatusFailed(status))
+	{
+		Logger::Log(1, "%s error: Could not init Detour navMeshQuery\n", __FUNCTION__);
+	}
+	else
+	{
+		Logger::Log(1, "%s: Detour navMeshQuery successfully initialized\n", __FUNCTION__);
+	
+	}
+	
+	
+	
+	const dtNavMeshParams* nmparams = navMesh->getParams();
+	Logger::Log(1, "Navmesh origin: %.2f %.2f %.2f\n", nmparams->orig[0], nmparams->orig[1], nmparams->orig[2]);
+	
+	for (int y = 0; y < navMesh->getMaxTiles(); ++y) {
+		for (int x = 0; x < navMesh->getMaxTiles(); ++x) {
+			const dtMeshTile* tile = navMesh->getTileAt(x, y, 0);  // layer = 0
+			if (!tile || !tile->header) continue;
+	
+			Logger::Log(1, "Tile at (%d,%d): Bmin(%.2f %.2f %.2f) Bmax(%.2f %.2f %.2f)\n",
+				x, y,
+				tile->header->bmin[0], tile->header->bmin[1], tile->header->bmin[2],
+				tile->header->bmax[0], tile->header->bmax[1], tile->header->bmax[2]);
+		}
+	}
 
 
 
@@ -1013,141 +1013,141 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 	//	}
 	//}
 
-	//for (rcPolyMesh* polyMesh : polyMeshes)
-	//{
-	//	const int nvp = polyMesh->nvp;
-	//	const float cs = polyMesh->cs;
-	//	const float ch = polyMesh->ch;
-	//	const float* orig = polyMesh->bmin;
-	//	size_t baseVertexIndex = navRenderMeshVertices.size() / 3;
-	//
-	//	for (int i = 0, j = polyMesh->nverts - 1; i < polyMesh->nverts; j = i++)
-	//	{
-	//		const unsigned short* v = &polyMesh->verts[i * 3];
-	//		const float x = orig[0] + v[0] * cs;
-	//		const float y = orig[1] + v[1] * ch;
-	//		const float z = orig[2] + v[2] * cs;
-	//		navRenderMeshVertices.push_back(x);
-	//		navRenderMeshVertices.push_back(y);
-	//		navRenderMeshVertices.push_back(z);
-	//	}
-	//
-	//	// Process indices
-	//	for (int i = 0; i < polyMesh->npolys; ++i)
-	//	{
-	//		const unsigned short* p = &polyMesh->polys[i * nvp * 2];
-	//		for (int j = 2; j < nvp; ++j)
-	//		{
-	//			if (p[j] == RC_MESH_NULL_IDX) break;
-	//			// Skip degenerate triangles
-	//			if (p[0] == p[j - 1] || p[0] == p[j] || p[j - 1] == p[j]) continue;
-	//			navRenderMeshIndices.push_back(baseVertexIndex + p[0]);      // Triangle vertex 1
-	//			navRenderMeshIndices.push_back(baseVertexIndex + p[j - 1]); // Triangle vertex 2
-	//			navRenderMeshIndices.push_back(baseVertexIndex + p[j]);     // Triangle vertex 3
-	//		}
-	//	}
-	//}
-	//
-	//
-	//Logger::Log(1, "Render NavMesh Vert Count: %zu", navRenderMeshVertices.size());
-	//Logger::Log(1, "Render NavMesh Index Count: %zu", navRenderMeshIndices.size());
-	//
-	//// Create VAO
-	//glGenVertexArrays(1, &vao);
-	//glBindVertexArray(vao);
-	//
-	//// Create VBO
-	//glGenBuffers(1, &vbo);
-	//glBindBuffer(GL_ARRAY_BUFFER, vbo);
-	//glBufferData(GL_ARRAY_BUFFER, navRenderMeshVertices.size() * sizeof(float), navRenderMeshVertices.data(), GL_STATIC_DRAW);
-	//
-	//// Create EBO
-	//glGenBuffers(1, &ebo);
-	//glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
-	//glBufferData(GL_ELEMENT_ARRAY_BUFFER, navRenderMeshIndices.size() * sizeof(unsigned int), navRenderMeshIndices.data(), GL_STATIC_DRAW);
-	//
-	//// Enable vertex attribute (e.g., position at location 0)
-	//glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-	//glEnableVertexAttribArray(0);
-	//
-	//glBindVertexArray(0);
-	//
-	//
-	////crowd = dtAllocCrowd();
-	////crowd->init(enemies.size(), 1.0f, navMesh);
-	//
-	//		// Create VAO
-	//glGenVertexArrays(1, &hfvao);
-	//glBindVertexArray(hfvao);
-	//
-	//// Create VBO
-	//glGenBuffers(1, &hfvbo);
-	//glBindBuffer(GL_ARRAY_BUFFER, hfvbo);
-	//glBufferData(GL_ARRAY_BUFFER, hfnavRenderMeshVertices.size() * sizeof(float), hfnavRenderMeshVertices.data(), GL_STATIC_DRAW);
-	//
-	//// Create EBO
-	//glGenBuffers(1, &hfebo);
-	//glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, hfebo);
-	//glBufferData(GL_ELEMENT_ARRAY_BUFFER, hfnavRenderMeshIndices.size() * sizeof(unsigned int), hfnavRenderMeshIndices.data(), GL_STATIC_DRAW);
-	//
-	//// Enable vertex attribute (e.g., position at location 0)
-	//glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
-	//glEnableVertexAttribArray(0);
-	//glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
-	//glEnableVertexAttribArray(1);
-	//
-	//
-	//glBindVertexArray(0);
-	//
-	//float playerStartingPos[3] = { m_player->GetPosition().x, m_player->GetPosition().y, m_player->GetPosition().z };
-	//float playerSnappedPos[3];
-	//dtPolyRef playerStartPoly;
-	//navMeshQuery->findNearestPoly(playerStartingPos, halfExtents, &filter, &playerStartPoly, playerSnappedPos);
-	//m_player->SetPosition(glm::vec3(playerSnappedPos[0], playerSnappedPos[1], playerSnappedPos[2]));
-	//
-	//
+	for (rcPolyMesh* polyMesh : polyMeshes)
+	{
+		const int nvp = polyMesh->nvp;
+		const float cs = polyMesh->cs;
+		const float ch = polyMesh->ch;
+		const float* orig = polyMesh->bmin;
+		size_t baseVertexIndex = navRenderMeshVertices.size() / 3;
+	
+		for (int i = 0, j = polyMesh->nverts - 1; i < polyMesh->nverts; j = i++)
+		{
+			const unsigned short* v = &polyMesh->verts[i * 3];
+			const float x = orig[0] + v[0] * cs;
+			const float y = orig[1] + v[1] * ch;
+			const float z = orig[2] + v[2] * cs;
+			navRenderMeshVertices.push_back(x);
+			navRenderMeshVertices.push_back(y);
+			navRenderMeshVertices.push_back(z);
+		}
+	
+		// Process indices
+		for (int i = 0; i < polyMesh->npolys; ++i)
+		{
+			const unsigned short* p = &polyMesh->polys[i * nvp * 2];
+			for (int j = 2; j < nvp; ++j)
+			{
+				if (p[j] == RC_MESH_NULL_IDX) break;
+				// Skip degenerate triangles
+				if (p[0] == p[j - 1] || p[0] == p[j] || p[j - 1] == p[j]) continue;
+				navRenderMeshIndices.push_back(baseVertexIndex + p[0]);      // Triangle vertex 1
+				navRenderMeshIndices.push_back(baseVertexIndex + p[j - 1]); // Triangle vertex 2
+				navRenderMeshIndices.push_back(baseVertexIndex + p[j]);     // Triangle vertex 3
+			}
+		}
+	}
+	
+	
+	Logger::Log(1, "Render NavMesh Vert Count: %zu", navRenderMeshVertices.size());
+	Logger::Log(1, "Render NavMesh Index Count: %zu", navRenderMeshIndices.size());
+	
+	// Create VAO
+	glGenVertexArrays(1, &vao);
+	glBindVertexArray(vao);
+	
+	// Create VBO
+	glGenBuffers(1, &vbo);
+	glBindBuffer(GL_ARRAY_BUFFER, vbo);
+	glBufferData(GL_ARRAY_BUFFER, navRenderMeshVertices.size() * sizeof(float), navRenderMeshVertices.data(), GL_STATIC_DRAW);
+	
+	// Create EBO
+	glGenBuffers(1, &ebo);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, navRenderMeshIndices.size() * sizeof(unsigned int), navRenderMeshIndices.data(), GL_STATIC_DRAW);
+	
+	// Enable vertex attribute (e.g., position at location 0)
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(0);
+	
+	glBindVertexArray(0);
+	
+	
 	//crowd = dtAllocCrowd();
-	//crowd->init(50, AGENT_RADIUS, navMesh);
-	//
-	////for (auto& enem : enemies)
-	////{
-	////	dtCrowdAgentParams ap;
-	////	memset(&ap, 0, sizeof(ap));
-	////	ap.radius = 0.01f;
-	////	ap.height = 3.0f;
-	////	ap.maxSpeed = 3.5f;
-	////	ap.maxAcceleration = 8.0f; // Meters per second squared
-	////	ap.collisionQueryRange = ap.radius * 12.0f;
-	//
-	////	float startingPos[3] = { enem->getPosition().x, enem->getPosition().y, enem->getPosition().z };
-	////	enemyAgentIDs.push_back(crowd->addAgent(startingPos, &ap));
-	//
-	//
-	////};
-	//
-	//for (auto& enem : m_enemies)
+	//crowd->init(enemies.size(), 1.0f, navMesh);
+	
+			// Create VAO
+	glGenVertexArrays(1, &hfvao);
+	glBindVertexArray(hfvao);
+	
+	// Create VBO
+	glGenBuffers(1, &hfvbo);
+	glBindBuffer(GL_ARRAY_BUFFER, hfvbo);
+	glBufferData(GL_ARRAY_BUFFER, hfnavRenderMeshVertices.size() * sizeof(float), hfnavRenderMeshVertices.data(), GL_STATIC_DRAW);
+	
+	// Create EBO
+	glGenBuffers(1, &hfebo);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, hfebo);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, hfnavRenderMeshIndices.size() * sizeof(unsigned int), hfnavRenderMeshIndices.data(), GL_STATIC_DRAW);
+	
+	// Enable vertex attribute (e.g., position at location 0)
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+	glEnableVertexAttribArray(1);
+	
+	
+	glBindVertexArray(0);
+	
+	float playerStartingPos[3] = { m_player->GetPosition().x, m_player->GetPosition().y, m_player->GetPosition().z };
+	float playerSnappedPos[3];
+	dtPolyRef playerStartPoly;
+	navMeshQuery->findNearestPoly(playerStartingPos, halfExtents, &filter, &playerStartPoly, playerSnappedPos);
+	m_player->SetPosition(glm::vec3(playerSnappedPos[0], playerSnappedPos[1], playerSnappedPos[2]));
+	
+	
+	crowd = dtAllocCrowd();
+	crowd->init(50, AGENT_RADIUS, navMesh);
+	
+	//for (auto& enem : enemies)
 	//{
 	//	dtCrowdAgentParams ap;
 	//	memset(&ap, 0, sizeof(ap));
-	//	ap.radius = AGENT_RADIUS;
-	//	ap.height = 1.0f;
-	//	ap.maxSpeed = 4.0f;
-	//	ap.maxAcceleration = 12.0f;
-	//	ap.collisionQueryRange = AGENT_RADIUS * 6.0f;
-	//	ap.pathOptimizationRange = AGENT_RADIUS * 15.0f;
-	//	ap.updateFlags = DT_CROWD_ANTICIPATE_TURNS
-	//		| DT_CROWD_OPTIMIZE_VIS
-	//		| DT_CROWD_OPTIMIZE_TOPO
-	//		| DT_CROWD_SEPARATION;
-	//	ap.separationWeight = 0.5f;
-	//	float startingPos[3] = { enem->GetPosition().x, enem->GetPosition().y, enem->GetPosition().z };
-	//	float snappedPos[3];
-	//	dtPolyRef startPoly;
-	//	navMeshQuery->findNearestPoly(startingPos, halfExtents, &filter, &startPoly, snappedPos);
-	//	enemyAgentIDs.push_back(crowd->addAgent(snappedPos, &ap));
-	//	Logger::Log(1, "[Spawn] Enemy spawned as agent %d at (%.2f, %.2f, %.2f)\n",
-	//		enemyAgentIDs.back(), snappedPos[0], snappedPos[1], snappedPos[2]);
-	//}
+	//	ap.radius = 0.01f;
+	//	ap.height = 3.0f;
+	//	ap.maxSpeed = 3.5f;
+	//	ap.maxAcceleration = 8.0f; // Meters per second squared
+	//	ap.collisionQueryRange = ap.radius * 12.0f;
+	
+	//	float startingPos[3] = { enem->getPosition().x, enem->getPosition().y, enem->getPosition().z };
+	//	enemyAgentIDs.push_back(crowd->addAgent(startingPos, &ap));
+	
+	
+	//};
+	
+	for (auto& enem : m_enemies)
+	{
+		dtCrowdAgentParams ap;
+		memset(&ap, 0, sizeof(ap));
+		ap.radius = AGENT_RADIUS;
+		ap.height = 1.0f;
+		ap.maxSpeed = 4.0f;
+		ap.maxAcceleration = 12.0f;
+		ap.collisionQueryRange = AGENT_RADIUS * 6.0f;
+		ap.pathOptimizationRange = AGENT_RADIUS * 15.0f;
+		ap.updateFlags = DT_CROWD_ANTICIPATE_TURNS
+			| DT_CROWD_OPTIMIZE_VIS
+			| DT_CROWD_OPTIMIZE_TOPO
+			| DT_CROWD_SEPARATION;
+		ap.separationWeight = 0.5f;
+		float startingPos[3] = { enem->GetPosition().x, enem->GetPosition().y, enem->GetPosition().z };
+		float snappedPos[3];
+		dtPolyRef startPoly;
+		navMeshQuery->findNearestPoly(startingPos, halfExtents, &filter, &startPoly, snappedPos);
+		enemyAgentIDs.push_back(crowd->addAgent(snappedPos, &ap));
+		Logger::Log(1, "[Spawn] Enemy spawned as agent %d at (%.2f, %.2f, %.2f)\n",
+			enemyAgentIDs.back(), snappedPos[0], snappedPos[1], snappedPos[2]);
+	}
 
 	//for (auto& enem : enemies)
 	//{
@@ -1837,81 +1837,81 @@ void GameManager::Update(float deltaTime)
 		//		e->EnemyDecisionPrecomputedQ(enemyStates[e->GetID()], e->GetID(), squadActions, deltaTime, mEnemyStateQTable);
 		//	}
 		//}
-//		e->Update(useEDBT, speedDivider, blendFac);
+		//e->Update(false, speedDivider, blendFac);
 
 
 	/*	targetPos[0] = 0.0f;
 		targetPos[1] = 0.0f;
 		targetPos[2] = .0f;*/
 
-		//float offset = 5.0f;
-		//targetPos[0] += (e->GetID() % 3 - 1) * offset;
-		//targetPos[2] += ((e->GetID() / 3) % 3 - 1) * offset;
-		//float halfExtents2[3] = { 50.0f, 10.0f, 50.0f };
-		//dtPolyRef playerPoly;
-		//float targetPlayerPosOnNavMesh[3];
-		//
-		//navMeshQuery->findNearestPoly(targetPos, halfExtents2, &filter, &playerPoly, targetPlayerPosOnNavMesh);
-		////	Logger::log(1, "Player position: %f %f %f\n", player->getPosition().x, player->getPosition().y, player->getPosition().z);
-		//
-		//std::vector<float* [3]> enemPos;
-		//
-		//float enemyPosition[3] = { e->GetPosition().x, e->GetPosition().y, e->GetPosition().z };
-		//
-		////DebugNavmeshConnectivity(navMeshQuery, navMesh, filter, targetPos, enemyPosition);
-		//
-		//float randPos[3];
-		//dtPolyRef randRef;
-		//
-		////		findRandomNavMeshPoint(navMeshQuery, &filter, randPos, &randRef);
-		//
-		//dtPolyRef targetPoly;
-		//float targetPosOnNavMesh[3];
-		//
-		//float jitterX = ((rand() % 100) / 100.0f - 0.5f) * 10.0f;
-		//float jitterZ = ((rand() % 100) / 100.0f - 0.5f) * 10.0f;
-		//
-		//float target[3] = {
-		//	targetPlayerPosOnNavMesh[0] + jitterX,
-		//	targetPlayerPosOnNavMesh[1],
-		//	targetPlayerPosOnNavMesh[2] + jitterZ
-		//};
-		//
-		//if (!navMeshQuery)
-		//{
-		//}
-		//
-		//dtStatus status = navMeshQuery->findNearestPoly(
-		//	targetPos, halfExtents2, &filter, &targetPoly, targetPlayerPosOnNavMesh
-		//);
-		//if (dtStatusFailed(status)) {
-		//	continue;
-		//}
-		//
-		//bool moveStatus = crowd->requestMoveTarget(e->GetID(), targetPoly, targetPlayerPosOnNavMesh);
-		//
-		//if (!moveStatus) {
-		//	continue;
-		//}
+		float offset = 5.0f;
+		targetPos[0] += (e->GetID() % 3 - 1) * offset;
+		targetPos[2] += ((e->GetID() / 3) % 3 - 1) * offset;
+		float halfExtents2[3] = { 50.0f, 10.0f, 50.0f };
+		dtPolyRef playerPoly;
+		float targetPlayerPosOnNavMesh[3];
+		
+		navMeshQuery->findNearestPoly(targetPos, halfExtents2, &filter, &playerPoly, targetPlayerPosOnNavMesh);
+		//	Logger::log(1, "Player position: %f %f %f\n", player->getPosition().x, player->getPosition().y, player->getPosition().z);
+		
+		std::vector<float* [3]> enemPos;
+		
+		float enemyPosition[3] = { e->GetPosition().x, e->GetPosition().y, e->GetPosition().z };
+		
+		//DebugNavmeshConnectivity(navMeshQuery, navMesh, filter, targetPos, enemyPosition);
+		
+		float randPos[3];
+		dtPolyRef randRef;
+		
+		//		findRandomNavMeshPoint(navMeshQuery, &filter, randPos, &randRef);
+		
+		dtPolyRef targetPoly;
+		float targetPosOnNavMesh[3];
+		
+		float jitterX = ((rand() % 100) / 100.0f - 0.5f) * 10.0f;
+		float jitterZ = ((rand() % 100) / 100.0f - 0.5f) * 10.0f;
+		
+		float target[3] = {
+			targetPlayerPosOnNavMesh[0] + jitterX,
+			targetPlayerPosOnNavMesh[1],
+			targetPlayerPosOnNavMesh[2] + jitterZ
+		};
+		
+		if (!navMeshQuery)
+		{
+		}
+		
+		dtStatus status = navMeshQuery->findNearestPoly(
+			targetPos, halfExtents2, &filter, &targetPoly, targetPlayerPosOnNavMesh
+		);
+		if (dtStatusFailed(status)) {
+			continue;
+		}
+		
+		bool moveStatus = crowd->requestMoveTarget(e->GetID(), targetPoly, targetPlayerPosOnNavMesh);
+		
+		if (!moveStatus) {
+			continue;
+		}
 
 
 	}
-	//crowd->update(deltaTime, nullptr);
+	crowd->update(deltaTime, nullptr);
 
 
-	//for (Enemy* e : m_enemies)
-	//{
-	//
-	//	const dtCrowdAgent* agent = crowd->getAgent(e->GetID());
-	//	float agentPos[3];
-	//	dtVcopy(agentPos, agent->npos);
-	//	//	e->Update(false, speedDivider, blendFac);
-	//	if ((agent->npos - targetPos) < glm::abs(32.0f)) {
-	//		// stop steering and switch to idle/attack state
-	//		crowd->resetMoveTarget(e->GetID());
-	//	}
-	//	e->SetPosition(glm::vec3(agentPos[0], agentPos[1], agentPos[2]));
-	//}
+	for (Enemy* e : m_enemies)
+	{
+	
+		const dtCrowdAgent* agent = crowd->getAgent(e->GetID());
+		float agentPos[3];
+		dtVcopy(agentPos, agent->npos);
+		//	e->Update(false, speedDivider, blendFac);
+		if ((agent->npos - targetPos) < glm::abs(32.0f)) {
+			// stop steering and switch to idle/attack state
+			crowd->resetMoveTarget(e->GetID());
+		}
+		e->SetPosition(glm::vec3(agentPos[0], agentPos[1], agentPos[2]));
+	}
 	m_audioManager->Update(scaledDeltaTime);
 	m_audioSystem->Update(scaledDeltaTime);
 
@@ -1960,54 +1960,54 @@ void GameManager::Render(bool isMinimapRenderPass, bool isShadowMapRenderPass, b
 	navMeshShader.Use();
 	navMeshShader.SetMat4("view", m_view);
 	navMeshShader.SetMat4("projection", m_projection);
-	//glBindVertexArray(vao);
-	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-	//glCullFace(GL_FRONT);
-	//glDrawElements(GL_TRIANGLES, navMeshIndices.size(), GL_UNSIGNED_INT, 0);
+	glBindVertexArray(vao);
+	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	glCullFace(GL_FRONT);
+	glDrawElements(GL_TRIANGLES, navMeshIndices.size(), GL_UNSIGNED_INT, 0);
 
-	//glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
-	//glBindVertexArray(vao);
-	//glDisable(GL_CULL_FACE);
+	glBindVertexArray(vao);
+	glDisable(GL_CULL_FACE);
 
-	//glEnable(GL_CULL_FACE);
-	//glCullFace(GL_BACK);
+	glEnable(GL_CULL_FACE);
+	glCullFace(GL_BACK);
 	// Draw navmesh
 	/*glEnable(GL_DEPTH_TEST);
 	glDisable(GL_BLEND);*/
 
-	//glDisable(GL_CULL_FACE);
-	////glEnable(GL_CULL_FACE);
-	////glCullFace(GL_BACK);
-	//glBindVertexArray(vao);
-	//glDisable(GL_CULL_FACE);
-	////glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-	//glDrawElements(GL_TRIANGLES, navRenderMeshIndices.size(), GL_UNSIGNED_INT, 0);
-	////glDrawArrays(GL_TRIANGLES, 0, navRenderMeshVertices.size() / 3);
-//	//glDrawElements(GL_TRIANGLES, navMesh.size(), GL_UNSIGNED_INT, 0);
-	////glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-	////glDisable(GL_POLYGON_OFFSET_FILL);
-	//glBindVertexArray(0);
-	//glDisable(GL_CULL_FACE);
-	//
-	//
+	glDisable(GL_CULL_FACE);
+	//glEnable(GL_CULL_FACE);
+	//glCullFace(GL_BACK);
+	glBindVertexArray(vao);
+	glDisable(GL_CULL_FACE);
+	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	glDrawElements(GL_TRIANGLES, navRenderMeshIndices.size(), GL_UNSIGNED_INT, 0);
+	//glDrawArrays(GL_TRIANGLES, 0, navRenderMeshVertices.size() / 3);
+	//glDrawElements(GL_TRIANGLES, navMesh.size(), GL_UNSIGNED_INT, 0);
+	//glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	//glDisable(GL_POLYGON_OFFSET_FILL);
+	glBindVertexArray(0);
+	glDisable(GL_CULL_FACE);
+	
+	
 	//hfnavMeshShader.Use();
 	//hfnavMeshShader.SetMat4("view", m_view);
 	//hfnavMeshShader.SetMat4("projection", m_projection);
-	//
-	////	glDisable(GL_CULL_FACE);
-	////	//glEnable(GL_CULL_FACE);
-	////	//glCullFace(GL_BACK);
-	////	glBindVertexArray(hfvao);
-	////	glDisable(GL_CULL_FACE);
-	////	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-	////	glDrawElements(GL_TRIANGLES, hfnavRenderMeshIndices.size(), GL_UNSIGNED_INT, 0);
-	////	//glDrawArrays(GL_TRIANGLES, 0, navMeshVertices.size() / 3);
-	//////	glDrawElements(GL_TRIANGLES, navMesh.size(), GL_UNSIGNED_INT, 0);
-	////	//glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-	////	//glDisable(GL_POLYGON_OFFSET_FILL);
-	////	glBindVertexArray(0);
-	////	glDisable(GL_CULL_FACE);
+	
+	//	glDisable(GL_CULL_FACE);
+	//	//glEnable(GL_CULL_FACE);
+	//	//glCullFace(GL_BACK);
+	//	glBindVertexArray(hfvao);
+	//	glDisable(GL_CULL_FACE);
+	//	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	//	glDrawElements(GL_TRIANGLES, hfnavRenderMeshIndices.size(), GL_UNSIGNED_INT, 0);
+	//	//glDrawArrays(GL_TRIANGLES, 0, navMeshVertices.size() / 3);
+	////	glDrawElements(GL_TRIANGLES, navMesh.size(), GL_UNSIGNED_INT, 0);
+	//	//glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	//	//glDisable(GL_POLYGON_OFFSET_FILL);
+	//	glBindVertexArray(0);
+	//	glDisable(GL_CULL_FACE);
 
 
 	if (m_camSwitchedToAim)
