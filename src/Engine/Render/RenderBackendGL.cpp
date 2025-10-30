@@ -27,7 +27,7 @@ void RenderBackendGL::Submit(const DrawItem* items, uint32_t itemCount, glm::vec
 		//GLint samplerLoc = glGetUniformLocation(glPipe.program.GetProgram(), "uBaseColorTexture");
 		glPipe.program.SetVec3("cameraPos", camPos);
 
-		if (baseColorTex) {
+		if (true) {
 			glActiveTexture(GL_TEXTURE0);
 			glBindTexture(GL_TEXTURE_2D, baseColorTex);
 			glPipe.program.SetVec3("uBaseColorFactor", mat.desc.baseColorFactor[0], mat.desc.baseColorFactor[1], mat.desc.baseColorFactor[2]);
