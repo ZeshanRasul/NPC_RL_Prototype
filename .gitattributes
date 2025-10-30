@@ -5,3 +5,9 @@ src/Assets/Models/Soldier/AnimatedSoldier.gltf filter=lfs diff=lfs merge=lfs -te
 src/Assets/Models/Soldier/Animations.glb filter=lfs diff=lfs merge=lfs -text
 src/Assets/Models/Game_Scene/V4/Aviary-Environment-V4-Box-Collider.glb filter=lfs diff=lfs merge=lfs -text
 src/Assets/Models/Game_Scene/V4/Aviary-Environment-V4-Box-Plane-Collider.glb filter=lfs diff=lfs merge=lfs -text
+src/Assets/Models/Game_Scene/ filter=lfs diff=lfs merge=lfs -text
+src/Assets/Models/Game_Scene/V1 filter=lfs diff=lfs merge=lfs -text
+src/Assets/Models/Game_Scene/V2 filter=lfs diff=lfs merge=lfs -text
+src/Assets/Models/Game_Scene/V4 filter=lfs diff=lfs merge=lfs -text
+src/Assets/Models/Game_Scene/coast_land_rocks_01_nor_gl_2k.png filter=lfs diff=lfs merge=lfs -text
+src/Assets/Models/Game_Scene/Aviary-Environment-Final-GLB-V1.glb filter=lfs diff=lfs merge=lfs -text
