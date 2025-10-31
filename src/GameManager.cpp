@@ -748,8 +748,8 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 	
 	rcConfig cfg{};
 	
-	cfg.cs = 0.3f;                      // Cell size
-	cfg.ch = 0.2f;                      // Cell height
+	cfg.cs = 0.6f;                      // Cell size
+	cfg.ch = 0.4f;                      // Cell height
 	cfg.walkableSlopeAngle = WALKABLE_SLOPE;     // Steeper slopes allowed
 	cfg.walkableHeight = (int)ceilf(2.0f / cfg.ch);          // Min agent height
 	cfg.walkableClimb = (int)floorf(0.4f / cfg.ch);           // Step height
@@ -795,8 +795,8 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 	}
 	
 	
-	float minBounds[3] = { -261.04f, -2.39, -231.76 };
-	float maxBounds[3] = { 251.37f, 213.66f, 304.81f };
+	float minBounds[3] = { -2000.0, -400.39, -2031.76 };
+	float maxBounds[3] = { 2251.37f, 1013.66f, 2304.81f };
 	
 	rcCalcBounds(navMeshVertices.data(), navMeshVertices.size() / 3, cfg.bmin, cfg.bmax);
 	
@@ -906,8 +906,14 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 	m_enemy4MuzzleFlashQuad->LoadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/muzzleflash.png");
 
 
-	m_player = new Player(glm::vec3(-9.0f, 354.6f, 163.0f), glm::vec3(5.0f), &playerShader, &groundShadowShader, true, this, 0.0f);
-	//player = new Player( (glm::vec3(23.0f, 0.0f, 37.0f)), glm::vec3(3.0f), &playerShader, &playerShadowMapShader, true, this);
+	//m_player = new Player(glm::vec3(0.0f, 0.0f, 130.0f), glm::vec3(5.0f), &playerShader, &groundShadowShader, true, this, 0.0f);
+	//float startingPos[3] = { m_player->GetPosition().x, m_player->GetPosition().y, m_player->GetPosition().z };
+	//float snappedPos[3];
+	//dtPolyRef startPoly;
+	//navMeshQuery->findNearestPoly(startingPos, halfExtents, &filter, &startPoly, snappedPos);
+	//m_player->SetPosition(glm::vec3(snappedPos[0], snappedPos[1], snappedPos[2]));
+
+	m_player = new Player( (glm::vec3(23.0f, 2.0f, 37.0f)), glm::vec3(3.0f), &playerShader, &playerShadowMapShader, true, this, 0.0f);
 
 	m_player->SetAABBShader(&aabbShader);
 	m_player->SetUpAABB();
@@ -917,19 +923,19 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 	std::string texture3 = "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Models/GLTF/Enemies/Ely/ely-vanguardsoldier-kerwinatienza_diffuse_3.png";
 	std::string texture4 = "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Models/GLTF/Enemies/Ely/ely-vanguardsoldier-kerwinatienza_diffuse_4.png";
 
-	m_enemy = new Enemy(glm::vec3(-9.0f, 354.6f, 166.0f), glm::vec3(5.0f), &playerShader, &enemyShadowMapShader, true, this, texture, 0, GetEventManager(), *m_player);
+	m_enemy = new Enemy(glm::vec3(-9.0f, 2.0f, 170.0f), glm::vec3(5.0f), &playerShader, &enemyShadowMapShader, true, this, texture, 0, GetEventManager(), *m_player);
 	m_enemy->SetAABBShader(&aabbShader);
 	m_enemy->SetUpAABB();
 
-	m_enemy2 = new Enemy(glm::vec3(-7.0f, 354.6f, 169.0f), glm::vec3(5.0f), &playerShader, &enemyShadowMapShader, true, this, texture2, 1, GetEventManager(), *m_player);
+	m_enemy2 = new Enemy(glm::vec3(-22.0f, 2.0f, 150.0f), glm::vec3(5.0f), &playerShader, &enemyShadowMapShader, true, this, texture2, 1, GetEventManager(), *m_player);
 	m_enemy2->SetAABBShader(&aabbShader);
 	m_enemy2->SetUpAABB();
 
-	m_enemy3 = new Enemy(glm::vec3(-4.0f, 354.6f, 171.0f), glm::vec3(5.0f), &playerShader, &enemyShadowMapShader, true, this, texture3, 2, GetEventManager(), *m_player);
+	m_enemy3 = new Enemy(glm::vec3(-54.0f, 2.0f, 218.0f), glm::vec3(5.0f), &playerShader, &enemyShadowMapShader, true, this, texture3, 2, GetEventManager(), *m_player);
 	m_enemy3->SetAABBShader(&aabbShader);
 	m_enemy3->SetUpAABB();
 
-	m_enemy4 = new Enemy(glm::vec3(-5.0f, 354.6f, 173.0f), glm::vec3(5.0f), &playerShader, &enemyShadowMapShader, true, this, texture4, 3, GetEventManager(), *m_player);
+	m_enemy4 = new Enemy(glm::vec3(-34.0f, 2.0f, 235.0f), glm::vec3(5.0f), &playerShader, &enemyShadowMapShader, true, this, texture4, 3, GetEventManager(), *m_player);
 	m_enemy4->SetAABBShader(&aabbShader);
 	m_enemy4->SetUpAABB();
 
@@ -1100,54 +1106,55 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 	glBindVertexArray(0);
 	
 	float playerStartingPos[3] = { m_player->GetPosition().x, m_player->GetPosition().y, m_player->GetPosition().z };
-	float playerSnappedPos[3];
-	dtPolyRef playerStartPoly;
-	navMeshQuery->findNearestPoly(playerStartingPos, halfExtents, &filter, &playerStartPoly, playerSnappedPos);
-	m_player->SetPosition(glm::vec3(playerSnappedPos[0], playerSnappedPos[1], playerSnappedPos[2]));
+	//float playerSnappedPos[3];
+	//dtPolyRef playerStartPoly;
+	//navMeshQuery->findNearestPoly(playerStartingPos, halfExtents, &filter, &playerStartPoly, playerSnappedPos);
+	//m_player->SetPosition(glm::vec3(playerSnappedPos[0], playerSnappedPos[1], playerSnappedPos[2]));
 	
 	
 	crowd = dtAllocCrowd();
 	crowd->init(50, AGENT_RADIUS, navMesh);
-	
-	//for (auto& enem : enemies)
-	//{
-	//	dtCrowdAgentParams ap;
-	//	memset(&ap, 0, sizeof(ap));
-	//	ap.radius = 0.01f;
-	//	ap.height = 3.0f;
-	//	ap.maxSpeed = 3.5f;
-	//	ap.maxAcceleration = 8.0f; // Meters per second squared
-	//	ap.collisionQueryRange = ap.radius * 12.0f;
-	
-	//	float startingPos[3] = { enem->getPosition().x, enem->getPosition().y, enem->getPosition().z };
-	//	enemyAgentIDs.push_back(crowd->addAgent(startingPos, &ap));
-	
-	
-	//};
 	
 	for (auto& enem : m_enemies)
 	{
 		dtCrowdAgentParams ap;
 		memset(&ap, 0, sizeof(ap));
 		ap.radius = AGENT_RADIUS;
-		ap.height = 1.0f;
-		ap.maxSpeed = 4.0f;
-		ap.maxAcceleration = 12.0f;
-		ap.collisionQueryRange = AGENT_RADIUS * 6.0f;
-		ap.pathOptimizationRange = AGENT_RADIUS * 15.0f;
-		ap.updateFlags = DT_CROWD_ANTICIPATE_TURNS
-			| DT_CROWD_OPTIMIZE_VIS
-			| DT_CROWD_OPTIMIZE_TOPO
-			| DT_CROWD_SEPARATION;
-		ap.separationWeight = 0.5f;
+		ap.height = 3.0f;
+		ap.maxSpeed = 3.5f;
+		ap.maxAcceleration = 8.0f; // Meters per second squared
+		ap.collisionQueryRange = ap.radius * 12.0f;
+	
 		float startingPos[3] = { enem->GetPosition().x, enem->GetPosition().y, enem->GetPosition().z };
-		float snappedPos[3];
-		dtPolyRef startPoly;
-		navMeshQuery->findNearestPoly(startingPos, halfExtents, &filter, &startPoly, snappedPos);
-		enemyAgentIDs.push_back(crowd->addAgent(snappedPos, &ap));
-		Logger::Log(1, "[Spawn] Enemy spawned as agent %d at (%.2f, %.2f, %.2f)\n",
-			enemyAgentIDs.back(), snappedPos[0], snappedPos[1], snappedPos[2]);
-	}
+		enemyAgentIDs.push_back(crowd->addAgent(startingPos, &ap));
+	
+	
+	};
+	
+	//for (auto& enem : m_enemies)
+	//{
+	//	dtCrowdAgentParams ap;
+	//	memset(&ap, 0, sizeof(ap));
+	//	ap.radius = AGENT_RADIUS;
+	//	ap.height = 1.0f;
+	//	ap.maxSpeed = 4.0f;
+	//	ap.maxAcceleration = 12.0f;
+	//	ap.collisionQueryRange = AGENT_RADIUS * 6.0f;
+	//	ap.pathOptimizationRange = AGENT_RADIUS * 15.0f;
+	//	ap.updateFlags = DT_CROWD_ANTICIPATE_TURNS
+	//		| DT_CROWD_OPTIMIZE_VIS
+	//		| DT_CROWD_OPTIMIZE_TOPO
+	//		| DT_CROWD_SEPARATION;
+	//	ap.separationWeight = 0.5f;
+	//	float startingPos[3] = { enem->GetPosition().x, 2, enem->GetPosition().z };
+	//	float snappedPos[3];
+	//	dtPolyRef startPoly;
+	//	navMeshQuery->findNearestPoly(startingPos, halfExtents, &filter, &startPoly, snappedPos);
+	//	enem->SetPosition(glm::vec3(snappedPos[0], snappedPos[1], snappedPos[2]));
+	//	enemyAgentIDs.push_back(crowd->addAgent(snappedPos, &ap));
+	//	Logger::Log(1, "[Spawn] Enemy spawned as agent %d at (%.2f, %.2f, %.2f)\n",
+	//		enemyAgentIDs.back(), snappedPos[0], snappedPos[1], snappedPos[2]);
+	//}
 
 	//for (auto& enem : enemies)
 	//{
@@ -1847,7 +1854,7 @@ void GameManager::Update(float deltaTime)
 		float offset = 5.0f;
 		targetPos[0] += (e->GetID() % 3 - 1) * offset;
 		targetPos[2] += ((e->GetID() / 3) % 3 - 1) * offset;
-		float halfExtents2[3] = { 50.0f, 10.0f, 50.0f };
+		float halfExtents2[3] = { 100.0f, 10.0f, 100.0f };
 		dtPolyRef playerPoly;
 		float targetPlayerPosOnNavMesh[3];
 		
@@ -1884,6 +1891,10 @@ void GameManager::Update(float deltaTime)
 		dtStatus status = navMeshQuery->findNearestPoly(
 			targetPos, halfExtents2, &filter, &targetPoly, targetPlayerPosOnNavMesh
 		);
+
+		Logger::Log(1, "%s targetPoly: %llu\n", "Enemy AI", targetPoly);
+		Logger::Log(1, "%s targetPos: %llu\n", "Enemy AI", targetPos);
+
 		if (dtStatusFailed(status)) {
 			continue;
 		}

@@ -522,7 +522,7 @@ Ground::Ground(glm::vec3 pos, glm::vec3 scale, Shader* shdr, Shader* shadowMapSh
 {
 	mapModel = new tinygltf::Model;
 
-	std::string modelFilename = "src/Assets/Models/Game_Scene/Aviary-Environment-Final-GLB-V1.glb";
+	std::string modelFilename = "Assets/Models/Game_Scene/Final/Env4.glb";
 
 	tinygltf::TinyGLTF gltfLoader;
 	std::string loaderErrors;

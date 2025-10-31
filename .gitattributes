@@ -11,3 +11,8 @@ src/Assets/Models/Game_Scene/V2 filter=lfs diff=lfs merge=lfs -text
 src/Assets/Models/Game_Scene/V4 filter=lfs diff=lfs merge=lfs -text
 src/Assets/Models/Game_Scene/coast_land_rocks_01_nor_gl_2k.png filter=lfs diff=lfs merge=lfs -text
 src/Assets/Models/Game_Scene/Aviary-Environment-Final-GLB-V1.glb filter=lfs diff=lfs merge=lfs -text
+Assets/Models/Game_Scene/Final/Env2.blend filter=lfs diff=lfs merge=lfs -text
+Assets/Models/Game_Scene/Final/Env3.blend filter=lfs diff=lfs merge=lfs -text
+Assets/Models/Game_Scene/Final/Env3.glb filter=lfs diff=lfs merge=lfs -text
+Assets/Models/Game_Scene/Final/Env4.blend filter=lfs diff=lfs merge=lfs -text
+Assets/Models/Game_Scene/Final/Env4.glb filter=lfs diff=lfs merge=lfs -text
