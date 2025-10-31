@@ -302,7 +302,7 @@ glm::vec3 PhysicsWorld::RaycastPlane(const glm::vec3& ro, const glm::vec3& rd, f
 			return slopeDir;
 		};
 	}
-	Logger::Log(1, "Desired direction: %f, %f, %f\n", desiredDir.x, desiredDir.y, desiredDir.z);
+//	Logger::Log(1, "Desired direction: %f, %f, %f\n", desiredDir.x, desiredDir.y, desiredDir.z);
 
 	return desiredDir;
 }
