@@ -151,6 +151,11 @@ bool GameManager::BuildTile(int tx, int ty, float* bmin, float* bmax,  rcConfig 
 	{
 		Logger::Log(1, "%s: contours successfully created\n", __FUNCTION__);
 		Logger::Log(1, "Contours count: %d\n", cset->nconts);
+		if (cset->nconts == 0)
+		{
+			Logger::Log(1, "%s error: No contours were created\n", __FUNCTION__);
+			return false;
+		}
 	};
 
 	rcPolyMesh* pmesh = rcAllocPolyMesh();
@@ -257,7 +262,7 @@ bool GameManager::BuildTile(int tx, int ty, float* bmin, float* bmax,  rcConfig 
 
 	if (dtStatusFailed(status))
 	{
-		Logger::Log(1, "Create Nav Mesh Data failed: %u\n", status, __FUNCTION__);
+		Logger::Log(1, "Create Nav Mesh Data failed: %u for tile (%d. %d), %s\n", status, tx, ty, __FUNCTION__);
 		return false;
 	}
 
@@ -813,7 +818,7 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 	params.orig[2] = floor(cfg.bmin[2] / tileWorldSize) * tileWorldSize;
 	params.tileWidth = tileWorldSize;
 	params.tileHeight = tileWorldSize;
-	params.maxTiles = tileCountX * tileCountY;   // now > 1
+	params.maxTiles = 100 * 100;   // now > 1
 	params.maxPolys = 2048; // Set a reasonable limit for the number of polygons per tile
 	Logger::Log(1, "Navmesh origin: %.2f %.2f %.2f\n", params.orig[0], params.orig[1], params.orig[2]);
 	
@@ -835,7 +840,8 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 			
 				if (dtStatusFailed(status))
 				{
-					Logger::Log(1, "Error: Could not add tile to navmesh\n", __FUNCTION__);
+					Logger::Log(1, "%s addTile failed (%d,%d): status=%x  maxTiles=%d  maxPolys=%d", __FUNCTION__,
+						x, y, status, params.maxTiles, params.maxPolys);
 				}
 			}
 		}
@@ -914,7 +920,7 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 	//navMeshQuery->findNearestPoly(startingPos, halfExtents, &filter, &startPoly, snappedPos);
 	//m_player->SetPosition(glm::vec3(snappedPos[0], snappedPos[1], snappedPos[2]));
 
-	m_player = new Player( (glm::vec3(-9.0f, 2.0f, 163.0f)), glm::vec3(5.0f), &playerShader, &playerShadowMapShader, true, this, 0.0f);
+	m_player = new Player( (glm::vec3(-9.0f, 0.0f, -744.0f)), glm::vec3(5.0f), &playerShader, &playerShadowMapShader, true, this, 0.0f);
 
 	m_player->SetAABBShader(&aabbShader);
 	m_player->SetUpAABB();
@@ -924,19 +930,19 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 	std::string texture3 = "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Models/GLTF/Enemies/Ely/ely-vanguardsoldier-kerwinatienza_diffuse_3.png";
 	std::string texture4 = "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Models/GLTF/Enemies/Ely/ely-vanguardsoldier-kerwinatienza_diffuse_4.png";
 
-	m_enemy = new Enemy(glm::vec3(-12.0f, 2.0f, 180.0f), glm::vec3(5.0f), &playerShader, &enemyShadowMapShader, true, this, texture, 0, GetEventManager(), *m_player);
+	m_enemy = new Enemy(glm::vec3(-12.0f, 0.0f, -744.0f), glm::vec3(5.0f), &playerShader, &enemyShadowMapShader, true, this, texture, 0, GetEventManager(), *m_player);
 	m_enemy->SetAABBShader(&aabbShader);
 	m_enemy->SetUpAABB();
 
-	m_enemy2 = new Enemy(glm::vec3(10.0f, 2.0f, 170.0f), glm::vec3(5.0f), &playerShader, &enemyShadowMapShader, true, this, texture2, 1, GetEventManager(), *m_player);
+	m_enemy2 = new Enemy(glm::vec3(10.0f, 0.0f, -744.0f), glm::vec3(5.0f), &playerShader, &enemyShadowMapShader, true, this, texture2, 1, GetEventManager(), *m_player);
 	m_enemy2->SetAABBShader(&aabbShader);
 	m_enemy2->SetUpAABB();
 
-	m_enemy3 = new Enemy(glm::vec3(-18.0f, 2.0f, 150.0f), glm::vec3(5.0f), &playerShader, &enemyShadowMapShader, true, this, texture3, 2, GetEventManager(), *m_player);
+	m_enemy3 = new Enemy(glm::vec3(-18.0f, 0.0f, -744.0f), glm::vec3(5.0f), &playerShader, &enemyShadowMapShader, true, this, texture3, 2, GetEventManager(), *m_player);
 	m_enemy3->SetAABBShader(&aabbShader);
 	m_enemy3->SetUpAABB();
 
-	m_enemy4 = new Enemy(glm::vec3(0.0f, 2.0f, 150.0f), glm::vec3(5.0f), &playerShader, &enemyShadowMapShader, true, this, texture4, 3, GetEventManager(), *m_player);
+	m_enemy4 = new Enemy(glm::vec3(0.0f, 0.0f, -744.0f), glm::vec3(5.0f), &playerShader, &enemyShadowMapShader, true, this, texture4, 3, GetEventManager(), *m_player);
 	m_enemy4->SetAABBShader(&aabbShader);
 	m_enemy4->SetUpAABB();
 
@@ -1109,7 +1115,10 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 	float playerStartingPos[3] = { m_player->GetPosition().x, m_player->GetPosition().y, m_player->GetPosition().z };
 	float playerSnappedPos[3];
 	dtPolyRef playerStartPoly;
-	navMeshQuery->findNearestPoly(playerStartingPos, halfExtents, &filter, &playerStartPoly, playerSnappedPos);
+	dtStatus qst = navMeshQuery->findNearestPoly(playerStartingPos, halfExtents, &filter, &playerStartPoly, playerSnappedPos);
+	if (dtStatusFailed(qst)) {
+		Logger::Log(1, "[Player Spawn] No poly near (%.2f,%.2f,%.2f).", playerSnappedPos[0], playerSnappedPos[1], playerSnappedPos[2]);
+	}
 	m_player->SetPosition(glm::vec3(playerSnappedPos[0], playerSnappedPos[1], playerSnappedPos[2]));
 	
 	Logger::Log(1, "[Spawn] Player requested spawn at (%.2f, %.2f, %.2f)\n",
@@ -1154,7 +1163,10 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 		float startingPos[3] = { enem->GetPosition().x, enem->GetPosition().y, enem->GetPosition().z};
 		float snappedPos[3];
 		dtPolyRef startPoly;
-		navMeshQuery->findNearestPoly(startingPos, halfExtents, &filter, &startPoly, snappedPos);
+		dtStatus qst = navMeshQuery->findNearestPoly(startingPos, halfExtents, &filter, &startPoly, snappedPos);
+		if (dtStatusFailed(qst)) {
+			Logger::Log(1, "[Enemy Spawn] No poly near (%.2f,%.2f,%.2f).", snappedPos[0], snappedPos[1], snappedPos[2]);
+		}
 		Logger::Log(1, "[Spawn] Enemy requested spawn at (%.2f, %.2f, %.2f)\n",
 			startingPos[0], startingPos[1], startingPos[2]);
 		enem->SetPosition(glm::vec3(snappedPos[0], snappedPos[1], snappedPos[2]));
