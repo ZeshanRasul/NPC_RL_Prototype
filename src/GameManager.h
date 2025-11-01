@@ -429,6 +429,8 @@ private:
 	dtQueryFilter filter;
 	const float halfExtents[3] = { 500.0f, 50.0f, 500.0f };
 
+	bool saveNavMesh = false;
+	bool loadNavMesh = true;
 	dtNavMesh* navMesh;
 	dtNavMeshQuery* navMeshQuery;
 	unsigned char* navData;

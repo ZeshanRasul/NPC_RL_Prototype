@@ -5,6 +5,259 @@
 #include "imgui/backend/imgui_impl_glfw.h"
 #include "imgui/backend/imgui_impl_opengl3.h"
 
+#include <fstream>
+
+static constexpr uint32_t NAVM_MAGIC = 0x4D56414E; // 'NAVM'
+static constexpr uint16_t NAVM_VERSION = 1;
+int g_tileCountX;
+int g_tileCountY;
+int g_tileCount;
+bool g_saveNavMesh = false;
+bool g_loadNavMesh = true;
+
+#pragma pack(push, 1)
+struct NavBinHeader {
+	uint32_t magic;
+	uint16_t version;
+	uint16_t flags;
+	dtNavMeshParams params;
+	uint32_t tileCount;
+	uint32_t reserved;
+};
+
+struct TileRecordHeader {
+	int32_t  x, y, layer;
+	uint32_t dataSize;
+};
+#pragma pack(pop)
+
+#pragma pack(push, 1)
+struct PMagic { uint32_t v = 0x53484D50; }; // 'PMHS' (PolyMesh)
+struct PMHeader {
+	uint32_t magic;      // PMHS
+	uint16_t version;    // 1
+	uint16_t reserved;   // 0
+	uint32_t meshCount;  // number of meshes following
+};
+
+struct PMeshRecHeader {
+	uint16_t nvp;        // max verts per poly (rcPolyMesh::nvp)
+	uint16_t reserved;   // 0
+	float    cs, ch;     // cell size/height
+	float    bmin[3];    // rcPolyMesh::bmin
+	float    bmax[3];    // rcPolyMesh::bmax
+	uint32_t nverts;     // rcPolyMesh::nverts
+	uint32_t npolys;     // rcPolyMesh::npolys
+	// Followed by:
+	// uint16_t verts[3*nverts];                 // rcPolyMesh::verts
+	// uint16_t polys[2*nvp*npolys];            // rcPolyMesh::polys
+	// uint16_t flags[npolys];                  // (optional) rcPolyMesh::flags
+	// uint8_t  areas[npolys];                  // (optional) rcPolyMesh::areas
+};
+#pragma pack(pop)
+
+bool SavePolyMeshes(const char* path, const std::vector<rcPolyMesh*>& meshes,
+	bool saveFlagsAreas = false)
+{
+	std::ofstream f(path, std::ios::binary);
+	if (!f) return false;
+
+	PMHeader hdr{};
+	hdr.magic = 0x53484D50; // 'PMHS'
+	hdr.version = 1;
+	hdr.meshCount = (uint32_t)meshes.size();
+	f.write((const char*)&hdr, sizeof(hdr));
+
+	for (const rcPolyMesh* pm : meshes) {
+		if (!pm) continue;
+
+		PMeshRecHeader rh{};
+		rh.nvp = (uint16_t)pm->nvp;
+		rh.cs = pm->cs;
+		rh.ch = pm->ch;
+		rh.bmin[0] = pm->bmin[0]; rh.bmin[1] = pm->bmin[1]; rh.bmin[2] = pm->bmin[2];
+		rh.bmax[0] = pm->bmax[0]; rh.bmax[1] = pm->bmax[1]; rh.bmax[2] = pm->bmax[2];
+		rh.nverts = (uint32_t)pm->nverts;
+		rh.npolys = (uint32_t)pm->npolys;
+
+		f.write((const char*)&rh, sizeof(rh));
+
+		// verts: unsigned short[3*nverts]
+		f.write((const char*)pm->verts, sizeof(unsigned short) * 3 * pm->nverts);
+
+		// polys: unsigned short[2*nvp*npolys]
+		f.write((const char*)pm->polys, sizeof(unsigned short) * 2 * pm->nvp * pm->npolys);
+
+		if (saveFlagsAreas) {
+			// flags: unsigned short[npolys]
+			f.write((const char*)pm->flags, sizeof(unsigned short) * pm->npolys);
+			// areas: unsigned char[npolys]
+			f.write((const char*)pm->areas, sizeof(unsigned char) * pm->npolys);
+		}
+	}
+	return true;
+}
+
+struct LoadedPolyMesh {
+	uint16_t nvp;
+	float cs, ch;
+	float bmin[3], bmax[3];
+	std::vector<unsigned short> verts; // 3*nverts
+	std::vector<unsigned short> polys; // 2*nvp*npolys
+	uint32_t nverts = 0, npolys = 0;
+	// optional:
+	std::vector<unsigned short> flags;
+	std::vector<unsigned char>  areas;
+};
+
+// Loads the raw meshes
+bool LoadPolyMeshes(const char* path, std::vector<LoadedPolyMesh>& out, bool hasFlagsAreas = false)
+{
+	std::ifstream f(path, std::ios::binary);
+	if (!f) return false;
+
+	PMHeader hdr{};
+	f.read((char*)&hdr, sizeof(hdr));
+	if (!f || hdr.magic != 0x53484D50 || hdr.version != 1) return false;
+
+	out.clear();
+	out.reserve(hdr.meshCount);
+
+	for (uint32_t m = 0; m < hdr.meshCount; ++m) {
+		PMeshRecHeader rh{};
+		f.read((char*)&rh, sizeof(rh));
+		if (!f) return false;
+
+		LoadedPolyMesh pm{};
+		pm.nvp = rh.nvp;
+		pm.cs = rh.cs;
+		pm.ch = rh.ch;
+		pm.bmin[0] = rh.bmin[0]; pm.bmin[1] = rh.bmin[1]; pm.bmin[2] = rh.bmin[2];
+		pm.bmax[0] = rh.bmax[0]; pm.bmax[1] = rh.bmax[1]; pm.bmax[2] = rh.bmax[2];
+		pm.nverts = rh.nverts;
+		pm.npolys = rh.npolys;
+
+		pm.verts.resize(3 * pm.nverts);
+		pm.polys.resize(2 * pm.nvp * pm.npolys);
+
+		f.read((char*)pm.verts.data(), sizeof(unsigned short) * pm.verts.size());
+		f.read((char*)pm.polys.data(), sizeof(unsigned short) * pm.polys.size());
+		if (!f) return false;
+
+		if (hasFlagsAreas) {
+			pm.flags.resize(pm.npolys);
+			pm.areas.resize(pm.npolys);
+			f.read((char*)pm.flags.data(), sizeof(unsigned short) * pm.npolys);
+			f.read((char*)pm.areas.data(), sizeof(unsigned char) * pm.npolys);
+			if (!f) return false;
+		}
+
+		out.push_back(std::move(pm));
+	}
+	return true;
+}
+
+// RC_MESH_NULL_IDX is 0xffff in Recast
+#ifndef RC_MESH_NULL_IDX
+#define RC_MESH_NULL_IDX 0xffff
+#endif
+
+
+bool SaveDetourNavMesh(dtNavMesh* nav, const char* path)
+{
+	if (!nav) return false;
+
+	std::ofstream f(path, std::ios::binary);
+	if (!f) return false;
+
+	// Count real tiles first
+	for (int ty = 0; ty < g_tileCountY; ++ty) {
+		for (int tx = 0; tx < g_tileCountX; ++tx) {
+			const dtMeshTile* t = nav->getTileAt(tx, ty, 0);
+			if (!t || !t->header || !t->data || !t->dataSize) continue;
+
+			dtTileRef ref = nav->getTileRef(t); // OK
+			if (t && t->header && t->data && t->dataSize) ++g_tileCount;
+		}
+	}
+
+	NavBinHeader hdr{};
+	hdr.magic = NAVM_MAGIC;
+	hdr.version = NAVM_VERSION;
+	hdr.flags = 0;
+	hdr.params = *nav->getParams();
+	hdr.tileCount = g_tileCount;
+
+	f.write(reinterpret_cast<const char*>(&hdr), sizeof(hdr));
+
+	for (int ty = 0; ty < g_tileCountY; ++ty) {
+		for (int tx = 0; tx < g_tileCountX; ++tx) {
+			const dtMeshTile* t = nav->getTileAt(tx, ty, 0);
+			if (!t || !t->header || !t->data || !t->dataSize) continue;
+
+			TileRecordHeader th{};
+			th.x = t->header->x;
+			th.y = t->header->y;
+			th.layer = static_cast<int32_t>(t->header->layer);
+			th.dataSize = t->dataSize;
+
+			f.write(reinterpret_cast<const char*>(&th), sizeof(th));
+			f.write(reinterpret_cast<const char*>(t->data), th.dataSize);
+		}
+	}
+
+	return true;
+}
+
+
+dtNavMesh* LoadDetourNavMesh(const char* path)
+{
+	Logger::Log(1, "Loading Navmesh from %s", path);
+
+	std::ifstream f(path, std::ios::binary);
+	if (!f) return nullptr;
+
+	NavBinHeader hdr{};
+	f.read(reinterpret_cast<char*>(&hdr), sizeof(hdr));
+	if (!f || hdr.magic != NAVM_MAGIC || hdr.version != NAVM_VERSION) return nullptr;
+
+
+	dtNavMesh* nav = dtAllocNavMesh();
+	if (!nav) return nullptr;
+
+	dtNavMeshParams params;
+	memcpy(&params, &hdr.params, sizeof(dtNavMeshParams));
+	dtStatus stInit = nav->init(&params);
+
+	for (uint32_t i = 0; i < hdr.tileCount; ++i) {
+		Logger::Log(1, "Loading tile %d / %d", i + 1, hdr.tileCount);
+		TileRecordHeader th{};
+		f.read(reinterpret_cast<char*>(&th), sizeof(th));
+		if (!f) { dtFree(nav); return nullptr; }
+
+		if (th.dataSize == 0) continue;
+
+		unsigned char* data = (unsigned char*)dtAlloc(th.dataSize, DT_ALLOC_PERM);
+		if (!data) { dtFree(nav); return nullptr; }
+
+		f.read(reinterpret_cast<char*>(data), th.dataSize);
+		if (!f) { dtFree(data); dtFree(nav); return nullptr; }
+
+		dtTileRef ref = 0;
+		dtStatus st = nav->addTile(data, th.dataSize, DT_TILE_FREE_DATA, ref, nullptr);
+		if (dtStatusFailed(st)) {
+			// If addTile failed and nav won't free data, free it ourselves
+			dtFree(data);
+			dtFree(nav);
+			return nullptr;
+		}
+	}
+
+	Logger::Log(1, "NavMesh loaded from %s", path);
+
+	return nav;
+}
+
 
 DirLight dirLight = {
 		glm::vec3(-0.5f, -1.0f, -0.3f),
@@ -18,7 +271,7 @@ const float AGENT_RADIUS = 0.6f;
 
 glm::vec3 dirLightPBRColour = glm::vec3(300.f, 300.0f, 300.0f);
 
-bool GameManager::BuildTile(int tx, int ty, float* bmin, float* bmax,  rcConfig cfg, unsigned char*& navData, int* navDataSize, dtNavMeshParams parameters)
+bool GameManager::BuildTile(int tx, int ty, float* bmin, float* bmax, rcConfig cfg, unsigned char*& navData, int* navDataSize, dtNavMeshParams parameters)
 {
 	rcConfig config = cfg;
 
@@ -48,9 +301,9 @@ bool GameManager::BuildTile(int tx, int ty, float* bmin, float* bmax,  rcConfig 
 
 	//rcContext ctx;
 
-	std::vector<float> tileVerts;             
-	std::vector<int> tileIndices;             
-	std::vector<unsigned char> tileAreas;     
+	std::vector<float> tileVerts;
+	std::vector<int> tileIndices;
+	std::vector<unsigned char> tileAreas;
 	std::unordered_map<int, int> globalToLocalVert;
 
 	int triCount = navMeshIndices.size() / 3;
@@ -597,6 +850,7 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 	ground->SetUpAABB();
 	ground->SetPlaneShader(&m_lineShader);
 
+
 	std::vector<Ground::GLTFMesh> meshDataGrnd = ground->meshData;
 	int mapVertCount = 0;
 	int mapIndCount = 0;
@@ -615,7 +869,7 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 				//model = glm::rotate(model, glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
 				model = glm::scale(model, mapScale);
 				glm::vec4 newVertTr = model * newVert;
-	
+
 				// Add transformed vertices
 				mapVerts.push_back(glm::vec3(newVertTr.x, newVertTr.y, newVertTr.z));
 				navMeshVertices.push_back(newVertTr.x);
@@ -623,23 +877,23 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 				navMeshVertices.push_back(newVertTr.z);
 				mapVertCount += 3;
 			}
-	
+
 			for (unsigned int idx : prim.indices)
 			{
 				navMeshIndices.push_back(idx + vertexOffset);
 				mapIndCount++;
 			}
-	
+
 			vertexOffset += static_cast<int>(prim.verts.size());
 		}
 	}
 
 
-	
+
 
 	Logger::Log(1, "Map vertices count: %i\n", mapVerts.size());
-	
-	
+
+
 	Logger::Log(1, "navMeshVertices count: %zu\n", navMeshVertices.size());
 	for (size_t i = 0; i < std::min((size_t)10, navMeshVertices.size() / 3); ++i)
 	{
@@ -653,30 +907,30 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 
 	int indexCount = (int)navMeshIndices.size();
 	Logger::Log(1, "Index Count: %zu\n", (int)navMeshIndices.size());
-	
+
 	triIndices = new int[indexCount];
-	
+
 	for (int i = 0; i < navMeshIndices.size(); i++)
 	{
 		triIndices[i] = navMeshIndices[i];
 	}
-	
+
 	Logger::Log(1, "Index Count: %zu\n", indexCount);
 
 
 
 
 	int triangleCount = indexCount / 3;
-	
+
 	triAreas = new unsigned char[triangleCount];
-	
+
 	filter.setIncludeFlags(0xFFFF); // Include all polygons for testing
 	filter.setExcludeFlags(0);      // Exclude no polygons
-	
+
 	Logger::Log(1, "Tri Areas: %s", triAreas);
-	
+
 	int vertexCount = navMeshVertices.size() / 3;
-	
+
 	for (int i = 0; i < triangleCount * 3; i++) {
 		if (triIndices[i] < 0 || triIndices[i] >= vertexCount) {
 			Logger::Log(1, "Invalid triangle index %d: %d (vertexCount=%d)\n",
@@ -688,33 +942,33 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 	// Slope threshold (in degrees) � typical value for shooters is 45
 	const float WALKABLE_SLOPE = 45.0f;
 	ctx = new rcContext();
-	
+
 	for (int i = 0; i < triangleCount; ++i) {
 		float norm[3];
 		const float* v0 = &navMeshVertices[triIndices[i * 3 + 0] * 3];
 		const float* v1 = &navMeshVertices[triIndices[i * 3 + 1] * 3];
 		const float* v2 = &navMeshVertices[triIndices[i * 3 + 2] * 3];
-	
+
 		glm::vec3 v0_glm(v0[0], v0[1], v0[2]);
 		glm::vec3 v1_glm(v1[0], v1[1], v1[2]);
 		glm::vec3 v2_glm(v2[0], v2[1], v2[2]);
-	
+
 		// Compute edges
 		glm::vec3 e0 = v1_glm - v0_glm;
 		glm::vec3 e1 = v2_glm - v0_glm;
-	
+
 		// Compute face normal
 		glm::vec3 faceNormal = glm::normalize(glm::cross(e0, e1));
-	
+
 		// Flip winding if normal points down
 		if (faceNormal.y < 0.0f) {
-		//	std::swap(triIndices[i * 3 + 1], triIndices[i * 3 + 2]);
+			//	std::swap(triIndices[i * 3 + 1], triIndices[i * 3 + 2]);
 		}
-	
+
 	}
 
 
-//	 Mark which triangles are walkable based on slope
+	//	 Mark which triangles are walkable based on slope
 	rcMarkWalkableTriangles(&ctx,
 		WALKABLE_SLOPE,
 		navMeshVertices.data(), navMeshVertices.size() / 3,
@@ -727,11 +981,11 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 		if (triAreas[i] == RC_WALKABLE_AREA)
 			walkableCount++;
 	}
-	
+
 	Logger::Log(1, "[Recast] Triangles processed: %d\n", triangleCount);
 	Logger::Log(1, "[Recast] Walkable triangles:  %d\n", walkableCount);
 	Logger::Log(1, "[Recast] Non-walkable:        %d\n", triangleCount - walkableCount);
-	
+
 	// Optional sanity check: Print first few triangles and their walkable flag
 	for (int i = 0; i < std::min(triangleCount, 5); ++i)
 	{
@@ -747,12 +1001,12 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 		Logger::Log(1, "  Tri %d: %s\n", i,
 			(triAreas[i] == RC_WALKABLE_AREA) ? "WALKABLE" : "NOT WALKABLE");
 	}
-	
-	
-	
-	
+
+
+
+
 	rcConfig cfg{};
-	
+
 	cfg.cs = 0.3f;                      // Cell size
 	cfg.ch = 0.2f;                      // Cell height
 	cfg.walkableSlopeAngle = WALKABLE_SLOPE;     // Steeper slopes allowed
@@ -766,29 +1020,31 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 	cfg.detailSampleDist = cfg.cs * 6;  // Balanced detail
 	cfg.maxVertsPerPoly = 6;            // Max verts per poly
 	cfg.tileSize = 248;                  // Tile size
-	
+
 	rcCalcGridSize(cfg.bmin, cfg.bmax, cfg.cs, &cfg.width, &cfg.height);
 	cfg.borderSize = cfg.walkableRadius + 3;      // cells (important)
-	
+
 	cfg.borderSize = (int)ceil(cfg.walkableRadius / cfg.cs);
 #	//
 	rcCalcBounds(navMeshVertices.data(), navMeshVertices.size() / 3, cfg.bmin, cfg.bmax);
-	
+
 	//cfg.width = (int)((cfg.bmax[0] - cfg.bmin[0]) / cfg.cs + 0.5f);
 	//cfg.height = (int)((cfg.bmax[2] - cfg.bmin[2]) / cfg.cs + 0.5f);
-	
+
 	int mapVoxelsX = int((cfg.bmax[0] - cfg.bmin[0]) / cfg.cs + 0.5f);
 	int mapVoxelsZ = int((cfg.bmax[2] - cfg.bmin[2]) / cfg.cs + 0.5f);
-	
-	int tileCountX = (mapVoxelsX + cfg.tileSize - 1) / cfg.tileSize;
-	int tileCountY = (mapVoxelsZ + cfg.tileSize - 1) / cfg.tileSize;
-	
+
+	g_tileCountX = (mapVoxelsX + cfg.tileSize - 1) / cfg.tileSize;
+	g_tileCountY = (mapVoxelsZ + cfg.tileSize - 1) / cfg.tileSize;
+
+	Logger::Log(1, "Tile Count X: %d, Y: %d", g_tileCountX, g_tileCountY);
+
 	//int tileWidth, tileHeight;
 	//tileWidth = (cfg.width + cfg.tileSize - 1) / cfg.tileSize;
 	//tileHeight = (cfg.height + cfg.tileSize - 1) / cfg.tileSize;
-	
+
 	Logger::Log(1, "Num verts %zu", navMeshVertices.size());
-	
+
 	Logger::Log(1, "navMeshVertices count: %zu", navMeshVertices.size());
 	for (size_t i = 0; i < std::min((size_t)10, navMeshVertices.size() / 3); ++i)
 	{
@@ -798,19 +1054,19 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 			navMeshVertices[i * 3 + 1],
 			navMeshVertices[i * 3 + 2]);
 	}
-	
-	
+
+
 	float minBounds[3] = { -261.04f, -2.39, -231.76 };
 	float maxBounds[3] = { 251.37f, 213.66f, 304.81f };
 
-	
+
 	rcCalcBounds(navMeshVertices.data(), navMeshVertices.size() / 3, cfg.bmin, cfg.bmax);
-	
-	
-	
-	
+
+
+
+
 	tileWorldSize = cfg.tileSize * cfg.cs;
-	
+
 	dtNavMeshParams params = {};
 	float tileWorldSize = cfg.tileSize * cfg.cs;
 	params.orig[0] = floor(cfg.bmin[0] / tileWorldSize) * tileWorldSize;
@@ -821,34 +1077,96 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 	params.maxTiles = 100 * 100;   // now > 1
 	params.maxPolys = 2048; // Set a reasonable limit for the number of polygons per tile
 	Logger::Log(1, "Navmesh origin: %.2f %.2f %.2f\n", params.orig[0], params.orig[1], params.orig[2]);
-	
+
 	navMesh = dtAllocNavMesh();
-	
+
 	dtStatus navInitStatus = navMesh->init(&params);
-	
-	for (int y = 0; y < tileCountY; ++y)
-	{
-		for (int x = 0; x < tileCountX; ++x)
+	if (g_saveNavMesh) {
+
+		for (int y = 0; y < g_tileCountY; ++y)
 		{
-			unsigned char* navData = nullptr;
-			int navDataSize = 0;
-	
-			if (BuildTile(x, y, cfg.bmin, cfg.bmax, cfg, navData, &navDataSize, params))
+			for (int x = 0; x < g_tileCountX; ++x)
 			{
-				// Add tile to Detour navmesh
-				dtStatus status = navMesh->addTile(navData, navDataSize, DT_TILE_FREE_DATA, 0, nullptr);
-			
-				if (dtStatusFailed(status))
+				unsigned char* navData = nullptr;
+				int navDataSize = 0;
+
+				if (BuildTile(x, y, cfg.bmin, cfg.bmax, cfg, navData, &navDataSize, params))
 				{
-					Logger::Log(1, "%s addTile failed (%d,%d): status=%x  maxTiles=%d  maxPolys=%d", __FUNCTION__,
-						x, y, status, params.maxTiles, params.maxPolys);
+					// Add tile to Detour navmesh
+					dtStatus status = navMesh->addTile(navData, navDataSize, DT_TILE_FREE_DATA, 0, nullptr);
+
+					if (dtStatusFailed(status))
+					{
+						Logger::Log(1, "%s addTile failed (%d,%d): status=%x  maxTiles=%d  maxPolys=%d", __FUNCTION__,
+							x, y, status, params.maxTiles, params.maxPolys);
+					}
 				}
 			}
 		}
+
+		SaveDetourNavMesh(navMesh, "Level01.navbin");
+		SavePolyMeshes("Level01.polymesh", polyMeshes, /*saveFlagsAreas=*/false);
+
 	}
-	
+
+	if (g_loadNavMesh)
+	{
+		navMesh = LoadDetourNavMesh("Level01.navbin");
+
+		std::vector<LoadedPolyMesh> loaded;
+		if (LoadPolyMeshes("Level01.polymesh", loaded)) {
+
+			for (auto& pm : loaded) {
+				rcPolyMesh* polyMesh = rcAllocPolyMesh();
+				polyMesh->nvp = pm.nvp;
+				polyMesh->cs = pm.cs;
+				polyMesh->ch = pm.ch;
+				polyMesh->bmin[0] = pm.bmin[0];
+				polyMesh->bmin[1] = pm.bmin[1];
+				polyMesh->bmin[2] = pm.bmin[2];
+				polyMesh->bmax[0] = pm.bmax[0];
+				polyMesh->bmax[1] = pm.bmax[1];
+				polyMesh->bmax[2] = pm.bmax[2];
+				polyMesh->nverts = pm.nverts;
+				polyMesh->npolys = pm.npolys;
+
+				const float* orig = polyMesh->bmin;
+
+				size_t baseVertexIndex = navRenderMeshVertices.size() / 3;
+
+				for (int i = 0; i < polyMesh->nverts; i++)
+				{
+					const unsigned short* v = &pm.verts[i * 3];
+					const float x = orig[0] + v[0] * polyMesh->cs;
+					const float y = orig[1] + v[1] * polyMesh->ch;
+					const float z = orig[2] + v[2] * polyMesh->cs;
+					navRenderMeshVertices.push_back(x);
+					navRenderMeshVertices.push_back(y);
+					navRenderMeshVertices.push_back(z);
+				}
+
+				// Process indices
+				for (int i = 0; i < polyMesh->npolys; ++i)
+				{
+					const unsigned short* p = &pm.polys[i * pm.nvp * 2];
+					for (int j = 2; j < polyMesh->nvp; ++j)
+					{
+						if (p[j] == RC_MESH_NULL_IDX) break;
+						// Skip degenerate triangles
+						if (p[0] == p[j - 1] || p[0] == p[j] || p[j - 1] == p[j]) continue;
+						navRenderMeshIndices.push_back(baseVertexIndex + p[0]);      // Triangle vertex 1
+						navRenderMeshIndices.push_back(baseVertexIndex + p[j - 1]); // Triangle vertex 2
+						navRenderMeshIndices.push_back(baseVertexIndex + p[j]);     // Triangle vertex 3
+					}
+				}
+
+				polyMeshes.push_back(polyMesh);
+			}
+		}
+	}
+
 	navMeshQuery = dtAllocNavMeshQuery();
-	
+
 	dtStatus status = navMeshQuery->init(navMesh, 4096);
 	if (dtStatusFailed(status))
 	{
@@ -857,25 +1175,25 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 	else
 	{
 		Logger::Log(1, "%s: Detour navMeshQuery successfully initialized\n", __FUNCTION__);
-	
+
 	}
-	
-	
-	
+
+
+
 	const dtNavMeshParams* nmparams = navMesh->getParams();
-	Logger::Log(1, "Navmesh origin: %.2f %.2f %.2f\n", nmparams->orig[0], nmparams->orig[1], nmparams->orig[2]);
-	
-	for (int y = 0; y < navMesh->getMaxTiles(); ++y) {
-		for (int x = 0; x < navMesh->getMaxTiles(); ++x) {
-			const dtMeshTile* tile = navMesh->getTileAt(x, y, 0);  // layer = 0
-			if (!tile || !tile->header) continue;
-	
-			Logger::Log(1, "Tile at (%d,%d): Bmin(%.2f %.2f %.2f) Bmax(%.2f %.2f %.2f)\n",
-				x, y,
-				tile->header->bmin[0], tile->header->bmin[1], tile->header->bmin[2],
-				tile->header->bmax[0], tile->header->bmax[1], tile->header->bmax[2]);
-		}
-	}
+	//	Logger::Log(1, "Navmesh origin: %.2f %.2f %.2f\n", nmparams->orig[0], nmparams->orig[1], nmparams->orig[2]);
+
+		//for (int y = 0; y < navMesh->getMaxTiles(); ++y) {
+		//	for (int x = 0; x < navMesh->getMaxTiles(); ++x) {
+		//		const dtMeshTile* tile = navMesh->getTileAt(x, y, 0);  // layer = 0
+		//		if (!tile || !tile->header) continue;
+
+		//		Logger::Log(1, "Tile at (%d,%d): Bmin(%.2f %.2f %.2f) Bmax(%.2f %.2f %.2f)\n",
+		//			x, y,
+		//			tile->header->bmin[0], tile->header->bmin[1], tile->header->bmin[2],
+		//			tile->header->bmax[0], tile->header->bmax[1], tile->header->bmax[2]);
+		//	}
+		//}
 
 
 
@@ -920,7 +1238,7 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 	//navMeshQuery->findNearestPoly(startingPos, halfExtents, &filter, &startPoly, snappedPos);
 	//m_player->SetPosition(glm::vec3(snappedPos[0], snappedPos[1], snappedPos[2]));
 
-	m_player = new Player( (glm::vec3(-9.0f, 0.0f, -744.0f)), glm::vec3(5.0f), &playerShader, &playerShadowMapShader, true, this, 0.0f);
+	m_player = new Player((glm::vec3(-9.0f, 0.0f, -744.0f)), glm::vec3(5.0f), &playerShader, &playerShadowMapShader, true, this, 0.0f);
 
 	m_player->SetAABBShader(&aabbShader);
 	m_player->SetUpAABB();
@@ -1026,109 +1344,113 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 	//	}
 	//}
 
-	for (rcPolyMesh* polyMesh : polyMeshes)
-	{
-		const int nvp = polyMesh->nvp;
-		const float cs = polyMesh->cs;
-		const float ch = polyMesh->ch;
-		const float* orig = polyMesh->bmin;
-		size_t baseVertexIndex = navRenderMeshVertices.size() / 3;
-	
-		for (int i = 0, j = polyMesh->nverts - 1; i < polyMesh->nverts; j = i++)
-		{
-			const unsigned short* v = &polyMesh->verts[i * 3];
-			const float x = orig[0] + v[0] * cs;
-			const float y = orig[1] + v[1] * ch;
-			const float z = orig[2] + v[2] * cs;
-			navRenderMeshVertices.push_back(x);
-			navRenderMeshVertices.push_back(y);
-			navRenderMeshVertices.push_back(z);
-		}
-	
-		// Process indices
-		for (int i = 0; i < polyMesh->npolys; ++i)
-		{
-			const unsigned short* p = &polyMesh->polys[i * nvp * 2];
-			for (int j = 2; j < nvp; ++j)
-			{
-				if (p[j] == RC_MESH_NULL_IDX) break;
-				// Skip degenerate triangles
-				if (p[0] == p[j - 1] || p[0] == p[j] || p[j - 1] == p[j]) continue;
-				navRenderMeshIndices.push_back(baseVertexIndex + p[0]);      // Triangle vertex 1
-				navRenderMeshIndices.push_back(baseVertexIndex + p[j - 1]); // Triangle vertex 2
-				navRenderMeshIndices.push_back(baseVertexIndex + p[j]);     // Triangle vertex 3
-			}
-		}
-	}
-	
-	
+	//for (rcPolyMesh* polyMesh : polyMeshes)
+	//{
+	//	const int nvp = polyMesh->nvp;
+	//	const float cs = polyMesh->cs;
+	//	const float ch = polyMesh->ch;
+	//	const float* orig = polyMesh->bmin;
+	//	size_t baseVertexIndex = navRenderMeshVertices.size() / 3;
+
+	//	for (int i = 0, j = polyMesh->nverts - 1; i < polyMesh->nverts; j = i++)
+	//	{
+	//		const unsigned short* v = &polyMesh->verts[i * 3];
+	//		const float x = orig[0] + v[0] * cs;
+	//		const float y = orig[1] + v[1] * ch;
+	//		const float z = orig[2] + v[2] * cs;
+	//		navRenderMeshVertices.push_back(x);
+	//		navRenderMeshVertices.push_back(y);
+	//		navRenderMeshVertices.push_back(z);
+	//	}
+
+	//	// Process indices
+	//	for (int i = 0; i < polyMesh->npolys; ++i)
+	//	{
+	//		const unsigned short* p = &polyMesh->polys[i * nvp * 2];
+	//		for (int j = 2; j < nvp; ++j)
+	//		{
+	//			if (p[j] == RC_MESH_NULL_IDX) break;
+	//			// Skip degenerate triangles
+	//			if (p[0] == p[j - 1] || p[0] == p[j] || p[j - 1] == p[j]) continue;
+	//			navRenderMeshIndices.push_back(baseVertexIndex + p[0]);      // Triangle vertex 1
+	//			navRenderMeshIndices.push_back(baseVertexIndex + p[j - 1]); // Triangle vertex 2
+	//			navRenderMeshIndices.push_back(baseVertexIndex + p[j]);     // Triangle vertex 3
+	//		}
+	//	}
+	//}
+
+
 	Logger::Log(1, "Render NavMesh Vert Count: %zu", navRenderMeshVertices.size());
 	Logger::Log(1, "Render NavMesh Index Count: %zu", navRenderMeshIndices.size());
-	
+
 	// Create VAO
 	glGenVertexArrays(1, &vao);
 	glBindVertexArray(vao);
-	
+
 	// Create VBO
 	glGenBuffers(1, &vbo);
 	glBindBuffer(GL_ARRAY_BUFFER, vbo);
 	glBufferData(GL_ARRAY_BUFFER, navRenderMeshVertices.size() * sizeof(float), navRenderMeshVertices.data(), GL_STATIC_DRAW);
-	
+
 	// Create EBO
 	glGenBuffers(1, &ebo);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, navRenderMeshIndices.size() * sizeof(unsigned int), navRenderMeshIndices.data(), GL_STATIC_DRAW);
-	
+
 	// Enable vertex attribute (e.g., position at location 0)
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
-	
+
 	glBindVertexArray(0);
-	
-	
+
+
 	//crowd = dtAllocCrowd();
 	//crowd->init(enemies.size(), 1.0f, navMesh);
-	
+
 			// Create VAO
 	glGenVertexArrays(1, &hfvao);
 	glBindVertexArray(hfvao);
-	
+
 	// Create VBO
 	glGenBuffers(1, &hfvbo);
 	glBindBuffer(GL_ARRAY_BUFFER, hfvbo);
 	glBufferData(GL_ARRAY_BUFFER, hfnavRenderMeshVertices.size() * sizeof(float), hfnavRenderMeshVertices.data(), GL_STATIC_DRAW);
-	
+
 	// Create EBO
 	glGenBuffers(1, &hfebo);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, hfebo);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, hfnavRenderMeshIndices.size() * sizeof(unsigned int), hfnavRenderMeshIndices.data(), GL_STATIC_DRAW);
-	
+
 	// Enable vertex attribute (e.g., position at location 0)
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
 	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
 	glEnableVertexAttribArray(1);
-	
-	
+
+
 	glBindVertexArray(0);
-	
+	filter.setIncludeFlags(0x01);
+	filter.setExcludeFlags(0);
+
+	const float halfExtents2[3] = {2.0f, 10.0f, 2.0f};
+
 	float playerStartingPos[3] = { m_player->GetPosition().x, m_player->GetPosition().y, m_player->GetPosition().z };
 	float playerSnappedPos[3];
 	dtPolyRef playerStartPoly;
-	dtStatus qst = navMeshQuery->findNearestPoly(playerStartingPos, halfExtents, &filter, &playerStartPoly, playerSnappedPos);
+	dtStatus qst = navMeshQuery->findNearestPoly(playerStartingPos, halfExtents2, &filter, &playerStartPoly, playerSnappedPos);
 	if (dtStatusFailed(qst)) {
-		Logger::Log(1, "[Player Spawn] No poly near (%.2f,%.2f,%.2f).", playerSnappedPos[0], playerSnappedPos[1], playerSnappedPos[2]);
+		//Logger::Log(1, "[Player Spawn] No poly near (%.2f,%.2f,%.2f).", playerSnappedPos[0], playerSnappedPos[1], playerSnappedPos[2]);
 	}
 	m_player->SetPosition(glm::vec3(playerSnappedPos[0], playerSnappedPos[1], playerSnappedPos[2]));
-	
+
 	Logger::Log(1, "[Spawn] Player requested spawn at (%.2f, %.2f, %.2f)\n",
 		playerStartingPos[0], playerStartingPos[1], playerStartingPos[2]);
 	Logger::Log(1, "[Spawn] Player spawned at (%.2f, %.2f, %.2f)\n",
 		playerSnappedPos[0], playerSnappedPos[1], playerSnappedPos[2]);
-	
+
 	crowd = dtAllocCrowd();
 	crowd->init(5, AGENT_RADIUS, navMesh);
-	
+
 	//for (auto& enem : m_enemies)
 	//{
 	//	dtCrowdAgentParams ap;
@@ -1144,7 +1466,7 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 	//
 	//
 	//};
-	
+
 	for (auto& enem : m_enemies)
 	{
 		dtCrowdAgentParams ap;
@@ -1160,7 +1482,7 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 			| DT_CROWD_OPTIMIZE_TOPO
 			| DT_CROWD_SEPARATION;
 		ap.separationWeight = 0.5f;
-		float startingPos[3] = { enem->GetPosition().x, enem->GetPosition().y, enem->GetPosition().z};
+		float startingPos[3] = { enem->GetPosition().x, enem->GetPosition().y, enem->GetPosition().z };
 		float snappedPos[3];
 		dtPolyRef startPoly;
 		dtStatus qst = navMeshQuery->findNearestPoly(startingPos, halfExtents, &filter, &startPoly, snappedPos);
@@ -1246,7 +1568,8 @@ void GameManager::SetupCamera(unsigned int width, unsigned int height, float del
 			}
 			m_view = m_camera->UpdateCameraLerp(m_camera->GetPosition() + (glm::vec3(0.0f, 1.0f, 0.0f) * m_camera->GetPlayerCamHeightOffset()), m_player->GetPosition() + (m_player->GetPlayerFront() * m_camera->GetPlayerPosOffset()), m_player->GetPlayerFront(), glm::vec3(0.0f, 1.0f, 0.0f), deltaTime);
 
-		} else {
+		}
+		else {
 			//m_camera->SetPitch(45.0f);
 			m_camera->FollowTarget(m_player->GetPosition() + (m_player->GetPlayerFront() * m_camera->GetPlayerPosOffset()), m_player->GetPlayerFront(), m_camera->GetPlayerCamRearOffset(), m_camera->GetPlayerCamHeightOffset());
 			if (m_camera->HasSwitched())
@@ -1298,7 +1621,7 @@ void GameManager::SetupCamera(unsigned int width, unsigned int height, float del
 			//	(m_player->GetPosition())  +
 			//	(m_player->GetPlayerFront() * m_camera->GetPlayerPosOffset()) +
 			//	(m_player->GetPlayerRight() * m_camera->GetPlayerAimRightOffset());
-			
+
 			//if (newPos.y < m_player->GetPosition().y)
 			//newPos.y = m_player->GetPosition().y + m_camera->playerCamHeightOffset;
 
@@ -1324,14 +1647,15 @@ void GameManager::SetupCamera(unsigned int width, unsigned int height, float del
 				m_player->GetPosition() + (m_player->GetPlayerFront() * m_camera->GetPlayerPosOffset()) + (m_player->GetPlayerRight() * m_camera->GetPlayerAimRightOffset()),
 				m_player->GetPlayerFront(), m_player->GetPlayerAimUp(), deltaTime);
 			m_camera->StorePrevCam(m_camera->GetPosition(), target);
-		
-		} else {
+
+		}
+		else {
 
 			glm::vec3 camPos = m_camera->GetPosition();
 
 			m_camera->FollowTarget(m_player->GetPosition() + (m_player->GetPlayerFront() * m_camera->GetPlayerPosOffset()) + (m_player->GetPlayerRight() * m_camera->GetPlayerAimRightOffset()),
 				m_player->GetPlayerFront(), m_camera->GetPlayerAimCamRearOffset(), m_camera->GetPlayerAimCamHeightOffset());
-			
+
 			if (m_camera->HasSwitched())
 				m_camera->StorePrevCam(m_camera->GetPosition() + m_player->GetPlayerAimUp() * m_camera->GetPlayerAimCamHeightOffset(), m_player->GetPosition() + (m_player->GetPlayerFront() * m_camera->GetPlayerPosOffset()) + (m_player->GetPlayerRight() * m_camera->GetPlayerAimRightOffset()) + (m_player->GetPlayerAimUp() * m_camera->GetPlayerAimCamHeightOffset()));
 
@@ -1414,7 +1738,7 @@ void GameManager::ShowCameraControlWindow(Camera& cam)
 	ImGui::Text("Scale");
 	ImGui::DragFloat3("Scale", (float*)&mapScale, mapScale.x, mapScale.y, mapScale.z);
 	ground->SetScale(mapScale);
-	
+
 
 	ImGui::End();
 
@@ -1545,7 +1869,7 @@ void GameManager::SetUpAndRenderNavMesh()
 void GameManager::CreateLightSpaceMatrices()
 {
 	// TODO: Set up light space matrices for shadow mapping based on new model
-	
+
 	glm::vec3 sceneCenter = glm::vec3(500.0f / 2.0f, 0.0f, 500.0f / 2.0f);
 
 	glm::vec3 lightDir = glm::normalize(dirLight.m_direction);
@@ -1876,37 +2200,37 @@ void GameManager::Update(float deltaTime)
 		float halfExtents2[3] = { 50.0f, 10.0f, 50.0f };
 		dtPolyRef playerPoly;
 		float targetPlayerPosOnNavMesh[3];
-		
+
 		navMeshQuery->findNearestPoly(targetPos, halfExtents2, &filter, &playerPoly, targetPlayerPosOnNavMesh);
 		//	Logger::log(1, "Player position: %f %f %f\n", player->getPosition().x, player->getPosition().y, player->getPosition().z);
-		
+
 		std::vector<float* [3]> enemPos;
-		
+
 		float enemyPosition[3] = { e->GetPosition().x, e->GetPosition().y, e->GetPosition().z };
-		
+
 		//DebugNavmeshConnectivity(navMeshQuery, navMesh, filter, targetPos, enemyPosition);
-		
+
 		float randPos[3];
 		dtPolyRef randRef;
-		
+
 		//		findRandomNavMeshPoint(navMeshQuery, &filter, randPos, &randRef);
-		
+
 		dtPolyRef targetPoly;
 		float targetPosOnNavMesh[3];
-		
+
 		float jitterX = ((rand() % 100) / 100.0f - 0.5f) * 10.0f;
 		float jitterZ = ((rand() % 100) / 100.0f - 0.5f) * 10.0f;
-		
+
 		float target[3] = {
 			targetPlayerPosOnNavMesh[0] + jitterX,
 			targetPlayerPosOnNavMesh[1],
 			targetPlayerPosOnNavMesh[2] + jitterZ
 		};
-		
+
 		if (!navMeshQuery)
 		{
 		}
-		
+
 		dtStatus status = navMeshQuery->findNearestPoly(
 			targetPos, halfExtents2, &filter, &targetPoly, targetPlayerPosOnNavMesh
 		);
@@ -1917,9 +2241,9 @@ void GameManager::Update(float deltaTime)
 		if (dtStatusFailed(status)) {
 			continue;
 		}
-		
+
 		bool moveStatus = crowd->requestMoveTarget(e->GetID(), targetPoly, targetPlayerPosOnNavMesh);
-		
+
 		if (!moveStatus) {
 			continue;
 		}
@@ -1931,7 +2255,7 @@ void GameManager::Update(float deltaTime)
 
 	for (Enemy* e : m_enemies)
 	{
-	
+
 		const dtCrowdAgent* agent = crowd->getAgent(e->GetID());
 		float agentPos[3];
 		dtVcopy(agentPos, agent->npos);
@@ -2019,12 +2343,12 @@ void GameManager::Render(bool isMinimapRenderPass, bool isShadowMapRenderPass, b
 	//glDisable(GL_POLYGON_OFFSET_FILL);
 	glBindVertexArray(0);
 	glDisable(GL_CULL_FACE);
-	
-	
+
+
 	//hfnavMeshShader.Use();
 	//hfnavMeshShader.SetMat4("view", m_view);
 	//hfnavMeshShader.SetMat4("projection", m_projection);
-	
+
 	//	glDisable(GL_CULL_FACE);
 	//	//glEnable(GL_CULL_FACE);
 	//	//glCullFace(GL_BACK);
