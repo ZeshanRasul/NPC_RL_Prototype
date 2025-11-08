@@ -610,6 +610,7 @@ void Enemy::Update(bool shouldUseEDBT, bool isPaused, bool isTimeScaled)
 			SetAnimation(GetSourceAnimNum(), animSpeedDivider, 1.0f, false);
 			m_blendFactor = 0.0f;
 		}
+	//	PlayAnimation(m_animNum, 1.0f, 1.0f, false);
 }
 
 void Enemy::OnEvent(const Event& event)
@@ -679,6 +680,10 @@ void Enemy::OnEvent(const Event& event)
 
 void Enemy::SetPosition(glm::vec3 newPos)
 {
+	if (newPos != m_position)
+	{
+		SetAnimNum(0);
+	}
 	m_position = newPos;
 	UpdateAABB();
 	m_recomputeWorldTransform = true;

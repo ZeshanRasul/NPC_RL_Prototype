@@ -1238,7 +1238,7 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 	//navMeshQuery->findNearestPoly(startingPos, halfExtents, &filter, &startPoly, snappedPos);
 	//m_player->SetPosition(glm::vec3(snappedPos[0], snappedPos[1], snappedPos[2]));
 
-	m_player = new Player((glm::vec3(-9.0f, 0.0f, -744.0f)), glm::vec3(5.0f), &playerShader, &playerShadowMapShader, true, this, 0.0f);
+	m_player = new Player((glm::vec3(27.0f, 0.0f, 416.0f)), glm::vec3(5.0f), &playerShader, &playerShadowMapShader, true, this, 0.0f);
 
 	m_player->SetAABBShader(&aabbShader);
 	m_player->SetUpAABB();
@@ -1248,19 +1248,19 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 	std::string texture3 = "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Models/GLTF/Enemies/Ely/ely-vanguardsoldier-kerwinatienza_diffuse_3.png";
 	std::string texture4 = "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Models/GLTF/Enemies/Ely/ely-vanguardsoldier-kerwinatienza_diffuse_4.png";
 
-	m_enemy = new Enemy(glm::vec3(-12.0f, 0.0f, -744.0f), glm::vec3(5.0f), &playerShader, &enemyShadowMapShader, true, this, texture, 0, GetEventManager(), *m_player);
+	m_enemy = new Enemy(glm::vec3(-22.0f, 1.73f, 144.0f), glm::vec3(5.0f), &playerShader, &enemyShadowMapShader, true, this, texture, 0, GetEventManager(), *m_player);
 	m_enemy->SetAABBShader(&aabbShader);
 	m_enemy->SetUpAABB();
 
-	m_enemy2 = new Enemy(glm::vec3(10.0f, 0.0f, -744.0f), glm::vec3(5.0f), &playerShader, &enemyShadowMapShader, true, this, texture2, 1, GetEventManager(), *m_player);
+	m_enemy2 = new Enemy(glm::vec3(20.0f, 1.73f, 144.0f), glm::vec3(5.0f), &playerShader, &enemyShadowMapShader, true, this, texture2, 1, GetEventManager(), *m_player);
 	m_enemy2->SetAABBShader(&aabbShader);
 	m_enemy2->SetUpAABB();
 
-	m_enemy3 = new Enemy(glm::vec3(-18.0f, 0.0f, -744.0f), glm::vec3(5.0f), &playerShader, &enemyShadowMapShader, true, this, texture3, 2, GetEventManager(), *m_player);
+	m_enemy3 = new Enemy(glm::vec3(28.0f, 1.73f, 144.0f), glm::vec3(5.0f), &playerShader, &enemyShadowMapShader, true, this, texture3, 2, GetEventManager(), *m_player);
 	m_enemy3->SetAABBShader(&aabbShader);
 	m_enemy3->SetUpAABB();
 
-	m_enemy4 = new Enemy(glm::vec3(0.0f, 0.0f, -744.0f), glm::vec3(5.0f), &playerShader, &enemyShadowMapShader, true, this, texture4, 3, GetEventManager(), *m_player);
+	m_enemy4 = new Enemy(glm::vec3(-28.0f, 1.73f, 144.0f), glm::vec3(5.0f), &playerShader, &enemyShadowMapShader, true, this, texture4, 3, GetEventManager(), *m_player);
 	m_enemy4->SetAABBShader(&aabbShader);
 	m_enemy4->SetUpAABB();
 
