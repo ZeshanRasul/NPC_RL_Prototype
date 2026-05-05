@@ -469,5 +469,6 @@
     <None Include="src\Shaders\vertex2.glsl" />
     <None Include="src\Shaders\fragment_pbr_skinned.glsl" />
     <None Include="src\Shaders\vertex_pbr_skinned.glsl" />
+    <None Include="src\Shaders\vertex_pbr_skinned_enemy.glsl" />
   </ItemGroup>
 </Project>

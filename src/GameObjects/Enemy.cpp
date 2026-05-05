@@ -421,7 +421,7 @@ void Enemy::GetWeightData()
 			if (stride == 0) stride = elemSize(acc.type, acc.componentType);
 
 			if (acc.type != TINYGLTF_TYPE_VEC4) {
-				Logger::Log(0, "%s: WEIGHTS_0 must be vec4\n", __FUNCTION__);
+				Logger::Log(1, "%s: WEIGHTS_0 must be vec4\n", __FUNCTION__);
 				continue;
 			}
 
@@ -448,7 +448,7 @@ void Enemy::GetWeightData()
 					w = glm::vec4(v[0], v[1], v[2], v[3]) / 65535.0f;
 				} break;
 				default:
-					Logger::Log(0, "%s: unexpected WEIGHTS_0 component type\n", __FUNCTION__);
+					Logger::Log(1, "%s: unexpected WEIGHTS_0 component type\n", __FUNCTION__);
 					continue;
 				}
 
@@ -619,38 +619,47 @@ void Enemy::Update(bool shouldUseEDBT, bool isPaused, bool isTimeScaled)
 		GetGameManager()->GetPhysicsWorld()->RemoveEnemyCollider(GetAABB());
 	}
 
-	if (m_resetBlend)
+	//if (m_resetBlend)
+	//{
+	//	m_blendAnim = true;
+	//	m_blendFactor = 0.0f;
+	//	m_resetBlend = false;
+	//}
+
+	//float animSpeedDivider = 1.0f;
+
+	//if (isPaused)
+	//	animSpeedDivider = 0.0f;
+
+	//if (isTimeScaled)
+	//	animSpeedDivider = 0.25f;
+
+	//if (m_blendAnim)
+	//{
+	//	m_blendFactor += (1.0f - m_blendFactor) * m_blendSpeed * m_dt;
+	//	if (m_blendFactor > 1.0f)
+	//		m_blendFactor = 1.0f;
+	////	SetAnimation(GetSourceAnimNum(), GetDestAnimNum(), animSpeedDivider / 2.0f, m_blendFactor, false);
+	//	if (m_blendFactor >= 1.0f)
+	//	{
+	//		m_blendAnim = false;
+	//		m_blendFactor = 0.0f;
+	//		//SetSourceAnimNum(GetDestAnimNum());
+	//	}
+	//}
+	//else
+	//{
+	////	SetAnimation(GetSourceAnimNum(), animSpeedDivider, 1.0f, false);
+	//	m_blendFactor = 0.0f;
+//	}
+
+	static bool printed = false;
+	if (!printed)
 	{
-		m_blendAnim = true;
-		m_blendFactor = 0.0f;
-		m_resetBlend = false;
-	}
-
-	float animSpeedDivider = 1.0f;
-
-	if (isPaused)
-		animSpeedDivider = 0.0f;
-
-	if (isTimeScaled)
-		animSpeedDivider = 0.25f;
-
-	if (m_blendAnim)
-	{
-		m_blendFactor += (1.0f - m_blendFactor) * m_blendSpeed * m_dt;
-		if (m_blendFactor > 1.0f)
-			m_blendFactor = 1.0f;
-	//	SetAnimation(GetSourceAnimNum(), GetDestAnimNum(), animSpeedDivider / 2.0f, m_blendFactor, false);
-		if (m_blendFactor >= 1.0f)
-		{
-			m_blendAnim = false;
-			m_blendFactor = 0.0f;
-			//SetSourceAnimNum(GetDestAnimNum());
-		}
-	}
-	else
-	{
-	//	SetAnimation(GetSourceAnimNum(), animSpeedDivider, 1.0f, false);
-		m_blendFactor = 0.0f;
+		Logger::Log(1, "Enemy Update running, anim clips = %zu, jointDQs = %zu\n",
+			m_animClips.size(),
+			m_jointDualQuats.size());
+		printed = true;
 	}
 	PlayAnimation(0, 1.0f, 1.0f, false);
 }

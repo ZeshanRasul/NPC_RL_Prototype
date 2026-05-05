@@ -126,8 +126,16 @@ public:
 		if (j >= static_cast<int>(m_jointMatrices.size()) ||
 			j >= static_cast<int>(m_inverseBindMatrices.size()) ||
 			j >= static_cast<int>(m_jointDualQuats.size())) {
-			Logger::Log(0, "%s: joint %d out of range for buffers\n", __FUNCTION__, j);
+			Logger::Log(1, "%s: joint %d out of range for buffers\n", __FUNCTION__, j);
 			return;
+		}
+
+		static int count = 0;
+		if (j >= 0 && count < 20)
+		{
+			Logger::Log(1, "Animated joint update: node %d -> joint %d name %s\n",
+				nodeNum, j, treeNode->GetNodeName().c_str());
+			count++;
 		}
 
 		const glm::mat4 J = treeNode->GetNodeMatrix() * m_inverseBindMatrices[j];
@@ -292,7 +300,7 @@ public:
 					(acc.componentType != TINYGLTF_COMPONENT_TYPE_UNSIGNED_BYTE &&
 						acc.componentType != TINYGLTF_COMPONENT_TYPE_UNSIGNED_SHORT))
 				{
-					Logger::Log(0, "%s: unexpected JOINTS_0 type/compType\n", __FUNCTION__);
+					Logger::Log(1, "%s: unexpected JOINTS_0 type/compType\n", __FUNCTION__);
 					continue;
 				}
 
@@ -321,12 +329,22 @@ public:
 		}
 
 		// Build node->joint map once per skin
+		//const tinygltf::Skin& skin = enemyModel->skins.at(1);
+		//m_nodeToJoint.assign(enemyModel->nodes.size(), -1);
+		//for (int i = 0; i < static_cast<int>(skin.joints.size()); ++i) {
+		//	int jointNode = skin.joints[i];
+		//	if (jointNode >= 0 && jointNode < static_cast<int>(m_nodeToJoint.size()))
+		//		m_nodeToJoint[jointNode] = i;
+		//}
+
 		const tinygltf::Skin& skin = enemyModel->skins.at(1);
+
 		m_nodeToJoint.assign(enemyModel->nodes.size(), -1);
-		for (int i = 0; i < static_cast<int>(skin.joints.size()); ++i) {
+
+		for (int i = 0; i < static_cast<int>(skin.joints.size()); ++i)
+		{
 			int jointNode = skin.joints[i];
-			if (jointNode >= 0 && jointNode < static_cast<int>(m_nodeToJoint.size()))
-				m_nodeToJoint[jointNode] = i;
+			m_nodeToJoint[jointNode] = i;
 		}
 
 		m_inverseBindMatrices.resize(skin.joints.size());
