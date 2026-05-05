@@ -258,6 +258,8 @@ private:
 	Enemy* m_enemy2;
 	Enemy* m_enemy3;
 	Enemy* m_enemy4;
+	Enemy* m_enemy5;
+	Enemy* m_enemy6;
 	Crosshair* m_crosshair;
 	Line* m_playerLine;
 	std::vector<Line*> m_enemyLines;

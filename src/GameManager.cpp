@@ -1264,6 +1264,14 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 	m_enemy4->SetAABBShader(&aabbShader);
 	m_enemy4->SetUpAABB();
 
+	m_enemy5 = new Enemy(glm::vec3(-38.0f, 1.73f, 144.0f), glm::vec3(5.0f), &enemyShader, &enemyShadowMapShader, true, this, texture4, 4, GetEventManager(), *m_player);
+	m_enemy5->SetAABBShader(&aabbShader);
+	m_enemy5->SetUpAABB();
+
+	m_enemy6 = new Enemy(glm::vec3(-48.0f, 1.73f, 144.0f), glm::vec3(5.0f), &enemyShader, &enemyShadowMapShader, true, this, texture4, 5, GetEventManager(), *m_player);
+	m_enemy6->SetAABBShader(&aabbShader);
+	m_enemy6->SetUpAABB();
+
 	m_crosshair = new Crosshair(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.3f), &crosshairShader, &shadowMapShader, false, this);
 	m_crosshair->LoadMesh();
 	m_crosshair->LoadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/Crosshair.png");
@@ -1295,6 +1303,8 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 	m_gameObjects.push_back(m_enemy2);
 	m_gameObjects.push_back(m_enemy3);
 	m_gameObjects.push_back(m_enemy4);
+	m_gameObjects.push_back(m_enemy5);
+	m_gameObjects.push_back(m_enemy6);
 	m_gameObjects.push_back(ground);
 
 	/*for (Cube* coverSpot : coverSpots)
@@ -1306,6 +1316,8 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 	m_enemies.push_back(m_enemy2);
 	m_enemies.push_back(m_enemy3);
 	m_enemies.push_back(m_enemy4);
+	m_enemies.push_back(m_enemy5);
+	m_enemies.push_back(m_enemy6);
 
 	if (m_initializeQTable)
 	{
@@ -1449,7 +1461,7 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 		playerSnappedPos[0], playerSnappedPos[1], playerSnappedPos[2]);
 
 	crowd = dtAllocCrowd();
-	crowd->init(5, AGENT_RADIUS, navMesh);
+	crowd->init(6, AGENT_RADIUS, navMesh);
 
 	//for (auto& enem : m_enemies)
 	//{

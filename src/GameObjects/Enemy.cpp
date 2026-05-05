@@ -19,9 +19,15 @@ Enemy::Enemy(glm::vec3 pos, glm::vec3 scale, Shader* sdr, Shader* shadowMapShade
 
 	m_id = id;
 	enemyModel = new tinygltf::Model;
-
-	std::string modelFilename = "src/Assets/Models/New_Enemies/Armour7/Armor_7_Sci_Fi_Rifle.glb";
-
+	std::string modelFilename;
+	if (id < 4)
+	{
+		modelFilename = "src/Assets/Models/New_Enemies/Armour7/Armor_7_Sci_Fi_Rifle.glb";
+	}
+	else
+	{
+		modelFilename = "src/Assets/Models/New_Enemies/Armour9/Armour9.glb";
+	}
 
 	tinygltf::TinyGLTF gltfLoader;
 	std::string loaderErrors;
@@ -277,8 +283,15 @@ void Enemy::SetupGLTFMeshes(tinygltf::Model* model)
 	GetWeightData();
 	GetInvBindMatrices();
 
-	const tinygltf::Skin& skin = enemyModel->skins.at(1);
-
+	tinygltf::Skin skin;
+	if (m_id < 4)
+	{
+		skin = enemyModel->skins.at(1);
+	}
+	else
+	{
+		skin = enemyModel->skins.at(0);
+	}
 	Logger::Log(1, "Skin joint count = %zu\n", skin.joints.size());
 	Logger::Log(1, "m_inverseBindMatrices = %zu\n", m_inverseBindMatrices.size());
 	Logger::Log(1, "m_jointMatrices = %zu\n", m_jointMatrices.size());

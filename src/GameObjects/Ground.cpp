@@ -22,22 +22,22 @@ void Ground::SetupGLTFMeshes(tinygltf::Model* model)
 	int planeCount = 1;
 	for (size_t meshIndex = 0; meshIndex < model->meshes.size(); ++meshIndex) {
 		const tinygltf::Mesh& mesh = model->meshes[meshIndex];
-			const tinygltf::Value& val = mesh.extras.Get("isBox");
-			const tinygltf::Value& val2 = mesh.extras.Get("isCollider");
-			if (val.IsInt() && val.Get<int>() == 1 && val2.IsInt() && val2.Get<int>() == 1) {
-				Logger::Log(1, "Mesh is a box collider, setting up AABB\n");
-				//aabbMeshVertices.push_back(meshVerts);
-				continue;
-			}
+			//const tinygltf::Value& val = mesh.extras.Get("isBox");
+			//const tinygltf::Value& val2 = mesh.extras.Get("isCollider");
+			//if (val.IsInt() && val.Get<int>() == 1 && val2.IsInt() && val2.Get<int>() == 1) {
+			//	Logger::Log(1, "Mesh is a box collider, setting up AABB\n");
+			//	//aabbMeshVertices.push_back(meshVerts);
+			//	continue;
+			//}
 
-			const tinygltf::Value& planeVal = mesh.extras.Get("isPlane");
-			const tinygltf::Value& planeVal2 = mesh.extras.Get("isCollider");
-			if (planeVal.IsInt() && planeVal.Get<int>() == 1 && planeVal2.IsInt() && planeVal2.Get<int>() == 1) {
-				Logger::Log(1, "Mesh is a plane collider, setting up plane collider\n");
-				//planeData.resize(++planeCount);
-				//planeData.push_back(gltfMesh);
-				continue;
-			}
+			//const tinygltf::Value& planeVal = mesh.extras.Get("isPlane");
+			//const tinygltf::Value& planeVal2 = mesh.extras.Get("isCollider");
+			//if (planeVal.IsInt() && planeVal.Get<int>() == 1 && planeVal2.IsInt() && planeVal2.Get<int>() == 1) {
+			//	Logger::Log(1, "Mesh is a plane collider, setting up plane collider\n");
+			//	//planeData.resize(++planeCount);
+			//	//planeData.push_back(gltfMesh);
+			//	continue;
+			//}
 		GLTFMesh gltfMesh;
 
 
