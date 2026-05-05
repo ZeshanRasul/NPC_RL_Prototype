@@ -260,6 +260,7 @@ private:
 	Enemy* m_enemy4;
 	Enemy* m_enemy5;
 	Enemy* m_enemy6;
+	Enemy* m_enemy7;
 	Crosshair* m_crosshair;
 	Line* m_playerLine;
 	std::vector<Line*> m_enemyLines;
@@ -284,6 +285,7 @@ private:
 	Shader groundShader{};
 	Shader groundShadowShader{};
 	Shader enemyShader{};
+	Shader enemyShader2{};
 	Shader gridShader{};
 	Shader crosshairShader{};
 	Shader lineShader{};

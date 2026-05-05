@@ -800,6 +800,7 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 	playerShader.LoadShaders("src/Shaders/vertex_pbr_skinned.glsl", "src/Shaders/fragment_pbr_skinned.glsl");
 	groundShader.LoadShaders("src/Shaders/vertex2.glsl", "src/Shaders/fragment2.glsl");
 	enemyShader.LoadShaders("src/Shaders/vertex_pbr_skinned_enemy.glsl", "src/Shaders/pbr_fragment_emissive.glsl");
+	enemyShader2.LoadShaders("src/Shaders/vertex.glsl", "src/Shaders/fragment.glsl");
 	gridShader.LoadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/pbr_vertex.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/pbr_fragment.glsl");
 	crosshairShader.LoadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/crosshair_vert.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/crosshair_frag.glsl");
 	//lineShader.LoadShaders("src/Shaders/line_vert.glsl", "src/Shaders/line_frag.glsl");
@@ -1272,6 +1273,10 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 	m_enemy6->SetAABBShader(&aabbShader);
 	m_enemy6->SetUpAABB();
 
+	m_enemy7 = new Enemy(glm::vec3(-48.0f, 1.73f, 164.0f), glm::vec3(0.5f), &enemyShader2, &enemyShadowMapShader, true, this, texture4, 6, GetEventManager(), *m_player);
+	m_enemy7->SetAABBShader(&aabbShader);
+	m_enemy7->SetUpAABB();
+
 	m_crosshair = new Crosshair(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.3f), &crosshairShader, &shadowMapShader, false, this);
 	m_crosshair->LoadMesh();
 	m_crosshair->LoadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/Crosshair.png");
@@ -1305,6 +1310,7 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 	m_gameObjects.push_back(m_enemy4);
 	m_gameObjects.push_back(m_enemy5);
 	m_gameObjects.push_back(m_enemy6);
+	m_gameObjects.push_back(m_enemy7);
 	m_gameObjects.push_back(ground);
 
 	/*for (Cube* coverSpot : coverSpots)
@@ -1318,6 +1324,7 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 	m_enemies.push_back(m_enemy4);
 	m_enemies.push_back(m_enemy5);
 	m_enemies.push_back(m_enemy6);
+	m_enemies.push_back(m_enemy7);
 
 	if (m_initializeQTable)
 	{
@@ -1461,7 +1468,7 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 		playerSnappedPos[0], playerSnappedPos[1], playerSnappedPos[2]);
 
 	crowd = dtAllocCrowd();
-	crowd->init(6, AGENT_RADIUS, navMesh);
+	crowd->init(7, AGENT_RADIUS, navMesh);
 
 	//for (auto& enem : m_enemies)
 	//{

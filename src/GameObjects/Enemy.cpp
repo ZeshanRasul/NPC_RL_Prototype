@@ -24,9 +24,13 @@ Enemy::Enemy(glm::vec3 pos, glm::vec3 scale, Shader* sdr, Shader* shadowMapShade
 	{
 		modelFilename = "src/Assets/Models/New_Enemies/Armour7/Armor_7_Sci_Fi_Rifle.glb";
 	}
-	else
+	else if (id < 6)
 	{
 		modelFilename = "src/Assets/Models/New_Enemies/Armour9/Armour9.glb";
+	}
+	else
+	{
+		modelFilename = "src/Assets/Models/New_Enemies/Drone/Drone.glb";
 	}
 
 	tinygltf::TinyGLTF gltfLoader;
@@ -277,6 +281,12 @@ void Enemy::SetupGLTFMeshes(tinygltf::Model* model)
 		}
 
 		meshData[meshIndex] = gltfMesh;
+	}
+
+	if (m_id == 6)
+	{
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+		return;
 	}
 
 	GetJointData();
@@ -674,7 +684,9 @@ void Enemy::Update(bool shouldUseEDBT, bool isPaused, bool isTimeScaled)
 			m_jointDualQuats.size());
 		printed = true;
 	}
-	PlayAnimation(0, 1.0f, 1.0f, false);
+
+	if (m_id < 6)
+		PlayAnimation(0, 1.0f, 1.0f, false);
 }
 
 void Enemy::OnEvent(const Event& event)
