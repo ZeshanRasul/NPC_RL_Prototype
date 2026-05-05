@@ -197,8 +197,11 @@ public:
 		m_jointMatrices.resize(skin.joints.size());
 		m_jointDualQuats.resize(skin.joints.size());
 
-		std::memcpy(m_inverseBindMatrices.data(), &buffer.data.at(0) + bufferView.byteOffset,
-			bufferView.byteLength);
+		std::memcpy(
+			m_inverseBindMatrices.data(),
+			buffer.data.data() + bufferView.byteOffset + accessor.byteOffset,
+			sizeof(glm::mat4) * accessor.count
+		);
 	}
 
 	int GetJointDualQuatsSize()
@@ -367,11 +370,11 @@ public:
 		int nodeNum = treeNode->GetNodeNum();
 		std::vector<int> childNodes = enemyModel->nodes.at(nodeNum).children;
 
-		/* remove the child node with skin/mesh metadata, confuses skeleton */
-		auto removeIt = std::remove_if(childNodes.begin(), childNodes.end(),
-			[&](int num) { return enemyModel->nodes.at(num).skin != -1; }
-		);
-		childNodes.erase(removeIt, childNodes.end());
+//		/* remove the child node with skin/mesh metadata, confuses skeleton */
+//		auto removeIt = std::remove_if(childNodes.begin(), childNodes.end(),
+//			[&](int num) { return enemyModel->nodes.at(num).skin != -1; }
+//		);
+//		childNodes.erase(removeIt, childNodes.end());
 
 		treeNode->AddChilds(childNodes);
 		glm::mat4 treeNodeMatrix = treeNode->GetNodeMatrix();
@@ -708,4 +711,10 @@ private:
 	NodeStatus Patrol();
 	NodeStatus InCoverAction();
 	NodeStatus Die();
+
+	std::map<std::string, GLint> m_enemyModelAttributes =
+	{
+		{"POSITION", 0}, {"NORMAL", 1}, {"TEXCOORD_0", 2}, {"JOINTS_0", 4}, {"WEIGHTS_0", 5},
+		{"TANGENT", 6}
+	};
 };

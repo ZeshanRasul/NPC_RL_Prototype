@@ -10,7 +10,7 @@
 
 Enemy::Enemy(glm::vec3 pos, glm::vec3 scale, Shader* sdr, Shader* shadowMapShader, bool applySkinning,
 	GameManager* gameMgr, std::string texFilename, int id, EventManager& eventManager, Player& player,
-	float yaw) : GameObject(pos, scale, yaw, sdr, shadowMapShader, applySkinning, gameMgr),m_player(player),
+	float yaw) : GameObject(pos, scale, yaw, sdr, shadowMapShader, applySkinning, gameMgr), m_player(player),
 	m_initialPosition(pos), m_id(id), m_eventManager(eventManager),
 	m_health(100.0f), m_isPlayerDetected(false), m_isPlayerVisible(false), m_isPlayerInRange(false),
 	m_isTakingDamage(false), m_isDead(false), m_isInCover(false), m_isSeekingCover(false), m_isTakingCover(false)
@@ -20,7 +20,7 @@ Enemy::Enemy(glm::vec3 pos, glm::vec3 scale, Shader* sdr, Shader* shadowMapShade
 	m_id = id;
 	enemyModel = new tinygltf::Model;
 
-	std::string modelFilename = "src/Assets/Models/New_Enemies/Armour7/First.gltf";
+	std::string modelFilename = "src/Assets/Models/New_Enemies/Armour7/Armor_7_Sci_Fi_Rifle.glb";
 
 
 	tinygltf::TinyGLTF gltfLoader;
@@ -28,7 +28,7 @@ Enemy::Enemy(glm::vec3 pos, glm::vec3 scale, Shader* sdr, Shader* shadowMapShade
 	std::string loaderWarnings;
 	bool result = false;
 
-	result = gltfLoader.LoadASCIIFromFile(enemyModel, &loaderErrors, &loaderWarnings,
+	result = gltfLoader.LoadBinaryFromFile(enemyModel, &loaderErrors, &loaderWarnings,
 		modelFilename);
 
 	if (!loaderWarnings.empty()) {
@@ -65,6 +65,8 @@ Enemy::Enemy(glm::vec3 pos, glm::vec3 scale, Shader* sdr, Shader* shadowMapShade
 	//m_model->uploadIndexBuffer();
 	//Logger::Log(1, "%s: glTF m_model '%s' successfully loaded\n", __FUNCTION__, modelFilename.c_str());
 	//
+
+
 	size_t enemyModelJointDualQuatBufferSize = GetJointDualQuatsSize() *
 		sizeof(glm::mat2x4);
 	m_enemyDualQuatSsBuffer.Init(enemyModelJointDualQuatBufferSize);
@@ -107,7 +109,7 @@ void Enemy::SetUpModel()
 		sizeof(glm::mat2x4);
 	m_enemyDualQuatSsBuffer.Init(enemyModelJointDualQuatBufferSize);
 	Logger::Log(1, "%s: glTF joint dual quaternions shader storage buffer (size %i bytes) successfully created\n",
-	            __FUNCTION__, enemyModelJointDualQuatBufferSize);
+		__FUNCTION__, enemyModelJointDualQuatBufferSize);
 }
 
 void Enemy::SetupGLTFMeshes(tinygltf::Model* model)
@@ -177,11 +179,29 @@ void Enemy::SetupGLTFMeshes(tinygltf::Model* model)
 					GLint numComponents = tinygltf::GetNumComponentsInType(accessor.type); // e.g. VEC3 -> 3
 					GLenum glType = accessor.componentType; // GL_FLOAT, GL_UNSIGNED_SHORT, etc.
 
-					glEnableVertexAttribArray(location);
-					glVertexAttribPointer(location, numComponents, glType,
-						accessor.normalized ? GL_TRUE : GL_FALSE,
-						bufferView.byteStride ? bufferView.byteStride : 0,
-						(const void*)0);
+					if (attribName == "JOINTS_0")
+					{
+						glEnableVertexAttribArray(location);
+						glVertexAttribIPointer(
+							location,
+							numComponents,
+							glType,
+							bufferView.byteStride ? bufferView.byteStride : 0,
+							(const void*)0
+						);
+					}
+					else
+					{
+						glEnableVertexAttribArray(location);
+						glVertexAttribPointer(
+							location,
+							numComponents,
+							glType,
+							accessor.normalized ? GL_TRUE : GL_FALSE,
+							bufferView.byteStride ? bufferView.byteStride : 0,
+							(const void*)0
+						);
+					}
 				}
 
 
@@ -534,83 +554,83 @@ void Enemy::DrawObject(glm::mat4 viewMat, glm::mat4 proj, bool shadowMap, glm::m
 
 void Enemy::Update(bool shouldUseEDBT, bool isPaused, bool isTimeScaled)
 {
-//	if (!m_isDead || !m_isDestroyed)
-//	{
-//		if (shouldUseEDBT)
-//		{
-//#ifdef TRACY_ENABLE
-//			ZoneScopedN("EDBT Update");
-//#endif
-//			float playerEnemyDistance = glm::distance(GetPosition(), m_player.GetPosition());
-//			if (playerEnemyDistance < 35.0f && !IsPlayerDetected())
-//			{
-//				DetectPlayer();
-//			}
-//
-//			m_behaviorTree_->Tick();
-//
-//
-//			if (enemyHasShot)
-//			{
-//				enemyRayDebugRenderTimer -= dt_;
-//				enemyShootCooldown -= dt_;
-//			}
-//			if (enemyShootCooldown <= 0.0f)
-//			{
-//				enemyHasShot = false;
-//			}
-//
-//			if (shootAudioCooldown > 0.0f)
-//			{
-//				shootAudioCooldown -= dt_;
-//			}
-//		}
-//		else
-//		{
-//			decisionDelayTimer -= dt_;
-//		}
-
-//	}
-		if (m_isDestroyed)
+	if (!m_isDead || !m_isDestroyed)
+	{
+		if (shouldUseEDBT)
 		{
-			GetGameManager()->GetPhysicsWorld()->RemoveCollider(GetAABB());
-			GetGameManager()->GetPhysicsWorld()->RemoveEnemyCollider(GetAABB());
-		}
-
-		if (m_resetBlend)
-		{
-			m_blendAnim = true;
-			m_blendFactor = 0.0f;
-			m_resetBlend = false;
-		}
-
-		float animSpeedDivider = 1.0f;
-
-		if (isPaused)
-			animSpeedDivider = 0.0f;
-
-		if (isTimeScaled)
-			animSpeedDivider = 0.25f;
-
-		if (m_blendAnim)
-		{
-			m_blendFactor += (1.0f - m_blendFactor) * m_blendSpeed * m_dt;
-			if (m_blendFactor > 1.0f)
-				m_blendFactor = 1.0f;
-			SetAnimation(GetSourceAnimNum(), GetDestAnimNum(), animSpeedDivider / 2.0f, m_blendFactor, false);
-			if (m_blendFactor >= 1.0f)
+#ifdef TRACY_ENABLE
+			ZoneScopedN("EDBT Update");
+#endif
+			float playerEnemyDistance = glm::distance(GetPosition(), m_player.GetPosition());
+			if (playerEnemyDistance < 35.0f && !IsPlayerDetected())
 			{
-				m_blendAnim = false;
-				m_blendFactor = 0.0f;
-				//SetSourceAnimNum(GetDestAnimNum());
+				DetectPlayer();
+			}
+
+			m_behaviorTree->Tick();
+
+
+			if (m_enemyHasShot)
+			{
+				m_enemyRayDebugRenderTimer -= m_dt;
+				m_enemyShootCooldown -= m_dt;
+			}
+			if (m_enemyShootCooldown <= 0.0f)
+			{
+				m_enemyHasShot = false;
+			}
+
+			if (m_shootAudioCooldown > 0.0f)
+			{
+				m_shootAudioCooldown -= m_dt;
 			}
 		}
 		else
 		{
-			SetAnimation(GetSourceAnimNum(), animSpeedDivider, 1.0f, false);
-			m_blendFactor = 0.0f;
+			m_decisionDelayTimer -= m_dt;
 		}
-	//	PlayAnimation(m_animNum, 1.0f, 1.0f, false);
+
+	}
+	if (m_isDestroyed)
+	{
+		GetGameManager()->GetPhysicsWorld()->RemoveCollider(GetAABB());
+		GetGameManager()->GetPhysicsWorld()->RemoveEnemyCollider(GetAABB());
+	}
+
+	if (m_resetBlend)
+	{
+		m_blendAnim = true;
+		m_blendFactor = 0.0f;
+		m_resetBlend = false;
+	}
+
+	float animSpeedDivider = 1.0f;
+
+	if (isPaused)
+		animSpeedDivider = 0.0f;
+
+	if (isTimeScaled)
+		animSpeedDivider = 0.25f;
+
+	if (m_blendAnim)
+	{
+		m_blendFactor += (1.0f - m_blendFactor) * m_blendSpeed * m_dt;
+		if (m_blendFactor > 1.0f)
+			m_blendFactor = 1.0f;
+	//	SetAnimation(GetSourceAnimNum(), GetDestAnimNum(), animSpeedDivider / 2.0f, m_blendFactor, false);
+		if (m_blendFactor >= 1.0f)
+		{
+			m_blendAnim = false;
+			m_blendFactor = 0.0f;
+			//SetSourceAnimNum(GetDestAnimNum());
+		}
+	}
+	else
+	{
+	//	SetAnimation(GetSourceAnimNum(), animSpeedDivider, 1.0f, false);
+		m_blendFactor = 0.0f;
+	}
+	PlayAnimation(0, 1.0f, 1.0f, false);
 }
 
 void Enemy::OnEvent(const Event& event)
@@ -642,7 +662,7 @@ void Enemy::OnEvent(const Event& event)
 		m_allyHasDied = true;
 		m_numDeadAllies++;
 		std::random_device rd;
-		std::mt19937 gen{rd()};
+		std::mt19937 gen{ rd() };
 		std::uniform_int_distribution<> distrib(1, 3);
 		int randomIndex = distrib(gen);
 		std::uniform_real_distribution<> distribReal(2.0, 3.0);
@@ -925,7 +945,7 @@ void Enemy::Shoot()
 	if (m_shootAudioCooldown <= 0.0f)
 	{
 		std::random_device rd;
-		std::mt19937 gen{rd()};
+		std::mt19937 gen{ rd() };
 		std::uniform_int_distribution<> distrib(1, 3);
 		int randomIndex = distrib(gen);
 		std::uniform_real_distribution<> distribReal(2.0, 3.0);
@@ -980,7 +1000,7 @@ void Enemy::OnHit()
 	m_isTakingDamage = true;
 	//m_takeDamageAc->PlayEvent("event:/EnemyTakeDamage");
 	std::random_device rd;
-	std::mt19937 gen{rd()};
+	std::mt19937 gen{ rd() };
 	std::uniform_int_distribution<> distrib(1, 3);
 	int randomIndex = distrib(gen);
 	std::uniform_real_distribution<> distribReal(2.0, 3.0);
@@ -1002,7 +1022,7 @@ void Enemy::OnHit()
 	Speak(clipName, 2.0f, randomFloat);
 
 	m_damageTimer = 0.2f;
-	m_eventManager.Publish(NPCDamagedEvent{m_id});
+	m_eventManager.Publish(NPCDamagedEvent{ m_id });
 }
 
 void Enemy::TakeDamage(float damage)
@@ -1040,7 +1060,7 @@ void Enemy::OnDeath()
 	}
 	//m_deathAc->PlayEvent("event:/EnemyDeath");
 	std::random_device rd;
-	std::mt19937 gen{rd()};
+	std::mt19937 gen{ rd() };
 	std::uniform_int_distribution<> distrib(1, 3);
 	int randomIndex = distrib(gen);
 	std::uniform_real_distribution<> distribReal(2.0, 3.0);
@@ -1060,7 +1080,7 @@ void Enemy::OnDeath()
 		std::to_string(randomIndex);
 	Speak(clipName, 3.0f, randomFloat);
 	m_hasDied = true;
-	m_eventManager.Publish(NPCDiedEvent{m_id});
+	m_eventManager.Publish(NPCDiedEvent{ m_id });
 	m_isDead = true;
 	m_isDestroyed = true;
 }
@@ -1094,7 +1114,7 @@ glm::vec3 Enemy::SelectRandomWaypoint(const glm::vec3& currentWaypoint, const st
 
 	// Select a random way point from the available way points
 	std::random_device rd;
-	std::mt19937 gen{rd()};
+	std::mt19937 gen{ rd() };
 	std::uniform_int_distribution<> distrib(0, (int)availableWaypoints.size() - 1);
 	int randomIndex = distrib(gen);
 	return availableWaypoints[randomIndex];
@@ -1107,7 +1127,7 @@ glm::vec3 Enemy::SelectRandomWaypoint(const glm::vec3& currentWaypoint, const st
 void Enemy::HasDealtDamage()
 {
 	std::random_device rd;
-	std::mt19937 gen{rd()};
+	std::mt19937 gen{ rd() };
 	std::uniform_int_distribution<> distrib(1, 2);
 	int randomIndex = distrib(gen);
 	std::uniform_real_distribution<> distribReal(2.0, 3.0);
@@ -1234,9 +1254,9 @@ void Enemy::BuildBehaviorTree()
 	auto suppressionFireSequence = std::make_shared<SequenceNode>();
 	suppressionFireSequence->AddChild(std::make_shared<ConditionNode>([this]() { return !IsHealthZeroOrBelow(); }));
 	suppressionFireSequence->AddChild(std::make_shared<ConditionNode>([this]()
-	{
-		return ShouldProvideSuppressionFire();
-	}));
+		{
+			return ShouldProvideSuppressionFire();
+		}));
 
 	// Player Detected Selector: Player Visible or Not Visible
 	auto playerDetectedSelector = std::make_shared<SelectorNode>();
@@ -1321,7 +1341,7 @@ void Enemy::DetectPlayer()
 {
 	m_isPlayerDetected = true;
 	std::random_device rd;
-	std::mt19937 gen{rd()};
+	std::mt19937 gen{ rd() };
 	std::uniform_int_distribution<> distrib(1, 3);
 	int randomIndex = distrib(gen);
 	std::uniform_real_distribution<> distribReal(2.0, 3.0);
@@ -1341,7 +1361,7 @@ void Enemy::DetectPlayer()
 		std::to_string(randomIndex);
 	Speak(clipName, 5.0f, randomFloat);
 
-	m_eventManager.Publish(PlayerDetectedEvent{m_id});
+	m_eventManager.Publish(PlayerDetectedEvent{ m_id });
 }
 
 bool Enemy::IsDead()
@@ -1451,7 +1471,7 @@ NodeStatus Enemy::EnterDyingState()
 	}
 
 	m_isDead = true;
-	m_eventManager.Publish(NPCDiedEvent{m_id});
+	m_eventManager.Publish(NPCDiedEvent{ m_id });
 	return NodeStatus::Success;
 }
 
@@ -1487,7 +1507,7 @@ NodeStatus Enemy::AttackShoot()
 		if (m_startingSuppressionFire)
 		{
 			std::random_device rd;
-			std::mt19937 gen{rd()};
+			std::mt19937 gen{ rd() };
 			std::uniform_int_distribution<> distrib(1, 3);
 			int randomIndex = distrib(gen);
 			std::uniform_real_distribution<> distribReal(2.0, 3.0);
@@ -1567,7 +1587,7 @@ NodeStatus Enemy::AttackChasePlayer()
 		if (m_playNotVisibleAudio)
 		{
 			std::random_device rd;
-			std::mt19937 gen{rd()};
+			std::mt19937 gen{ rd() };
 			std::uniform_int_distribution<> distrib(1, 3);
 			int randomIndex = distrib(gen);
 			std::uniform_real_distribution<> distribReal(2.0, 3.0);
@@ -1616,7 +1636,7 @@ NodeStatus Enemy::TakeCover()
 	if (!m_isTakingCover)
 	{
 		std::random_device rd;
-		std::mt19937 gen{rd()};
+		std::mt19937 gen{ rd() };
 		std::uniform_int_distribution<> distrib(1, 4);
 		int randomIndex = distrib(gen);
 		std::uniform_real_distribution<> distribReal(2.0, 3.0);
@@ -1637,7 +1657,7 @@ NodeStatus Enemy::TakeCover()
 			std::to_string(randomIndex);
 		Speak(clipName, 5.0f, randomFloat);
 
-		m_eventManager.Publish(NPCTakingCoverEvent{m_id});
+		m_eventManager.Publish(NPCTakingCoverEvent{ m_id });
 	}
 
 	m_isTakingCover = true;
@@ -1677,7 +1697,7 @@ NodeStatus Enemy::EnterInCoverState()
 	m_isTakingCover = false;
 	m_coverTimer = 0.0f;
 	std::random_device rd;
-	std::mt19937 gen{rd()};
+	std::mt19937 gen{ rd() };
 	std::uniform_int_distribution<> distrib(1, 2);
 	int randomIndex = distrib(gen);
 	std::uniform_real_distribution<> distribReal(2.0, 3.0);
@@ -1708,7 +1728,7 @@ NodeStatus Enemy::Patrol()
 
 	if (m_reachedDestination == false)
 	{
-		
+
 		VacatePreviousCell();
 
 		//for (glm::ivec2& cell : m_currentPath)
@@ -1727,7 +1747,7 @@ NodeStatus Enemy::Patrol()
 	}
 	else
 	{
-		
+
 		VacatePreviousCell();
 
 		m_reachedDestination = false;
@@ -1761,7 +1781,7 @@ NodeStatus Enemy::InCoverAction()
 		{
 			m_isInCover = false;
 			std::random_device rd;
-			std::mt19937 gen{rd()};
+			std::mt19937 gen{ rd() };
 			std::uniform_int_distribution<> distrib(1, 2);
 			int randomIndex = distrib(gen);
 			std::uniform_real_distribution<> distribReal(0.0f, 2.0f);
@@ -1818,7 +1838,7 @@ NodeStatus Enemy::Die()
 	m_isDead = true;
 	m_isDestroyed = true;
 	m_state = "Dead";
-	m_eventManager.Publish(NPCDiedEvent{m_id});
+	m_eventManager.Publish(NPCDiedEvent{ m_id });
 	return NodeStatus::Success;
 }
 

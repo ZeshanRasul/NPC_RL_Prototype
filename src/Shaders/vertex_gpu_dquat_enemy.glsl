@@ -2,9 +2,8 @@
 layout (location = 0) in vec3 aPos;
 layout (location = 1) in vec3 aNormal;
 layout (location = 2) in vec2 aTexCoord;
-layout (location = 4) in vec4 aJointNum;
-layout (location = 5) in vec4 aJointWeight;
-layout (location = 6) in vec3 aTangent;
+layout (location = 3) in uvec4 aJointNum;
+layout (location = 4) in vec4 aJointWeight;
 
 out vec2 TexCoords;
 out vec3 WorldPos;
@@ -25,7 +24,7 @@ layout (std430, binding = 2) readonly buffer JointDualQuats {
 uniform vec3 lightPos;
 uniform vec3 viewPos;
 
-mat2x4 getJointTransform(ivec4 joints, vec4 weights) {
+mat2x4 getJointTransform(uvec4 joints, vec4 weights) {
   // read dual quaterions from buffer
   mat2x4 dq0 = jointDQs[joints.x];
   mat2x4 dq1 = jointDQs[joints.y];
@@ -50,7 +49,7 @@ mat2x4 getJointTransform(ivec4 joints, vec4 weights) {
 }
 
 mat4 skinMat() {
-  mat2x4 bone = getJointTransform(ivec4(aJointNum), aJointWeight);
+  mat2x4 bone = getJointTransform(aJointNum, aJointWeight);
 
   vec4 r = bone[0]; // rotation
   vec4 t = bone[1]; // translation

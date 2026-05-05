@@ -20,24 +20,24 @@ bool GltfModel::LoadModelNoAnim(std::string modelFilename)
 	bool result = false;
 
 	result = gltfLoader.LoadASCIIFromFile(m_model.get(), &loaderErrors, &loaderWarnings,
-	                                      modelFilename);
+		modelFilename);
 
 	if (!loaderWarnings.empty())
 	{
 		Logger::Log(1, "%s: warnings while loading glTF model:\n%s\n", __FUNCTION__,
-		            loaderWarnings.c_str());
+			loaderWarnings.c_str());
 	}
 
 	if (!loaderErrors.empty())
 	{
 		Logger::Log(1, "%s: errors while loading glTF model:\n%s\n", __FUNCTION__,
-		            loaderErrors.c_str());
+			loaderErrors.c_str());
 	}
 
 	if (!result)
 	{
 		Logger::Log(1, "%s error: could not load file '%s'\n", __FUNCTION__,
-		            modelFilename.c_str());
+			modelFilename.c_str());
 		return false;
 	}
 
@@ -64,24 +64,24 @@ bool GltfModel::LoadModel(std::string modelFilename, bool isEnemy)
 	bool result = false;
 
 	result = gltfLoader.LoadASCIIFromFile(m_model.get(), &loaderErrors, &loaderWarnings,
-	                                      modelFilename);
+		modelFilename);
 
 	if (!loaderWarnings.empty())
 	{
 		Logger::Log(1, "%s: warnings while loading glTF model:\n%s\n", __FUNCTION__,
-		            loaderWarnings.c_str());
+			loaderWarnings.c_str());
 	}
 
 	if (!loaderErrors.empty())
 	{
 		Logger::Log(1, "%s: errors while loading glTF model:\n%s\n", __FUNCTION__,
-		            loaderErrors.c_str());
+			loaderErrors.c_str());
 	}
 
 	if (!result)
 	{
 		Logger::Log(1, "%s error: could not load file '%s'\n", __FUNCTION__,
-		            modelFilename.c_str());
+			modelFilename.c_str());
 		return false;
 	}
 
@@ -131,7 +131,7 @@ Texture GltfModel::LoadTexture(std::string textureFilename, bool flip)
 		Logger::Log(1, "%s: texture loading failed\n", __FUNCTION__);
 	}
 	Logger::Log(1, "%s: glTF model texture '%s' successfully loaded\n", __FUNCTION__,
-	            textureFilename.c_str());
+		textureFilename.c_str());
 
 	return m_tex;
 }
@@ -167,7 +167,7 @@ void GltfModel::CreateVertexBuffers(bool isEnemy)
 		}
 
 		Logger::Log(1, "%s: data for %s uses accessor %i\n", __FUNCTION__, attribType.c_str(),
-		            accessorNum);
+			accessorNum);
 
 		if (attribType.compare("POSITION") == 0) {
 			int numPositionEntries = accessor.count;
@@ -310,7 +310,7 @@ void GltfModel::CreateVertexBuffers(bool isEnemy)
 			break;
 		default:
 			Logger::Log(1, "%s error: accessor %i uses data size %i\n", __FUNCTION__,
-			            accessorNum, accessor.type);
+				accessorNum, accessor.type);
 			break;
 		}
 
@@ -338,7 +338,7 @@ void GltfModel::CreateVertexBuffers(bool isEnemy)
 			glBindBuffer(GL_ARRAY_BUFFER, m_vertexVbo.at(m_enemyAttributes.at(attribType)));
 
 			glVertexAttribPointer(m_enemyAttributes.at(attribType), dataSize, dataType, GL_FALSE,
-			                      0, static_cast<void*>(nullptr));
+				0, static_cast<void*>(nullptr));
 			glEnableVertexAttribArray(m_enemyAttributes.at(attribType));
 
 			if (attribType == "WEIGHTS_0")
@@ -365,7 +365,7 @@ void GltfModel::CreateVertexBuffers(bool isEnemy)
 			glBindBuffer(GL_ARRAY_BUFFER, m_vertexVbo.at(m_attributes.at(attribType)));
 
 			glVertexAttribPointer(m_attributes.at(attribType), dataSize, dataType, GL_FALSE,
-			                      0, static_cast<void*>(nullptr));
+				0, static_cast<void*>(nullptr));
 			glEnableVertexAttribArray(m_attributes.at(attribType));
 
 			if (attribType == "WEIGHTS_0")
@@ -404,7 +404,7 @@ void GltfModel::uploadVertexBuffers()
 
 		glBindBuffer(GL_ARRAY_BUFFER, m_vertexVbo.at(i));
 		glBufferData(GL_ARRAY_BUFFER, bufferView.byteLength,
-		             &buffer.data.at(0) + bufferView.byteOffset, GL_STATIC_DRAW);
+			&buffer.data.at(0) + bufferView.byteOffset, GL_STATIC_DRAW);
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 	}
 }
@@ -430,7 +430,7 @@ void GltfModel::uploadEnemyVertexBuffers() {
 
 		glBindBuffer(GL_ARRAY_BUFFER, m_vertexVbo.at(i));
 		glBufferData(GL_ARRAY_BUFFER, bufferView.byteLength,
-		             &buffer.data.at(0) + bufferView.byteOffset, GL_STATIC_DRAW);
+			&buffer.data.at(0) + bufferView.byteOffset, GL_STATIC_DRAW);
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 	}
 }
@@ -446,7 +446,7 @@ void GltfModel::uploadVertexBuffersNoAnimations()
 
 		glBindBuffer(GL_ARRAY_BUFFER, m_vertexVbo.at(i));
 		glBufferData(GL_ARRAY_BUFFER, bufferView.byteLength,
-		             &buffer.data.at(0) + bufferView.byteOffset, GL_STATIC_DRAW);
+			&buffer.data.at(0) + bufferView.byteOffset, GL_STATIC_DRAW);
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 	}
 }
@@ -461,7 +461,7 @@ void GltfModel::uploadIndexBuffer()
 
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_indexVbo);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, indexBufferView.byteLength,
-	             &indexBuffer.data.at(0) + indexBufferView.byteOffset, GL_STATIC_DRAW);
+		&indexBuffer.data.at(0) + indexBufferView.byteOffset, GL_STATIC_DRAW);
 }
 
 int GltfModel::getJointMatrixSize()
@@ -507,7 +507,7 @@ void GltfModel::GetAnimations()
 	for (const auto& anim : m_model->animations)
 	{
 		Logger::Log(1, "%s: loading animation '%s' with %i channels\n", __FUNCTION__, anim.name.c_str(),
-		            anim.channels.size());
+			anim.channels.size());
 		auto clip = std::make_shared<GltfAnimationClip>(anim.name);
 		for (const auto& channel : anim.channels)
 		{
@@ -524,35 +524,35 @@ void GltfModel::PlayAnimation(int animNum, float speedDivider, float blendFactor
 	if (playBackwards)
 	{
 		BlendAnimationFrame(animNum, m_animClips.at(animNum)->GetClipEndTime() -
-		                    std::fmod(currentTime / 1000.0 * speedDivider,
-		                              m_animClips.at(animNum)->GetClipEndTime()), blendFactor);
+			std::fmod(currentTime / 1000.0 * speedDivider,
+				m_animClips.at(animNum)->GetClipEndTime()), blendFactor);
 	}
 	else
 	{
 		BlendAnimationFrame(animNum, std::fmod(currentTime / 1000.0 * speedDivider,
-		                                       m_animClips.at(animNum)->GetClipEndTime()), blendFactor);
+			m_animClips.at(animNum)->GetClipEndTime()), blendFactor);
 	}
 }
 
 void GltfModel::PlayAnimation(int sourceAnimNumber, int destAnimNumber,
-                              float speedDivider, float blendFactor, bool playBackwards)
+	float speedDivider, float blendFactor, bool playBackwards)
 {
-	double currentTime = std::chrono::duration_cast<std::chrono::milliseconds>(
+	double currenttime = std::chrono::duration_cast<std::chrono::milliseconds>(
 		std::chrono::steady_clock::now().time_since_epoch()).count();
 
-	if (playBackwards)
-	{
-		CrossBlendAnimationFrame(sourceAnimNumber, destAnimNumber,
-		                         m_animClips.at(sourceAnimNumber)->GetClipEndTime() -
-		                         std::fmod(currentTime / 1000.0 * speedDivider,
-		                                   m_animClips.at(sourceAnimNumber)->GetClipEndTime()), blendFactor);
-	}
-	else
-	{
-		CrossBlendAnimationFrame(sourceAnimNumber, destAnimNumber,
-		                         std::fmod(currentTime / 1000.0 * speedDivider,
-		                                   m_animClips.at(sourceAnimNumber)->GetClipEndTime()), blendFactor);
-	}
+	//if (playbackwards)
+	//{
+	//	crossblendanimationframe(sourceanimnumber, destanimnumber,
+	//		m_animclips.at(sourceanimnumber)->getclipendtime() -
+	//		std::fmod(currenttime / 1000.0 * speeddivider,
+	//			m_animclips.at(sourceanimnumber)->getclipendtime()), blendfactor);
+	//}
+	//else
+	//{
+	//	crossblendanimationframe(sourceanimnumber, destanimnumber,
+	//		std::fmod(currenttime / 1000.0 * speeddivider,
+	//			m_animclips.at(sourceanimnumber)->getclipendtime()), blendfactor);
+	//}
 }
 
 void GltfModel::BlendAnimationFrame(int animNum, float time, float blendFactor)
@@ -562,7 +562,7 @@ void GltfModel::BlendAnimationFrame(int animNum, float time, float blendFactor)
 }
 
 void GltfModel::CrossBlendAnimationFrame(int sourceAnimNumber, int destAnimNumber, float time,
-                                         float blendFactor)
+	float blendFactor)
 {
 	float sourceAnimDuration = m_animClips.at(sourceAnimNumber)->GetClipEndTime();
 	float destAnimDuration = m_animClips.at(destAnimNumber)->GetClipEndTime();
@@ -644,7 +644,7 @@ void GltfModel::GetJointData() {
 	m_jointVec.resize(jointVecSize);
 
 	std::memcpy(m_jointVec.data(), &buffer.data.at(0) + bufferView.byteOffset,
-	            bufferView.byteLength);
+		bufferView.byteLength);
 
 	m_nodeToJoint.resize(m_model->nodes.size());
 
@@ -673,7 +673,7 @@ void GltfModel::GetWeightData()
 	m_weightVec.resize(weightVecSize);
 
 	std::memcpy(m_weightVec.data(), &buffer.data.at(0) + bufferView.byteOffset,
-	            bufferView.byteLength);
+		bufferView.byteLength);
 }
 
 void GltfModel::GetInvBindMatrices()
@@ -690,7 +690,7 @@ void GltfModel::GetInvBindMatrices()
 	m_jointDualQuats.resize(skin.joints.size());
 
 	std::memcpy(m_inverseBindMatrices.data(), &buffer.data.at(0) + bufferView.byteOffset,
-	            bufferView.byteLength);
+		bufferView.byteLength);
 }
 
 void GltfModel::GetNodes(std::shared_ptr<GltfNode> treeNode)
@@ -700,7 +700,7 @@ void GltfModel::GetNodes(std::shared_ptr<GltfNode> treeNode)
 
 	/* remove the child node with skin/mesh metadata, confuses skeleton */
 	auto removeIt = std::remove_if(childNodes.begin(), childNodes.end(),
-	                               [&](int num) { return m_model->nodes.at(num).skin != -1; }
+		[&](int num) { return m_model->nodes.at(num).skin != -1; }
 	);
 	childNodes.erase(removeIt, childNodes.end());
 
@@ -794,7 +794,7 @@ void GltfModel::UpdateJointMatricesAndQuats(std::shared_ptr<GltfNode> treeNode)
 
 	/* create dual quaternion */
 	if (decompose(m_jointMatrices.at(m_nodeToJoint.at(nodeNum)), scale, orientation,
-	              translation, skew, perspective))
+		translation, skew, perspective))
 	{
 		dq[0] = orientation;
 		dq[1] = glm::quat(0.0, translation.x, translation.y, translation.z) * orientation * 0.5f;
