@@ -186,7 +186,7 @@ public:
 
 	void GetInvBindMatrices()
 	{
-		const tinygltf::Skin& skin = enemyModel->skins.at(0);
+		const tinygltf::Skin& skin = enemyModel->skins.at(1);
 		int invBindMatAccessor = skin.inverseBindMatrices;
 
 		const tinygltf::Accessor& accessor = enemyModel->accessors.at(invBindMatAccessor);
@@ -321,7 +321,7 @@ public:
 		}
 
 		// Build node->joint map once per skin
-		const tinygltf::Skin& skin = enemyModel->skins.at(0);
+		const tinygltf::Skin& skin = enemyModel->skins.at(1);
 		m_nodeToJoint.assign(enemyModel->nodes.size(), -1);
 		for (int i = 0; i < static_cast<int>(skin.joints.size()); ++i) {
 			int jointNode = skin.joints[i];

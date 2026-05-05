@@ -277,10 +277,32 @@ void Enemy::SetupGLTFMeshes(tinygltf::Model* model)
 	GetWeightData();
 	GetInvBindMatrices();
 
+	const tinygltf::Skin& skin = enemyModel->skins.at(1);
+
+	Logger::Log(1, "Skin joint count = %zu\n", skin.joints.size());
+	Logger::Log(1, "m_inverseBindMatrices = %zu\n", m_inverseBindMatrices.size());
+	Logger::Log(1, "m_jointMatrices = %zu\n", m_jointMatrices.size());
+	Logger::Log(1, "m_jointDualQuats = %zu\n", m_jointDualQuats.size());
+
+	for (size_t i = 0; i < skin.joints.size(); ++i)
+	{
+		Logger::Log(1, "skin joint[%zu] node = %d name = %s\n",
+			i,
+			skin.joints[i],
+			enemyModel->nodes[skin.joints[i]].name.c_str());
+	}
+
 	m_nodeCount = (int)enemyModel->nodes.size();
 	int rootNode = enemyModel->scenes.at(0).nodes.at(0);
 	Logger::Log(1, "%s: model has %i nodes, root node is %i\n", __FUNCTION__, m_nodeCount, rootNode);
+	Logger::Log(1, "skin count = %zu\n", enemyModel->skins.size());
 
+	for (size_t i = 0; i < enemyModel->skins.size(); ++i)
+	{
+		Logger::Log(1, "skin %zu joint count = %zu\n",
+			i,
+			enemyModel->skins[i].joints.size());
+	}
 	m_nodeList.resize(m_nodeCount);
 
 	m_rootNode = GltfNode::CreateRoot(rootNode);
