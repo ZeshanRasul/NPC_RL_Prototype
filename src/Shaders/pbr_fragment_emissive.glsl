@@ -171,7 +171,7 @@ void main()
         Lo += (1.0 - shadow) * ((kD * albedo / PI + specular) * radiance * NdotL);
     }   
     
-    vec3 ambient = vec3(0.03) * albedo * ao;
+    vec3 ambient = vec3(0.03) * albedo;
     
     vec3 emissive = texture(emissiveMap, TexCoords).rgb;
 
@@ -182,18 +182,18 @@ void main()
     // gamma correct
     color = pow(color, vec3(1.0/2.2)); 
 
-    float distanceToCamera = length(cameraPos - WorldPos);
-
-    float farFog = exp(-distanceToCamera * 0.01);
-    farFog = clamp(farFog, 0.0, 1.0);
-
-    float nearFog = clamp(smoothstep(0.0, 4.0, distanceToCamera), 0.3, 0.9);
-
-    vec3 fogColor = vec3(0.18, 0.15, 0.26);
-
-    float fogFactor = mix(0.55, farFog, nearFog);
-
-    color = mix(fogColor, color, fogFactor);
+//    float distanceToCamera = length(cameraPos - WorldPos);
+//
+//    float farFog = exp(-distanceToCamera * 0.01);
+//    farFog = clamp(farFog, 0.0, 1.0);
+//
+//    float nearFog = clamp(smoothstep(0.0, 4.0, distanceToCamera), 0.3, 0.9);
+//
+//    vec3 fogColor = vec3(0.18, 0.15, 0.26);
+//
+//    float fogFactor = mix(0.55, farFog, nearFog);
+//
+//    color = mix(fogColor, color, fogFactor);
 
     FragColor = vec4(color, 1.0);
 }
