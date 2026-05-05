@@ -5,6 +5,8 @@ This prototype was developed as the artefact component of my MSc thesis, *Enhanc
 
 This project utilised **Q-Learning** techniques to create **adaptive and realistic enemy AI** in the context of a third person shooter video game developed in **C++** with **OpenGL** 4.6. As well as exploring **machine learning in game AI**, the artefact development involved **low-level C++ programming**, **real-time rendering techniques** and **advanced mathematical foundations** required for both AI research and video game engine development. 
 
+**For a stable, self contained build of the reinforcement learning based NPC demo submitted as part of my MSc thesis, please see the repository release found on the right of the page. Recent work has involved major work in progress changes to the engine and assets used and as such may not function fully or may be unstable.**
+
 ## Core Features
 
  - **Q-Learning for Enemy AI decisions:** Each enemy makes **data-driven decisions** by learning optimal behaviours during training considering the complex state of the game.
