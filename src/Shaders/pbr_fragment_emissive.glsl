@@ -4,7 +4,6 @@ out vec4 FragColor;
 in vec2 TexCoords;
 in vec3 WorldPos;
 in vec3 Normal;
-in vec4 FragPosLightSpace;
 
 // material parameters
 uniform sampler2D albedoMap;
@@ -166,7 +165,7 @@ void main()
         // scale light by NdotL
         float NdotL = max(dot(N, L), 0.0);        
 
-        float shadow = ShadowCalculation(FragPosLightSpace, N, L);
+        float shadow = 0.0f;
 
         // add to outgoing radiance Lo
         Lo += (1.0 - shadow) * ((kD * albedo / PI + specular) * radiance * NdotL);

@@ -799,7 +799,7 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 
 	playerShader.LoadShaders("src/Shaders/vertex_pbr_skinned.glsl", "src/Shaders/fragment_pbr_skinned.glsl");
 	groundShader.LoadShaders("src/Shaders/vertex2.glsl", "src/Shaders/fragment2.glsl");
-	enemyShader.LoadShaders("src/Shaders/vertex_pbr_skinned_enemy.glsl", "src/Shaders/fragment_pbr_skinned.glsl");
+	enemyShader.LoadShaders("src/Shaders/vertex_pbr_skinned_enemy.glsl", "src/Shaders/pbr_fragment_emissive.glsl");
 	gridShader.LoadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/pbr_vertex.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/pbr_fragment.glsl");
 	crosshairShader.LoadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/crosshair_vert.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/crosshair_frag.glsl");
 	//lineShader.LoadShaders("src/Shaders/line_vert.glsl", "src/Shaders/line_frag.glsl");
@@ -1243,10 +1243,10 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 	m_player->SetAABBShader(&aabbShader);
 	m_player->SetUpAABB();
 
-	std::string texture = "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Models/GLTF/Enemies/Ely/EnemyEly_ely_vanguardsoldier_kerwinatienza_M2_BaseColor.png";
-	std::string texture2 = "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Models/GLTF/Enemies/Ely/ely-vanguardsoldier-kerwinatienza_diffuse_2.png";
-	std::string texture3 = "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Models/GLTF/Enemies/Ely/ely-vanguardsoldier-kerwinatienza_diffuse_3.png";
-	std::string texture4 = "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Models/GLTF/Enemies/Ely/ely-vanguardsoldier-kerwinatienza_diffuse_4.png";
+	std::string texture = "C:\\dev\\NPC_RL_Prototype\\NPC_RL_Prototype\\src\\Assets\\Models\\New_Enemies\\Armour7\\armor7_painter_armor7_mat_BaseColor.png";
+	std::string texture2 = "C:\\dev\\NPC_RL_Prototype\\NPC_RL_Prototype\\src\\Assets\\Models\\New_Enemies\\Armour7\\armor7_painter_armor7_mat_BaseColor2.png";
+	std::string texture3 = "C:\\dev\\NPC_RL_Prototype\\NPC_RL_Prototype\\src\\Assets\\Models\\New_Enemies\\Armour7\\armor7_painter_armor7_mat_BaseColor3.png";
+	std::string texture4 = "C:\\dev\\NPC_RL_Prototype\\NPC_RL_Prototype\\src\\Assets\\Models\\New_Enemies\\Armour7\\armor7_painter_armor7_mat_BaseColor4.png";
 
 	m_enemy = new Enemy(glm::vec3(-22.0f, 1.73f, 144.0f), glm::vec3(5.0f), &enemyShader, &enemyShadowMapShader, true, this, texture, 0, GetEventManager(), *m_player);
 	m_enemy->SetAABBShader(&aabbShader);
