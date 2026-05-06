@@ -588,8 +588,8 @@ private:
 
 	float m_health = 100.0f;
 
-	int m_sourceAnim = 0;
-	int m_destAnim = 0;
+	int m_sourceAnim = 2;
+	int m_destAnim = 2;
 	bool m_destAnimSet = true;
 	float m_blendSpeed = 10.0f;
 	float m_blendFactor = 0.0f;
