@@ -815,7 +815,7 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 	shadowMapQuadShader.LoadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/shadow_map_quad_vertex.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/shadow_map_quad_fragment.glsl");
 	playerMuzzleFlashShader.LoadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/muzzle_flash_vertex.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/muzzle_flash_fragment.glsl");
 	navMeshShader.LoadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/navmesh_vert.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/navmesh_frag.glsl");
-//	hfnavMeshShader.LoadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/hf_vert.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/hf_frag.glsl");
+	//	hfnavMeshShader.LoadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/hf_vert.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/hf_frag.glsl");
 
 	m_crosshairShader.LoadShaders("src/Shaders/crosshair_vert.glsl", "src/Shaders/crosshair_frag.glsl");
 	m_lineShader.LoadShaders("src/Shaders/line_vert.glsl", "src/Shaders/line_frag.glsl");
@@ -1265,15 +1265,15 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 	m_enemy4->SetAABBShader(&aabbShader);
 	m_enemy4->SetUpAABB();
 
-	m_enemy5 = new Enemy(glm::vec3(-38.0f, 1.73f, 144.0f), glm::vec3(5.0f), &enemyShader, &enemyShadowMapShader, true, this, texture4, 4, GetEventManager(), *m_player);
+	m_enemy5 = new Enemy(glm::vec3(-68.0f, 1.73f, 144.0f), glm::vec3(5.0f), &enemyShader, &enemyShadowMapShader, true, this, texture4, 4, GetEventManager(), *m_player);
 	m_enemy5->SetAABBShader(&aabbShader);
 	m_enemy5->SetUpAABB();
 
-	m_enemy6 = new Enemy(glm::vec3(-48.0f, 1.73f, 144.0f), glm::vec3(5.0f), &enemyShader, &enemyShadowMapShader, true, this, texture4, 5, GetEventManager(), *m_player);
+	m_enemy6 = new Enemy(glm::vec3(-98.0f, 1.73f, 144.0f), glm::vec3(5.0f), &enemyShader, &enemyShadowMapShader, true, this, texture4, 5, GetEventManager(), *m_player);
 	m_enemy6->SetAABBShader(&aabbShader);
 	m_enemy6->SetUpAABB();
 
-	m_enemy7 = new Enemy(glm::vec3(-48.0f, 1.73f, 164.0f), glm::vec3(0.01f), &enemyShader2, &enemyShadowMapShader, true, this, texture4, 6, GetEventManager(), *m_player);
+	m_enemy7 = new Enemy(glm::vec3(-78.0f, 3.73f, 164.0f), glm::vec3(0.01f), &enemyShader2, &enemyShadowMapShader, true, this, texture4, 6, GetEventManager(), *m_player);
 	m_enemy7->SetAABBShader(&aabbShader);
 	m_enemy7->SetUpAABB();
 
@@ -1510,7 +1510,14 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 		}
 		Logger::Log(1, "[Spawn] Enemy requested spawn at (%.2f, %.2f, %.2f)\n",
 			startingPos[0], startingPos[1], startingPos[2]);
-		enem->SetPosition(glm::vec3(snappedPos[0], snappedPos[1], snappedPos[2]));
+		if (enem->GetID() == 6)
+		{
+			enem->SetPosition(glm::vec3(snappedPos[0], snappedPos[1]+ 2.0f, snappedPos[2]));
+		}
+		else
+		{
+			enem->SetPosition(glm::vec3(snappedPos[0], snappedPos[1], snappedPos[2]));
+		}
 		enemyAgentIDs.push_back(crowd->addAgent(snappedPos, &ap));
 		Logger::Log(1, "[Spawn] Enemy spawned as agent %d at (%.2f, %.2f, %.2f)\n",
 			enemyAgentIDs.back(), snappedPos[0], snappedPos[1], snappedPos[2]);
@@ -2283,7 +2290,16 @@ void GameManager::Update(float deltaTime)
 			// stop steering and switch to idle/attack state
 			crowd->resetMoveTarget(e->GetID());
 		}
-		e->SetPosition(glm::vec3(agentPos[0], agentPos[1], agentPos[2]));
+
+		if (e->GetID() == 6)
+		{
+			e->SetPosition(glm::vec3(agentPos[0], agentPos[1] + 2.0f, agentPos[2]));
+		}
+		else
+		{
+			e->SetPosition(glm::vec3(agentPos[0], agentPos[1], agentPos[2]));
+		}
+
 	}
 	m_audioManager->Update(scaledDeltaTime);
 	m_audioSystem->Update(scaledDeltaTime);

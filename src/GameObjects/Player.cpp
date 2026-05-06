@@ -576,7 +576,7 @@ void Player::Update(float dt, bool isPaused, bool isTimeScaled)
 
 	
 
-	PlayAnimation(m_animNum, 1.0f, 1.0f, false);
+//	PlayAnimation(m_animNum, 1.0f, 1.0f, false);
 	if (m_playGameStartAudio && m_playGameStartAudioTimer < 0.0f)
 	{
 		std::random_device rd;
@@ -590,49 +590,54 @@ void Player::Update(float dt, bool isPaused, bool isTimeScaled)
 		m_playGameStartAudio = false;
 	}
 	//
-	//if (m_destAnim != 0 && m_velocity == 0.0f)
-	//{
-	//	SetSourceAnimNum(m_destAnim);
-	//	SetDestAnimNum(0);
-	//	m_resetBlend = true;
-	//	m_blendAnim = true;
-	//	SetPrevDirection(STATIONARY);
-	//}
-	//
-	//if (m_resetBlend)
-	//{
-	//	m_blendAnim = true;
-	//	m_blendFactor = 0.0f;
-	//	m_resetBlend = false;
-	//}
-	//
-	//float animSpeedDivider = 1.0f;
-	//
-	//if (isPaused)
-	//	animSpeedDivider = 0.0f;
-	//
-	//if (isTimeScaled)
-	//	animSpeedDivider = 0.25f;
-	//
-	//if (m_blendAnim)
-	//{
-	//	m_blendFactor += m_blendSpeed * dt;
-	//
-	//	SetAnimation(GetSourceAnimNum(), GetDestAnimNum(), animSpeedDivider, m_blendFactor, false);
-	//
-	//	
-	//	if (m_blendFactor >= 1.0f)
-	//	{
-	//		m_blendAnim = false;
-	//		m_resetBlend = true;
-	//		SetSourceAnimNum(GetDestAnimNum());
-	//		m_resetBlend = true;
-	//	}
-	//}
-	//else
-	//{
-	//	SetAnimation(m_destAnim, animSpeedDivider, 1.0f, false);
-	//}
+	if (m_destAnim != 0 && m_velocity <= 0.1f)
+	{
+		SetSourceAnimNum(m_destAnim);
+		SetDestAnimNum(2);
+		m_resetBlend = true;
+		m_blendAnim = true;
+		SetPrevDirection(STATIONARY);
+	}
+	else if (m_destAnim != m_animNum)
+	{
+		m_resetBlend = true;
+		m_blendAnim = true;
+	}
+	
+	if (m_resetBlend)
+	{
+		m_blendAnim = true;
+		m_blendFactor = 0.0f;
+		m_resetBlend = false;
+	}
+	
+	float animSpeedDivider = 1.0f;
+	
+	if (isPaused)
+		animSpeedDivider = 0.0f;
+	
+	if (isTimeScaled)
+		animSpeedDivider = 0.25f;
+	
+	if (m_blendAnim)
+	{
+		m_blendFactor += m_blendSpeed * dt;
+	
+		SetAnimation(GetSourceAnimNum(), GetDestAnimNum(), animSpeedDivider, m_blendFactor, false);
+	
+		
+		if (m_blendFactor >= 1.0f)
+		{
+			m_blendFactor = 1.0f;
+			m_blendAnim = false;
+			m_resetBlend = false;
+			SetSourceAnimNum(GetDestAnimNum());
+		}
+	}
+	else
+	{
+		SetAnimation(m_destAnim, animSpeedDivider, 1.0f, false);
+	}
 }
 
 
@@ -688,16 +693,16 @@ void Player::PlayerProcessKeyboard(CameraMovement direction, float deltaTime)
 	glm::vec3 orOffset = glm::vec3(0.0f, 1.5f, 0.0f);
 
 	int nextAnim = -1;
-	if (direction == FORWARD)
+	if (direction == CameraMovement::FORWARD)
 	{ 
 		desiredDirection = m_gameManager->GetPhysicsWorld()->RaycastPlane(GetPosition() + orOffset, glm::vec3(0.0f, -1.0f, 0.0f), t, desiredDirection);
 		m_position += desiredDirection * m_velocity;
 		m_recomputeWorldTransform = true;
 		ComputeAudioWorldTransform();
 		UpdateComponents(deltaTime);
-		nextAnim = 2;
+		nextAnim = 4;
 	}
-	if (direction == BACKWARD)
+	if (direction == CameraMovement::BACKWARD)
 	{
 		desiredDirection = -GetPlayerFront();
 		desiredDirection = m_gameManager->GetPhysicsWorld()->RaycastPlane(GetPosition() + orOffset, glm::vec3(0.0f, -1.0f, 0.0f), t, desiredDirection);
@@ -705,9 +710,9 @@ void Player::PlayerProcessKeyboard(CameraMovement direction, float deltaTime)
 		m_recomputeWorldTransform = true;
 		ComputeAudioWorldTransform();
 		UpdateComponents(deltaTime);
-		nextAnim = 2;
+		nextAnim = 4;
 	}
-	if (direction == LEFT)
+	if (direction == CameraMovement::LEFT)
 	{
 		desiredDirection = -GetPlayerRight();
 		desiredDirection = m_gameManager->GetPhysicsWorld()->RaycastPlane(GetPosition() + orOffset, glm::vec3(0.0f, -1.0f, 0.0f), t, desiredDirection);
@@ -715,9 +720,9 @@ void Player::PlayerProcessKeyboard(CameraMovement direction, float deltaTime)
 		m_recomputeWorldTransform = true;
 		ComputeAudioWorldTransform();
 		UpdateComponents(deltaTime);
-		nextAnim = 4;
+		nextAnim = 10;
 	}
-	if (direction == RIGHT)
+	if (direction == CameraMovement::RIGHT)
 	{
 		desiredDirection = GetPlayerRight();
 		desiredDirection = m_gameManager->GetPhysicsWorld()->RaycastPlane(GetPosition() + orOffset, glm::vec3(0.0f, -1.0f, 0.0f), t, desiredDirection);
@@ -725,7 +730,7 @@ void Player::PlayerProcessKeyboard(CameraMovement direction, float deltaTime)
 		m_recomputeWorldTransform = true;
 		ComputeAudioWorldTransform();
 		UpdateComponents(deltaTime);
-		nextAnim = 5;
+		nextAnim = 11;
 	}
 
 	if (nextAnim != m_destAnim)
@@ -759,13 +764,19 @@ void Player::PlayerProcessMouseMovement(float xOffset)
 
 void Player::SetAnimation(int animNum, float speedDivider, float blendFactor, bool playAnimBackwards)
 {
-	//playerModel->PlayAnimation(animNum, speedDivider, blendFactor, playAnimBackwards);
+	if (animNum < 0 || animNum >= static_cast<int>(m_animClips.size()))
+		return;
+
+	PlayAnimation(animNum, speedDivider, blendFactor, playAnimBackwards);
 }
 
 void Player::SetAnimation(int srcAnimNum, int destAnimNum, float speedDivider, float blendFactor,
-                          bool playAnimBackwards)
+	bool playAnimBackwards)
 {
-	//m_model->PlayAnimation(srcAnimNum, destAnimNum, speedDivider, blendFactor, playAnimBackwards);
+	if (destAnimNum < 0 || destAnimNum >= static_cast<int>(m_animClips.size()))
+		return;
+
+	PlayAnimation(destAnimNum, speedDivider, 1.0f, playAnimBackwards);
 }
 
 void Player::SetPlayerState(PlayerState newState)

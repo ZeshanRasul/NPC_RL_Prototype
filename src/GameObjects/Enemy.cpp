@@ -687,8 +687,10 @@ void Enemy::Update(bool shouldUseEDBT, bool isPaused, bool isTimeScaled)
 		printed = true;
 	}
 
-	if (m_id < 6)
+	if (m_id < 4)
 		PlayAnimation(0, 1.0f, 1.0f, false);
+	else if (m_id < 6)
+		PlayAnimation(1, 1.0f, 1.0f, false);
 }
 
 void Enemy::OnEvent(const Event& event)

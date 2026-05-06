@@ -245,11 +245,11 @@ void InputManager::HandlePlayerMovement(GLFWwindow* window, Player& player, Came
 		{
 			player.SetVelocity(0.0f);
 		}
-		else if (glfwGetKey(window, GLFW_KEY_A) == GLFW_RELEASE && player.GetPrevDirection() == BACKWARD)
+		else if (glfwGetKey(window, GLFW_KEY_S) == GLFW_RELEASE && player.GetPrevDirection() == BACKWARD)
 		{
 			player.SetVelocity(0.0f);
 		}
-		else if (glfwGetKey(window, GLFW_KEY_D) == GLFW_RELEASE && player.GetPrevDirection() == LEFT)
+		else if (glfwGetKey(window, GLFW_KEY_A) == GLFW_RELEASE && player.GetPrevDirection() == LEFT)
 		{
 			player.SetVelocity(0.0f);
 		}
