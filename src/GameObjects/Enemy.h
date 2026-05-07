@@ -14,6 +14,14 @@
 #include "AI/ActionNode.h"
 #include "Logger.h"
 
+enum EnemyType
+{
+	SCOUT,
+	HEAVY_SCOUT,
+	DRONE,
+	MECH
+};
+
 enum Action
 {
 	PATROL,
@@ -59,7 +67,7 @@ class Enemy : public GameObject
 {
 public:
 	Enemy(glm::vec3 pos, glm::vec3 scale, Shader* sdr, Shader* shadowMapShader, bool applySkinning,
-		GameManager* gameMgr, std::string texFilename, int id, EventManager& eventManager, Player& player,
+		GameManager* gameMgr, std::string texFilename, int id, EventManager& eventManager, Player& player, EnemyType type,
 		float yaw = 0.0f);
 
 	~Enemy()
@@ -195,11 +203,11 @@ public:
 	void GetInvBindMatrices()
 	{
 		tinygltf::Skin skin;
-		if (m_id < 4)
+		if (m_type == EnemyType::SCOUT)
 		{
 			skin = enemyModel->skins.at(1);
 		}
-		else
+		else if (m_type == EnemyType::HEAVY_SCOUT)
 		{
 			skin = enemyModel->skins.at(0);
 		}
@@ -346,11 +354,11 @@ public:
 		//}
 
 		tinygltf::Skin skin;
-		if (m_id < 4)
+		if (m_type == EnemyType::SCOUT)
 		{
 			skin = enemyModel->skins.at(1);
 		}
-		else
+		else if (m_type == EnemyType::HEAVY_SCOUT)
 		{
 			skin = enemyModel->skins.at(0);
 		}
@@ -714,6 +722,8 @@ private:
 
 	bool m_startingSuppressionFire = true;
 	bool m_playNotVisibleAudio = true;
+
+	EnemyType m_type;
 
 	void VacatePreviousCell();
 

@@ -9,26 +9,30 @@
 #endif
 
 Enemy::Enemy(glm::vec3 pos, glm::vec3 scale, Shader* sdr, Shader* shadowMapShader, bool applySkinning,
-	GameManager* gameMgr, std::string texFilename, int id, EventManager& eventManager, Player& player,
+	GameManager* gameMgr, std::string texFilename, int id, EventManager& eventManager, Player& player, EnemyType type,
 	float yaw) : GameObject(pos, scale, yaw, sdr, shadowMapShader, applySkinning, gameMgr), m_player(player),
 	m_initialPosition(pos), m_id(id), m_eventManager(eventManager),
 	m_health(100.0f), m_isPlayerDetected(false), m_isPlayerVisible(false), m_isPlayerInRange(false),
-	m_isTakingDamage(false), m_isDead(false), m_isInCover(false), m_isSeekingCover(false), m_isTakingCover(false)
+	m_isTakingDamage(false), m_isDead(false), m_isInCover(false), m_isSeekingCover(false), m_isTakingCover(false), m_type(type)
 {
 	m_isEnemy = true;
 
 	m_id = id;
 	enemyModel = new tinygltf::Model;
 	std::string modelFilename;
-	if (id < 4)
+	if (m_type == EnemyType::SCOUT)
 	{
 		modelFilename = "src/Assets/Models/New_Enemies/Armour7/Armor_7_Sci_Fi_Rifle.glb";
 	}
-	else if (id < 6)
+	else if (m_type == EnemyType::HEAVY_SCOUT)
 	{
 		modelFilename = "src/Assets/Models/New_Enemies/Armour9/Armour9.glb";
 	}
-	else
+	else if (m_type == EnemyType::MECH)
+	{
+		modelFilename = "src/Assets/Models/New_Enemies/Mech/Mech.glb";
+	}
+	else if (m_type == EnemyType::DRONE)	
 	{
 		modelFilename = "src/Assets/Models/New_Enemies/Drone/Drone.glb";
 	}
@@ -283,7 +287,7 @@ void Enemy::SetupGLTFMeshes(tinygltf::Model* model)
 		meshData[meshIndex] = gltfMesh;
 	}
 
-	if (m_id == 6)
+	if (m_type == EnemyType::DRONE)
 	{
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 		return;
@@ -294,11 +298,11 @@ void Enemy::SetupGLTFMeshes(tinygltf::Model* model)
 	GetInvBindMatrices();
 
 	tinygltf::Skin skin;
-	if (m_id < 4)
+	if (m_type == EnemyType::SCOUT)
 	{
 		skin = enemyModel->skins.at(1);
 	}
-	else
+	else if (m_type == EnemyType::HEAVY_SCOUT)
 	{
 		skin = enemyModel->skins.at(0);
 	}
@@ -498,7 +502,7 @@ void Enemy::DrawGLTFModel(glm::mat4 viewMat, glm::mat4 projMat, glm::vec3 camPos
 
 			glm::mat4 modelMat = glm::mat4(1.0f);
 			modelMat = glm::translate(modelMat, m_position);
-			if (m_id == 6)
+			if (m_type == EnemyType::DRONE)
 				modelMat = glm::rotate(modelMat, glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
 			
 			modelMat = glm::scale(modelMat, m_scale);
@@ -687,9 +691,9 @@ void Enemy::Update(bool shouldUseEDBT, bool isPaused, bool isTimeScaled)
 		printed = true;
 	}
 
-	if (m_id < 4)
+	if (m_type == EnemyType::SCOUT)
 		PlayAnimation(0, 1.0f, 1.0f, false);
-	else if (m_id < 6)
+	else if (m_type == EnemyType::HEAVY_SCOUT)
 		PlayAnimation(1, 1.0f, 1.0f, false);
 }
 

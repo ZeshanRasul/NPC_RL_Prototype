@@ -819,7 +819,7 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 
 	m_crosshairShader.LoadShaders("src/Shaders/crosshair_vert.glsl", "src/Shaders/crosshair_frag.glsl");
 	m_lineShader.LoadShaders("src/Shaders/line_vert.glsl", "src/Shaders/line_frag.glsl");
-	aabbShader.LoadShaders("src/Shaders/aabb_vert.glsl", "src/Shaders/aabb_frag.glsl");
+//	aabbShader.LoadShaders("src/Shaders/aabb_vert.glsl", "src/Shaders/aabb_frag.glsl");
 	m_cubeShader.LoadShaders("src/Shaders/pbr_vertex.glsl", "src/Shaders/pbr_fragment_emissive.glsl");
 	m_cubemapShader.LoadShaders("src/Shaders/cubemap_vertex.glsl", "src/Shaders/cubemap_fragment.glsl");
 	m_minimapShader.LoadShaders("src/Shaders/quad_vertex.glsl", "src/Shaders/quad_fragment.glsl");
@@ -1249,31 +1249,31 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 	std::string texture3 = "C:\\dev\\NPC_RL_Prototype\\NPC_RL_Prototype\\src\\Assets\\Models\\New_Enemies\\Armour7\\armor7_painter_armor7_mat_BaseColor3.png";
 	std::string texture4 = "C:\\dev\\NPC_RL_Prototype\\NPC_RL_Prototype\\src\\Assets\\Models\\New_Enemies\\Armour7\\armor7_painter_armor7_mat_BaseColor4.png";
 
-	m_enemy = new Enemy(glm::vec3(-22.0f, 1.73f, 144.0f), glm::vec3(5.0f), &enemyShader, &enemyShadowMapShader, true, this, texture, 0, GetEventManager(), *m_player);
+	m_enemy = new Enemy(glm::vec3(50.0f, 1.73f, 214.0f), glm::vec3(5.0f), &enemyShader, &enemyShadowMapShader, true, this, texture, 0, GetEventManager(), *m_player, EnemyType::SCOUT);
 	m_enemy->SetAABBShader(&aabbShader);
 	m_enemy->SetUpAABB();
 
-	m_enemy2 = new Enemy(glm::vec3(20.0f, 1.73f, 144.0f), glm::vec3(5.0f), &enemyShader, &enemyShadowMapShader, true, this, texture2, 1, GetEventManager(), *m_player);
+	m_enemy2 = new Enemy(glm::vec3(-60.0f, 1.73f, -6.2f), glm::vec3(5.0f), &enemyShader, &enemyShadowMapShader, true, this, texture2, 1, GetEventManager(), *m_player, EnemyType::SCOUT);
 	m_enemy2->SetAABBShader(&aabbShader);
 	m_enemy2->SetUpAABB();
 
-	m_enemy3 = new Enemy(glm::vec3(28.0f, 1.73f, 144.0f), glm::vec3(5.0f), &enemyShader, &enemyShadowMapShader, true, this, texture3, 2, GetEventManager(), *m_player);
+	m_enemy3 = new Enemy(glm::vec3(138.0f, 1.73f, -37.0f), glm::vec3(5.0f), &enemyShader, &enemyShadowMapShader, true, this, texture3, 2, GetEventManager(), *m_player, EnemyType::SCOUT);
 	m_enemy3->SetAABBShader(&aabbShader);
 	m_enemy3->SetUpAABB();
 
-	m_enemy4 = new Enemy(glm::vec3(-28.0f, 1.73f, 144.0f), glm::vec3(5.0f), &enemyShader, &enemyShadowMapShader, true, this, texture4, 3, GetEventManager(), *m_player);
+	m_enemy4 = new Enemy(glm::vec3(42.0f, -34.73f, -155.0f), glm::vec3(5.0f), &enemyShader, &enemyShadowMapShader, true, this, texture4, 3, GetEventManager(), *m_player, EnemyType::SCOUT);
 	m_enemy4->SetAABBShader(&aabbShader);
 	m_enemy4->SetUpAABB();
 
-	m_enemy5 = new Enemy(glm::vec3(-68.0f, 1.73f, 144.0f), glm::vec3(5.0f), &enemyShader, &enemyShadowMapShader, true, this, texture4, 4, GetEventManager(), *m_player);
+	m_enemy5 = new Enemy(glm::vec3(-68.0f, 1.73f, 144.0f), glm::vec3(5.0f), &enemyShader, &enemyShadowMapShader, true, this, texture4, 4, GetEventManager(), *m_player, EnemyType::HEAVY_SCOUT);
 	m_enemy5->SetAABBShader(&aabbShader);
 	m_enemy5->SetUpAABB();
 
-	m_enemy6 = new Enemy(glm::vec3(-98.0f, 1.73f, 144.0f), glm::vec3(5.0f), &enemyShader, &enemyShadowMapShader, true, this, texture4, 5, GetEventManager(), *m_player);
+	m_enemy6 = new Enemy(glm::vec3(-92.0f, -38.73f, 8.0f), glm::vec3(5.0f), &enemyShader, &enemyShadowMapShader, true, this, texture4, 5, GetEventManager(), *m_player, EnemyType::HEAVY_SCOUT);
 	m_enemy6->SetAABBShader(&aabbShader);
 	m_enemy6->SetUpAABB();
 
-	m_enemy7 = new Enemy(glm::vec3(-78.0f, 3.73f, 164.0f), glm::vec3(0.01f), &enemyShader2, &enemyShadowMapShader, true, this, texture4, 6, GetEventManager(), *m_player);
+	m_enemy7 = new Enemy(glm::vec3(100.0f, 3.73f, 241.0f), glm::vec3(0.01f), &enemyShader2, &enemyShadowMapShader, true, this, texture4, 6, GetEventManager(), *m_player, EnemyType::DRONE);
 	m_enemy7->SetAABBShader(&aabbShader);
 	m_enemy7->SetUpAABB();
 

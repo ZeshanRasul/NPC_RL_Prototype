@@ -367,7 +367,7 @@ namespace tinygltf {
         // Lookup value from a key-value pair
         const Value& Get(const std::string& key) const {
             static Value null_value;
-            assert(IsObject());
+   //         assert(IsObject());
             Object::const_iterator it = object_value_.find(key);
             return (it != object_value_.end()) ? it->second : null_value;
         }
