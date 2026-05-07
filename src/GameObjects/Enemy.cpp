@@ -30,7 +30,7 @@ Enemy::Enemy(glm::vec3 pos, glm::vec3 scale, Shader* sdr, Shader* shadowMapShade
 	}
 	else if (m_type == EnemyType::MECH)
 	{
-		modelFilename = "src/Assets/Models/New_Enemies/Mech/Mech.glb";
+		modelFilename = "src/Assets/Models/New_Enemies/MechStandard/Mecha-HM4_Rigged+Anim.glb";
 	}
 	else if (m_type == EnemyType::DRONE)	
 	{
@@ -287,7 +287,7 @@ void Enemy::SetupGLTFMeshes(tinygltf::Model* model)
 		meshData[meshIndex] = gltfMesh;
 	}
 
-	if (m_type == EnemyType::DRONE)
+	if (m_type == EnemyType::DRONE || m_type == EnemyType::MECH)
 	{
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 		return;
@@ -302,7 +302,7 @@ void Enemy::SetupGLTFMeshes(tinygltf::Model* model)
 	{
 		skin = enemyModel->skins.at(1);
 	}
-	else if (m_type == EnemyType::HEAVY_SCOUT)
+	else if (m_type == EnemyType::HEAVY_SCOUT || m_type == EnemyType::MECH)
 	{
 		skin = enemyModel->skins.at(0);
 	}

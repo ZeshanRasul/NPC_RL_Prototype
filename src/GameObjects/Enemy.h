@@ -207,7 +207,7 @@ public:
 		{
 			skin = enemyModel->skins.at(1);
 		}
-		else if (m_type == EnemyType::HEAVY_SCOUT)
+		else if (m_type == EnemyType::HEAVY_SCOUT || m_type == EnemyType::MECH)
 		{
 			skin = enemyModel->skins.at(0);
 		}
@@ -358,7 +358,7 @@ public:
 		{
 			skin = enemyModel->skins.at(1);
 		}
-		else if (m_type == EnemyType::HEAVY_SCOUT)
+		else if (m_type == EnemyType::HEAVY_SCOUT || m_type == EnemyType::MECH)
 		{
 			skin = enemyModel->skins.at(0);
 		}
