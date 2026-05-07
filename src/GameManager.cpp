@@ -1277,7 +1277,7 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 	m_enemy7->SetAABBShader(&aabbShader);
 	m_enemy7->SetUpAABB();
 
-	m_enemy8 = new Enemy(glm::vec3(-50.0f, 1.73f, -151.0f), glm::vec3(1.0f), &enemyShader2, &enemyShadowMapShader, true, this, texture4, 7, GetEventManager(), *m_player, EnemyType::MECH);
+	m_enemy8 = new Enemy(glm::vec3(150.0f, 3.73f, 241.0f), glm::vec3(0.1f), &enemyShader2, &enemyShadowMapShader, true, this, texture4, 7, GetEventManager(), *m_player, EnemyType::MECH);
 	m_enemy8->SetAABBShader(&aabbShader);
 	m_enemy8->SetUpAABB();
 
