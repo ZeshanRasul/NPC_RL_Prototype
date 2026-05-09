@@ -801,21 +801,21 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 	groundShader.LoadShaders("src/Shaders/vertex2.glsl", "src/Shaders/fragment2.glsl");
 	enemyShader.LoadShaders("src/Shaders/vertex_pbr_skinned_enemy.glsl", "src/Shaders/pbr_fragment_emissive.glsl");
 	enemyShader2.LoadShaders("src/Shaders/vertex.glsl", "src/Shaders/fragment.glsl");
-	gridShader.LoadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/pbr_vertex.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/pbr_fragment.glsl");
-	crosshairShader.LoadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/crosshair_vert.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/crosshair_frag.glsl");
+	gridShader.LoadShaders("src/Shaders/pbr_vertex.glsl", "src/Shaders/pbr_fragment.glsl");
+	crosshairShader.LoadShaders("src/Shaders/crosshair_vert.glsl", "src/Shaders/crosshair_frag.glsl");
 	//lineShader.LoadShaders("src/Shaders/line_vert.glsl", "src/Shaders/line_frag.glsl");
 	aabbShader.LoadShaders("src/Shaders/aabb_vert.glsl", "src/Shaders/aabb_frag.glsl");
-	cubeShader.LoadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/pbr_vertex.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/pbr_fragment_emissive.glsl");
-	cubemapShader.LoadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/cubemap_vertex.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/cubemap_fragment.glsl");
-	minimapShader.LoadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/quad_vertex.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/quad_fragment.glsl");
-	shadowMapShader.LoadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/shadow_map_vertex.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/shadow_map_fragment.glsl");
-	playerShadowMapShader.LoadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/shadow_map_player_vertex.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/shadow_map_fragment.glsl");
-	groundShadowShader.LoadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/shadow_map_vertex.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/shadow_map_fragment.glsl");
-	enemyShadowMapShader.LoadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/shadow_map_enemy_vertex.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/shadow_map_fragment.glsl");
-	shadowMapQuadShader.LoadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/shadow_map_quad_vertex.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/shadow_map_quad_fragment.glsl");
-	playerMuzzleFlashShader.LoadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/muzzle_flash_vertex.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/muzzle_flash_fragment.glsl");
-	navMeshShader.LoadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/navmesh_vert.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/navmesh_frag.glsl");
-	//	hfnavMeshShader.LoadShaders("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/hf_vert.glsl", "C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Shaders/hf_frag.glsl");
+	cubeShader.LoadShaders("src/Shaders/pbr_vertex.glsl", "src/Shaders/pbr_fragment_emissive.glsl");
+	cubemapShader.LoadShaders("src/Shaders/cubemap_vertex.glsl", "src/Shaders/cubemap_fragment.glsl");
+	minimapShader.LoadShaders("src/Shaders/quad_vertex.glsl", "src/Shaders/quad_fragment.glsl");
+	shadowMapShader.LoadShaders("src/Shaders/shadow_map_vertex.glsl", "src/Shaders/shadow_map_fragment.glsl");
+	playerShadowMapShader.LoadShaders("src/Shaders/shadow_map_player_vertex.glsl", "src/Shaders/shadow_map_fragment.glsl");
+	groundShadowShader.LoadShaders("src/Shaders/shadow_map_vertex.glsl", "src/Shaders/shadow_map_fragment.glsl");
+	enemyShadowMapShader.LoadShaders("src/Shaders/shadow_map_enemy_vertex.glsl", "src/Shaders/shadow_map_fragment.glsl");
+	shadowMapQuadShader.LoadShaders("src/Shaders/shadow_map_quad_vertex.glsl", "src/Shaders/shadow_map_quad_fragment.glsl");
+	playerMuzzleFlashShader.LoadShaders("src/Shaders/muzzle_flash_vertex.glsl", "src/Shaders/muzzle_flash_fragment.glsl");
+	navMeshShader.LoadShaders("src/Shaders/navmesh_vert.glsl", "src/Shaders/navmesh_frag.glsl");
+	//	hfnavMeshShader.LoadShaders("src/Shaders/hf_vert.glsl", "src/Shaders/hf_frag.glsl");
 
 	m_crosshairShader.LoadShaders("src/Shaders/crosshair_vert.glsl", "src/Shaders/crosshair_frag.glsl");
 	m_lineShader.LoadShaders("src/Shaders/line_vert.glsl", "src/Shaders/line_frag.glsl");
@@ -1209,27 +1209,27 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 	m_playerMuzzleFlashQuad = new Quad();
 	m_playerMuzzleFlashQuad->SetUpVAO(true);
 	m_playerMuzzleFlashQuad->SetShader(&playerMuzzleFlashShader);
-	m_playerMuzzleFlashQuad->LoadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/muzzleflash.png");
+	m_playerMuzzleFlashQuad->LoadTexture("src/Assets/Textures/muzzleflash.png");
 
 	m_enemyMuzzleFlashQuad = new Quad();
 	m_enemyMuzzleFlashQuad->SetUpVAO(true);
 	m_enemyMuzzleFlashQuad->SetShader(&playerMuzzleFlashShader);
-	m_enemyMuzzleFlashQuad->LoadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/muzzleflash.png");
+	m_enemyMuzzleFlashQuad->LoadTexture("src/Assets/Textures/muzzleflash.png");
 
 	m_enemy2MuzzleFlashQuad = new Quad();
 	m_enemy2MuzzleFlashQuad->SetUpVAO(true);
 	m_enemy2MuzzleFlashQuad->SetShader(&playerMuzzleFlashShader);
-	m_enemy2MuzzleFlashQuad->LoadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/muzzleflash.png");
+	m_enemy2MuzzleFlashQuad->LoadTexture("src/Assets/Textures/muzzleflash.png");
 
 	m_enemy3MuzzleFlashQuad = new Quad();
 	m_enemy3MuzzleFlashQuad->SetUpVAO(true);
 	m_enemy3MuzzleFlashQuad->SetShader(&playerMuzzleFlashShader);
-	m_enemy3MuzzleFlashQuad->LoadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/muzzleflash.png");
+	m_enemy3MuzzleFlashQuad->LoadTexture("src/Assets/Textures/muzzleflash.png");
 
 	m_enemy4MuzzleFlashQuad = new Quad();
 	m_enemy4MuzzleFlashQuad->SetUpVAO(true);
 	m_enemy4MuzzleFlashQuad->SetShader(&playerMuzzleFlashShader);
-	m_enemy4MuzzleFlashQuad->LoadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/muzzleflash.png");
+	m_enemy4MuzzleFlashQuad->LoadTexture("src/Assets/Textures/muzzleflash.png");
 
 
 	//m_player = new Player(glm::vec3(0.0f, 0.0f, 130.0f), glm::vec3(5.0f), &playerShader, &groundShadowShader, true, this, 0.0f);
@@ -1244,10 +1244,10 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 	m_player->SetAABBShader(&aabbShader);
 	m_player->SetUpAABB();
 
-	std::string texture = "C:\\dev\\NPC_RL_Prototype\\NPC_RL_Prototype\\src\\Assets\\Models\\New_Enemies\\Armour7\\armor7_painter_armor7_mat_BaseColor.png";
-	std::string texture2 = "C:\\dev\\NPC_RL_Prototype\\NPC_RL_Prototype\\src\\Assets\\Models\\New_Enemies\\Armour7\\armor7_painter_armor7_mat_BaseColor2.png";
-	std::string texture3 = "C:\\dev\\NPC_RL_Prototype\\NPC_RL_Prototype\\src\\Assets\\Models\\New_Enemies\\Armour7\\armor7_painter_armor7_mat_BaseColor3.png";
-	std::string texture4 = "C:\\dev\\NPC_RL_Prototype\\NPC_RL_Prototype\\src\\Assets\\Models\\New_Enemies\\Armour7\\armor7_painter_armor7_mat_BaseColor4.png";
+	std::string texture = "src\\Assets\\Models\\New_Enemies\\Armour7\\armor7_painter_armor7_mat_BaseColor.png";
+	std::string texture2 = "src\\Assets\\Models\\New_Enemies\\Armour7\\armor7_painter_armor7_mat_BaseColor2.png";
+	std::string texture3 = "src\\Assets\\Models\\New_Enemies\\Armour7\\armor7_painter_armor7_mat_BaseColor3.png";
+	std::string texture4 = "src\\Assets\\Models\\New_Enemies\\Armour7\\armor7_painter_armor7_mat_BaseColor4.png";
 
 	m_enemy = new Enemy(glm::vec3(50.0f, 1.73f, 214.0f), glm::vec3(5.0f), &enemyShader, &enemyShadowMapShader, true, this, texture, 0, GetEventManager(), *m_player, EnemyType::SCOUT);
 	m_enemy->SetAABBShader(&aabbShader);
@@ -1283,7 +1283,7 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 
 	m_crosshair = new Crosshair(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.3f), &crosshairShader, &shadowMapShader, false, this);
 	m_crosshair->LoadMesh();
-	m_crosshair->LoadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Textures/Crosshair.png");
+	m_crosshair->LoadTexture("src/Assets/Textures/Crosshair.png");
 	m_playerLine = new Line(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f), &lineShader, &shadowMapShader, false, this);
 	m_playerLine->LoadMesh();
 
