@@ -93,8 +93,25 @@ public:
 
 	void ResetNodeData()
 	{
-		GetNodeData(m_rootNode, glm::mat4(1.0f));
-		ResetNodeData(m_rootNode, glm::mat4(1.0f));
+       if (!m_rootNodes.empty())
+		{
+			for (auto& rootNode : m_rootNodes)
+			{
+				if (!rootNode)
+				{
+					continue;
+				}
+				GetNodeData(rootNode, glm::mat4(1.0f));
+				ResetNodeData(rootNode, glm::mat4(1.0f));
+			}
+			return;
+		}
+
+		if (m_rootNode)
+		{
+			GetNodeData(m_rootNode, glm::mat4(1.0f));
+			ResetNodeData(m_rootNode, glm::mat4(1.0f));
+		}
 	}
 
 	void ResetNodeData(std::shared_ptr<GltfNode> treeNode, glm::mat4 parentNodeMatrix)
@@ -168,7 +185,20 @@ public:
 	void BlendAnimationFrame(int animNum, float time, float blendFactor)
 	{
 		m_animClips.at(animNum)->BlendAnimationFrame(m_nodeList, m_additiveAnimationMask, time, blendFactor);
-		UpdateNodeMatrices(m_rootNode, glm::mat4(1.0f));
+        if (!m_rootNodes.empty())
+		{
+			for (auto& rootNode : m_rootNodes)
+			{
+				if (rootNode)
+				{
+					UpdateNodeMatrices(rootNode, glm::mat4(1.0f));
+				}
+			}
+		}
+		else if (m_rootNode)
+		{
+			UpdateNodeMatrices(m_rootNode, glm::mat4(1.0f));
+		}
 	}
 
 	void PlayAnimation(int animNum, float speedDivider, float blendFactor, bool playBackwards)
@@ -205,7 +235,7 @@ public:
 		tinygltf::Skin skin;
 		if (m_type == EnemyType::SCOUT)
 		{
-			skin = enemyModel->skins.at(1);
+			skin = enemyModel->skins.at(0);
 		}
 		else if (m_type == EnemyType::HEAVY_SCOUT || m_type == EnemyType::MECH)
 		{
@@ -356,7 +386,7 @@ public:
 		tinygltf::Skin skin;
 		if (m_type == EnemyType::SCOUT)
 		{
-			skin = enemyModel->skins.at(1);
+			skin = enemyModel->skins.at(0);
 		}
 		else if (m_type == EnemyType::HEAVY_SCOUT || m_type == EnemyType::MECH)
 		{
@@ -389,6 +419,7 @@ public:
 	std::vector<int> m_nodeToJoint{};
 
 	std::shared_ptr<GltfNode> m_rootNode = nullptr;
+	std::vector<std::shared_ptr<GltfNode>> m_rootNodes{};
 
 	std::vector<std::shared_ptr<GltfNode>> m_nodeList;
 	int m_nodeCount = 0;

@@ -27,19 +27,29 @@ void GltfAnimationClip::SetAnimationFrame(std::vector<std::shared_ptr<GltfNode>>
 	for (auto& channel : m_animationChannels)
 	{
 		int targetNode = channel->GetTargetNode();
+       if (targetNode < 0 || targetNode >= static_cast<int>(nodes.size()) ||
+			targetNode >= static_cast<int>(additiveMask.size()))
+		{
+			continue;
+		}
 		/* do not change if masked out */
 		if (additiveMask.at(targetNode))
 		{
+           auto& target = nodes.at(targetNode);
+			if (!target)
+			{
+				continue;
+			}
 			switch (channel->GetTargetPath())
 			{
 			case ETargetPath::ROTATION:
-				nodes.at(targetNode)->SetRotation(channel->GetRotation(time));
+              target->SetRotation(channel->GetRotation(time));
 				break;
 			case ETargetPath::TRANSLATION:
-				nodes.at(targetNode)->SetTranslation(channel->GetTranslation(time));
+                target->SetTranslation(channel->GetTranslation(time));
 				break;
 			case ETargetPath::SCALE:
-				nodes.at(targetNode)->SetScale(channel->GetScaling(time));
+              target->SetScale(channel->GetScaling(time));
 				break;
 			}
 		}
@@ -61,18 +71,28 @@ void GltfAnimationClip::BlendAnimationFrame(std::vector<std::shared_ptr<GltfNode
 	for (auto& channel : m_animationChannels)
 	{
 		int targetNode = channel->GetTargetNode();
+        if (targetNode < 0 || targetNode >= static_cast<int>(nodes.size()) ||
+			targetNode >= static_cast<int>(additiveMask.size()))
+		{
+			continue;
+		}
 		if (additiveMask.at(targetNode))
 		{
+           auto& target = nodes.at(targetNode);
+			if (!target)
+			{
+				continue;
+			}
 			switch (channel->GetTargetPath())
 			{
 			case ETargetPath::ROTATION:
-				nodes.at(targetNode)->BlendRotation(channel->GetRotation(time), blendFactor);
+               target->BlendRotation(channel->GetRotation(time), blendFactor);
 				break;
 			case ETargetPath::TRANSLATION:
-				nodes.at(targetNode)->BlendTranslation(channel->GetTranslation(time), blendFactor);
+             target->BlendTranslation(channel->GetTranslation(time), blendFactor);
 				break;
 			case ETargetPath::SCALE:
-				nodes.at(targetNode)->BlendScale(channel->GetScaling(time), blendFactor);
+               target->BlendScale(channel->GetScaling(time), blendFactor);
 				break;
 			}
 		}

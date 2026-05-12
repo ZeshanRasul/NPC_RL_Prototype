@@ -22,11 +22,11 @@ Enemy::Enemy(glm::vec3 pos, glm::vec3 scale, Shader* sdr, Shader* shadowMapShade
 	std::string modelFilename;
 	if (m_type == EnemyType::SCOUT)
 	{
-		modelFilename = "src/Assets/Models/New_Enemies/Armour7/Armor_7_Sci_Fi_Rifle.glb";
+		modelFilename = "src/Assets/Models/New_Enemies/Armour7/Scout.glb";
 	}
 	else if (m_type == EnemyType::HEAVY_SCOUT)
 	{
-		modelFilename = "src/Assets/Models/New_Enemies/Armour9/Armour9.glb";
+		modelFilename = "src/Assets/Models/New_Enemies/Armour9/Heavy_Scout.glb";
 	}
 	else if (m_type == EnemyType::MECH)
 	{
@@ -300,7 +300,7 @@ void Enemy::SetupGLTFMeshes(tinygltf::Model* model)
 	tinygltf::Skin skin;
 	if (m_type == EnemyType::SCOUT)
 	{
-		skin = enemyModel->skins.at(1);
+		skin = enemyModel->skins.at(0);
 	}
 	else if (m_type == EnemyType::HEAVY_SCOUT || m_type == EnemyType::MECH)
 	{
@@ -320,8 +320,7 @@ void Enemy::SetupGLTFMeshes(tinygltf::Model* model)
 	}
 
 	m_nodeCount = (int)enemyModel->nodes.size();
-	int rootNode = enemyModel->scenes.at(0).nodes.at(0);
-	Logger::Log(1, "%s: model has %i nodes, root node is %i\n", __FUNCTION__, m_nodeCount, rootNode);
+    Logger::Log(1, "%s: model has %i nodes\n", __FUNCTION__, m_nodeCount);
 	Logger::Log(1, "skin count = %zu\n", enemyModel->skins.size());
 
 	for (size_t i = 0; i < enemyModel->skins.size(); ++i)
@@ -331,15 +330,26 @@ void Enemy::SetupGLTFMeshes(tinygltf::Model* model)
 			enemyModel->skins[i].joints.size());
 	}
 	m_nodeList.resize(m_nodeCount);
+	m_rootNode = nullptr;
+	m_rootNodes.clear();
 
-	m_rootNode = GltfNode::CreateRoot(rootNode);
+	for (const int rootNode : enemyModel->scenes.at(0).nodes)
+	{
+		Logger::Log(1, "%s: scene root node is %i\n", __FUNCTION__, rootNode);
+		auto root = GltfNode::CreateRoot(rootNode);
+		m_rootNodes.push_back(root);
 
-	m_nodeList.at(rootNode) = m_rootNode;
+		if (!m_rootNode)
+		{
+			m_rootNode = root;
+		}
 
-	GetNodeData(m_rootNode, glm::mat4(1.0f));
-	GetNodes(m_rootNode);
+		m_nodeList.at(rootNode) = root;
 
-	m_rootNode->PrintTree();
+		GetNodeData(root, glm::mat4(1.0f));
+		GetNodes(root);
+		root->PrintTree();
+	}
 
 	GetAnimations();
 
@@ -648,39 +658,39 @@ void Enemy::Update(bool shouldUseEDBT, bool isPaused, bool isTimeScaled)
 		GetGameManager()->GetPhysicsWorld()->RemoveEnemyCollider(GetAABB());
 	}
 
-	//if (m_resetBlend)
-	//{
-	//	m_blendAnim = true;
-	//	m_blendFactor = 0.0f;
-	//	m_resetBlend = false;
-	//}
+	if (m_resetBlend)
+	{
+		m_blendAnim = true;
+		m_blendFactor = 0.0f;
+		m_resetBlend = false;
+	}
 
-	//float animSpeedDivider = 1.0f;
+	float animSpeedDivider = 1.0f;
 
-	//if (isPaused)
-	//	animSpeedDivider = 0.0f;
+	if (isPaused)
+		animSpeedDivider = 0.0f;
 
-	//if (isTimeScaled)
-	//	animSpeedDivider = 0.25f;
+	if (isTimeScaled)
+		animSpeedDivider = 0.25f;
 
-	//if (m_blendAnim)
-	//{
-	//	m_blendFactor += (1.0f - m_blendFactor) * m_blendSpeed * m_dt;
-	//	if (m_blendFactor > 1.0f)
-	//		m_blendFactor = 1.0f;
-	////	SetAnimation(GetSourceAnimNum(), GetDestAnimNum(), animSpeedDivider / 2.0f, m_blendFactor, false);
-	//	if (m_blendFactor >= 1.0f)
-	//	{
-	//		m_blendAnim = false;
-	//		m_blendFactor = 0.0f;
-	//		//SetSourceAnimNum(GetDestAnimNum());
-	//	}
-	//}
-	//else
-	//{
-	////	SetAnimation(GetSourceAnimNum(), animSpeedDivider, 1.0f, false);
-	//	m_blendFactor = 0.0f;
-//	}
+	if (m_blendAnim)
+	{
+		m_blendFactor += (1.0f - m_blendFactor) * m_blendSpeed * m_dt;
+		if (m_blendFactor > 1.0f)
+			m_blendFactor = 1.0f;
+	//	SetAnimation(GetSourceAnimNum(), GetDestAnimNum(), animSpeedDivider / 2.0f, m_blendFactor, false);
+		if (m_blendFactor >= 1.0f)
+		{
+			m_blendAnim = false;
+			m_blendFactor = 0.0f;
+			SetSourceAnimNum(GetDestAnimNum());
+		}
+	}
+	else
+	{
+	//	SetAnimation(GetSourceAnimNum(), animSpeedDivider, 1.0f, false);
+		m_blendFactor = 0.0f;
+	}
 
 	static bool printed = false;
 	if (!printed)
@@ -692,9 +702,9 @@ void Enemy::Update(bool shouldUseEDBT, bool isPaused, bool isTimeScaled)
 	}
 
 	if (m_type == EnemyType::SCOUT)
-		PlayAnimation(0, 1.0f, 1.0f, false);
+		PlayAnimation(5, 1.0f, 1.0f, false);
 	else if (m_type == EnemyType::HEAVY_SCOUT)
-		PlayAnimation(1, 1.0f, 1.0f, false);
+		PlayAnimation(5, 1.0f, 1.0f, false);
 }
 
 void Enemy::OnEvent(const Event& event)
