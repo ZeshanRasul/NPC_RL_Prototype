@@ -801,34 +801,20 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 	groundShader.LoadShaders("src/Shaders/vertex2.glsl", "src/Shaders/fragment2.glsl");
 	enemyShader.LoadShaders("src/Shaders/vertex_pbr_skinned_enemy.glsl", "src/Shaders/pbr_fragment_emissive.glsl");
 	enemyShader2.LoadShaders("src/Shaders/vertex.glsl", "src/Shaders/fragment.glsl");
-	gridShader.LoadShaders("src/Shaders/pbr_vertex.glsl", "src/Shaders/pbr_fragment.glsl");
 	crosshairShader.LoadShaders("src/Shaders/crosshair_vert.glsl", "src/Shaders/crosshair_frag.glsl");
-	//lineShader.LoadShaders("src/Shaders/line_vert.glsl", "src/Shaders/line_frag.glsl");
+	lineShader.LoadShaders("src/Shaders/line_vert.glsl", "src/Shaders/line_frag.glsl");
 	aabbShader.LoadShaders("src/Shaders/aabb_vert.glsl", "src/Shaders/aabb_frag.glsl");
-	cubeShader.LoadShaders("src/Shaders/pbr_vertex.glsl", "src/Shaders/pbr_fragment_emissive.glsl");
-	cubemapShader.LoadShaders("src/Shaders/cubemap_vertex.glsl", "src/Shaders/cubemap_fragment.glsl");
-	minimapShader.LoadShaders("src/Shaders/quad_vertex.glsl", "src/Shaders/quad_fragment.glsl");
 	shadowMapShader.LoadShaders("src/Shaders/shadow_map_vertex.glsl", "src/Shaders/shadow_map_fragment.glsl");
 	playerShadowMapShader.LoadShaders("src/Shaders/shadow_map_player_vertex.glsl", "src/Shaders/shadow_map_fragment.glsl");
 	groundShadowShader.LoadShaders("src/Shaders/shadow_map_vertex.glsl", "src/Shaders/shadow_map_fragment.glsl");
 	enemyShadowMapShader.LoadShaders("src/Shaders/shadow_map_enemy_vertex.glsl", "src/Shaders/shadow_map_fragment.glsl");
-	shadowMapQuadShader.LoadShaders("src/Shaders/shadow_map_quad_vertex.glsl", "src/Shaders/shadow_map_quad_fragment.glsl");
 	playerMuzzleFlashShader.LoadShaders("src/Shaders/muzzle_flash_vertex.glsl", "src/Shaders/muzzle_flash_fragment.glsl");
 	navMeshShader.LoadShaders("src/Shaders/navmesh_vert.glsl", "src/Shaders/navmesh_frag.glsl");
-	//	hfnavMeshShader.LoadShaders("src/Shaders/hf_vert.glsl", "src/Shaders/hf_frag.glsl");
 
-	m_crosshairShader.LoadShaders("src/Shaders/crosshair_vert.glsl", "src/Shaders/crosshair_frag.glsl");
 	m_lineShader.LoadShaders("src/Shaders/line_vert.glsl", "src/Shaders/line_frag.glsl");
-//	aabbShader.LoadShaders("src/Shaders/aabb_vert.glsl", "src/Shaders/aabb_frag.glsl");
-	m_cubeShader.LoadShaders("src/Shaders/pbr_vertex.glsl", "src/Shaders/pbr_fragment_emissive.glsl");
 	m_cubemapShader.LoadShaders("src/Shaders/cubemap_vertex.glsl", "src/Shaders/cubemap_fragment.glsl");
 	m_minimapShader.LoadShaders("src/Shaders/quad_vertex.glsl", "src/Shaders/quad_fragment.glsl");
-	m_shadowMapShader.LoadShaders("src/Shaders/shadow_map_vertex.glsl", "src/Shaders/shadow_map_fragment.glsl");
-	m_playerShadowMapShader.LoadShaders("src/Shaders/shadow_map_player_vertex.glsl", "src/Shaders/shadow_map_fragment.glsl");
-	m_enemyShadowMapShader.LoadShaders("src/Shaders/shadow_map_enemy_vertex.glsl", "src/Shaders/shadow_map_fragment.glsl");
 	m_shadowMapQuadShader.LoadShaders("src/Shaders/shadow_map_quad_vertex.glsl", "src/Shaders/shadow_map_quad_fragment.glsl");
-	m_playerMuzzleFlashShader.LoadShaders("src/Shaders/muzzle_flash_vertex.glsl", "src/Shaders/muzzle_flash_fragment.glsl");
-	m_playerTracerShader.LoadShaders("src/Shaders/muzzle_flash_vertex.glsl", "src/Shaders/muzzle_flash_fragment.glsl");
 
 	m_physicsWorld = new PhysicsWorld();
 
@@ -1216,20 +1202,10 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 	m_enemyMuzzleFlashQuad->SetShader(&playerMuzzleFlashShader);
 	m_enemyMuzzleFlashQuad->LoadTexture("src/Assets/Textures/muzzleflash.png");
 
-	m_enemy2MuzzleFlashQuad = new Quad();
-	m_enemy2MuzzleFlashQuad->SetUpVAO(true);
-	m_enemy2MuzzleFlashQuad->SetShader(&playerMuzzleFlashShader);
-	m_enemy2MuzzleFlashQuad->LoadTexture("src/Assets/Textures/muzzleflash.png");
-
-	m_enemy3MuzzleFlashQuad = new Quad();
-	m_enemy3MuzzleFlashQuad->SetUpVAO(true);
-	m_enemy3MuzzleFlashQuad->SetShader(&playerMuzzleFlashShader);
-	m_enemy3MuzzleFlashQuad->LoadTexture("src/Assets/Textures/muzzleflash.png");
-
-	m_enemy4MuzzleFlashQuad = new Quad();
-	m_enemy4MuzzleFlashQuad->SetUpVAO(true);
-	m_enemy4MuzzleFlashQuad->SetShader(&playerMuzzleFlashShader);
-	m_enemy4MuzzleFlashQuad->LoadTexture("src/Assets/Textures/muzzleflash.png");
+	m_enemyTracerQuad = new Quad();
+	m_enemyTracerQuad->SetUpVAO(true);
+	m_enemyTracerQuad->SetShader(&playerMuzzleFlashShader);
+	m_enemyTracerQuad->LoadTexture("src/Assets/Textures/muzzleflash.png");
 
 
 	//m_player = new Player(glm::vec3(0.0f, 0.0f, 130.0f), glm::vec3(5.0f), &playerShader, &groundShadowShader, true, this, 0.0f);
@@ -1297,7 +1273,6 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 
 	//ground = new Ground(mapPos, mapScale, &groundShader, &groundShadowShader, false, this);
 
-	AudioComponent* fireAudioComponent = new AudioComponent(m_enemy);
 
 
 
@@ -1355,7 +1330,7 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 	}
 #endif // NPC_RL_QLEARNING
 
-	mMusicEvent = m_audioSystem->PlayEvent("event:/bgm");
+	m_musicEvent = m_audioSystem->PlayEvent("event:/bgm");
 
 	//for (int i = 0; i < polyMesh->nverts; ++i) {
 	//	const unsigned short* v = &polyMesh->verts[i * 3];

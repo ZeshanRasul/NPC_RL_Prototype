@@ -246,7 +246,6 @@ private:
 	Renderer* m_renderer;
 	Window* m_window;
 	Camera* m_camera;
-	Camera* m_minimapCamera;
 
 	EventManager m_eventManager;
 	InputManager* m_inputManager;
@@ -257,8 +256,6 @@ private:
 	std::vector<std::string> m_cubemapFaces;
 	Cubemap* m_cubemap;
 	Ground* ground;
-
-	SoundEvent m_musicEvent;
 
 	Player* m_player;
 	Enemy* m_enemy;
@@ -280,48 +277,24 @@ private:
 	Quad* m_shadowMapQuad;
 	Quad* m_playerMuzzleFlashQuad;
 	Quad* m_enemyMuzzleFlashQuad;
-	Quad* m_enemy2MuzzleFlashQuad;
-	Quad* m_enemy3MuzzleFlashQuad;
-	Quad* m_enemy4MuzzleFlashQuad;
-
-	Quad* m_playerTracerQuad;
 	Quad* m_enemyTracerQuad;
-	Quad* m_enemy2TracerQuad;
-	Quad* m_enemy3TracerQuad;
-	Quad* m_enemy4TracerQuad;
 	Shader playerShader{};
 	Shader groundShader{};
 	Shader groundShadowShader{};
 	Shader enemyShader{};
 	Shader enemyShader2{};
-	Shader gridShader{};
 	Shader crosshairShader{};
 	Shader lineShader{};
 	Shader aabbShader{};
-	Shader cubeShader{};
-	Shader cubemapShader{};
-	Shader minimapShader{};
 	Shader shadowMapShader{};
 	Shader playerShadowMapShader{};
 	Shader enemyShadowMapShader{};
-	Shader shadowMapQuadShader{};
 	Shader playerMuzzleFlashShader{};
 
-	Shader m_playerShader{};
-	Shader m_enemyShader{};
-	Shader m_gridShader{};
-	Shader m_gridDebugShader{};
-	Shader m_crosshairShader{};
 	Shader m_lineShader{};
-	Shader m_cubeShader{};
 	Shader m_cubemapShader{};
 	Shader m_minimapShader{};
-	Shader m_shadowMapShader{};
-	Shader m_playerShadowMapShader{};
-	Shader m_enemyShadowMapShader{};
 	Shader m_shadowMapQuadShader{};
-	Shader m_playerMuzzleFlashShader{};
-	Shader m_playerTracerShader{};
 
 	ShaderStorageBuffer m_playerSsBuffer{};
 	ShaderStorageBuffer m_enemySsBuffer{};
@@ -341,25 +314,25 @@ private:
 	float m_playerMuzzleFlashScale = 1.0f;
 	glm::mat4 m_playerMuzzleModel = glm::mat4(1.0f);
 
-	std::vector<bool> m_renderEnemyMuzzleFlash = { false, false, false, false };
-	std::vector<float> m_enemyMuzzleFlashStartTimes = { 0.0f, 0.0f, 0.0f, 0.0f };
-	std::vector<float> m_enemyMuzzleTimesSinceStart = { 0.0f, 0.0f, 0.0f, 0.0f };
-	std::vector<float> m_enemyMuzzleFlashDurations = { 0.1f, 0.1f, 0.1f, 0.1f };
-	std::vector<float> m_enemyMuzzleAlphas = { 0.0f, 0.0f, 0.0f, 0.0f };
-	std::vector<glm::vec3> m_enemyMuzzleFlashTints = { {1.0f, 1.0f, 1.0f}, {1.0f, 1.0f, 1.0f}, {1.0f, 1.0f, 1.0f}, {1.0f, 1.0f, 1.0f} };
-	std::vector<float> m_enemyMuzzleFlashScales = { 1.0f, 1.0f, 1.0f, 1.0f };
-	std::vector<glm::mat4> m_enemyMuzzleModelMatrices = { glm::mat4(1.0f), glm::mat4(1.0f), glm::mat4(1.0f), glm::mat4(1.0f) };
+	std::vector<bool> m_renderEnemyMuzzleFlash = { false, false, false, false, false, false, false, false };
+	std::vector<float> m_enemyMuzzleFlashStartTimes = { 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f };
+	std::vector<float> m_enemyMuzzleTimesSinceStart = { 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f };
+	std::vector<float> m_enemyMuzzleFlashDurations = { 0.1f, 0.1f, 0.1f, 0.1f, 0.1f, 0.1f, 0.1f, 0.1f };
+	std::vector<float> m_enemyMuzzleAlphas = { 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f };
+	std::vector<glm::vec3> m_enemyMuzzleFlashTints = { {1.0f, 1.0f, 1.0f}, {1.0f, 1.0f, 1.0f}, {1.0f, 1.0f, 1.0f}, {1.0f, 1.0f, 1.0f}, {1.0f, 1.0f, 1.0f}, {1.0f, 1.0f, 1.0f}, {1.0f, 1.0f, 1.0f}, {1.0f, 1.0f, 1.0f} };
+	std::vector<float> m_enemyMuzzleFlashScales = { 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f };
+	std::vector<glm::mat4> m_enemyMuzzleModelMatrices = { glm::mat4(1.0f), glm::mat4(1.0f), glm::mat4(1.0f), glm::mat4(1.0f), glm::mat4(1.0f), glm::mat4(1.0f), glm::mat4(1.0f), glm::mat4(1.0f) };
 	glm::vec3 m_enemyMuzzleFlashOffsets = glm::vec3(0.0f);
 	float m_muzzleOffset = 2.4f;
 
-	std::vector<bool> m_renderEnemyTracer = { false, false, false, false };
-	std::vector<float> m_enemyTracerStartTimes = { 0.0f, 0.0f, 0.0f, 0.0f };
-	std::vector<float> m_enemyTracerTimesSinceStart = { 0.0f, 0.0f, 0.0f, 0.0f };
-	std::vector<float> m_enemyTracerDurations = { 0.1f, 0.1f, 0.1f, 0.1f };
-	std::vector<float> m_enemyTracerAlphas = { 0.0f, 0.0f, 0.0f, 0.0f };
-	std::vector<glm::vec3> m_enemyTracerTints = { {1.0f, 1.0f, 1.0f}, {1.0f, 1.0f, 1.0f}, {1.0f, 1.0f, 1.0f}, {1.0f, 1.0f, 1.0f} };
-	std::vector<float> m_enemyTracerScales = { 1.0f, 1.0f, 1.0f, 1.0f };
-	std::vector<glm::mat4> m_enemyTracerModelMatrices = { glm::mat4(1.0f), glm::mat4(1.0f), glm::mat4(1.0f), glm::mat4(1.0f) };
+	std::vector<bool> m_renderEnemyTracer = { false, false, false, false, false, false, false, false };
+	std::vector<float> m_enemyTracerStartTimes = { 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f };
+	std::vector<float> m_enemyTracerTimesSinceStart = { 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f };
+	std::vector<float> m_enemyTracerDurations = { 0.1f, 0.1f, 0.1f, 0.1f, 0.1f, 0.1f, 0.1f, 0.1f };
+	std::vector<float> m_enemyTracerAlphas = { 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f };
+	std::vector<glm::vec3> m_enemyTracerTints = { {1.0f, 1.0f, 1.0f}, {1.0f, 1.0f, 1.0f}, {1.0f, 1.0f, 1.0f}, {1.0f, 1.0f, 1.0f}, {1.0f, 1.0f, 1.0f}, {1.0f, 1.0f, 1.0f}, {1.0f, 1.0f, 1.0f}, {1.0f, 1.0f, 1.0f} };
+	std::vector<float> m_enemyTracerScales = { 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f };
+	std::vector<glm::mat4> m_enemyTracerModelMatrices = { glm::mat4(1.0f), glm::mat4(1.0f), glm::mat4(1.0f), glm::mat4(1.0f), glm::mat4(1.0f), glm::mat4(1.0f), glm::mat4(1.0f), glm::mat4(1.0f) };
 	glm::vec3 m_enemyTracerOffsets = glm::vec3(0.0f);
 	float m_tracerOffset = 2.4f;
 
@@ -373,54 +346,9 @@ private:
 	glm::mat4 m_lightSpaceMatrix = glm::mat4(1.0f);
 
 	bool m_firstFlyCamSwitch = true;
-	bool renderEnemy2MuzzleFlash = false;
-	float enemy2MuzzleFlashStartTime = 0.0f;
-	float enemy2MuzzleTimeSinceStart = 0.0f;
-	float enemy2MuzzleFlashDuration = 0.1f;
-	float enemy2MuzzleAlpha = 0.0f;
-	glm::vec3 enemy2MuzzleTint = { 1.0f, 1.0f, 1.0f };
-	float enemy2MuzzleFlashScale = 1.0f;
-	glm::mat4 enemy2MuzzleModel = glm::mat4(1.0f);
-
-	bool renderEnemy3MuzzleFlash = false;
-	float enemy3MuzzleFlashStartTime = 0.0f;
-	float enemy3MuzzleTimeSinceStart = 0.0f;
-	float enemy3MuzzleFlashDuration = 0.1f;
-	float enemy3MuzzleAlpha = 0.0f;
-	glm::vec3 enemy3MuzzleTint = { 1.0f, 1.0f, 1.0f };
-	float enemy3MuzzleFlashScale = 1.0f;
-	glm::mat4 enemy3MuzzleModel = glm::mat4(1.0f);
-
-	bool renderEnemy4MuzzleFlash = false;
-	float enemy4MuzzleFlashStartTime = 0.0f;
-	float enemy4MuzzleTimeSinceStart = 0.0f;
-	float enemy4MuzzleFlashDuration = 0.1f;
-	float enemy4MuzzleAlpha = 0.0f;
-	glm::vec3 enemy4MuzzleTint = { 1.0f, 1.0f, 1.0f };
-	float enemy4MuzzleFlashScale = 1.0f;
-	glm::mat4 enemy4MuzzleModel = glm::mat4(1.0f);
 
 
-	glm::mat4 view = glm::mat4(1.0f);
-	glm::mat4 projection = glm::mat4(1.0f);
-	glm::mat4 cubemapView = glm::mat4(1.0f);
-	glm::mat4 minimapView = glm::mat4(1.0f);
-	glm::mat4 minimapProjection = glm::mat4(1.0f);
-	glm::mat4 lightSpaceView = glm::mat4(1.0f);
-	glm::mat4 lightSpaceProjection = glm::mat4(1.0f);
-	glm::mat4 lightSpaceMatrix = glm::mat4(1.0f);
-
-
-	std::vector<std::string> cubemapFaces;
-	Cubemap* cubemap;
-
-	int currentStateIndex = 0;
-
-	SoundEvent mMusicEvent;
-
-	bool firstFlyCamSwitch = true;
-
-	AudioManager* mAudioManager;
+	SoundEvent m_musicEvent;
 
 	std::vector<float> navMeshVertices;
 	std::vector<unsigned int> navMeshIndices;
