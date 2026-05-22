@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<objects serializationModel="Studio.01.09.00">
+    <object class="AudioFile" id="{5f295b87-e0bf-45fd-a802-5a32cc6fedf6}">
+        <property name="assetPath">
+            <value>enemy3/enemy3_Deals Damage2.wav</value>
+        </property>
+        <property name="frequencyInKHz">
+            <value>48</value>
+        </property>
+        <property name="channelCount">
+            <value>1</value>
+        </property>
+        <property name="length">
+            <value>1.2596458333333334</value>
+        </property>
+        <relationship name="masterAssetFolder">
+            <destination>{ab2d50f9-072f-433d-950e-e62e89beb8cb}</destination>
+        </relationship>
+    </object>
+</objects>

@@ -37,6 +37,7 @@
 
 class GameManager {
 private:
+#ifdef NPC_RL_QLEARNING
 	void SaveQTable(const std::unordered_map<std::pair<State, Action>, float, PairHash>& qTable, const std::string& filename) {
 		std::ofstream outFile(filename, std::ios::app);
 		if (!outFile) {
@@ -110,19 +111,21 @@ private:
 			}
 		}
 	}
-
+#endif // NPC_RL_QLEARNING
 
 public:
 	GameManager(Window* window, unsigned int width, unsigned int height);
 
 	~GameManager() {
 
+#ifdef NPC_RL_QLEARNING
 		if (m_training)
 		{
 			for (int enemyID = 0; enemyID < 4; ++enemyID) {
 				SaveQTable(m_enemyStateQTable[enemyID], std::to_string(enemyID) + m_enemyStateFilename);
 			}
 		}
+#endif // NPC_RL_QLEARNING
 
 		delete m_camera;
 		for (auto it = m_gameObjects.begin(); it != m_gameObjects.end(); ) {
@@ -192,6 +195,8 @@ private:
 	bool m_camSwitchedToAim = false;
 
 	bool m_useEdbt = true;
+
+#ifdef NPC_RL_QLEARNING
 	bool m_loadQTable = false;
 	bool m_initializeQTable = false;
 	bool m_training = false;
@@ -214,6 +219,8 @@ private:
 
 	float m_decisionTimer = 0.0f;
 	float m_decisionInterval = 0.5f;
+#endif // NPC_RL_QLEARNING
+
 	float m_dt;
 
 	float m_fps = 0.0f;

@@ -1,0 +1,259 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="D:\dev\Gameplay\NPC_RL_Prototype\src\main.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\dev\Gameplay\NPC_RL_Prototype\src\App.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\dev\Gameplay\NPC_RL_Prototype\src\GameManager.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\dev\Gameplay\NPC_RL_Prototype\src\Camera.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\dev\Gameplay\NPC_RL_Prototype\src\InputManager.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\dev\Gameplay\NPC_RL_Prototype\src\Tunables.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\dev\Gameplay\NPC_RL_Prototype\src\Window\Window.cpp">
+      <Filter>Source\Window</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\dev\Gameplay\NPC_RL_Prototype\src\OpenGL\Renderer.cpp">
+      <Filter>Source\OpenGL</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\dev\Gameplay\NPC_RL_Prototype\src\OpenGL\Shader.cpp">
+      <Filter>Source\OpenGL</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\dev\Gameplay\NPC_RL_Prototype\src\OpenGL\Texture.cpp">
+      <Filter>Source\OpenGL</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\dev\Gameplay\NPC_RL_Prototype\src\OpenGL\VertexBuffer.cpp">
+      <Filter>Source\OpenGL</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\dev\Gameplay\NPC_RL_Prototype\src\OpenGL\UniformBuffer.cpp">
+      <Filter>Source\OpenGL</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\dev\Gameplay\NPC_RL_Prototype\src\OpenGL\ShaderStorageBuffer.cpp">
+      <Filter>Source\OpenGL</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\dev\Gameplay\NPC_RL_Prototype\src\OpenGL\Cubemap.cpp">
+      <Filter>Source\OpenGL</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\dev\Gameplay\NPC_RL_Prototype\src\GameObjects\Player.cpp">
+      <Filter>Source\GameObjects</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\dev\Gameplay\NPC_RL_Prototype\src\GameObjects\Enemy.cpp">
+      <Filter>Source\GameObjects</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\dev\Gameplay\NPC_RL_Prototype\src\GameObjects\Ground.cpp">
+      <Filter>Source\GameObjects</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\dev\Gameplay\NPC_RL_Prototype\src\GameObjects\Crosshair.cpp">
+      <Filter>Source\GameObjects</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\dev\Gameplay\NPC_RL_Prototype\src\GameObjects\Line.cpp">
+      <Filter>Source\GameObjects</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\dev\Gameplay\NPC_RL_Prototype\src\Model\GltfModel.cpp">
+      <Filter>Source\Model</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\dev\Gameplay\NPC_RL_Prototype\src\Model\GltfNode.cpp">
+      <Filter>Source\Model</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\dev\Gameplay\NPC_RL_Prototype\src\Model\GltfAnimationClip.cpp">
+      <Filter>Source\Model</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\dev\Gameplay\NPC_RL_Prototype\src\Model\GltfAnimationChannel.cpp">
+      <Filter>Source\Model</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\dev\Gameplay\NPC_RL_Prototype\src\Components\Component.cpp">
+      <Filter>Source\Components</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\dev\Gameplay\NPC_RL_Prototype\src\Components\AudioComponent.cpp">
+      <Filter>Source\Components</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\dev\Gameplay\NPC_RL_Prototype\src\Physics\AABB.cpp">
+      <Filter>Source\Physics</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\dev\Gameplay\NPC_RL_Prototype\src\Physics\PhysicsWorld.cpp">
+      <Filter>Source\Physics</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\dev\Gameplay\NPC_RL_Prototype\src\Audio\AudioSystem.cpp">
+      <Filter>Source\Audio</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\dev\Gameplay\NPC_RL_Prototype\src\Audio\AudioManager.cpp">
+      <Filter>Source\Audio</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\dev\Gameplay\NPC_RL_Prototype\src\Audio\SoundEvent.cpp">
+      <Filter>Source\Audio</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\dev\Gameplay\NPC_RL_Prototype\src\Tools\Logger.cpp">
+      <Filter>Source\Tools</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\dev\Gameplay\NPC_RL_Prototype\src\glad.c">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\dev\Gameplay\NPC_RL_Prototype\src\tinygltf\tiny_gltf.cc">
+      <Filter>Source\tinygltf</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\dev\Gameplay\NPC_RL_Prototype\include\imgui\imgui.cpp">
+      <Filter>ThirdParty\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\dev\Gameplay\NPC_RL_Prototype\include\imgui\imgui_demo.cpp">
+      <Filter>ThirdParty\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\dev\Gameplay\NPC_RL_Prototype\include\imgui\imgui_draw.cpp">
+      <Filter>ThirdParty\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\dev\Gameplay\NPC_RL_Prototype\include\imgui\imgui_tables.cpp">
+      <Filter>ThirdParty\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\dev\Gameplay\NPC_RL_Prototype\include\imgui\imgui_widgets.cpp">
+      <Filter>ThirdParty\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\dev\Gameplay\NPC_RL_Prototype\include\imgui\backend\imgui_impl_glfw.cpp">
+      <Filter>ThirdParty\imgui\backend</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\dev\Gameplay\NPC_RL_Prototype\include\imgui\backend\imgui_impl_opengl3.cpp">
+      <Filter>ThirdParty\imgui\backend</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\dev\Gameplay\NPC_RL_Prototype\include\Recast\Source\Recast.cpp">
+      <Filter>ThirdParty\Recast\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\dev\Gameplay\NPC_RL_Prototype\include\Recast\Source\RecastAlloc.cpp">
+      <Filter>ThirdParty\Recast\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\dev\Gameplay\NPC_RL_Prototype\include\Recast\Source\RecastArea.cpp">
+      <Filter>ThirdParty\Recast\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\dev\Gameplay\NPC_RL_Prototype\include\Recast\Source\RecastAssert.cpp">
+      <Filter>ThirdParty\Recast\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\dev\Gameplay\NPC_RL_Prototype\include\Recast\Source\RecastContour.cpp">
+      <Filter>ThirdParty\Recast\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\dev\Gameplay\NPC_RL_Prototype\include\Recast\Source\RecastFilter.cpp">
+      <Filter>ThirdParty\Recast\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\dev\Gameplay\NPC_RL_Prototype\include\Recast\Source\RecastLayers.cpp">
+      <Filter>ThirdParty\Recast\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\dev\Gameplay\NPC_RL_Prototype\include\Recast\Source\RecastMesh.cpp">
+      <Filter>ThirdParty\Recast\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\dev\Gameplay\NPC_RL_Prototype\include\Recast\Source\RecastMeshDetail.cpp">
+      <Filter>ThirdParty\Recast\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\dev\Gameplay\NPC_RL_Prototype\include\Recast\Source\RecastRasterization.cpp">
+      <Filter>ThirdParty\Recast\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\dev\Gameplay\NPC_RL_Prototype\include\Recast\Source\RecastRegion.cpp">
+      <Filter>ThirdParty\Recast\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\dev\Gameplay\NPC_RL_Prototype\include\Detour\Source\DetourAlloc.cpp">
+      <Filter>ThirdParty\Detour\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\dev\Gameplay\NPC_RL_Prototype\include\Detour\Source\DetourAssert.cpp">
+      <Filter>ThirdParty\Detour\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\dev\Gameplay\NPC_RL_Prototype\include\Detour\Source\DetourCommon.cpp">
+      <Filter>ThirdParty\Detour\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\dev\Gameplay\NPC_RL_Prototype\include\Detour\Source\DetourNavMesh.cpp">
+      <Filter>ThirdParty\Detour\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\dev\Gameplay\NPC_RL_Prototype\include\Detour\Source\DetourNavMeshBuilder.cpp">
+      <Filter>ThirdParty\Detour\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\dev\Gameplay\NPC_RL_Prototype\include\Detour\Source\DetourNavMeshQuery.cpp">
+      <Filter>ThirdParty\Detour\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\dev\Gameplay\NPC_RL_Prototype\include\Detour\Source\DetourNode.cpp">
+      <Filter>ThirdParty\Detour\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\dev\Gameplay\NPC_RL_Prototype\include\DetourCrowd\Source\DetourCrowd.cpp">
+      <Filter>ThirdParty\DetourCrowd\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\dev\Gameplay\NPC_RL_Prototype\include\DetourCrowd\Source\DetourLocalBoundary.cpp">
+      <Filter>ThirdParty\DetourCrowd\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\dev\Gameplay\NPC_RL_Prototype\include\DetourCrowd\Source\DetourObstacleAvoidance.cpp">
+      <Filter>ThirdParty\DetourCrowd\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\dev\Gameplay\NPC_RL_Prototype\include\DetourCrowd\Source\DetourPathCorridor.cpp">
+      <Filter>ThirdParty\DetourCrowd\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\dev\Gameplay\NPC_RL_Prototype\include\DetourCrowd\Source\DetourPathQueue.cpp">
+      <Filter>ThirdParty\DetourCrowd\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\dev\Gameplay\NPC_RL_Prototype\include\DetourCrowd\Source\DetourProximityGrid.cpp">
+      <Filter>ThirdParty\DetourCrowd\Source</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="D:\dev\Gameplay\NPC_RL_Prototype\CMakeLists.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Source">
+      <UniqueIdentifier>{73E6FC11-520D-3735-B57E-2DFDCAC706E1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Audio">
+      <UniqueIdentifier>{8918238E-4CD4-37CC-9DB8-2E45AE6E1DB8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Components">
+      <UniqueIdentifier>{5D0B1AED-5E33-3B3B-81C2-7C21647298AB}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\GameObjects">
+      <UniqueIdentifier>{1F79EE25-D220-3292-98AC-77316BE5001C}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Model">
+      <UniqueIdentifier>{456E7900-69D1-310C-BB72-50DE143B2E1F}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\OpenGL">
+      <UniqueIdentifier>{7664CA01-B43A-3578-A82D-6FA54BF24AD1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Physics">
+      <UniqueIdentifier>{CA38EA37-1D1C-35E5-B08B-48717C4EF001}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Tools">
+      <UniqueIdentifier>{595139A0-DCE5-3544-8FA3-9AC4358DDBE7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Window">
+      <UniqueIdentifier>{749E5B13-8E3B-3145-8E6D-82B500D6AD4C}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\tinygltf">
+      <UniqueIdentifier>{509DF3B3-E7F8-3D2C-8165-477C2F34E206}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ThirdParty">
+      <UniqueIdentifier>{8EC7DED5-D184-346C-9043-FA6C235483FF}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ThirdParty\Detour">
+      <UniqueIdentifier>{4B11FDB9-9DB6-363A-85EE-3758141E4AFE}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ThirdParty\DetourCrowd">
+      <UniqueIdentifier>{F28D3D1C-79CE-3C56-952C-32F97817ADE5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ThirdParty\DetourCrowd\Source">
+      <UniqueIdentifier>{5FE9E56A-D838-380C-BC0E-1D2C1980A38A}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ThirdParty\Detour\Source">
+      <UniqueIdentifier>{92324E8A-9A28-37DF-8C00-15568E68CD10}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ThirdParty\Recast">
+      <UniqueIdentifier>{17BA5346-3E82-3D44-8E36-0996751EC81D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ThirdParty\Recast\Source">
+      <UniqueIdentifier>{48683E43-9B22-3855-A7AD-F7B29B48A407}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ThirdParty\imgui">
+      <UniqueIdentifier>{5F991566-8C8B-3EAA-8F93-A04EC16DA608}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ThirdParty\imgui\backend">
+      <UniqueIdentifier>{401BE7AB-B7D1-384E-82C2-DC789F6782C6}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

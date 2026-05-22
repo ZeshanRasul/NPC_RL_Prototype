@@ -1,0 +1,35 @@
+﻿  Ground.cpp
+  Player.cpp
+D:\dev\Gameplay\NPC_RL_Prototype\src\GameObjects\Player.h(155,75): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+  (compiling source file '../src/GameObjects/Player.cpp')
+  
+D:\dev\Gameplay\NPC_RL_Prototype\src\GameObjects\Player.h(161,42): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+  (compiling source file '../src/GameObjects/Player.cpp')
+  
+D:\dev\Gameplay\NPC_RL_Prototype\src\GameObjects\Player.h(155,75): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+  (compiling source file '../src/GameObjects/Ground.cpp')
+  
+D:\dev\Gameplay\NPC_RL_Prototype\src\GameObjects\Player.h(161,42): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+  (compiling source file '../src/GameObjects/Ground.cpp')
+  
+D:\dev\Gameplay\NPC_RL_Prototype\src\GameObjects\Enemy.h(214,75): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+  (compiling source file '../src/GameObjects/Ground.cpp')
+  
+D:\dev\Gameplay\NPC_RL_Prototype\src\GameObjects\Enemy.h(220,42): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+  (compiling source file '../src/GameObjects/Ground.cpp')
+  
+D:\dev\Gameplay\NPC_RL_Prototype\src\GameObjects\Enemy.h(214,75): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+  (compiling source file '../src/GameObjects/Player.cpp')
+  
+D:\dev\Gameplay\NPC_RL_Prototype\src\GameObjects\Enemy.h(220,42): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+  (compiling source file '../src/GameObjects/Player.cpp')
+  
+D:\dev\Gameplay\NPC_RL_Prototype\src\GameObjects\Ground.cpp(93,29): warning C4267: 'argument': conversion from 'size_t' to 'GLsizei', possible loss of data
+D:\dev\Gameplay\NPC_RL_Prototype\src\GameObjects\Ground.cpp(315,67): warning C4244: 'argument': conversion from 'const double' to 'float', possible loss of data
+D:\dev\Gameplay\NPC_RL_Prototype\src\GameObjects\Ground.cpp(316,68): warning C4244: 'argument': conversion from 'const double' to 'float', possible loss of data
+D:\dev\Gameplay\NPC_RL_Prototype\src\GameObjects\Ground.cpp(455,29): warning C4267: 'argument': conversion from 'size_t' to 'GLsizei', possible loss of data
+D:\dev\Gameplay\NPC_RL_Prototype\src\GameObjects\Player.cpp(73,29): warning C4267: 'argument': conversion from 'size_t' to 'GLsizei', possible loss of data
+D:\dev\Gameplay\NPC_RL_Prototype\src\GameObjects\Player.cpp(456,67): warning C4244: 'argument': conversion from 'const double' to 'float', possible loss of data
+D:\dev\Gameplay\NPC_RL_Prototype\src\GameObjects\Player.cpp(457,68): warning C4244: 'argument': conversion from 'const double' to 'float', possible loss of data
+  NPC_RL_Prototype.vcxproj -> D:\dev\Gameplay\NPC_RL_Prototype\build\RelWithDebInfo\NPC_RL_Prototype.exe
+  Copying FMOD DLLs to output directory

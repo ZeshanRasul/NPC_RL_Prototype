@@ -22,6 +22,7 @@ enum EnemyType
 	MECH
 };
 
+#ifdef NPC_RL_QLEARNING
 enum Action
 {
 	PATROL,
@@ -62,6 +63,7 @@ struct PairHash
 			std::hash<int>()(action);
 	}
 };
+#endif // NPC_RL_QLEARNING
 
 class Enemy : public GameObject
 {
@@ -589,18 +591,22 @@ public:
 
 	glm::vec3 SelectRandomWaypoint(const glm::vec3& currentWaypoint, const std::vector<glm::vec3>& allWaypoints);
 
-	// Function to perform enemy decision-making during an attack using Nash Q-learning
+#ifdef NPC_RL_QLEARNING
 	void EnemyDecision(State& currentState, int enemyId, std::vector<Action>& squadActions,
 		float deltaTime, std::unordered_map<std::pair<State, Action>, float, PairHash>* qTable);
 
 	void EnemyDecisionPrecomputedQ(State& currentState, int enemyId, std::vector<Action>& squadActions,
 		float deltaTime,
 		std::unordered_map<std::pair<State, Action>, float, PairHash>* qTable);
+#endif // NPC_RL_QLEARNING
 
 	void ResetState();
 
 private:
-	// NASH LEARNING START
+	Player& m_player;
+	float m_decisionDelayTimer = 0.0f;
+
+#ifdef NPC_RL_QLEARNING
 	const float m_learningRate = 0.05f;
 	const float m_discountFactor = 0.95f;
 	float m_explorationRate;
@@ -608,10 +614,6 @@ private:
 	float m_minExplorationRate = 0.1f;
 	int m_targetQTableSize = 1000000;
 	Action m_chosenAction;
-	float m_decisionDelayTimer = 0.0f;
-
-
-	Player& m_player;
 	const float BUCKET_SIZE = 10.0f;
 	const float TOLERANCE = 10.0f;
 
@@ -627,24 +629,15 @@ private:
 	float GetMaxQValue(const State& state, int enemyId,
 		std::unordered_map<std::pair<State, Action>, float, PairHash>* qTable);
 
-	// Choose an action based on epsilon-greedy strategy for a specific enemy
 	Action ChooseAction(const State& state, int enemyId,
 		std::unordered_map<std::pair<State, Action>, float, PairHash>* qTable);
 
-	// Update Q-value for a given state-action pair for a specific enemy
 	void UpdateQValue(const State& currentState, Action action, const State& nextState, float reward,
 		int enemyId, std::unordered_map<std::pair<State, Action>, float, PairHash>* qTable);
 
-
-	// USING PRECOMPUTED Q-VALUES START
-
-	// Choose an action based on the highest Q-value for a specific enemy
 	Action ChooseActionFromTrainedQTable(const State& state, int enemyId,
 		std::unordered_map<std::pair<State, Action>, float, PairHash>* qTable);
-
-	// USING PRECOMPUTED Q-VALUES END
-
-	// NASH LEARNING EMD
+#endif // NPC_RL_QLEARNING
 
 	void HasDealtDamage() override;
 	void HasKilledPlayer() override;

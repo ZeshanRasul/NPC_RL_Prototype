@@ -217,7 +217,7 @@ std::vector<GLuint> Player::LoadGLTFTextures(tinygltf::Model* model) {
 		textureIDs[i] = texID;
 	}
 
-	m_ao.LoadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Models/New/Updated/Atlas_00001.png", false);
+	// AO texture is embedded in the GLTF material; no separate load needed
 
 
 	glBindTexture(GL_TEXTURE_2D, 0);

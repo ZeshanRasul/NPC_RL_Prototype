@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <CustomBuild Include="D:\dev\Gameplay\NPC_RL_Prototype\build\CMakeFiles\ac429d2604044ec5f2912da7560f0c8d\generate.stamp.rule">
+      <Filter>CMake Rules</Filter>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="CMake Rules">
+      <UniqueIdentifier>{3E2EFA07-4BF3-3592-8B4E-20BBC7F1A344}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

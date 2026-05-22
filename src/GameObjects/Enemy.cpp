@@ -1916,6 +1916,7 @@ NodeStatus Enemy::Die()
 	return NodeStatus::Success;
 }
 
+#ifdef NPC_RL_QLEARNING
 float Enemy::DecayExplorationRate(float initialRate, float minRate, int currentSize, int targetSize)
 {
 	if (currentSize >= targetSize)
@@ -1925,3 +1926,4 @@ float Enemy::DecayExplorationRate(float initialRate, float minRate, int currentS
 	float decayedRate = minRate + (initialRate - minRate) * (1.0f - static_cast<float>(currentSize) / targetSize);
 	return decayedRate;
 }
+#endif // NPC_RL_QLEARNING

@@ -1332,6 +1332,7 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 	m_enemies.push_back(m_enemy7);
 	m_enemies.push_back(m_enemy8);
 
+#ifdef NPC_RL_QLEARNING
 	if (m_initializeQTable)
 	{
 		for (auto& enem : m_enemies)
@@ -1352,6 +1353,7 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 			Logger::Log(1, "%s Loaded Q Table for Enemy %d\n", __FUNCTION__, enemyID);
 		}
 	}
+#endif // NPC_RL_QLEARNING
 
 	mMusicEvent = m_audioSystem->PlayEvent("event:/bgm");
 
@@ -1947,12 +1949,14 @@ void GameManager::ResetGame()
 	m_enemy2->SetPosition(m_enemy2->GetInitialPosition());
 	m_enemy3->SetPosition(m_enemy3->GetInitialPosition());
 	m_enemy4->SetPosition(m_enemy4->GetInitialPosition());
+#ifdef NPC_RL_QLEARNING
 	m_enemyStates = {
 		{ false, false, 100.0f, 100.0f, false },
 		{ false, false, 100.0f, 100.0f, false },
 		{ false, false, 100.0f, 100.0f, false },
 		{ false, false, 100.0f, 100.0f, false }
 	};
+#endif // NPC_RL_QLEARNING
 
 	for (Enemy* emy : m_enemies)
 	{

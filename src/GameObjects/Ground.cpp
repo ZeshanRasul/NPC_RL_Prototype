@@ -161,17 +161,20 @@ void Ground::SetupGLTFMeshes(tinygltf::Model* model)
 			gltfMesh.primitives.push_back(gltfPrim);
 		}
 
-		meshData[meshIndex] = gltfMesh;
-
-
 		const tinygltf::Value& val = mesh.extras.Get("isBox");
 		const tinygltf::Value& val2 = mesh.extras.Get("isCollider");
+
 		if (val.IsInt() && val.Get<int>() == 1 && val2.IsInt() && val2.Get<int>() == 1) {
 			Logger::Log(1, "Mesh is a box collider, setting up AABB\n");
 			aabbMeshVertices.push_back(meshVerts);
 	//		SetUpAABB();
 			continue;
 		}
+
+		meshData[meshIndex] = gltfMesh;
+
+
+
 
 		//const tinygltf::Value& planeVal = mesh.extras.Get("isPlane");
 		//const tinygltf::Value& planeVal2 = mesh.extras.Get("isCollider");
@@ -559,7 +562,7 @@ Ground::Ground(glm::vec3 pos, glm::vec3 scale, Shader* shdr, Shader* shadowMapSh
 	for (int texID : LoadGLTFTextures(mapModel))
 		glTextures.push_back(texID);
 
-	mTex.LoadTexture("C:/dev/NPC_RL_Prototype/NPC_RL_Prototype/src/Assets/Models/New/Updated/Atlas_00001.png", false);
+	// AO texture is embedded in the GLTF material; no separate load needed
 
 	//plane01Model = new tinygltf::Model;
 
