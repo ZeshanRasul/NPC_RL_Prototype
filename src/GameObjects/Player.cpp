@@ -143,34 +143,6 @@ void Player::SetupGLTFMeshes(tinygltf::Model* model)
 		meshData[meshIndex] = gltfMesh;
 	}
 
-	GetJointData();
-	GetWeightData();
-	GetInvBindMatrices();
-
-	m_nodeCount = (int)playerModel->nodes.size();
-	int rootNode = playerModel->scenes.at(0).nodes.at(0);
-	Logger::Log(1, "%s: model has %i nodes, root node is %i\n", __FUNCTION__, m_nodeCount, rootNode);
-
-	m_nodeList.resize(m_nodeCount);
-
-	m_rootNode = GltfNode::CreateRoot(rootNode);
-
-	m_nodeList.at(rootNode) = m_rootNode;
-
-	GetNodeData(m_rootNode, glm::mat4(1.0f));
-	GetNodes(m_rootNode);
-
-	m_rootNode->PrintTree();
-
-	GetAnimations();
-
-	m_additiveAnimationMask.resize(m_nodeCount);
-	m_invertedAdditiveAnimationMask.resize(m_nodeCount);
-
-	std::fill(m_additiveAnimationMask.begin(), m_additiveAnimationMask.end(), true);
-	m_invertedAdditiveAnimationMask = m_additiveAnimationMask;
-	m_invertedAdditiveAnimationMask.flip();
-
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
@@ -230,67 +202,16 @@ Player::Player(glm::vec3 pos, glm::vec3 scale, Shader* shdr, Shader* shadowMapSh
 	SetInitialPos(pos);
 	m_initialYaw = yaw;
 
-	//m_model = std::make_shared<GltfModel>();
+	m_skinnedMesh.Load("src/Assets/Models/Soldier/Animations.glb");
 
-	//std::string modelFilename =
-	//	"src/Assets/Models/GLTF/SwatPlayer/Swat.gltf";
-	//std::string modelTextureFilename =
-	//	"src/Assets/Models/GLTF/SwatPlayer/Swat_Ch15_body_BaseColor.png";
+	SetupGLTFMeshes(m_skinnedMesh.GetModel());
 
-	//if (!m_model->LoadModel(modelFilename))
-	//{
-	//	Logger::Log(1, "%s: loading glTF m_model '%s' failed\n", __FUNCTION__, modelFilename.c_str());
-	//}
-
-	playerModel = new tinygltf::Model;
-
-	std::string modelFilename = "src/Assets/Models/Soldier/Animations.glb";
-
-
-	tinygltf::TinyGLTF gltfLoader;	
-	std::string loaderErrors;
-	std::string loaderWarnings;
-	bool result = false;
-
-	result = gltfLoader.LoadBinaryFromFile(playerModel, &loaderErrors, &loaderWarnings,
-		modelFilename);
-
-	if (!loaderWarnings.empty()) {
-		Logger::Log(1, "%s: warnings while loading glTF model:\n%s\n", __FUNCTION__,
-			loaderWarnings.c_str());
-	}
-
-	if (!loaderErrors.empty()) {
-		Logger::Log(1, "%s: errors while loading glTF model:\n%s\n", __FUNCTION__,
-			loaderErrors.c_str());
-	}
-
-	if (!result) {
-		Logger::Log(1, "%s error: could not load file '%s'\n", __FUNCTION__,
-			modelFilename.c_str());
-	}
-
-	SetupGLTFMeshes(playerModel);
-
-	for (int texID : LoadGLTFTextures(playerModel))
+	for (int texID : LoadGLTFTextures(m_skinnedMesh.GetModel()))
 		glTextures.push_back(texID);
 
-	//m_tex = m_model->LoadTexture(modelTextureFilename, false);
-	//
-	//m_normal.LoadTexture(
-	//	"src/Assets/Models/GLTF/SwatPlayer/Swat_Ch15_body_Normal.png");
-	//m_metallic.LoadTexture(
-	//	"src/Assets/Models/GLTF/SwatPlayer/Swat_Ch15_body_Metallic.png");
-	//m_roughness.LoadTexture(
-	//	"src/Assets/Models/GLTF/SwatPlayer/Swat_Ch15_body_Roughness.png");
-	//m_ao.LoadTexture(
-		//"src/Assets/Models/GLTF/SwatPlayer/Swat_Ch15_body_AO.png");
+	m_skinnedMesh.InitSkeleton(true);
 
-	//m_model->uploadIndexBuffer();
-	//Logger::Log(1, "%s: glTF m_model '%s' successfully loaded\n", __FUNCTION__, modelFilename.c_str());
-	//
-	size_t playerModelJointDualQuatBufferSize = GetJointDualQuatsSize() *
-		sizeof(glm::mat2x4);
+	size_t playerModelJointDualQuatBufferSize = GetJointDualQuatsSize() * sizeof(glm::mat2x4);
 	m_playerDualQuatSsBuffer.Init(playerModelJointDualQuatBufferSize);
 	Logger::Log(1, "%s: glTF joint dual quaternions shader storage buffer (size %i bytes) successfully created\n",
 		__FUNCTION__, playerModelJointDualQuatBufferSize);
@@ -307,94 +228,6 @@ Player::Player(glm::vec3 pos, glm::vec3 scale, Shader* shdr, Shader* shadowMapSh
 	SetPlayerAimUp(m_playerUp);
 }
 
-void Player::GetWeightData()
-{
-	const std::string attr = "WEIGHTS_0";
-
-	m_weightVec.clear(); // make this std::vector<glm::vec4>
-	std::vector<std::pair<size_t, size_t>> primRanges;
-
-	auto elemSize = [](int gltfType, int compType) -> size_t {
-		int ncomp =
-			(gltfType == TINYGLTF_TYPE_SCALAR) ? 1 :
-			(gltfType == TINYGLTF_TYPE_VEC2) ? 2 :
-			(gltfType == TINYGLTF_TYPE_VEC3) ? 3 :
-			(gltfType == TINYGLTF_TYPE_VEC4) ? 4 : 0;
-		size_t csize =
-			(compType == TINYGLTF_COMPONENT_TYPE_BYTE ||
-				compType == TINYGLTF_COMPONENT_TYPE_UNSIGNED_BYTE) ? 1 :
-			(compType == TINYGLTF_COMPONENT_TYPE_SHORT ||
-				compType == TINYGLTF_COMPONENT_TYPE_UNSIGNED_SHORT) ? 2 :
-			(compType == TINYGLTF_COMPONENT_TYPE_INT ||
-				compType == TINYGLTF_COMPONENT_TYPE_UNSIGNED_INT ||
-				compType == TINYGLTF_COMPONENT_TYPE_FLOAT) ? 4 : 0;
-		return ncomp * csize;
-		};
-
-	for (size_t mi = 0; mi < playerModel->meshes.size(); ++mi)
-	{
-		const auto& mesh = playerModel->meshes[mi];
-		for (size_t pi = 0; pi < mesh.primitives.size(); ++pi)
-		{
-			const auto& prim = mesh.primitives[pi];
-			auto it = prim.attributes.find(attr);
-			if (it == prim.attributes.end())
-				continue;
-
-			int accIdx = it->second;
-			const auto& acc = playerModel->accessors[accIdx];
-			const auto& bv = playerModel->bufferViews[acc.bufferView];
-			const auto& buf = playerModel->buffers[bv.buffer];
-
-			const uint8_t* srcBase = buf.data.data() + bv.byteOffset + acc.byteOffset;
-
-			size_t stride = bv.byteStride;
-			if (stride == 0) stride = elemSize(acc.type, acc.componentType);
-
-			if (acc.type != TINYGLTF_TYPE_VEC4) {
-				Logger::Log(0, "%s: WEIGHTS_0 must be vec4\n", __FUNCTION__);
-				continue;
-			}
-
-			size_t start = m_weightVec.size();
-			m_weightVec.resize(start + acc.count);
-
-			for (size_t k = 0; k < acc.count; ++k)
-			{
-				const uint8_t* s = srcBase + k * stride;
-				glm::vec4 w(0.0f);
-
-				switch (acc.componentType)
-				{
-				case TINYGLTF_COMPONENT_TYPE_FLOAT: {
-					const float* v = reinterpret_cast<const float*>(s);
-					w = glm::vec4(v[0], v[1], v[2], v[3]);
-				} break;
-				case TINYGLTF_COMPONENT_TYPE_UNSIGNED_BYTE: {
-					const uint8_t* v = reinterpret_cast<const uint8_t*>(s);
-					w = glm::vec4(v[0], v[1], v[2], v[3]) / 255.0f;
-				} break;
-				case TINYGLTF_COMPONENT_TYPE_UNSIGNED_SHORT: {
-					const uint16_t* v = reinterpret_cast<const uint16_t*>(s);
-					w = glm::vec4(v[0], v[1], v[2], v[3]) / 65535.0f;
-				} break;
-				default:
-					Logger::Log(0, "%s: unexpected WEIGHTS_0 component type\n", __FUNCTION__);
-					continue;
-				}
-
-				// Safety: renormalize
-				float sum = w.x + w.y + w.z + w.w;
-				if (sum > 0.0f) w /= sum;
-				m_weightVec[start + k] = w;
-			}
-
-			Logger::Log(1, "%s: mesh %zu prim %zu WEIGHTS_0 acc %d count %zu\n",
-				__FUNCTION__, mi, pi, accIdx, size_t(acc.count));
-			primRanges.emplace_back(start, acc.count);
-		}
-	}
-}
 
 
 void Player::DrawGLTFModel(glm::mat4 viewMat, glm::mat4 projMat, glm::vec3 camPos) {
@@ -423,8 +256,8 @@ void Player::DrawGLTFModel(glm::mat4 viewMat, glm::mat4 projMat, glm::vec3 camPo
 			bool hasTexture = false;
 			glBindVertexArray(prim.vao);
 			int matIndex = prim.material;
-			if (matIndex >= 0 && matIndex < playerModel->materials.size()) {
-				const tinygltf::Material& mat = playerModel->materials[matIndex];
+			if (matIndex >= 0 && matIndex < static_cast<int>(m_skinnedMesh.GetModel()->materials.size())) {
+				const tinygltf::Material& mat = m_skinnedMesh.GetModel()->materials[matIndex];
 				if (mat.pbrMetallicRoughness.baseColorTexture.index >= 0) {
 					hasTexture = true;
 					texIndex = mat.pbrMetallicRoughness.baseColorTexture.index;
@@ -563,9 +396,9 @@ void Player::Update(float dt, bool isPaused, bool isTimeScaled)
 	ComputeAudioWorldTransform();
 	UpdateComponents(dt);
 
-	if (m_playerShootAudioCooldown > 0.0f)
+	if (m_combat.shootAudioCooldown > 0.0f)
 	{
-		m_playerShootAudioCooldown -= dt;
+		m_combat.shootAudioCooldown -= dt;
 	}
 
 
@@ -764,7 +597,7 @@ void Player::PlayerProcessMouseMovement(float xOffset)
 
 void Player::SetAnimation(int animNum, float speedDivider, float blendFactor, bool playAnimBackwards)
 {
-	if (animNum < 0 || animNum >= static_cast<int>(m_animClips.size()))
+	if (animNum < 0 || animNum >= m_skinnedMesh.GetAnimClipsSize())
 		return;
 
 	PlayAnimation(animNum, speedDivider, blendFactor, playAnimBackwards);
@@ -773,7 +606,7 @@ void Player::SetAnimation(int animNum, float speedDivider, float blendFactor, bo
 void Player::SetAnimation(int srcAnimNum, int destAnimNum, float speedDivider, float blendFactor,
 	bool playAnimBackwards)
 {
-	if (destAnimNum < 0 || destAnimNum >= static_cast<int>(m_animClips.size()))
+	if (destAnimNum < 0 || destAnimNum >= m_skinnedMesh.GetAnimClipsSize())
 		return;
 
 	PlayAnimation(destAnimNum, speedDivider, 1.0f, playAnimBackwards);
@@ -800,7 +633,7 @@ void Player::Shoot()
 	if (GetPlayerState() != SHOOTING)
 		return;
 
-	if (m_playerShootAudioCooldown < 0.0f)
+	if (m_combat.shootAudioCooldown < 0.0f)
 	{
 		std::random_device rd;
 		std::mt19937 gen{rd()};
@@ -812,7 +645,7 @@ void Player::Shoot()
 			m_shootAc->PlayEvent("event:/Player2_Firing Weapon");
 		else
 			m_shootAc->PlayEvent("event:/Player2_Firing Weapon2");
-		m_playerShootAudioCooldown = 2.0f;
+		m_combat.shootAudioCooldown = 2.0f;
 	}
 	//std::string clipName = "event:/player2_Firing Weapon";
 	//Speak(clipName, 1.0f, 0.5f);

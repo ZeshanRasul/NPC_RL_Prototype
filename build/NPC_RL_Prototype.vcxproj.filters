@@ -76,6 +76,9 @@
     <ClCompile Include="D:\dev\Gameplay\NPC_RL_Prototype\src\Components\AudioComponent.cpp">
       <Filter>Source\Components</Filter>
     </ClCompile>
+    <ClCompile Include="D:\dev\Gameplay\NPC_RL_Prototype\src\Components\SkinnedMeshComponent.cpp">
+      <Filter>Source\Components</Filter>
+    </ClCompile>
     <ClCompile Include="D:\dev\Gameplay\NPC_RL_Prototype\src\NavMesh\NavMeshManager.cpp">
       <Filter>Source\NavMesh</Filter>
     </ClCompile>

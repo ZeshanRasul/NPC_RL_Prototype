@@ -23,6 +23,7 @@ D:\dev\Gameplay\NPC_RL_Prototype\src\Model\GltfAnimationClip.cpp;D:\dev\Gameplay
 D:\dev\Gameplay\NPC_RL_Prototype\src\Model\GltfAnimationChannel.cpp;D:\dev\Gameplay\NPC_RL_Prototype\build\NPC_RL_Prototype.dir\RelWithDebInfo\GltfAnimationChannel.obj
 D:\dev\Gameplay\NPC_RL_Prototype\src\Components\Component.cpp;D:\dev\Gameplay\NPC_RL_Prototype\build\NPC_RL_Prototype.dir\RelWithDebInfo\Component.obj
 D:\dev\Gameplay\NPC_RL_Prototype\src\Components\AudioComponent.cpp;D:\dev\Gameplay\NPC_RL_Prototype\build\NPC_RL_Prototype.dir\RelWithDebInfo\AudioComponent.obj
+D:\dev\Gameplay\NPC_RL_Prototype\src\Components\SkinnedMeshComponent.cpp;D:\dev\Gameplay\NPC_RL_Prototype\build\NPC_RL_Prototype.dir\RelWithDebInfo\SkinnedMeshComponent.obj
 D:\dev\Gameplay\NPC_RL_Prototype\src\NavMesh\NavMeshManager.cpp;D:\dev\Gameplay\NPC_RL_Prototype\build\NPC_RL_Prototype.dir\RelWithDebInfo\NavMeshManager.obj
 D:\dev\Gameplay\NPC_RL_Prototype\src\Physics\AABB.cpp;D:\dev\Gameplay\NPC_RL_Prototype\build\NPC_RL_Prototype.dir\RelWithDebInfo\AABB.obj
 D:\dev\Gameplay\NPC_RL_Prototype\src\Physics\PhysicsWorld.cpp;D:\dev\Gameplay\NPC_RL_Prototype\build\NPC_RL_Prototype.dir\RelWithDebInfo\PhysicsWorld.obj

@@ -9,80 +9,34 @@
 #endif
 
 Enemy::Enemy(glm::vec3 pos, glm::vec3 scale, Shader* sdr, Shader* shadowMapShader, bool applySkinning,
-	GameManager* gameMgr, std::string texFilename, int id, EventManager& eventManager, Player& player, EnemyType type,
-	float yaw) : GameObject(pos, scale, yaw, sdr, shadowMapShader, applySkinning, gameMgr), m_player(player),
+	GameManager* gameMgr, std::string texFilename, int id, EventManager& eventManager, Player& player,
+	const EnemyConfig& config, float yaw)
+	: GameObject(pos, scale, yaw, sdr, shadowMapShader, applySkinning, gameMgr), m_player(player),
 	m_initialPosition(pos), m_id(id), m_eventManager(eventManager),
-	m_health(100.0f), m_isPlayerDetected(false), m_isPlayerVisible(false), m_isPlayerInRange(false),
-	m_isTakingDamage(false), m_isDead(false), m_isInCover(false), m_isSeekingCover(false), m_isTakingCover(false), m_type(type)
+	m_isPlayerDetected(false), m_isPlayerVisible(false), m_isPlayerInRange(false),
+	m_isTakingDamage(false), m_isInCover(false), m_isSeekingCover(false), m_isTakingCover(false),
+	m_config(config)
 {
 	m_isEnemy = true;
+	m_combat.accuracy  = m_config.accuracy;
+	m_combat.maxHealth = m_config.maxHealth;
+	m_combat.health    = m_config.maxHealth;
+	m_speed            = m_config.moveSpeed;
+	m_aabbScale        = m_config.aabbScale;
 
 	m_id = id;
-	enemyModel = new tinygltf::Model;
-	std::string modelFilename;
-	if (m_type == EnemyType::SCOUT)
-	{
-		modelFilename = "src/Assets/Models/New_Enemies/Armour7/Scout.glb";
-	}
-	else if (m_type == EnemyType::HEAVY_SCOUT)
-	{
-		modelFilename = "src/Assets/Models/New_Enemies/Armour9/Heavy_Scout.glb";
-	}
-	else if (m_type == EnemyType::MECH)
-	{
-		modelFilename = "src/Assets/Models/New_Enemies/MechStandard/Mecha-HM4_Rigged+Anim.glb";
-	}
-	else if (m_type == EnemyType::DRONE)	
-	{
-		modelFilename = "src/Assets/Models/New_Enemies/Drone/Drone.glb";
-	}
 
-	tinygltf::TinyGLTF gltfLoader;
-	std::string loaderErrors;
-	std::string loaderWarnings;
-	bool result = false;
+	m_skinnedMesh.Load(m_config.modelPath);
 
-	result = gltfLoader.LoadBinaryFromFile(enemyModel, &loaderErrors, &loaderWarnings,
-		modelFilename);
+	SetupGLTFMeshes(m_skinnedMesh.GetModel());
 
-	if (!loaderWarnings.empty()) {
-		Logger::Log(1, "%s: warnings while loading glTF model:\n%s\n", __FUNCTION__,
-			loaderWarnings.c_str());
-	}
-
-	if (!loaderErrors.empty()) {
-		Logger::Log(1, "%s: errors while loading glTF model:\n%s\n", __FUNCTION__,
-			loaderErrors.c_str());
-	}
-
-	if (!result) {
-		Logger::Log(1, "%s error: could not load file '%s'\n", __FUNCTION__,
-			modelFilename.c_str());
-	}
-
-	SetupGLTFMeshes(enemyModel);
-
-	for (int texID : LoadGLTFTextures(enemyModel))
+	for (int texID : LoadGLTFTextures(m_skinnedMesh.GetModel()))
 		glTextures.push_back(texID);
 
-	//m_tex = m_model->LoadTexture(modelTextureFilename, false);
-	//
-	//m_normal.LoadTexture(
-	//	"src/Assets/Models/GLTF/SwatPlayer/Swat_Ch15_body_Normal.png");
-	//m_metallic.LoadTexture(
-	//	"src/Assets/Models/GLTF/SwatPlayer/Swat_Ch15_body_Metallic.png");
-	//m_roughness.LoadTexture(
-	//	"src/Assets/Models/GLTF/SwatPlayer/Swat_Ch15_body_Roughness.png");
-	//m_ao.LoadTexture(
-		//"src/Assets/Models/GLTF/SwatPlayer/Swat_Ch15_body_AO.png");
+	if (m_config.hasSkin)
+		m_skinnedMesh.InitSkeleton(false);
 
-	//m_model->uploadIndexBuffer();
-	//Logger::Log(1, "%s: glTF m_model '%s' successfully loaded\n", __FUNCTION__, modelFilename.c_str());
-	//
-
-
-	size_t enemyModelJointDualQuatBufferSize = GetJointDualQuatsSize() *
-		sizeof(glm::mat2x4);
+	size_t enemyModelJointDualQuatBufferSize = GetJointDualQuatsSize() * sizeof(glm::mat2x4);
 	m_enemyDualQuatSsBuffer.Init(enemyModelJointDualQuatBufferSize);
 	Logger::Log(1, "%s: glTF joint dual quaternions shader storage buffer (size %i bytes) successfully created\n",
 		__FUNCTION__, enemyModelJointDualQuatBufferSize);
@@ -287,79 +241,6 @@ void Enemy::SetupGLTFMeshes(tinygltf::Model* model)
 		meshData[meshIndex] = gltfMesh;
 	}
 
-	if (m_type == EnemyType::DRONE || m_type == EnemyType::MECH)
-	{
-		glBindBuffer(GL_ARRAY_BUFFER, 0);
-		return;
-	}
-
-	GetJointData();
-	GetWeightData();
-	GetInvBindMatrices();
-
-	tinygltf::Skin skin;
-	if (m_type == EnemyType::SCOUT)
-	{
-		skin = enemyModel->skins.at(0);
-	}
-	else if (m_type == EnemyType::HEAVY_SCOUT || m_type == EnemyType::MECH)
-	{
-		skin = enemyModel->skins.at(0);
-	}
-	Logger::Log(1, "Skin joint count = %zu\n", skin.joints.size());
-	Logger::Log(1, "m_inverseBindMatrices = %zu\n", m_inverseBindMatrices.size());
-	Logger::Log(1, "m_jointMatrices = %zu\n", m_jointMatrices.size());
-	Logger::Log(1, "m_jointDualQuats = %zu\n", m_jointDualQuats.size());
-
-	for (size_t i = 0; i < skin.joints.size(); ++i)
-	{
-		Logger::Log(1, "skin joint[%zu] node = %d name = %s\n",
-			i,
-			skin.joints[i],
-			enemyModel->nodes[skin.joints[i]].name.c_str());
-	}
-
-	m_nodeCount = (int)enemyModel->nodes.size();
-    Logger::Log(1, "%s: model has %i nodes\n", __FUNCTION__, m_nodeCount);
-	Logger::Log(1, "skin count = %zu\n", enemyModel->skins.size());
-
-	for (size_t i = 0; i < enemyModel->skins.size(); ++i)
-	{
-		Logger::Log(1, "skin %zu joint count = %zu\n",
-			i,
-			enemyModel->skins[i].joints.size());
-	}
-	m_nodeList.resize(m_nodeCount);
-	m_rootNode = nullptr;
-	m_rootNodes.clear();
-
-	for (const int rootNode : enemyModel->scenes.at(0).nodes)
-	{
-		Logger::Log(1, "%s: scene root node is %i\n", __FUNCTION__, rootNode);
-		auto root = GltfNode::CreateRoot(rootNode);
-		m_rootNodes.push_back(root);
-
-		if (!m_rootNode)
-		{
-			m_rootNode = root;
-		}
-
-		m_nodeList.at(rootNode) = root;
-
-		GetNodeData(root, glm::mat4(1.0f));
-		GetNodes(root);
-		root->PrintTree();
-	}
-
-	GetAnimations();
-
-	m_additiveAnimationMask.resize(m_nodeCount);
-	m_invertedAdditiveAnimationMask.resize(m_nodeCount);
-
-	std::fill(m_additiveAnimationMask.begin(), m_additiveAnimationMask.end(), true);
-	m_invertedAdditiveAnimationMask = m_additiveAnimationMask;
-	m_invertedAdditiveAnimationMask.flip();
-
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
@@ -413,94 +294,6 @@ std::vector<GLuint> Enemy::LoadGLTFTextures(tinygltf::Model* model) {
 	return textureIDs;
 }
 
-void Enemy::GetWeightData()
-{
-	const std::string attr = "WEIGHTS_0";
-
-	m_weightVec.clear(); // make this std::vector<glm::vec4>
-	std::vector<std::pair<size_t, size_t>> primRanges;
-
-	auto elemSize = [](int gltfType, int compType) -> size_t {
-		int ncomp =
-			(gltfType == TINYGLTF_TYPE_SCALAR) ? 1 :
-			(gltfType == TINYGLTF_TYPE_VEC2) ? 2 :
-			(gltfType == TINYGLTF_TYPE_VEC3) ? 3 :
-			(gltfType == TINYGLTF_TYPE_VEC4) ? 4 : 0;
-		size_t csize =
-			(compType == TINYGLTF_COMPONENT_TYPE_BYTE ||
-				compType == TINYGLTF_COMPONENT_TYPE_UNSIGNED_BYTE) ? 1 :
-			(compType == TINYGLTF_COMPONENT_TYPE_SHORT ||
-				compType == TINYGLTF_COMPONENT_TYPE_UNSIGNED_SHORT) ? 2 :
-			(compType == TINYGLTF_COMPONENT_TYPE_INT ||
-				compType == TINYGLTF_COMPONENT_TYPE_UNSIGNED_INT ||
-				compType == TINYGLTF_COMPONENT_TYPE_FLOAT) ? 4 : 0;
-		return ncomp * csize;
-		};
-
-	for (size_t mi = 0; mi < enemyModel->meshes.size(); ++mi)
-	{
-		const auto& mesh = enemyModel->meshes[mi];
-		for (size_t pi = 0; pi < mesh.primitives.size(); ++pi)
-		{
-			const auto& prim = mesh.primitives[pi];
-			auto it = prim.attributes.find(attr);
-			if (it == prim.attributes.end())
-				continue;
-
-			int accIdx = it->second;
-			const auto& acc = enemyModel->accessors[accIdx];
-			const auto& bv = enemyModel->bufferViews[acc.bufferView];
-			const auto& buf = enemyModel->buffers[bv.buffer];
-
-			const uint8_t* srcBase = buf.data.data() + bv.byteOffset + acc.byteOffset;
-
-			size_t stride = bv.byteStride;
-			if (stride == 0) stride = elemSize(acc.type, acc.componentType);
-
-			if (acc.type != TINYGLTF_TYPE_VEC4) {
-				Logger::Log(1, "%s: WEIGHTS_0 must be vec4\n", __FUNCTION__);
-				continue;
-			}
-
-			size_t start = m_weightVec.size();
-			m_weightVec.resize(start + acc.count);
-
-			for (size_t k = 0; k < acc.count; ++k)
-			{
-				const uint8_t* s = srcBase + k * stride;
-				glm::vec4 w(0.0f);
-
-				switch (acc.componentType)
-				{
-				case TINYGLTF_COMPONENT_TYPE_FLOAT: {
-					const float* v = reinterpret_cast<const float*>(s);
-					w = glm::vec4(v[0], v[1], v[2], v[3]);
-				} break;
-				case TINYGLTF_COMPONENT_TYPE_UNSIGNED_BYTE: {
-					const uint8_t* v = reinterpret_cast<const uint8_t*>(s);
-					w = glm::vec4(v[0], v[1], v[2], v[3]) / 255.0f;
-				} break;
-				case TINYGLTF_COMPONENT_TYPE_UNSIGNED_SHORT: {
-					const uint16_t* v = reinterpret_cast<const uint16_t*>(s);
-					w = glm::vec4(v[0], v[1], v[2], v[3]) / 65535.0f;
-				} break;
-				default:
-					Logger::Log(1, "%s: unexpected WEIGHTS_0 component type\n", __FUNCTION__);
-					continue;
-				}
-
-				// Safety: renormalize
-				float sum = w.x + w.y + w.z + w.w;
-				if (sum > 0.0f) w /= sum;
-				m_weightVec[start + k] = w;
-			}
-
-			Logger::Log(1, "%s: mesh %zu prim %zu WEIGHTS_0 acc %d count %zu\n",
-				__FUNCTION__, mi, pi, accIdx, size_t(acc.count));
-			primRanges.emplace_back(start, acc.count);
-		}
-	}
-}
 
 
 void Enemy::DrawGLTFModel(glm::mat4 viewMat, glm::mat4 projMat, glm::vec3 camPos) {
@@ -512,7 +305,7 @@ void Enemy::DrawGLTFModel(glm::mat4 viewMat, glm::mat4 projMat, glm::vec3 camPos
 
 			glm::mat4 modelMat = glm::mat4(1.0f);
 			modelMat = glm::translate(modelMat, m_position);
-			if (m_type == EnemyType::DRONE)
+			if (m_config.rotateOnDraw)
 				modelMat = glm::rotate(modelMat, glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
 			
 			modelMat = glm::scale(modelMat, m_scale);
@@ -531,8 +324,8 @@ void Enemy::DrawGLTFModel(glm::mat4 viewMat, glm::mat4 projMat, glm::vec3 camPos
 			bool hasTexture = false;
 			glBindVertexArray(prim.vao);
 			int matIndex = prim.material;
-			if (matIndex >= 0 && matIndex < enemyModel->materials.size()) {
-				const tinygltf::Material& mat = enemyModel->materials[matIndex];
+			if (matIndex >= 0 && matIndex < static_cast<int>(m_skinnedMesh.GetModel()->materials.size())) {
+				const tinygltf::Material& mat = m_skinnedMesh.GetModel()->materials[matIndex];
 				if (mat.pbrMetallicRoughness.baseColorTexture.index >= 0) {
 					hasTexture = true;
 					texIndex = mat.pbrMetallicRoughness.baseColorTexture.index;
@@ -615,7 +408,7 @@ void Enemy::DrawObject(glm::mat4 viewMat, glm::mat4 proj, bool shadowMap, glm::m
 
 void Enemy::Update(bool shouldUseEDBT, bool isPaused, bool isTimeScaled)
 {
-	if (!m_isDead || !m_isDestroyed)
+	if (!m_combat.isDead || !m_isDestroyed)
 	{
 		if (shouldUseEDBT)
 		{
@@ -631,19 +424,19 @@ void Enemy::Update(bool shouldUseEDBT, bool isPaused, bool isTimeScaled)
 			m_behaviorTree->Tick();
 
 
-			if (m_enemyHasShot)
+			if (m_combat.hasShot)
 			{
 				m_enemyRayDebugRenderTimer -= m_dt;
-				m_enemyShootCooldown -= m_dt;
+				m_combat.shootCooldown -= m_dt;
 			}
-			if (m_enemyShootCooldown <= 0.0f)
+			if (m_combat.shootCooldown <= 0.0f)
 			{
-				m_enemyHasShot = false;
+				m_combat.hasShot = false;
 			}
 
-			if (m_shootAudioCooldown > 0.0f)
+			if (m_combat.shootAudioCooldown > 0.0f)
 			{
-				m_shootAudioCooldown -= m_dt;
+				m_combat.shootAudioCooldown -= m_dt;
 			}
 		}
 		else
@@ -695,16 +488,14 @@ void Enemy::Update(bool shouldUseEDBT, bool isPaused, bool isTimeScaled)
 	static bool printed = false;
 	if (!printed)
 	{
-		Logger::Log(1, "Enemy Update running, anim clips = %zu, jointDQs = %zu\n",
-			m_animClips.size(),
-			m_jointDualQuats.size());
+		Logger::Log(1, "Enemy Update running, anim clips = %i, jointDQs = %i\n",
+			m_skinnedMesh.GetAnimClipsSize(),
+			m_skinnedMesh.GetJointDualQuatsSize());
 		printed = true;
 	}
 
-	if (m_type == EnemyType::SCOUT)
-		PlayAnimation(5, 1.0f, 1.0f, false);
-	else if (m_type == EnemyType::HEAVY_SCOUT)
-		PlayAnimation(5, 1.0f, 1.0f, false);
+	if (m_config.hasSkin)
+		PlayAnimation(m_config.animWalk, 1.0f, 1.0f, false);
 }
 
 void Enemy::OnEvent(const Event& event)
@@ -1000,11 +791,11 @@ void Enemy::Shoot()
 
 	if (hit)
 	{
-		m_enemyHasHit = true;
+		m_combat.hasHit = true;
 	}
 	else
 	{
-		m_enemyHasHit = false;
+		m_combat.hasHit = false;
 	}
 
 	if (!m_resetBlend && m_destAnim != 2)
@@ -1016,7 +807,7 @@ void Enemy::Shoot()
 	}
 
 	//m_shootAc->PlayEvent("event:/EnemyShoot");
-	if (m_shootAudioCooldown <= 0.0f)
+	if (m_combat.shootAudioCooldown <= 0.0f)
 	{
 		std::random_device rd;
 		std::mt19937 gen{ rd() };
@@ -1039,13 +830,13 @@ void Enemy::Shoot()
 		std::string clipName = "event:/enemy" + std::to_string(enemyAudioIndex) + "_Attacking-Shooting" +
 			std::to_string(randomIndex);
 		Speak(clipName, 1.0f, randomFloat);
-		m_shootAudioCooldown = 3.0f;
+		m_combat.shootAudioCooldown = 3.0f;
 	}
 
 
 	m_enemyRayDebugRenderTimer = 0.3f;
-	m_enemyHasShot = true;
-	m_enemyShootCooldown = 0.5f;
+	m_combat.hasShot = true;
+	m_combat.shootCooldown = 0.5f;
 }
 
 void Enemy::SetUpAABB()
@@ -1101,8 +892,8 @@ void Enemy::OnHit()
 
 void Enemy::TakeDamage(float damage)
 {
-	SetHealth(GetHealth() - damage);
-	if (m_health <= 0)
+	m_combat.ApplyDamage(damage);
+	if (m_combat.isDead)
 	{
 		OnDeath();
 		return;
@@ -1155,7 +946,7 @@ void Enemy::OnDeath()
 	Speak(clipName, 3.0f, randomFloat);
 	m_hasDied = true;
 	m_eventManager.Publish(NPCDiedEvent{ m_id });
-	m_isDead = true;
+	m_combat.isDead = true;
 	m_isDestroyed = true;
 }
 
@@ -1274,10 +1065,10 @@ void Enemy::ResetState()
 	m_blendAnim = false;
 	m_resetBlend = false;
 
-	m_enemyShootCooldown = 0.0f;
+	m_combat.shootCooldown = 0.0f;
 	m_enemyRayDebugRenderTimer = 0.3f;
-	m_enemyHasShot = false;
-	m_enemyHasHit = false;
+	m_combat.hasShot = false;
+	m_combat.hasHit = false;
 	m_playerIsVisible = false;
 }
 
@@ -1440,12 +1231,12 @@ void Enemy::DetectPlayer()
 
 bool Enemy::IsDead()
 {
-	return m_isDead;
+	return m_combat.isDead;
 }
 
 bool Enemy::IsHealthZeroOrBelow()
 {
-	return m_health <= 0;
+	return m_combat.health <= 0;
 }
 
 bool Enemy::IsTakingDamage()
@@ -1473,12 +1264,12 @@ bool Enemy::IsPlayerVisible()
 
 bool Enemy::IsCooldownComplete()
 {
-	return m_enemyShootCooldown <= 0.0f;
+	return m_combat.shootCooldown <= 0.0f;
 }
 
 bool Enemy::IsHealthBelowThreshold()
 {
-	return m_health < 40;
+	return m_combat.health < 40;
 }
 
 bool Enemy::IsPlayerInRange()
@@ -1544,7 +1335,7 @@ NodeStatus Enemy::EnterDyingState()
 		return NodeStatus::Running;
 	}
 
-	m_isDead = true;
+	m_combat.isDead = true;
 	m_eventManager.Publish(NPCDiedEvent{ m_id });
 	return NodeStatus::Success;
 }
@@ -1606,10 +1397,10 @@ NodeStatus Enemy::AttackShoot()
 		m_coverTimer += m_dt;
 		if (m_coverTimer > 1.0f)
 		{
-			m_health += 10.0f;
+			m_combat.health += 10.0f;
 			m_coverTimer = 0.0f;
 
-			if (m_health > 40.0f)
+			if (m_combat.health > 40.0f)
 			{
 				m_isInCover = false;
 				m_provideSuppressionFire = false;
@@ -1848,10 +1639,10 @@ NodeStatus Enemy::InCoverAction()
 	m_coverTimer += m_dt;
 	if (m_coverTimer > 2.5f)
 	{
-		m_health += 10.0f;
+		m_combat.health += 10.0f;
 		m_coverTimer = 0.0f;
 
-		if (m_health > 40.0f)
+		if (m_combat.health > 40.0f)
 		{
 			m_isInCover = false;
 			std::random_device rd;
@@ -1909,7 +1700,7 @@ NodeStatus Enemy::InCoverAction()
 
 NodeStatus Enemy::Die()
 {
-	m_isDead = true;
+	m_combat.isDead = true;
 	m_isDestroyed = true;
 	m_state = "Dead";
 	m_eventManager.Publish(NPCDiedEvent{ m_id });

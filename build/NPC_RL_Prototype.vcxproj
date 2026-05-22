@@ -470,6 +470,7 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
     <ClCompile Include="D:\dev\Gameplay\NPC_RL_Prototype\src\Model\GltfAnimationChannel.cpp" />
     <ClCompile Include="D:\dev\Gameplay\NPC_RL_Prototype\src\Components\Component.cpp" />
     <ClCompile Include="D:\dev\Gameplay\NPC_RL_Prototype\src\Components\AudioComponent.cpp" />
+    <ClCompile Include="D:\dev\Gameplay\NPC_RL_Prototype\src\Components\SkinnedMeshComponent.cpp" />
     <ClCompile Include="D:\dev\Gameplay\NPC_RL_Prototype\src\NavMesh\NavMeshManager.cpp" />
     <ClCompile Include="D:\dev\Gameplay\NPC_RL_Prototype\src\Physics\AABB.cpp" />
     <ClCompile Include="D:\dev\Gameplay\NPC_RL_Prototype\src\Physics\PhysicsWorld.cpp" />

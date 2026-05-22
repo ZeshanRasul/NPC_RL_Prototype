@@ -50,6 +50,7 @@ set(GAME_SOURCES
     # Components
     src/Components/Component.cpp
     src/Components/AudioComponent.cpp
+    src/Components/SkinnedMeshComponent.cpp
     # NavMesh
     src/NavMesh/NavMeshManager.cpp
     # Physics

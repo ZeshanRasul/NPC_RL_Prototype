@@ -110,9 +110,6 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 		}
 	}
 
-
-
-
 	m_navMeshManager = std::make_unique<NavMeshManager>();
 	m_navMeshManager->Build(navMeshVertices, navMeshIndices,
 		"src/Shaders/navmesh_vert.glsl", "src/Shaders/navmesh_frag.glsl");
@@ -140,14 +137,6 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 	m_enemyTracerQuad->SetShader(&playerMuzzleFlashShader);
 	m_enemyTracerQuad->LoadTexture("src/Assets/Textures/muzzleflash.png");
 
-
-	//m_player = new Player(glm::vec3(0.0f, 0.0f, 130.0f), glm::vec3(5.0f), &playerShader, &groundShadowShader, true, this, 0.0f);
-	//float startingPos[3] = { m_player->GetPosition().x, m_player->GetPosition().y, m_player->GetPosition().z };
-	//float snappedPos[3];
-	//dtPolyRef startPoly;
-	//navMeshQuery->findNearestPoly(startingPos, halfExtents, &filter, &startPoly, snappedPos);
-	//m_player->SetPosition(glm::vec3(snappedPos[0], snappedPos[1], snappedPos[2]));
-
 	m_player = new Player((glm::vec3(27.0f, -43.35, 416.0f)), glm::vec3(5.0f), &playerShader, &playerShadowMapShader, true, this, 0.0f);
 
 	m_player->SetAABBShader(&aabbShader);
@@ -158,35 +147,35 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 	std::string texture3 = "src\\Assets\\Models\\New_Enemies\\Armour7\\armor7_painter_armor7_mat_BaseColor3.png";
 	std::string texture4 = "src\\Assets\\Models\\New_Enemies\\Armour7\\armor7_painter_armor7_mat_BaseColor4.png";
 
-	m_enemy = new Enemy(glm::vec3(50.0f, 1.73f, 214.0f), glm::vec3(5.0f), &enemyShader, &enemyShadowMapShader, true, this, texture, 0, GetEventManager(), *m_player, EnemyType::SCOUT);
+	m_enemy = new Enemy(glm::vec3(50.0f, 1.73f, 214.0f), glm::vec3(5.0f), &enemyShader, &enemyShadowMapShader, true, this, texture, 0, GetEventManager(), *m_player, EnemyConfig::Scout());
 	m_enemy->SetAABBShader(&aabbShader);
 	m_enemy->SetUpAABB();
 
-	m_enemy2 = new Enemy(glm::vec3(-60.0f, 1.73f, -6.2f), glm::vec3(5.0f), &enemyShader, &enemyShadowMapShader, true, this, texture2, 1, GetEventManager(), *m_player, EnemyType::SCOUT);
+	m_enemy2 = new Enemy(glm::vec3(-60.0f, 1.73f, -6.2f), glm::vec3(5.0f), &enemyShader, &enemyShadowMapShader, true, this, texture2, 1, GetEventManager(), *m_player, EnemyConfig::Scout());
 	m_enemy2->SetAABBShader(&aabbShader);
 	m_enemy2->SetUpAABB();
 
-	m_enemy3 = new Enemy(glm::vec3(138.0f, 1.73f, -37.0f), glm::vec3(5.0f), &enemyShader, &enemyShadowMapShader, true, this, texture3, 2, GetEventManager(), *m_player, EnemyType::SCOUT);
+	m_enemy3 = new Enemy(glm::vec3(138.0f, 1.73f, -37.0f), glm::vec3(5.0f), &enemyShader, &enemyShadowMapShader, true, this, texture3, 2, GetEventManager(), *m_player, EnemyConfig::Scout());
 	m_enemy3->SetAABBShader(&aabbShader);
 	m_enemy3->SetUpAABB();
 
-	m_enemy4 = new Enemy(glm::vec3(42.0f, -34.73f, -155.0f), glm::vec3(5.0f), &enemyShader, &enemyShadowMapShader, true, this, texture4, 3, GetEventManager(), *m_player, EnemyType::SCOUT);
+	m_enemy4 = new Enemy(glm::vec3(42.0f, -34.73f, -155.0f), glm::vec3(5.0f), &enemyShader, &enemyShadowMapShader, true, this, texture4, 3, GetEventManager(), *m_player, EnemyConfig::Scout());
 	m_enemy4->SetAABBShader(&aabbShader);
 	m_enemy4->SetUpAABB();
 
-	m_enemy5 = new Enemy(glm::vec3(-68.0f, 1.73f, 144.0f), glm::vec3(5.0f), &enemyShader, &enemyShadowMapShader, true, this, texture4, 4, GetEventManager(), *m_player, EnemyType::HEAVY_SCOUT);
+	m_enemy5 = new Enemy(glm::vec3(-68.0f, 1.73f, 144.0f), glm::vec3(5.0f), &enemyShader, &enemyShadowMapShader, true, this, texture4, 4, GetEventManager(), *m_player, EnemyConfig::HeavyScout());
 	m_enemy5->SetAABBShader(&aabbShader);
 	m_enemy5->SetUpAABB();
 
-	m_enemy6 = new Enemy(glm::vec3(-92.0f, -38.73f, 8.0f), glm::vec3(5.0f), &enemyShader, &enemyShadowMapShader, true, this, texture4, 5, GetEventManager(), *m_player, EnemyType::HEAVY_SCOUT);
+	m_enemy6 = new Enemy(glm::vec3(-92.0f, -38.73f, 8.0f), glm::vec3(5.0f), &enemyShader, &enemyShadowMapShader, true, this, texture4, 5, GetEventManager(), *m_player, EnemyConfig::HeavyScout());
 	m_enemy6->SetAABBShader(&aabbShader);
 	m_enemy6->SetUpAABB();
 
-	m_enemy7 = new Enemy(glm::vec3(100.0f, 3.73f, 241.0f), glm::vec3(0.01f), &enemyShader2, &enemyShadowMapShader, true, this, texture4, 6, GetEventManager(), *m_player, EnemyType::DRONE);
+	m_enemy7 = new Enemy(glm::vec3(100.0f, 3.73f, 241.0f), glm::vec3(0.01f), &enemyShader2, &enemyShadowMapShader, true, this, texture4, 6, GetEventManager(), *m_player, EnemyConfig::Drone());
 	m_enemy7->SetAABBShader(&aabbShader);
 	m_enemy7->SetUpAABB();
 
-	m_enemy8 = new Enemy(glm::vec3(150.0f, 3.73f, 241.0f), glm::vec3(0.1f), &enemyShader2, &enemyShadowMapShader, true, this, texture4, 7, GetEventManager(), *m_player, EnemyType::MECH);
+	m_enemy8 = new Enemy(glm::vec3(150.0f, 3.73f, 241.0f), glm::vec3(0.1f), &enemyShader2, &enemyShadowMapShader, true, this, texture4, 7, GetEventManager(), *m_player, EnemyConfig::Mech());
 	m_enemy8->SetAABBShader(&aabbShader);
 	m_enemy8->SetUpAABB();
 
@@ -201,13 +190,6 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 		line = new Line(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f), &lineShader, &shadowMapShader, false, this);
 		line->LoadMesh();
 	}
-
-
-
-	//ground = new Ground(mapPos, mapScale, &groundShader, &groundShadowShader, false, this);
-
-
-
 
 	m_inputManager->SetContext(m_camera, m_player, m_enemy, width, height);
 
@@ -225,11 +207,6 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 	m_gameObjects.push_back(m_enemy7);
 	m_gameObjects.push_back(m_enemy8);
 	m_gameObjects.push_back(ground);
-
-	/*for (Cube* coverSpot : coverSpots)
-	{
-		gameObjects.push_back(coverSpot);
-	}*/
 
 	m_enemies.push_back(m_enemy);
 	m_enemies.push_back(m_enemy2);
