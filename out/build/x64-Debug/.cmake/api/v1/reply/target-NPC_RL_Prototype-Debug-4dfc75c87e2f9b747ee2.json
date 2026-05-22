@@ -32,37 +32,37 @@
 			{
 				"command" : 0,
 				"file" : 0,
-				"line" : 124,
+				"line" : 125,
 				"parent" : 0
 			},
 			{
 				"command" : 1,
 				"file" : 0,
-				"line" : 220,
+				"line" : 221,
 				"parent" : 0
 			},
 			{
 				"command" : 2,
 				"file" : 0,
-				"line" : 201,
+				"line" : 202,
 				"parent" : 0
 			},
 			{
 				"command" : 3,
 				"file" : 0,
-				"line" : 212,
+				"line" : 213,
 				"parent" : 0
 			},
 			{
 				"command" : 4,
 				"file" : 0,
-				"line" : 159,
+				"line" : 160,
 				"parent" : 0
 			},
 			{
 				"command" : 5,
 				"file" : 0,
-				"line" : 135,
+				"line" : 136,
 				"parent" : 0
 			}
 		]
@@ -269,7 +269,8 @@
 				62,
 				63,
 				64,
-				65
+				65,
+				66
 			]
 		},
 		{
@@ -574,7 +575,8 @@
 				36,
 				37,
 				38,
-				39
+				39,
+				42
 			]
 		},
 		{
@@ -589,7 +591,6 @@
 			"name" : "ThirdParty\\Recast\\Source",
 			"sourceIndexes" : 
 			[
-				42,
 				43,
 				44,
 				45,
@@ -599,32 +600,33 @@
 				49,
 				50,
 				51,
-				52
+				52,
+				53
 			]
 		},
 		{
 			"name" : "ThirdParty\\Detour\\Source",
 			"sourceIndexes" : 
 			[
-				53,
 				54,
 				55,
 				56,
 				57,
 				58,
-				59
+				59,
+				60
 			]
 		},
 		{
 			"name" : "ThirdParty\\DetourCrowd\\Source",
 			"sourceIndexes" : 
 			[
-				60,
 				61,
 				62,
 				63,
 				64,
-				65
+				65,
+				66
 			]
 		}
 	],
@@ -881,6 +883,12 @@
 			"compileGroupIndex" : 0,
 			"path" : "include/imgui/backend/imgui_impl_opengl3.cpp",
 			"sourceGroupIndex" : 12
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "include/imgui/ImGuizmo.cpp",
+			"sourceGroupIndex" : 11
 		},
 		{
 			"backtrace" : 1,

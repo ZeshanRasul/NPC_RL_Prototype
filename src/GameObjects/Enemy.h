@@ -228,6 +228,7 @@ public:
 	}
 
 	bool IsDead();
+	const EnemyConfig& GetConfig() const { return m_config; }
 
 	void ScoreCoverLocations(Player& player);
 

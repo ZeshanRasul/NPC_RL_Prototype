@@ -34,6 +34,7 @@ public:
 	float GetTimeScaleFacotr() const { return timeScaleFactor; }
 	bool GetIsPaused() const { return isPaused; }
 	bool GetIsTimeScaled() const { return isTimeScaled; }
+	bool GetShowDevOverlay() const { return m_showDevOverlay; }
 
 	void SetContext(Camera* cam, Player* plyr, Enemy* enmy, unsigned int width, unsigned int height);
 
@@ -64,4 +65,6 @@ private:
 	bool m_pauseKeyBeenPressed = false;
 	bool m_zKeyPressed = false;
 	bool m_zKeyBeenPressed = false;
+	bool m_f1KeyPressed = false;
+	bool m_showDevOverlay = false;
 };

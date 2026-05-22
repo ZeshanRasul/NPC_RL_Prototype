@@ -127,6 +127,9 @@
     <ClCompile Include="D:\dev\Gameplay\NPC_RL_Prototype\include\imgui\backend\imgui_impl_opengl3.cpp">
       <Filter>ThirdParty\imgui\backend</Filter>
     </ClCompile>
+    <ClCompile Include="D:\dev\Gameplay\NPC_RL_Prototype\include\imgui\ImGuizmo.cpp">
+      <Filter>ThirdParty\imgui</Filter>
+    </ClCompile>
     <ClCompile Include="D:\dev\Gameplay\NPC_RL_Prototype\include\Recast\Source\Recast.cpp">
       <Filter>ThirdParty\Recast\Source</Filter>
     </ClCompile>

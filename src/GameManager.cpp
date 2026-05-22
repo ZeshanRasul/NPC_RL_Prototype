@@ -4,6 +4,9 @@
 #include "imgui/imgui.h"
 #include "imgui/backend/imgui_impl_glfw.h"
 #include "imgui/backend/imgui_impl_opengl3.h"
+#include "ImGuizmo.h"
+
+#include <glm/gtc/type_ptr.hpp>
 
 #include <fstream>
 
@@ -390,84 +393,239 @@ void GameManager::SetUpDebugUi()
 	ImGui_ImplOpenGL3_NewFrame();
 	ImGui_ImplGlfw_NewFrame();
 	ImGui::NewFrame();
+	ImGuizmo::BeginFrame();
+	ImGuizmo::SetOrthographic(false);
+	ImGuizmo::SetRect(0.0f, 0.0f, (float)m_screenWidth, (float)m_screenHeight);
+}
+
+static const char* EnemyTypeName(EnemyType t)
+{
+	switch (t) {
+	case SCOUT:       return "Scout";
+	case HEAVY_SCOUT: return "Heavy Scout";
+	case DRONE:       return "Drone";
+	case MECH:        return "Mech";
+	default:          return "Unknown";
+	}
+}
+
+static const char* CameraModeName(CameraMode m)
+{
+	switch (m) {
+	case FLY:           return "Fly";
+	case PLAYER_FOLLOW: return "Player Follow";
+	case PLAYER_AIM:    return "Player Aim";
+	case ENEMY_FOLLOW:  return "Enemy Follow";
+	default:            return "Unknown";
+	}
 }
 
 void GameManager::ShowDebugUi()
 {
-	ShowCameraControlWindow(*m_camera);
-	ShowLightControlWindow(m_lighting.dirLight);
-	ShowCameraControlWindow(*m_camera);
+	if (!m_inputManager->GetShowDevOverlay())
+		return;
 
-	ImGui::Begin("Player");
-
-	ImGui::InputFloat3("Position", &m_player->m_position[0]);
-	ImGui::InputFloat("Yaw", &m_player->m_playerYaw);
-	ImGui::InputFloat3("Player Front", &m_player->m_playerFront[0]);
-	ImGui::InputFloat3("Player Aim Front", &m_player->m_playerAimFront[0]);
-	ImGui::InputFloat("Player Aim Pitch", &m_player->m_aimPitch);
-	ImGui::InputFloat("Player Rear Offset", &m_camera->playerCamRearOffset);
-	m_camera->SetPlayerCamRearOffset(m_camera->playerCamRearOffset);
-	ImGui::InputFloat("Player Height Offset", &m_camera->playerCamHeightOffset);
-	m_camera->SetPlayerCamHeightOffset(m_camera->playerCamHeightOffset);
-	ImGui::InputFloat("Player Pos Offset", &m_camera->playerPosOffset);
-	m_camera->SetPlayerPosOffset(m_camera->playerPosOffset);
-	ImGui::InputFloat("Player Aim Right Offset", &m_camera->playerAimRightOffset);
-	ImGui::InputInt("Player Animation", &m_player->m_animNum);
-	ImGui::End();
-
+	ShowSceneOutliner();
+	ShowEntityInspector();
+	ShowLightingPanel();
+	ShowCameraPanel();
+	ShowAIDebugPanel();
 	ShowPerformanceWindow();
-#ifdef DEBUG
-#endif
-
-	if (!m_useEdbt)
-	{
-	}
-	ShowEnemyStateWindow();
 }
 
-void GameManager::ShowCameraControlWindow(Camera& cam)
+void GameManager::ShowSceneOutliner()
 {
-	ImGui::Begin("Map Settings");
+	ImGui::Begin("Scene Outliner");
 
-	ImGui::Text("Position");
-	ImGui::InputFloat3("Position", (float*)&mapPos);
-	ground->SetPosition(mapPos);
+	ImGui::Text("Player");
+	ImGui::SameLine();
+	ImGui::Text("HP: %.0f", m_player->GetHealth());
 
-	ImGui::Text("Scale");
-	ImGui::InputFloat3("Scale", (float*)&mapScale);
-	ground->SetScale(mapScale);
+	ImGui::Separator();
+	ImGui::Text("Enemies");
 
+	for (int i = 0; i < (int)m_enemies.size(); i++)
+	{
+		Enemy* e = m_enemies[i];
+		if (!e) continue;
+
+		bool dead = e->IsDestroyed();
+		char label[64];
+		snprintf(label, sizeof(label), "[%d] %s%s", e->GetID(), EnemyTypeName(e->GetConfig().type), dead ? " (dead)" : "");
+
+		bool selected = (m_selectedEnemyIndex == i);
+		ImGui::PushStyleColor(ImGuiCol_Text, dead ? ImVec4(0.5f, 0.5f, 0.5f, 1.0f) : ImVec4(1.0f, 1.0f, 1.0f, 1.0f));
+		if (ImGui::Selectable(label, selected))
+			m_selectedEnemyIndex = selected ? -1 : i;
+		ImGui::PopStyleColor();
+	}
+
+	ImGui::End();
+}
+
+void GameManager::ShowEntityInspector()
+{
+	ImGui::Begin("Entity Inspector");
+
+	if (m_selectedEnemyIndex < 0 || m_selectedEnemyIndex >= (int)m_enemies.size())
+	{
+		ImGui::Text("No entity selected.");
+		ImGui::Text("(Click an entry in Scene Outliner)");
+		ImGui::End();
+		return;
+	}
+
+	Enemy* e = m_enemies[m_selectedEnemyIndex];
+	if (!e) { ImGui::End(); return; }
+
+	const EnemyConfig& cfg = e->GetConfig();
+
+	ImGui::Text("Type:  %s", EnemyTypeName(cfg.type));
+	ImGui::Text("ID:    %d", e->GetID());
+	ImGui::Text("State: %s", e->GetEDBTState().c_str());
+	ImGui::Text("Dead:  %s", e->IsDestroyed() ? "Yes" : "No");
+
+	ImGui::Separator();
+	glm::vec3 pos = e->GetPosition();
+	if (ImGui::DragFloat3("Position", glm::value_ptr(pos), 0.5f))
+		e->SetPosition(pos);
+
+	float health = e->GetHealth();
+	float maxHP  = cfg.maxHealth;
+	ImGui::Text("Health: %.0f / %.0f", health, maxHP);
+	ImGui::ProgressBar(maxHP > 0.0f ? health / maxHP : 0.0f, ImVec2(-1.0f, 0.0f));
+
+	ImGui::Separator();
+	ImGui::Text("Config");
+	ImGui::Text("  Max Health:  %.0f", cfg.maxHealth);
+	ImGui::Text("  Accuracy:    %.0f%%", cfg.accuracy);
+	ImGui::Text("  Move Speed:  %.1f", cfg.moveSpeed);
+	ImGui::Text("  Has Skin:    %s", cfg.hasSkin ? "Yes" : "No");
+	ImGui::Text("  Anims  walk:%d  shoot:%d  dmg:%d  death:%d",
+		cfg.animWalk, cfg.animShoot, cfg.animTakeDamage, cfg.animDeath);
 
 	ImGui::End();
 
-
-	ImGui::Begin("Directional Light Control");
-
-	std::string modeText = "";
-
-	if (cam.GetMode() == FLY)
+	// ImGuizmo translate gizmo in world space over the selected enemy
+	if (!e->IsDestroyed())
 	{
-		modeText = "Flycam";
-
-
-		cam.UpdateCameraVectors();
+		glm::mat4 model = glm::translate(glm::mat4(1.0f), e->GetPosition());
+		ImGuizmo::SetDrawlist(ImGui::GetBackgroundDrawList());
+		ImGuizmo::Manipulate(
+			glm::value_ptr(m_view),
+			glm::value_ptr(m_projection),
+			ImGuizmo::TRANSLATE,
+			ImGuizmo::WORLD,
+			glm::value_ptr(model)
+		);
+		if (ImGuizmo::IsUsing())
+			e->SetPosition(glm::vec3(model[3]));
 	}
-	else if (cam.GetMode() == PLAYER_FOLLOW)
-		modeText = "Player Follow";
-	else if (cam.GetMode() == ENEMY_FOLLOW)
-		modeText = "Enemy Follow";
-	else if (cam.GetMode() == PLAYER_AIM)
-		modeText = "Player Aim"
-		;
-	ImGui::Text(modeText.c_str());
+}
 
-	ImGui::InputFloat3("Position", (float*)&cam.m_position);
+void GameManager::ShowLightingPanel()
+{
+	ImGui::Begin("Lighting");
 
-	ImGui::InputFloat("Pitch", (float*)&cam.m_pitch);
-	ImGui::InputFloat("Blend Time", (float*)&m_camera->cameraBlendTime);
+	ImGui::Text("Directional Light");
+	ImGui::DragFloat3("Direction", glm::value_ptr(m_lighting.dirLight.m_direction), 0.01f, -1.0f, 1.0f);
+	ImGui::ColorEdit3("Ambient",   glm::value_ptr(m_lighting.dirLight.m_ambient));
+	ImGui::ColorEdit3("Diffuse",   glm::value_ptr(m_lighting.dirLight.m_diffuse));
+	ImGui::ColorEdit3("Specular",  glm::value_ptr(m_lighting.dirLight.m_specular));
+	ImGui::DragFloat3("PBR Color", glm::value_ptr(m_lighting.pbrColor), 1.0f, 0.0f, 1000.0f);
 
-	ImGui::InputFloat("Yaw", (float*)&cam.m_yaw);
-	ImGui::InputFloat("Zoom", (float*)&cam.m_zoom);
+	ImGui::Separator();
+	ImGui::Text("Shadow Frustum");
+	ImGui::DragFloat("Ortho Left",   &m_lighting.orthoLeft,   0.5f);
+	ImGui::DragFloat("Ortho Right",  &m_lighting.orthoRight,  0.5f);
+	ImGui::DragFloat("Ortho Bottom", &m_lighting.orthoBottom, 0.5f);
+	ImGui::DragFloat("Ortho Top",    &m_lighting.orthoTop,    0.5f);
+	ImGui::DragFloat("Near Plane",   &m_lighting.nearPlane,   0.1f);
+	ImGui::DragFloat("Far Plane",    &m_lighting.farPlane,    1.0f);
+
+	ImGui::End();
+
+	// ImGuizmo: translate a "light anchor" at -dir*80; dragging it changes direction
+	const float LIGHT_DIST = 80.0f;
+	glm::vec3 anchor = -glm::normalize(m_lighting.dirLight.m_direction) * LIGHT_DIST;
+	glm::mat4 lightMat = glm::translate(glm::mat4(1.0f), anchor);
+
+	ImGuizmo::SetDrawlist(ImGui::GetBackgroundDrawList());
+	ImGuizmo::Manipulate(
+		glm::value_ptr(m_view),
+		glm::value_ptr(m_projection),
+		ImGuizmo::TRANSLATE,
+		ImGuizmo::WORLD,
+		glm::value_ptr(lightMat)
+	);
+	if (ImGuizmo::IsUsing())
+	{
+		glm::vec3 newAnchor = glm::vec3(lightMat[3]);
+		if (glm::length(newAnchor) > 0.001f)
+			m_lighting.dirLight.m_direction = glm::normalize(-newAnchor);
+	}
+}
+
+void GameManager::ShowCameraPanel()
+{
+	ImGui::Begin("Camera & Map");
+
+	const char* modeStr = CameraModeName(m_camera->GetMode());
+	ImGui::Text("Camera Mode: %s  (Ctrl to cycle)", modeStr);
+	ImGui::DragFloat3("Cam Position",  glm::value_ptr(m_camera->m_position));
+	ImGui::DragFloat("Pitch",          &m_camera->m_pitch, 0.1f);
+	ImGui::DragFloat("Yaw",            &m_camera->m_yaw,   0.1f);
+	ImGui::DragFloat("Zoom",           &m_camera->m_zoom,  0.1f);
+	ImGui::DragFloat("Blend Time",     &m_camera->cameraBlendTime, 0.01f);
+
+	ImGui::Separator();
+	ImGui::Text("Follow Offsets");
+	if (ImGui::DragFloat("Rear Offset",      &m_camera->playerCamRearOffset,   0.1f))
+		m_camera->SetPlayerCamRearOffset(m_camera->playerCamRearOffset);
+	if (ImGui::DragFloat("Height Offset",    &m_camera->playerCamHeightOffset, 0.1f))
+		m_camera->SetPlayerCamHeightOffset(m_camera->playerCamHeightOffset);
+	if (ImGui::DragFloat("Pos Offset",       &m_camera->playerPosOffset,       0.1f))
+		m_camera->SetPlayerPosOffset(m_camera->playerPosOffset);
+	if (ImGui::DragFloat("Aim Right Offset", &m_camera->playerAimRightOffset,  0.1f))
+		m_camera->SetPlayerAimRightOffset(m_camera->playerAimRightOffset);
+
+	ImGui::Separator();
+	ImGui::Text("Player Debug");
+	ImGui::DragFloat3("Player Pos",      glm::value_ptr(m_player->m_position));
+	ImGui::DragFloat("Player Yaw",       &m_player->m_playerYaw, 0.1f);
+	ImGui::DragFloat("Player Aim Pitch", &m_player->m_aimPitch,  0.1f);
+	ImGui::InputInt("Player Anim",       &m_player->m_animNum);
+
+	ImGui::Separator();
+	ImGui::Text("Map / Ground");
+	if (ImGui::DragFloat3("Map Position", glm::value_ptr(mapPos), 0.1f))
+		ground->SetPosition(mapPos);
+	if (ImGui::DragFloat3("Map Scale",    glm::value_ptr(mapScale), 0.01f))
+		ground->SetScale(mapScale);
+
+	ImGui::End();
+}
+
+void GameManager::ShowAIDebugPanel()
+{
+	ImGui::Begin("AI Debug");
+
+	ImGui::Checkbox("Use EDBT", &m_useEdbt);
+	ImGui::Separator();
+	ImGui::Text("Player HP: %.0f", m_player->GetHealth());
+	ImGui::Separator();
+
+	for (Enemy* e : m_enemies)
+	{
+		if (!e || e->IsDestroyed()) continue;
+		float hp    = e->GetHealth();
+		float maxHP = e->GetConfig().maxHealth;
+		ImGui::Text("[%d] %-12s  %-16s  HP %.0f/%.0f",
+			e->GetID(),
+			EnemyTypeName(e->GetConfig().type),
+			e->GetEDBTState().c_str(),
+			hp, maxHP);
+	}
 
 	ImGui::End();
 }
@@ -478,64 +636,14 @@ void GameManager::RenderDebugUi()
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
 
-void GameManager::ShowLightControlWindow(DirLight& light)
-{
-	ImGui::Begin("Directional Light Control");
-
-	ImGui::Text("Light Direction");
-	ImGui::DragFloat3("Direction", (float*)&light.m_direction, light.m_direction.x, light.m_direction.y, light.m_direction.z);
-
-	ImGui::ColorEdit4("Ambient", (float*)&light.m_ambient);
-
-	ImGui::ColorEdit4("Diffuse", (float*)&light.m_diffuse);
-	ImGui::ColorEdit4("PBR Color", (float*)&m_lighting.pbrColor);
-
-	ImGui::ColorEdit4("Specular", (float*)&light.m_specular);
-
-	ImGui::DragFloat("Ortho Left", (float*)&m_lighting.orthoLeft);
-	ImGui::DragFloat("Ortho Right", (float*)&m_lighting.orthoRight);
-	ImGui::DragFloat("Ortho Bottom", (float*)&m_lighting.orthoBottom);
-	ImGui::DragFloat("Ortho Top", (float*)&m_lighting.orthoTop);
-	ImGui::DragFloat("Near Plane", (float*)&m_lighting.nearPlane);
-	ImGui::DragFloat("Far Plane", (float*)&m_lighting.farPlane);
-
-	ImGui::End();
-}
-
 void GameManager::ShowPerformanceWindow()
 {
 	ImGui::Begin("Performance");
 
 	ImGui::Text("FPS: %.1f", m_fps);
 	ImGui::Text("Avg FPS: %.1f", m_avgFps);
-	ImGui::Text("Frame Time: %.1f ms", m_frameTime);
-	ImGui::Text("Elapsed Time: %.1f s", m_elapsedTime);
-
-	ImGui::End();
-}
-
-void GameManager::ShowEnemyStateWindow()
-{
-	ImGui::Begin("Game States");
-
-	ImGui::Checkbox("Use EDBT", &m_useEdbt);
-
-	ImGui::Text("Player Health: %d", (int)m_player->GetHealth());
-
-	for (Enemy* e : m_enemies)
-	{
-		if (e == nullptr || e->IsDestroyed())
-			continue;
-		ImTextureID texID = (void*)(intptr_t)e->GetTexture().GetTexId();
-		ImGui::Image(texID, ImVec2(100, 100));
-		ImGui::SameLine();
-		ImGui::Text("Enemy %d", e->GetID());
-		ImGui::SameLine();
-		ImGui::Text("State: %s", e->GetEDBTState().c_str());
-		ImGui::SameLine();
-		ImGui::Text("Health %d", (int)e->GetHealth());
-		//ImGui::InputFloat3("Position", &e->position[0]);
-	}
+	ImGui::Text("Frame Time: %.3f ms", m_frameTime);
+	ImGui::Text("Elapsed: %.1f s", m_elapsedTime);
 
 	ImGui::End();
 }

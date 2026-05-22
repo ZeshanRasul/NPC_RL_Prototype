@@ -23,6 +23,8 @@ D:\dev\Gameplay\NPC_RL_Prototype\src\Model\GltfAnimationClip.cpp;D:\dev\Gameplay
 D:\dev\Gameplay\NPC_RL_Prototype\src\Model\GltfAnimationChannel.cpp;D:\dev\Gameplay\NPC_RL_Prototype\build\NPC_RL_Prototype.dir\Release\GltfAnimationChannel.obj
 D:\dev\Gameplay\NPC_RL_Prototype\src\Components\Component.cpp;D:\dev\Gameplay\NPC_RL_Prototype\build\NPC_RL_Prototype.dir\Release\Component.obj
 D:\dev\Gameplay\NPC_RL_Prototype\src\Components\AudioComponent.cpp;D:\dev\Gameplay\NPC_RL_Prototype\build\NPC_RL_Prototype.dir\Release\AudioComponent.obj
+D:\dev\Gameplay\NPC_RL_Prototype\src\Components\SkinnedMeshComponent.cpp;D:\dev\Gameplay\NPC_RL_Prototype\build\NPC_RL_Prototype.dir\Release\SkinnedMeshComponent.obj
+D:\dev\Gameplay\NPC_RL_Prototype\src\NavMesh\NavMeshManager.cpp;D:\dev\Gameplay\NPC_RL_Prototype\build\NPC_RL_Prototype.dir\Release\NavMeshManager.obj
 D:\dev\Gameplay\NPC_RL_Prototype\src\Physics\AABB.cpp;D:\dev\Gameplay\NPC_RL_Prototype\build\NPC_RL_Prototype.dir\Release\AABB.obj
 D:\dev\Gameplay\NPC_RL_Prototype\src\Physics\PhysicsWorld.cpp;D:\dev\Gameplay\NPC_RL_Prototype\build\NPC_RL_Prototype.dir\Release\PhysicsWorld.obj
 D:\dev\Gameplay\NPC_RL_Prototype\src\Audio\AudioSystem.cpp;D:\dev\Gameplay\NPC_RL_Prototype\build\NPC_RL_Prototype.dir\Release\AudioSystem.obj
@@ -38,6 +40,7 @@ D:\dev\Gameplay\NPC_RL_Prototype\include\imgui\imgui_tables.cpp;D:\dev\Gameplay\
 D:\dev\Gameplay\NPC_RL_Prototype\include\imgui\imgui_widgets.cpp;D:\dev\Gameplay\NPC_RL_Prototype\build\NPC_RL_Prototype.dir\Release\imgui_widgets.obj
 D:\dev\Gameplay\NPC_RL_Prototype\include\imgui\backend\imgui_impl_glfw.cpp;D:\dev\Gameplay\NPC_RL_Prototype\build\NPC_RL_Prototype.dir\Release\imgui_impl_glfw.obj
 D:\dev\Gameplay\NPC_RL_Prototype\include\imgui\backend\imgui_impl_opengl3.cpp;D:\dev\Gameplay\NPC_RL_Prototype\build\NPC_RL_Prototype.dir\Release\imgui_impl_opengl3.obj
+D:\dev\Gameplay\NPC_RL_Prototype\include\imgui\ImGuizmo.cpp;D:\dev\Gameplay\NPC_RL_Prototype\build\NPC_RL_Prototype.dir\Release\ImGuizmo.obj
 D:\dev\Gameplay\NPC_RL_Prototype\include\Recast\Source\Recast.cpp;D:\dev\Gameplay\NPC_RL_Prototype\build\NPC_RL_Prototype.dir\Release\Recast.obj
 D:\dev\Gameplay\NPC_RL_Prototype\include\Recast\Source\RecastAlloc.cpp;D:\dev\Gameplay\NPC_RL_Prototype\build\NPC_RL_Prototype.dir\Release\RecastAlloc.obj
 D:\dev\Gameplay\NPC_RL_Prototype\include\Recast\Source\RecastArea.cpp;D:\dev\Gameplay\NPC_RL_Prototype\build\NPC_RL_Prototype.dir\Release\RecastArea.obj

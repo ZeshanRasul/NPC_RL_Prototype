@@ -487,6 +487,7 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
     <ClCompile Include="D:\dev\Gameplay\NPC_RL_Prototype\include\imgui\imgui_widgets.cpp" />
     <ClCompile Include="D:\dev\Gameplay\NPC_RL_Prototype\include\imgui\backend\imgui_impl_glfw.cpp" />
     <ClCompile Include="D:\dev\Gameplay\NPC_RL_Prototype\include\imgui\backend\imgui_impl_opengl3.cpp" />
+    <ClCompile Include="D:\dev\Gameplay\NPC_RL_Prototype\include\imgui\ImGuizmo.cpp" />
     <ClCompile Include="D:\dev\Gameplay\NPC_RL_Prototype\include\Recast\Source\Recast.cpp" />
     <ClCompile Include="D:\dev\Gameplay\NPC_RL_Prototype\include\Recast\Source\RecastAlloc.cpp" />
     <ClCompile Include="D:\dev\Gameplay\NPC_RL_Prototype\include\Recast\Source\RecastArea.cpp" />

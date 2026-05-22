@@ -211,6 +211,11 @@ void InputManager::ProcessInput(GLFWwindow* window, float deltaTime)
 
 	m_zKeyPressed = zKeyCurrentlyPressed;
 
+	bool f1KeyCurrentlyPressed = glfwGetKey(window, GLFW_KEY_F1) == GLFW_PRESS;
+	if (f1KeyCurrentlyPressed && !m_f1KeyPressed)
+		m_showDevOverlay = !m_showDevOverlay;
+	m_f1KeyPressed = f1KeyCurrentlyPressed;
+
 	HandlePlayerMovement(window, *m_player, *m_camera, deltaTime * pauseFactor * timeScaleFactor);
 }
 

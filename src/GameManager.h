@@ -144,7 +144,6 @@ public:
 
 	void SetUpDebugUi();
 	void ShowDebugUi();
-	void ShowCameraControlWindow(Camera& cam);
 	void RenderDebugUi();
 
 
@@ -174,9 +173,12 @@ private:
 	void RenderEnemyLineAndMuzzleFlash(bool isMainPass, bool isMinimapPass, bool isShadowPass);
 	void RenderPlayerCrosshairAndMuzzleFlash(bool isMainPass);
 
-	void ShowLightControlWindow(DirLight& light);
+	void ShowSceneOutliner();
+	void ShowEntityInspector();
+	void ShowLightingPanel();
+	void ShowCameraPanel();
+	void ShowAIDebugPanel();
 	void ShowPerformanceWindow();
-	void ShowEnemyStateWindow();
 
 	void CalculatePerformance(float deltaTime);
 
@@ -187,6 +189,7 @@ private:
 	float speedDivider = 1.0f;
 	float blendFac = 1.0f;
 	bool m_camSwitchedToAim = false;
+	int m_selectedEnemyIndex = -1;
 
 	bool m_useEdbt = true;
 

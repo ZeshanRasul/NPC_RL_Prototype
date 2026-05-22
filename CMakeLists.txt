@@ -83,6 +83,7 @@ set(IMGUI_SOURCES
     include/imgui/imgui_widgets.cpp
     include/imgui/backend/imgui_impl_glfw.cpp
     include/imgui/backend/imgui_impl_opengl3.cpp
+    include/imgui/ImGuizmo.cpp
 )
 
 set(RECAST_SOURCES
