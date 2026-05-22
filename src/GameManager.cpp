@@ -1239,7 +1239,7 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 	//navMeshQuery->findNearestPoly(startingPos, halfExtents, &filter, &startPoly, snappedPos);
 	//m_player->SetPosition(glm::vec3(snappedPos[0], snappedPos[1], snappedPos[2]));
 
-	m_player = new Player((glm::vec3(27.0f, 0.0f, 416.0f)), glm::vec3(5.0f), &playerShader, &playerShadowMapShader, true, this, 0.0f);
+	m_player = new Player((glm::vec3(27.0f, -43.35, 416.0f)), glm::vec3(5.0f), &playerShader, &playerShadowMapShader, true, this, 0.0f);
 
 	m_player->SetAABBShader(&aabbShader);
 	m_player->SetUpAABB();

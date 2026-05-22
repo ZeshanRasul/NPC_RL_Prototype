@@ -605,7 +605,7 @@ void Ground::DrawObject(glm::mat4 viewMat, glm::mat4 proj, bool shadowMap, glm::
 	{
 		m_aabbShader->Use();
 		glm::mat4 modelMat = glm::mat4(1.0f);
-		//modelMat = glm::translate(modelMat, glm::vec3(-9.0f, 354.6f, 163.0f));
+		modelMat = glm::translate(modelMat, glm::vec3(0.0f, -354.6f, 0.0f));
 		//modelMat = glm::rotate(modelMat, glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
 		modelMat = glm::scale(modelMat, m_scale);
 		glm::mat4 modelMatrix = glm::scale(glm::mat4(1.0f), m_scale);
