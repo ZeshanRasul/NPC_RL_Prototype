@@ -76,6 +76,9 @@
     <ClCompile Include="D:\dev\Gameplay\NPC_RL_Prototype\src\Components\AudioComponent.cpp">
       <Filter>Source\Components</Filter>
     </ClCompile>
+    <ClCompile Include="D:\dev\Gameplay\NPC_RL_Prototype\src\NavMesh\NavMeshManager.cpp">
+      <Filter>Source\NavMesh</Filter>
+    </ClCompile>
     <ClCompile Include="D:\dev\Gameplay\NPC_RL_Prototype\src\Physics\AABB.cpp">
       <Filter>Source\Physics</Filter>
     </ClCompile>
@@ -212,6 +215,9 @@
     </Filter>
     <Filter Include="Source\Model">
       <UniqueIdentifier>{456E7900-69D1-310C-BB72-50DE143B2E1F}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\NavMesh">
+      <UniqueIdentifier>{489C7732-044A-3D8C-AC9C-43FD6AEDD387}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source\OpenGL">
       <UniqueIdentifier>{7664CA01-B43A-3578-A82D-6FA54BF24AD1}</UniqueIdentifier>

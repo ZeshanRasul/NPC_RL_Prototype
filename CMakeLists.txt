@@ -50,6 +50,8 @@ set(GAME_SOURCES
     # Components
     src/Components/Component.cpp
     src/Components/AudioComponent.cpp
+    # NavMesh
+    src/NavMesh/NavMeshManager.cpp
     # Physics
     src/Physics/AABB.cpp
     src/Physics/PhysicsWorld.cpp
@@ -137,6 +139,7 @@ target_include_directories(NPC_RL_Prototype PRIVATE
     ${CMAKE_SOURCE_DIR}/src/tinygltf
     ${CMAKE_SOURCE_DIR}/src/OpenGL
     ${CMAKE_SOURCE_DIR}/src/Tools
+    ${CMAKE_SOURCE_DIR}/src/NavMesh
     ${CMAKE_SOURCE_DIR}/include/Recast/Include
     ${CMAKE_SOURCE_DIR}/include/Detour/Include
     ${CMAKE_SOURCE_DIR}/include/DetourCrowd/Include

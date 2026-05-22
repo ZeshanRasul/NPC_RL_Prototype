@@ -3,13 +3,7 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
-
-#include "Recast.h"
-#include "DetourNavMeshBuilder.h"
-#include "DetourNavMeshQuery.h"
-#include "DetourCrowd.h"
-#include "DetourCommon.h"
-#include "DetourNavMesh.h"
+#include <memory>
 
 #include "src/OpenGL/Renderer.h"
 #include "src/OpenGL/RenderData.h"
@@ -34,6 +28,8 @@
 
 #include "AI/Event.h"
 #include "AI/Events.h"
+#include "NavMesh/NavMeshManager.h"
+#include "LightingSystem.h"
 
 class GameManager {
 private:
@@ -160,7 +156,7 @@ public:
 	void ResetGame();
 
 	bool ShouldUseEDBT() const { return m_useEdbt; }
-	void CreateLightSpaceMatrices();
+	void CreateLightSpaceMatrices() { m_lighting.UpdateLightSpaceMatrix(); }
 
 	Enemy* GetEnemyByID(int id) {
 		for (auto& enemy : m_enemies) {
@@ -186,9 +182,7 @@ private:
 
 	EventManager& GetEventManager() { return m_eventManager; }
 
-	bool BuildTile(int tx, int ty, float* bmin, float* bmax, rcConfig cfg, unsigned char*& navData, int* navDataSize, dtNavMeshParams parameters);
 	void SetUpAndRenderNavMesh();
-	std::vector<float> renderNavMeshVerts;
 
 	float speedDivider = 1.0f;
 	float blendFac = 1.0f;
@@ -236,12 +230,7 @@ private:
 	const int SHADOW_WIDTH = 4096;
 	const int SHADOW_HEIGHT = 4096;
 
-	float m_orthoLeft = -90.0f;
-	float m_orthoRight = 90.0f;
-	float m_orthoBottom = -90.0f;
-	float m_orthoTop = 90.0f;
-	float m_nearPlane = 1.0f;
-	float m_farPlane = 300.0f;
+	LightingSystem m_lighting;
 
 	Renderer* m_renderer;
 	Window* m_window;
@@ -341,58 +330,15 @@ private:
 	glm::mat4 m_cubemapView = glm::mat4(1.0f);
 	glm::mat4 m_minimapView = glm::mat4(1.0f);
 	glm::mat4 m_minimapProjection = glm::mat4(1.0f);
-	glm::mat4 m_lightSpaceView = glm::mat4(1.0f);
-	glm::mat4 m_lightSpaceProjection = glm::mat4(1.0f);
-	glm::mat4 m_lightSpaceMatrix = glm::mat4(1.0f);
 
 	bool m_firstFlyCamSwitch = true;
 
 
 	SoundEvent m_musicEvent;
 
-	std::vector<float> navMeshVertices;
-	std::vector<unsigned int> navMeshIndices;
-	std::vector<glm::vec3> mapVerts;
-	int* triIndices;
-	unsigned char* triAreas;
-	std::vector<glm::vec3> mapVertices;
-
-	rcContext ctx;
-	std::vector<rcHeightfield*> heightFields;
-	std::vector<rcCompactHeightfield*> compactHeightFields;
-	std::vector<rcContourSet*> contourSets;
-	std::vector<rcPolyMesh*> polyMeshes;
-	std::vector<rcPolyMeshDetail*> polyMeshDetails;
-	dtCrowd* crowd;
-	std::vector<int> enemyAgentIDs;
-	float* targetPosOnNavMesh;
-	dtQueryFilter filter;
-	const float halfExtents[3] = { 500.0f, 50.0f, 500.0f };
-
-	bool saveNavMesh = false;
-	bool loadNavMesh = true;
-	dtNavMesh* navMesh;
-	dtNavMeshQuery* navMeshQuery;
-	unsigned char* navData;
-	int navDataSize;
-	float snappedPos[3];
-	float tileWorldSize;
-
-	GLuint vao, vbo, ebo;
-	Shader navMeshShader{};
-	std::vector<float> navRenderMeshVertices;
-	std::vector<unsigned int> navRenderMeshIndices;
-
-	GLuint hfvao, hfvbo, hfebo;
-	Shader hfnavMeshShader{};
-	std::vector<float> hfnavRenderMeshVertices;
-	std::vector<unsigned int> hfnavRenderMeshIndices; 
+	std::unique_ptr<NavMeshManager> m_navMeshManager;
 
 	glm::vec3 mapScale = glm::vec3(5.0f);
 	glm::vec3 mapPos = glm::vec3(0.0f, 0.0f, 0.0f);
 };
 
-struct DebugVertex {
-	glm::vec3 position;
-	glm::vec3 color;
-};	

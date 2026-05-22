@@ -1,0 +1,1023 @@
+{
+	"artifacts" : 
+	[
+		{
+			"path" : "NPC_RL_Prototype.exe"
+		},
+		{
+			"path" : "NPC_RL_Prototype.pdb"
+		}
+	],
+	"backtrace" : 1,
+	"backtraceGraph" : 
+	{
+		"commands" : 
+		[
+			"add_executable",
+			"target_link_options",
+			"target_link_libraries",
+			"target_compile_options",
+			"target_compile_definitions",
+			"target_include_directories"
+		],
+		"files" : 
+		[
+			"CMakeLists.txt"
+		],
+		"nodes" : 
+		[
+			{
+				"file" : 0
+			},
+			{
+				"command" : 0,
+				"file" : 0,
+				"line" : 123,
+				"parent" : 0
+			},
+			{
+				"command" : 1,
+				"file" : 0,
+				"line" : 219,
+				"parent" : 0
+			},
+			{
+				"command" : 2,
+				"file" : 0,
+				"line" : 200,
+				"parent" : 0
+			},
+			{
+				"command" : 3,
+				"file" : 0,
+				"line" : 211,
+				"parent" : 0
+			},
+			{
+				"command" : 4,
+				"file" : 0,
+				"line" : 158,
+				"parent" : 0
+			},
+			{
+				"command" : 5,
+				"file" : 0,
+				"line" : 134,
+				"parent" : 0
+			}
+		]
+	},
+	"codemodelVersion" : 
+	{
+		"major" : 2,
+		"minor" : 9
+	},
+	"compileDependencies" : 
+	[
+		{
+			"backtrace" : 3,
+			"id" : "fmod_core::@6890427a1f51a3e7e1df"
+		},
+		{
+			"backtrace" : 3,
+			"id" : "fmod_studio::@6890427a1f51a3e7e1df"
+		}
+	],
+	"compileGroups" : 
+	[
+		{
+			"compileCommandFragments" : 
+			[
+				{
+					"fragment" : "/DWIN32 /D_WINDOWS /EHsc /Zi /Ob0 /Od /RTC1 -std:c++20 -MDd"
+				},
+				{
+					"backtrace" : 4,
+					"fragment" : "/W3"
+				},
+				{
+					"backtrace" : 4,
+					"fragment" : "/MP"
+				},
+				{
+					"backtrace" : 4,
+					"fragment" : "/permissive-"
+				},
+				{
+					"backtrace" : 4,
+					"fragment" : "/Zi"
+				},
+				{
+					"backtrace" : 4,
+					"fragment" : "/sdl"
+				}
+			],
+			"defines" : 
+			[
+				{
+					"backtrace" : 5,
+					"define" : "GLM_ENABLE_EXPERIMENTAL"
+				},
+				{
+					"backtrace" : 5,
+					"define" : "UNICODE"
+				},
+				{
+					"backtrace" : 5,
+					"define" : "_CRT_SECURE_NO_WARNINGS"
+				},
+				{
+					"backtrace" : 5,
+					"define" : "_DEBUG"
+				},
+				{
+					"backtrace" : 5,
+					"define" : "_UNICODE"
+				}
+			],
+			"includes" : 
+			[
+				{
+					"backtrace" : 6,
+					"path" : "D:/dev/Gameplay/NPC_RL_Prototype"
+				},
+				{
+					"backtrace" : 6,
+					"path" : "D:/dev/Gameplay/NPC_RL_Prototype/src"
+				},
+				{
+					"backtrace" : 6,
+					"path" : "D:/dev/Gameplay/NPC_RL_Prototype/include"
+				},
+				{
+					"backtrace" : 6,
+					"path" : "D:/dev/Gameplay/NPC_RL_Prototype/include/imgui"
+				},
+				{
+					"backtrace" : 6,
+					"path" : "D:/dev/Gameplay/NPC_RL_Prototype/src/tinygltf"
+				},
+				{
+					"backtrace" : 6,
+					"path" : "D:/dev/Gameplay/NPC_RL_Prototype/src/OpenGL"
+				},
+				{
+					"backtrace" : 6,
+					"path" : "D:/dev/Gameplay/NPC_RL_Prototype/src/Tools"
+				},
+				{
+					"backtrace" : 6,
+					"path" : "D:/dev/Gameplay/NPC_RL_Prototype/src/NavMesh"
+				},
+				{
+					"backtrace" : 6,
+					"path" : "D:/dev/Gameplay/NPC_RL_Prototype/include/Recast/Include"
+				},
+				{
+					"backtrace" : 6,
+					"path" : "D:/dev/Gameplay/NPC_RL_Prototype/include/Detour/Include"
+				},
+				{
+					"backtrace" : 6,
+					"path" : "D:/dev/Gameplay/NPC_RL_Prototype/include/DetourCrowd/Include"
+				},
+				{
+					"backtrace" : 6,
+					"path" : "C:/Program Files (x86)/FMOD SoundSystem/FMOD Studio API Windows/api/studio/inc"
+				},
+				{
+					"backtrace" : 6,
+					"path" : "C:/Program Files (x86)/FMOD SoundSystem/FMOD Studio API Windows/api/lowlevel/inc"
+				},
+				{
+					"backtrace" : 6,
+					"path" : "C:/Program Files (x86)/FMOD SoundSystem/FMOD Studio API Windows/api/core/inc"
+				}
+			],
+			"language" : "CXX",
+			"languageStandard" : 
+			{
+				"backtraces" : 
+				[
+					1
+				],
+				"standard" : "20"
+			},
+			"sourceIndexes" : 
+			[
+				0,
+				1,
+				2,
+				3,
+				4,
+				5,
+				6,
+				7,
+				8,
+				9,
+				10,
+				11,
+				12,
+				13,
+				14,
+				15,
+				16,
+				17,
+				18,
+				19,
+				20,
+				21,
+				22,
+				23,
+				24,
+				25,
+				26,
+				27,
+				28,
+				29,
+				30,
+				31,
+				33,
+				34,
+				35,
+				36,
+				37,
+				38,
+				39,
+				40,
+				41,
+				42,
+				43,
+				44,
+				45,
+				46,
+				47,
+				48,
+				49,
+				50,
+				51,
+				52,
+				53,
+				54,
+				55,
+				56,
+				57,
+				58,
+				59,
+				60,
+				61,
+				62,
+				63,
+				64
+			]
+		},
+		{
+			"compileCommandFragments" : 
+			[
+				{
+					"fragment" : "/DWIN32 /D_WINDOWS /Zi /Ob0 /Od /RTC1 -MDd"
+				},
+				{
+					"backtrace" : 4,
+					"fragment" : "/W3"
+				},
+				{
+					"backtrace" : 4,
+					"fragment" : "/MP"
+				},
+				{
+					"backtrace" : 4,
+					"fragment" : "/permissive-"
+				},
+				{
+					"backtrace" : 4,
+					"fragment" : "/Zi"
+				},
+				{
+					"backtrace" : 4,
+					"fragment" : "/sdl"
+				}
+			],
+			"defines" : 
+			[
+				{
+					"backtrace" : 5,
+					"define" : "GLM_ENABLE_EXPERIMENTAL"
+				},
+				{
+					"backtrace" : 5,
+					"define" : "UNICODE"
+				},
+				{
+					"backtrace" : 5,
+					"define" : "_CRT_SECURE_NO_WARNINGS"
+				},
+				{
+					"backtrace" : 5,
+					"define" : "_DEBUG"
+				},
+				{
+					"backtrace" : 5,
+					"define" : "_UNICODE"
+				}
+			],
+			"includes" : 
+			[
+				{
+					"backtrace" : 6,
+					"path" : "D:/dev/Gameplay/NPC_RL_Prototype"
+				},
+				{
+					"backtrace" : 6,
+					"path" : "D:/dev/Gameplay/NPC_RL_Prototype/src"
+				},
+				{
+					"backtrace" : 6,
+					"path" : "D:/dev/Gameplay/NPC_RL_Prototype/include"
+				},
+				{
+					"backtrace" : 6,
+					"path" : "D:/dev/Gameplay/NPC_RL_Prototype/include/imgui"
+				},
+				{
+					"backtrace" : 6,
+					"path" : "D:/dev/Gameplay/NPC_RL_Prototype/src/tinygltf"
+				},
+				{
+					"backtrace" : 6,
+					"path" : "D:/dev/Gameplay/NPC_RL_Prototype/src/OpenGL"
+				},
+				{
+					"backtrace" : 6,
+					"path" : "D:/dev/Gameplay/NPC_RL_Prototype/src/Tools"
+				},
+				{
+					"backtrace" : 6,
+					"path" : "D:/dev/Gameplay/NPC_RL_Prototype/src/NavMesh"
+				},
+				{
+					"backtrace" : 6,
+					"path" : "D:/dev/Gameplay/NPC_RL_Prototype/include/Recast/Include"
+				},
+				{
+					"backtrace" : 6,
+					"path" : "D:/dev/Gameplay/NPC_RL_Prototype/include/Detour/Include"
+				},
+				{
+					"backtrace" : 6,
+					"path" : "D:/dev/Gameplay/NPC_RL_Prototype/include/DetourCrowd/Include"
+				},
+				{
+					"backtrace" : 6,
+					"path" : "C:/Program Files (x86)/FMOD SoundSystem/FMOD Studio API Windows/api/studio/inc"
+				},
+				{
+					"backtrace" : 6,
+					"path" : "C:/Program Files (x86)/FMOD SoundSystem/FMOD Studio API Windows/api/lowlevel/inc"
+				},
+				{
+					"backtrace" : 6,
+					"path" : "C:/Program Files (x86)/FMOD SoundSystem/FMOD Studio API Windows/api/core/inc"
+				}
+			],
+			"language" : "C",
+			"sourceIndexes" : 
+			[
+				32
+			]
+		}
+	],
+	"id" : "NPC_RL_Prototype::@6890427a1f51a3e7e1df",
+	"link" : 
+	{
+		"commandFragments" : 
+		[
+			{
+				"fragment" : "/DWIN32 /D_WINDOWS /EHsc /Zi /Ob0 /Od /RTC1 -MDd",
+				"role" : "flags"
+			},
+			{
+				"fragment" : "/machine:x64 /debug /INCREMENTAL",
+				"role" : "flags"
+			},
+			{
+				"fragment" : "/subsystem:console",
+				"role" : "flags"
+			},
+			{
+				"backtrace" : 2,
+				"fragment" : "/DEBUG:FULL",
+				"role" : "flags"
+			},
+			{
+				"backtrace" : 3,
+				"fragment" : "opengl32.lib",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 3,
+				"fragment" : "D:\\dev\\Gameplay\\NPC_RL_Prototype\\lib\\glfw3.lib",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 3,
+				"fragment" : "\"C:\\Program Files (x86)\\FMOD SoundSystem\\FMOD Studio API Windows\\api\\lowlevel\\lib\\fmodL64_vc.lib\"",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 3,
+				"fragment" : "\"C:\\Program Files (x86)\\FMOD SoundSystem\\FMOD Studio API Windows\\api\\studio\\lib\\fmodstudioL64_vc.lib\"",
+				"role" : "libraries"
+			},
+			{
+				"fragment" : "kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib",
+				"role" : "libraries"
+			}
+		],
+		"language" : "CXX"
+	},
+	"linkLibraries" : 
+	[
+		{
+			"backtrace" : 3,
+			"fragment" : "opengl32"
+		},
+		{
+			"backtrace" : 3,
+			"fragment" : "D:/dev/Gameplay/NPC_RL_Prototype/lib/glfw3.lib"
+		},
+		{
+			"backtrace" : 3,
+			"id" : "fmod_core::@6890427a1f51a3e7e1df"
+		},
+		{
+			"backtrace" : 3,
+			"id" : "fmod_studio::@6890427a1f51a3e7e1df"
+		}
+	],
+	"name" : "NPC_RL_Prototype",
+	"nameOnDisk" : "NPC_RL_Prototype.exe",
+	"paths" : 
+	{
+		"build" : ".",
+		"source" : "."
+	},
+	"sourceGroups" : 
+	[
+		{
+			"name" : "Source",
+			"sourceIndexes" : 
+			[
+				0,
+				1,
+				2,
+				3,
+				4,
+				5,
+				32
+			]
+		},
+		{
+			"name" : "Source\\Window",
+			"sourceIndexes" : 
+			[
+				6
+			]
+		},
+		{
+			"name" : "Source\\OpenGL",
+			"sourceIndexes" : 
+			[
+				7,
+				8,
+				9,
+				10,
+				11,
+				12,
+				13
+			]
+		},
+		{
+			"name" : "Source\\GameObjects",
+			"sourceIndexes" : 
+			[
+				14,
+				15,
+				16,
+				17,
+				18
+			]
+		},
+		{
+			"name" : "Source\\Model",
+			"sourceIndexes" : 
+			[
+				19,
+				20,
+				21,
+				22
+			]
+		},
+		{
+			"name" : "Source\\Components",
+			"sourceIndexes" : 
+			[
+				23,
+				24
+			]
+		},
+		{
+			"name" : "Source\\NavMesh",
+			"sourceIndexes" : 
+			[
+				25
+			]
+		},
+		{
+			"name" : "Source\\Physics",
+			"sourceIndexes" : 
+			[
+				26,
+				27
+			]
+		},
+		{
+			"name" : "Source\\Audio",
+			"sourceIndexes" : 
+			[
+				28,
+				29,
+				30
+			]
+		},
+		{
+			"name" : "Source\\Tools",
+			"sourceIndexes" : 
+			[
+				31
+			]
+		},
+		{
+			"name" : "Source\\tinygltf",
+			"sourceIndexes" : 
+			[
+				33
+			]
+		},
+		{
+			"name" : "ThirdParty\\imgui",
+			"sourceIndexes" : 
+			[
+				34,
+				35,
+				36,
+				37,
+				38
+			]
+		},
+		{
+			"name" : "ThirdParty\\imgui\\backend",
+			"sourceIndexes" : 
+			[
+				39,
+				40
+			]
+		},
+		{
+			"name" : "ThirdParty\\Recast\\Source",
+			"sourceIndexes" : 
+			[
+				41,
+				42,
+				43,
+				44,
+				45,
+				46,
+				47,
+				48,
+				49,
+				50,
+				51
+			]
+		},
+		{
+			"name" : "ThirdParty\\Detour\\Source",
+			"sourceIndexes" : 
+			[
+				52,
+				53,
+				54,
+				55,
+				56,
+				57,
+				58
+			]
+		},
+		{
+			"name" : "ThirdParty\\DetourCrowd\\Source",
+			"sourceIndexes" : 
+			[
+				59,
+				60,
+				61,
+				62,
+				63,
+				64
+			]
+		}
+	],
+	"sources" : 
+	[
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "src/main.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "src/App.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "src/GameManager.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "src/Camera.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "src/InputManager.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "src/Tunables.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "src/Window/Window.cpp",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "src/OpenGL/Renderer.cpp",
+			"sourceGroupIndex" : 2
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "src/OpenGL/Shader.cpp",
+			"sourceGroupIndex" : 2
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "src/OpenGL/Texture.cpp",
+			"sourceGroupIndex" : 2
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "src/OpenGL/VertexBuffer.cpp",
+			"sourceGroupIndex" : 2
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "src/OpenGL/UniformBuffer.cpp",
+			"sourceGroupIndex" : 2
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "src/OpenGL/ShaderStorageBuffer.cpp",
+			"sourceGroupIndex" : 2
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "src/OpenGL/Cubemap.cpp",
+			"sourceGroupIndex" : 2
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "src/GameObjects/Player.cpp",
+			"sourceGroupIndex" : 3
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "src/GameObjects/Enemy.cpp",
+			"sourceGroupIndex" : 3
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "src/GameObjects/Ground.cpp",
+			"sourceGroupIndex" : 3
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "src/GameObjects/Crosshair.cpp",
+			"sourceGroupIndex" : 3
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "src/GameObjects/Line.cpp",
+			"sourceGroupIndex" : 3
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "src/Model/GltfModel.cpp",
+			"sourceGroupIndex" : 4
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "src/Model/GltfNode.cpp",
+			"sourceGroupIndex" : 4
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "src/Model/GltfAnimationClip.cpp",
+			"sourceGroupIndex" : 4
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "src/Model/GltfAnimationChannel.cpp",
+			"sourceGroupIndex" : 4
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "src/Components/Component.cpp",
+			"sourceGroupIndex" : 5
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "src/Components/AudioComponent.cpp",
+			"sourceGroupIndex" : 5
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "src/NavMesh/NavMeshManager.cpp",
+			"sourceGroupIndex" : 6
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "src/Physics/AABB.cpp",
+			"sourceGroupIndex" : 7
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "src/Physics/PhysicsWorld.cpp",
+			"sourceGroupIndex" : 7
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "src/Audio/AudioSystem.cpp",
+			"sourceGroupIndex" : 8
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "src/Audio/AudioManager.cpp",
+			"sourceGroupIndex" : 8
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "src/Audio/SoundEvent.cpp",
+			"sourceGroupIndex" : 8
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "src/Tools/Logger.cpp",
+			"sourceGroupIndex" : 9
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "src/glad.c",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "src/tinygltf/tiny_gltf.cc",
+			"sourceGroupIndex" : 10
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "include/imgui/imgui.cpp",
+			"sourceGroupIndex" : 11
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "include/imgui/imgui_demo.cpp",
+			"sourceGroupIndex" : 11
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "include/imgui/imgui_draw.cpp",
+			"sourceGroupIndex" : 11
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "include/imgui/imgui_tables.cpp",
+			"sourceGroupIndex" : 11
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "include/imgui/imgui_widgets.cpp",
+			"sourceGroupIndex" : 11
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "include/imgui/backend/imgui_impl_glfw.cpp",
+			"sourceGroupIndex" : 12
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "include/imgui/backend/imgui_impl_opengl3.cpp",
+			"sourceGroupIndex" : 12
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "include/Recast/Source/Recast.cpp",
+			"sourceGroupIndex" : 13
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "include/Recast/Source/RecastAlloc.cpp",
+			"sourceGroupIndex" : 13
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "include/Recast/Source/RecastArea.cpp",
+			"sourceGroupIndex" : 13
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "include/Recast/Source/RecastAssert.cpp",
+			"sourceGroupIndex" : 13
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "include/Recast/Source/RecastContour.cpp",
+			"sourceGroupIndex" : 13
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "include/Recast/Source/RecastFilter.cpp",
+			"sourceGroupIndex" : 13
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "include/Recast/Source/RecastLayers.cpp",
+			"sourceGroupIndex" : 13
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "include/Recast/Source/RecastMesh.cpp",
+			"sourceGroupIndex" : 13
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "include/Recast/Source/RecastMeshDetail.cpp",
+			"sourceGroupIndex" : 13
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "include/Recast/Source/RecastRasterization.cpp",
+			"sourceGroupIndex" : 13
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "include/Recast/Source/RecastRegion.cpp",
+			"sourceGroupIndex" : 13
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "include/Detour/Source/DetourAlloc.cpp",
+			"sourceGroupIndex" : 14
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "include/Detour/Source/DetourAssert.cpp",
+			"sourceGroupIndex" : 14
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "include/Detour/Source/DetourCommon.cpp",
+			"sourceGroupIndex" : 14
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "include/Detour/Source/DetourNavMesh.cpp",
+			"sourceGroupIndex" : 14
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "include/Detour/Source/DetourNavMeshBuilder.cpp",
+			"sourceGroupIndex" : 14
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "include/Detour/Source/DetourNavMeshQuery.cpp",
+			"sourceGroupIndex" : 14
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "include/Detour/Source/DetourNode.cpp",
+			"sourceGroupIndex" : 14
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "include/DetourCrowd/Source/DetourCrowd.cpp",
+			"sourceGroupIndex" : 15
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "include/DetourCrowd/Source/DetourLocalBoundary.cpp",
+			"sourceGroupIndex" : 15
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "include/DetourCrowd/Source/DetourObstacleAvoidance.cpp",
+			"sourceGroupIndex" : 15
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "include/DetourCrowd/Source/DetourPathCorridor.cpp",
+			"sourceGroupIndex" : 15
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "include/DetourCrowd/Source/DetourPathQueue.cpp",
+			"sourceGroupIndex" : 15
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "include/DetourCrowd/Source/DetourProximityGrid.cpp",
+			"sourceGroupIndex" : 15
+		}
+	],
+	"type" : "EXECUTABLE"
+}
