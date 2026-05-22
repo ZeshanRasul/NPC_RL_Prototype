@@ -529,7 +529,7 @@ Ground::Ground(glm::vec3 pos, glm::vec3 scale, Shader* shdr, Shader* shadowMapSh
 {
 	mapModel = new tinygltf::Model;
 
-	std::string modelFilename = "Assets/Models/Game_Scene/Final/Env6.glb";
+	std::string modelFilename = "src/Assets/Models/Game_Scene/Revised/Aviary-Environment-Final-V1_Colliders.glb";
 
 	tinygltf::TinyGLTF gltfLoader;
 	std::string loaderErrors;
@@ -587,7 +587,8 @@ void Ground::DrawObject(glm::mat4 viewMat, glm::mat4 proj, bool shadowMap, glm::
 	DrawGLTFModel(viewMat, proj, camPos);
 	for (auto& debugPlane : debugPlanes)
 	{
-		glDisable(GL_DEPTH_TEST);
+	//	glDisable(GL_DEPTH_TEST);
+		glEnable(GL_DEPTH_TEST);
 		planeShader->Use();
 		planeShader->SetMat4("view", viewMat);
 		planeShader->SetMat4("projection", proj);
@@ -598,7 +599,6 @@ void Ground::DrawObject(glm::mat4 viewMat, glm::mat4 proj, bool shadowMap, glm::
 		glDrawArrays(GL_LINE_STRIP, 0, debugPlane.countNo);
 		glBindVertexArray(0);
 		glUseProgram(0);
-		glEnable(GL_DEPTH_TEST);
 	}
 
 	for (AABB* aabb : m_aabbs)

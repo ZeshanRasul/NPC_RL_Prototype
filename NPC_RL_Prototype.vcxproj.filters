@@ -470,5 +470,6 @@
     <None Include="src\Shaders\fragment_pbr_skinned.glsl" />
     <None Include="src\Shaders\vertex_pbr_skinned.glsl" />
     <None Include="src\Shaders\vertex_pbr_skinned_enemy.glsl" />
+    <None Include="src\Assets\Models\Game_Scene\Aviary-Environment-Final-GLB-V1.glb" />
   </ItemGroup>
 </Project>

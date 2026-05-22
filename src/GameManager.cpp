@@ -1764,11 +1764,11 @@ void GameManager::ShowCameraControlWindow(Camera& cam)
 	ImGui::Begin("Map Settings");
 
 	ImGui::Text("Position");
-	ImGui::DragFloat3("Position", (float*)&mapPos, mapPos.x, mapPos.y, mapPos.z);
+	ImGui::InputFloat3("Position", (float*)&mapPos);
 	ground->SetPosition(mapPos);
 
 	ImGui::Text("Scale");
-	ImGui::DragFloat3("Scale", (float*)&mapScale, mapScale.x, mapScale.y, mapScale.z);
+	ImGui::InputFloat3("Scale", (float*)&mapScale);
 	ground->SetScale(mapScale);
 
 
