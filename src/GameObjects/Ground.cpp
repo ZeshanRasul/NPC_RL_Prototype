@@ -265,7 +265,8 @@ float GetEmissiveStrength(const tinygltf::Material& mat)
 	return emissiveStrength;
 }
 
-void Ground::DrawGLTFModel(glm::mat4 viewMat, glm::mat4 projMat, glm::vec3 camPos) {
+void Ground::DrawGLTFModel(glm::mat4 viewMat, glm::mat4 projMat, glm::vec3 camPos,
+                           glm::mat4 lightSpaceMat, GLuint shadowMapTex) {
 	glDisable(GL_CULL_FACE);
 	int texIndex = 0;
 	for (size_t meshIndex = 0; meshIndex < meshData.size(); ++meshIndex) {
@@ -286,6 +287,10 @@ void Ground::DrawGLTFModel(glm::mat4 viewMat, glm::mat4 projMat, glm::vec3 camPo
 			m_uniformBuffer.UploadUboData(matrixData, 0);
 
 			m_shader->SetVec3("cameraPos", camPos);
+			m_shader->SetMat4("lightSpaceMatrix", lightSpaceMat);
+			glActiveTexture(GL_TEXTURE5);
+			glBindTexture(GL_TEXTURE_2D, shadowMapTex);
+			m_shader->SetInt("shadowMap", 5);
 
 			bool hasTexture = false;
 			glBindVertexArray(prim.vao);
@@ -595,7 +600,7 @@ Ground::Ground(glm::vec3 pos, glm::vec3 scale, Shader* shdr, Shader* shadowMapSh
 
 void Ground::DrawObject(glm::mat4 viewMat, glm::mat4 proj, bool shadowMap, glm::mat4 lightSpaceMat, GLuint shadowMapTexture, glm::vec3 camPos)
 {
-	DrawGLTFModel(viewMat, proj, camPos);
+	DrawGLTFModel(viewMat, proj, camPos, lightSpaceMat, shadowMapTexture);
 	for (auto& debugPlane : debugPlanes)
 	{
 	//	glDisable(GL_DEPTH_TEST);

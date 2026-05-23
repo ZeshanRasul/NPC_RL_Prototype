@@ -345,5 +345,10 @@ private:
 
 	glm::vec3 mapScale = glm::vec3(5.0f);
 	glm::vec3 mapPos = glm::vec3(0.0f, 0.0f, 0.0f);
+
+	// Minimap top-down orthographic camera params (tunable via ImGui)
+	glm::vec2 m_minimapCenter  = glm::vec2(27.0f, 130.0f); // world XZ centre
+	float     m_minimapHeight  = 400.0f;                    // eye height above centre
+	float     m_minimapExtent  = 250.0f;                    // half-width of ortho view
 };
 

@@ -375,8 +375,13 @@ void GameManager::SetupCamera(unsigned int width, unsigned int height, float del
 
 	m_projection = glm::perspective(glm::radians(m_camera->GetZoom()), (float)width / (float)height, 0.1f, 500.0f);
 
-	m_minimapView = glm::mat4(1.0f);
-	m_minimapProjection = glm::perspective(glm::radians(m_camera->GetZoom()), (float)width / (float)height, 0.1f, 500.0f);
+	// Top-down orthographic minimap — eye directly above the chosen centre point
+	glm::vec3 minimapEye = glm::vec3(m_minimapCenter.x, m_minimapHeight, m_minimapCenter.y);
+	glm::vec3 minimapTarget = glm::vec3(m_minimapCenter.x, 0.0f, m_minimapCenter.y);
+	m_minimapView = glm::lookAt(minimapEye, minimapTarget, glm::vec3(0.0f, 0.0f, -1.0f));
+	m_minimapProjection = glm::ortho(-m_minimapExtent, m_minimapExtent,
+		-m_minimapExtent, m_minimapExtent,
+		0.1f, m_minimapHeight + 200.0f);
 
 	m_player->SetCameraMatrices(m_view, m_projection);
 
@@ -440,9 +445,9 @@ void GameManager::ShowSceneOutliner()
 	// Edit / Play toggle
 	if (m_editMode)
 	{
-		ImGui::PushStyleColor(ImGuiCol_Button,        ImVec4(0.8f, 0.4f, 0.0f, 1.0f));
+		ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.8f, 0.4f, 0.0f, 1.0f));
 		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.9f, 0.5f, 0.1f, 1.0f));
-		ImGui::PushStyleColor(ImGuiCol_ButtonActive,  ImVec4(0.7f, 0.3f, 0.0f, 1.0f));
+		ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.7f, 0.3f, 0.0f, 1.0f));
 		if (ImGui::Button("  EDIT MODE  "))
 			m_editMode = false;
 		ImGui::PopStyleColor(3);
@@ -451,9 +456,9 @@ void GameManager::ShowSceneOutliner()
 	}
 	else
 	{
-		ImGui::PushStyleColor(ImGuiCol_Button,        ImVec4(0.1f, 0.5f, 0.1f, 1.0f));
+		ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.1f, 0.5f, 0.1f, 1.0f));
 		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.2f, 0.6f, 0.2f, 1.0f));
-		ImGui::PushStyleColor(ImGuiCol_ButtonActive,  ImVec4(0.0f, 0.4f, 0.0f, 1.0f));
+		ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.0f, 0.4f, 0.0f, 1.0f));
 		if (ImGui::Button("  PLAY MODE  "))
 			m_editMode = true;
 		ImGui::PopStyleColor(3);
@@ -516,7 +521,7 @@ void GameManager::ShowEntityInspector()
 		e->SetPosition(pos);
 
 	float health = e->GetHealth();
-	float maxHP  = cfg.maxHealth;
+	float maxHP = cfg.maxHealth;
 	ImGui::Text("Health: %.0f / %.0f", health, maxHP);
 	ImGui::ProgressBar(maxHP > 0.0f ? health / maxHP : 0.0f, ImVec2(-1.0f, 0.0f));
 
@@ -558,19 +563,24 @@ void GameManager::ShowLightingPanel()
 
 	ImGui::Text("Directional Light");
 	ImGui::DragFloat3("Direction", glm::value_ptr(m_lighting.dirLight.m_direction), 0.01f, -1.0f, 1.0f);
-	ImGui::ColorEdit3("Ambient",   glm::value_ptr(m_lighting.dirLight.m_ambient));
-	ImGui::ColorEdit3("Diffuse",   glm::value_ptr(m_lighting.dirLight.m_diffuse));
-	ImGui::ColorEdit3("Specular",  glm::value_ptr(m_lighting.dirLight.m_specular));
+	ImGui::ColorEdit3("Ambient", glm::value_ptr(m_lighting.dirLight.m_ambient));
+	ImGui::ColorEdit3("Diffuse", glm::value_ptr(m_lighting.dirLight.m_diffuse));
+	ImGui::ColorEdit3("Specular", glm::value_ptr(m_lighting.dirLight.m_specular));
 	ImGui::DragFloat3("PBR Color", glm::value_ptr(m_lighting.pbrColor), 1.0f, 0.0f, 1000.0f);
 
 	ImGui::Separator();
-	ImGui::Text("Shadow Frustum");
-	ImGui::DragFloat("Ortho Left",   &m_lighting.orthoLeft,   0.5f);
-	ImGui::DragFloat("Ortho Right",  &m_lighting.orthoRight,  0.5f);
+	ImGui::Text("Shadow Framing");
+	ImGui::DragFloat3("Scene Centre", glm::value_ptr(m_lighting.sceneCenter), 0.5f);
+	ImGui::DragFloat("Light Distance", &m_lighting.lightDistance, 1.0f, 10.0f, 2000.0f);
+
+	ImGui::Separator();
+	ImGui::Text("Shadow Frustum (ortho)");
+	ImGui::DragFloat("Ortho Left", &m_lighting.orthoLeft, 0.5f);
+	ImGui::DragFloat("Ortho Right", &m_lighting.orthoRight, 0.5f);
 	ImGui::DragFloat("Ortho Bottom", &m_lighting.orthoBottom, 0.5f);
-	ImGui::DragFloat("Ortho Top",    &m_lighting.orthoTop,    0.5f);
-	ImGui::DragFloat("Near Plane",   &m_lighting.nearPlane,   0.1f);
-	ImGui::DragFloat("Far Plane",    &m_lighting.farPlane,    1.0f);
+	ImGui::DragFloat("Ortho Top", &m_lighting.orthoTop, 0.5f);
+	ImGui::DragFloat("Near Plane", &m_lighting.nearPlane, 0.1f);
+	ImGui::DragFloat("Far Plane", &m_lighting.farPlane, 1.0f);
 
 	ImGui::End();
 
@@ -601,36 +611,42 @@ void GameManager::ShowCameraPanel()
 
 	const char* modeStr = CameraModeName(m_camera->GetMode());
 	ImGui::Text("Camera Mode: %s  (Ctrl to cycle)", modeStr);
-	ImGui::DragFloat3("Cam Position",  glm::value_ptr(m_camera->m_position));
-	ImGui::DragFloat("Pitch",          &m_camera->m_pitch, 0.1f);
-	ImGui::DragFloat("Yaw",            &m_camera->m_yaw,   0.1f);
-	ImGui::DragFloat("Zoom",           &m_camera->m_zoom,  0.1f);
-	ImGui::DragFloat("Blend Time",     &m_camera->cameraBlendTime, 0.01f);
+	ImGui::DragFloat3("Cam Position", glm::value_ptr(m_camera->m_position));
+	ImGui::DragFloat("Pitch", &m_camera->m_pitch, 0.1f);
+	ImGui::DragFloat("Yaw", &m_camera->m_yaw, 0.1f);
+	ImGui::DragFloat("Zoom", &m_camera->m_zoom, 0.1f);
+	ImGui::DragFloat("Blend Time", &m_camera->cameraBlendTime, 0.01f);
 
 	ImGui::Separator();
 	ImGui::Text("Follow Offsets");
-	if (ImGui::DragFloat("Rear Offset",      &m_camera->playerCamRearOffset,   0.1f))
+	if (ImGui::DragFloat("Rear Offset", &m_camera->playerCamRearOffset, 0.1f))
 		m_camera->SetPlayerCamRearOffset(m_camera->playerCamRearOffset);
-	if (ImGui::DragFloat("Height Offset",    &m_camera->playerCamHeightOffset, 0.1f))
+	if (ImGui::DragFloat("Height Offset", &m_camera->playerCamHeightOffset, 0.1f))
 		m_camera->SetPlayerCamHeightOffset(m_camera->playerCamHeightOffset);
-	if (ImGui::DragFloat("Pos Offset",       &m_camera->playerPosOffset,       0.1f))
+	if (ImGui::DragFloat("Pos Offset", &m_camera->playerPosOffset, 0.1f))
 		m_camera->SetPlayerPosOffset(m_camera->playerPosOffset);
-	if (ImGui::DragFloat("Aim Right Offset", &m_camera->playerAimRightOffset,  0.1f))
+	if (ImGui::DragFloat("Aim Right Offset", &m_camera->playerAimRightOffset, 0.1f))
 		m_camera->SetPlayerAimRightOffset(m_camera->playerAimRightOffset);
 
 	ImGui::Separator();
 	ImGui::Text("Player Debug");
-	ImGui::DragFloat3("Player Pos",      glm::value_ptr(m_player->m_position));
-	ImGui::DragFloat("Player Yaw",       &m_player->m_playerYaw, 0.1f);
-	ImGui::DragFloat("Player Aim Pitch", &m_player->m_aimPitch,  0.1f);
-	ImGui::InputInt("Player Anim",       &m_player->m_animNum);
+	ImGui::DragFloat3("Player Pos", glm::value_ptr(m_player->m_position));
+	ImGui::DragFloat("Player Yaw", &m_player->m_playerYaw, 0.1f);
+	ImGui::DragFloat("Player Aim Pitch", &m_player->m_aimPitch, 0.1f);
+	ImGui::InputInt("Player Anim", &m_player->m_animNum);
 
 	ImGui::Separator();
 	ImGui::Text("Map / Ground");
 	if (ImGui::DragFloat3("Map Position", glm::value_ptr(mapPos), 0.1f))
 		ground->SetPosition(mapPos);
-	if (ImGui::DragFloat3("Map Scale",    glm::value_ptr(mapScale), 0.01f))
+	if (ImGui::DragFloat3("Map Scale", glm::value_ptr(mapScale), 0.01f))
 		ground->SetScale(mapScale);
+
+	ImGui::Separator();
+	ImGui::Text("Minimap Camera");
+	ImGui::DragFloat2("Centre (XZ)", glm::value_ptr(m_minimapCenter), 0.5f);
+	ImGui::DragFloat("Height", &m_minimapHeight, 1.0f, 50.0f, 2000.0f);
+	ImGui::DragFloat("Extent (half-w)", &m_minimapExtent, 1.0f, 10.0f, 1000.0f);
 
 	ImGui::End();
 }
@@ -647,7 +663,7 @@ void GameManager::ShowAIDebugPanel()
 	for (Enemy* e : m_enemies)
 	{
 		if (!e || e->IsDestroyed()) continue;
-		float hp    = e->GetHealth();
+		float hp = e->GetHealth();
 		float maxHP = e->GetConfig().maxHealth;
 		ImGui::Text("[%d] %-12s  %-16s  HP %.0f/%.0f",
 			e->GetID(),
@@ -1034,10 +1050,10 @@ void GameManager::Render(bool isMinimapRenderPass, bool isShadowMapRenderPass, b
 		m_renderer->DrawMinimap(m_minimapQuad, &m_minimapShader);
 	}
 
+	m_renderer->DrawShadowMap(m_shadowMapQuad, &m_shadowMapQuadShader);
 #ifdef _DEBUG
 	if (isMainRenderPass)
 	{
-		m_renderer->DrawShadowMap(m_shadowMapQuad, &m_shadowMapQuadShader);
 	}
 #endif
 

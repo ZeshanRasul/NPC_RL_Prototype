@@ -60,7 +60,8 @@ public:
 
 	std::vector<DebugPlaneGL> debugPlanes;
 
-	void DrawGLTFModel(glm::mat4 viewMat, glm::mat4 projMat, glm::vec3 camPos);
+	void DrawGLTFModel(glm::mat4 viewMat, glm::mat4 projMat, glm::vec3 camPos,
+	                   glm::mat4 lightSpaceMat, GLuint shadowMapTex);
 
 	void LoadPlaneCollider(tinygltf::Model* model);
 	void CreatePlaneColliders();

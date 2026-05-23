@@ -4,11 +4,13 @@ out vec4 FragColor;
 in vec2 TexCoords;
 in vec3 WorldPos;
 in vec3 Normal;
+in vec4 FragPosLightSpace;
 
 uniform sampler2D albedoMap;
 uniform sampler2D metallicRoughnessMap;
 uniform sampler2D normalMap;
 uniform sampler2D aoMap;
+uniform sampler2D shadowMap;
 
 
 struct DirLight {
@@ -193,6 +195,33 @@ vec3 CalcPointLight(
     return (kD * albedo / PI + specular) * radiance * NdotL;
 }
 
+float ShadowCalculation(vec4 fragPosLightSpace, vec3 N, vec3 lightDir)
+{
+    vec3 projCoords = fragPosLightSpace.xyz / fragPosLightSpace.w;
+    projCoords = projCoords * 0.5 + 0.5;
+
+    // No shadow outside the shadow frustum
+    if (projCoords.z > 1.0 || projCoords.x < 0.0 || projCoords.x > 1.0
+                            || projCoords.y < 0.0 || projCoords.y > 1.0)
+        return 0.0;
+
+    float currentDepth = projCoords.z;
+
+    // Slope-scaled bias to reduce acne on angled surfaces
+    float bias = max(0.005 * (1.0 - dot(N, lightDir)), 0.0005);
+
+    // 3x3 PCF
+    float shadow = 0.0;
+    vec2 texelSize = 1.0 / textureSize(shadowMap, 0);
+    for (int x = -1; x <= 1; ++x) {
+        for (int y = -1; y <= 1; ++y) {
+            float pcfDepth = texture(shadowMap, projCoords.xy + vec2(x, y) * texelSize).r;
+            shadow += currentDepth - bias > pcfDepth ? 1.0 : 0.0;
+        }
+    }
+    return shadow / 9.0;
+}
+
 void main()
 {		
     vec3 albedo;
@@ -317,8 +346,11 @@ void main()
 
     // ambient lighting
     vec3 ambient = vec3(0.03) * albedo * ao;
-    
-    vec3 color = ambient + Lo + emissive;
+
+    vec3 lightDir = normalize(-dirLight.direction);
+    float shadow = ShadowCalculation(FragPosLightSpace, N, lightDir);
+
+    vec3 color = ambient + (1.0 - shadow) * Lo + emissive;
 
     // HDR tonemapping
     color = color / (color + vec3(1.0));
