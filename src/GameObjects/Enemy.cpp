@@ -1069,6 +1069,28 @@ void Enemy::ResetState()
 
 	m_numDeadAllies = 0;
 
+	// Detection / search state
+	m_isSearching          = false;
+	m_losLostTimer         = 0.0f;
+	m_lastKnownPlayerPos   = glm::vec3(0.0f);
+
+	// Patrol wander state
+	m_patrolWanderTarget    = glm::vec3(0.0f);
+	m_patrolWaitTimer       = 0.0f;
+	m_isPatrolWaiting       = false;
+	m_hasPatrolWanderTarget = false;
+
+	// Search wander state
+	m_searchWanderTarget    = glm::vec3(0.0f);
+	m_hasSearchWanderTarget = false;
+
+	// Movement target
+	m_movementTarget    = glm::vec3(0.0f);
+	m_hasMovementTarget = false;
+
+	// Stuck detection
+	m_stuckCheckPos   = glm::vec3(0.0f);
+	m_stuckCheckTimer = STUCK_CHECK_INTERVAL;
 
 	m_takingDamage = false;
 	m_damageTimer = 0.0f;
@@ -1080,8 +1102,6 @@ void Enemy::ResetState()
 	m_reachedPlayer = false;
 
 	m_aabbColor = glm::vec3(0.0f, 0.0f, 1.0f);
-
-	//UpdateAABB();
 
 	m_animNum = 1;
 	m_sourceAnim = 1;
@@ -1681,27 +1701,58 @@ NodeStatus Enemy::Patrol()
 		return NodeStatus::Running;
 	}
 
+	// --- Stuck detection: if we haven't moved in STUCK_CHECK_INTERVAL seconds, abandon target ---
+	if (m_hasPatrolWanderTarget)
+	{
+		m_stuckCheckTimer -= m_dt;
+		if (m_stuckCheckTimer <= 0.0f)
+		{
+			float moved = glm::distance(glm::vec3(GetPosition().x, 0.0f, GetPosition().z),
+			                            glm::vec3(m_stuckCheckPos.x, 0.0f, m_stuckCheckPos.z));
+			if (moved < STUCK_MOVE_THRESHOLD)
+				m_hasPatrolWanderTarget = false; // pick a new target next frame
+			m_stuckCheckPos   = GetPosition();
+			m_stuckCheckTimer = STUCK_CHECK_INTERVAL;
+		}
+	}
+
 	// --- Pick a new wander target if needed ---
 	if (!m_hasPatrolWanderTarget)
 	{
+		m_stuckCheckPos   = GetPosition();
+		m_stuckCheckTimer = STUCK_CHECK_INTERVAL;
+
 		std::mt19937 gen{ std::random_device{}() };
 		std::uniform_real_distribution<float> angleDist(0.0f, 2.0f * 3.14159265f);
 		std::uniform_real_distribution<float> radiusDist(5.0f, m_config.patrolWanderRadius);
 
-		float     angle     = angleDist(gen);
-		float     radius    = radiusDist(gen);
-		glm::vec3 candidate = m_initialPosition +
-		                      glm::vec3(std::cos(angle) * radius, 0.0f, std::sin(angle) * radius);
-
+		NavMeshManager* nav = m_gameManager->GetNavMeshManager();
 		glm::vec3 snapped;
-		if (m_gameManager->GetNavMeshManager()->SnapToNavMesh(candidate, snapped, 10.0f, 20.0f))
+		bool found = false;
+
+		for (int attempt = 0; attempt < 8; ++attempt)
+		{
+			float     angle     = angleDist(gen);
+			float     radius    = radiusDist(gen);
+			glm::vec3 candidate = m_initialPosition +
+			                      glm::vec3(std::cos(angle) * radius, 0.0f, std::sin(angle) * radius);
+
+			if (nav->SnapToNavMesh(candidate, snapped, 10.0f, 20.0f) &&
+			    nav->HasPathTo(GetPosition(), snapped))
+			{
+				found = true;
+				break;
+			}
+		}
+
+		if (found)
 		{
 			m_patrolWanderTarget    = snapped;
 			m_hasPatrolWanderTarget = true;
 		}
 		else
 		{
-			// No navmesh poly found — stand idle and try again next frame
+			// No reachable target found — stand idle and try again next frame
 			m_hasMovementTarget = false;
 			return NodeStatus::Running;
 		}

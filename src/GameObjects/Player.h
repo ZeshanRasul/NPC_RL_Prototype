@@ -182,6 +182,7 @@ public:
 
 	float GetHealth() const { return m_combat.health; }
 	void SetHealth(float newHealth) { m_combat.health = newHealth; }
+	void SetIsDead(bool val) { m_combat.isDead = val; }
 
 	void TakeDamage(float damage)
 	{

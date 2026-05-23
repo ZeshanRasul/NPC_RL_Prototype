@@ -47,6 +47,9 @@ public:
     bool SnapToNavMesh(const glm::vec3& pos, glm::vec3& outPos,
                        float xzExtent = 2.0f, float yExtent = 10.0f) const;
 
+    // Returns true if a walkable path exists between two world-space positions.
+    bool HasPathTo(const glm::vec3& from, const glm::vec3& to) const;
+
     // Remove the crowd agent at agentIdx and re-add it at newPos (snapped to navmesh).
     // Used in edit mode to keep the agent in sync with gizmo-dragged positions.
     // Returns the snapped world position written back to the enemy.

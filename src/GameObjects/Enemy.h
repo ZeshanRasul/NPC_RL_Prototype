@@ -335,6 +335,12 @@ private:
 	bool      m_isPatrolWaiting       = false;
 	bool      m_hasPatrolWanderTarget = false;
 
+	// Stuck detection
+	glm::vec3 m_stuckCheckPos         = glm::vec3(0.0f);
+	float     m_stuckCheckTimer       = 3.0f;
+	static constexpr float STUCK_CHECK_INTERVAL = 3.0f;
+	static constexpr float STUCK_MOVE_THRESHOLD = 1.0f;
+
 	// Search wander state
 	glm::vec3 m_searchWanderTarget    = glm::vec3(0.0f);
 	bool      m_hasSearchWanderTarget = false;

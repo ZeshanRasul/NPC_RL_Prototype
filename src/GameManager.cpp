@@ -1044,7 +1044,19 @@ void GameManager::SetUpAndRenderNavMesh()
 
 void GameManager::CheckGameOver()
 {
-	if ((m_enemy->IsDestroyed() && m_enemy2->IsDestroyed() && m_enemy3->IsDestroyed() && m_enemy4->IsDestroyed()) || m_player->IsDestroyed())
+	bool playerDead = m_player->GetHealth() <= 0.0f;
+
+	bool allEnemiesDead = !m_enemies.empty();
+	for (Enemy* e : m_enemies)
+	{
+		if (e && !e->IsDead())
+		{
+			allEnemiesDead = false;
+			break;
+		}
+	}
+
+	if (playerDead || allEnemiesDead)
 		ResetGame();
 }
 
@@ -1052,44 +1064,39 @@ void GameManager::ResetGame()
 {
 	m_camera->SetMode(PLAYER_FOLLOW);
 	m_audioManager->ClearQueue();
+
+	// Reset player
 	m_player->SetPosition(m_player->GetInitialPos());
 	m_player->SetYaw(m_player->GetInitialYaw());
 	m_player->SetAnimNum(0);
 	m_player->SetIsDestroyed(false);
+	m_player->SetIsDead(false);
 	m_player->SetHealth(100.0f);
 	m_player->UpdatePlayerVectors();
 	m_player->UpdatePlayerAimVectors();
 	m_player->SetPlayerState(PlayerState::MOVING);
 	m_player->SetAabbColor(glm::vec3(0.0f, 0.0f, 1.0f));
-	m_enemy->SetIsDestroyed(false);
-	m_enemy2->SetIsDestroyed(false);
-	m_enemy3->SetIsDestroyed(false);
-	m_enemy4->SetIsDestroyed(false);
-	m_enemy->SetIsDead(false);
-	m_enemy2->SetIsDead(false);
-	m_enemy3->SetIsDead(false);
-	m_enemy4->SetIsDead(false);
-	m_enemy->SetPosition(m_enemy->GetInitialPosition());
-	m_enemy2->SetPosition(m_enemy2->GetInitialPosition());
-	m_enemy3->SetPosition(m_enemy3->GetInitialPosition());
-	m_enemy4->SetPosition(m_enemy4->GetInitialPosition());
-#ifdef NPC_RL_QLEARNING
-	m_enemyStates = {
-		{ false, false, 100.0f, 100.0f, false },
-		{ false, false, 100.0f, 100.0f, false },
-		{ false, false, 100.0f, 100.0f, false },
-		{ false, false, 100.0f, 100.0f, false }
-	};
-#endif // NPC_RL_QLEARNING
 
-	for (Enemy* emy : m_enemies)
+	// Reset all enemies
+	for (Enemy* e : m_enemies)
 	{
-		emy->ResetState();
-		m_physicsWorld->AddCollider(emy->GetAABB());
-		m_physicsWorld->AddEnemyCollider(emy->GetAABB());
-		emy->SetHealth(100.0f);
-	}
+		if (!e) continue;
 
+		// Restore to initial position via navmesh crowd teleport
+		glm::vec3 snappedPos = m_navMeshManager->TeleportAgent(e->GetID(), e->GetInitialPosition());
+		e->SetPosition(snappedPos);
+
+		e->SetIsDead(false);
+		e->SetIsDestroyed(false);
+		e->SetHealth(e->GetConfig().maxHealth);
+		e->ResetState();
+
+		// Re-register AABB (remove first to avoid duplicates)
+		m_physicsWorld->RemoveCollider(e->GetAABB());
+		m_physicsWorld->RemoveEnemyCollider(e->GetAABB());
+		m_physicsWorld->AddCollider(e->GetAABB());
+		m_physicsWorld->AddEnemyCollider(e->GetAABB());
+	}
 }
 
 
@@ -1302,6 +1309,8 @@ void GameManager::Update(float deltaTime)
 
 	if (!m_editMode)
 	{
+		CheckGameOver();
+
 		for (Enemy* e : m_enemies)
 		{
 			if (e == nullptr || e->IsDead())

@@ -19,7 +19,7 @@
 static constexpr uint32_t NAVM_MAGIC   = 0x4D56414E; // 'NAVM'
 static constexpr uint16_t NAVM_VERSION = 1;
 
-static constexpr float AGENT_RADIUS = 0.6f;
+static constexpr float AGENT_RADIUS = 3.0f;
 
 #pragma pack(push, 1)
 struct NavBinHeader {
@@ -591,6 +591,29 @@ bool NavMeshManager::SnapToNavMesh(const glm::vec3& pos, glm::vec3& outPos,
 
     outPos = glm::vec3(snapped[0], snapped[1], snapped[2]);
     return true;
+}
+
+bool NavMeshManager::HasPathTo(const glm::vec3& from, const glm::vec3& to) const
+{
+    if (!m_navMeshQuery) return false;
+
+    float startPos[3] = { from.x, from.y, from.z };
+    float endPos[3]   = { to.x,   to.y,   to.z   };
+
+    dtPolyRef startPoly = 0, endPoly = 0;
+    float startSnapped[3], endSnapped[3];
+
+    if (dtStatusFailed(m_navMeshQuery->findNearestPoly(startPos, m_halfExtents, &m_filter, &startPoly, startSnapped)) || startPoly == 0)
+        return false;
+    if (dtStatusFailed(m_navMeshQuery->findNearestPoly(endPos, m_halfExtents, &m_filter, &endPoly, endSnapped)) || endPoly == 0)
+        return false;
+
+    static const int MAX_POLYS = 64;
+    dtPolyRef path[MAX_POLYS];
+    int pathCount = 0;
+    dtStatus st = m_navMeshQuery->findPath(startPoly, endPoly, startSnapped, endSnapped,
+                                           &m_filter, path, &pathCount, MAX_POLYS);
+    return !dtStatusFailed(st) && pathCount > 0;
 }
 
 // ---------------------------------------------------------------------------
