@@ -23,11 +23,11 @@ struct EnemyConfig {
 	float moveSpeed   = 7.5f;
 
 	// Perception
-	float sightRange         = 60.0f;  // max detection distance
+	float sightRange         = 260.0f;  // max detection distance
 	float sightFovDeg        = 65.0f;  // half-angle of forward cone; >= 180 = all-around
 	float alertRadius        = 80.0f;  // PlayerDetectedEvent only reaches allies within this distance
 	float alertTimeout       = 10.0f;  // seconds before resetting to patrol once LOS is lost
-	float patrolWanderRadius = 30.0f;  // max wander radius from spawn position
+	float patrolWanderRadius = 180.0f;  // max wander radius from spawn position
 
 	int animIdle       = 1;
 	int animWalk       = 5;
@@ -64,10 +64,10 @@ struct EnemyConfig {
 		c.modelPath        = "src/Assets/Models/New_Enemies/Armour9/Heavy_Scout.glb";
 		c.maxHealth        = 150.0f;
 		c.moveSpeed        = 5.0f;
-		c.sightRange       = 50.0f;
+		c.sightRange       = 250.0f;
 		c.sightFovDeg      = 60.0f;
 		c.alertRadius      = 70.0f;
-		c.patrolWanderRadius = 25.0f;
+		c.patrolWanderRadius = 125.0f;
 		return c;
 	}
 
@@ -82,10 +82,10 @@ struct EnemyConfig {
 		c.accuracy           = 40.0f;
 		c.aabbScale          = glm::vec3(2.5f, 2.5f, 2.5f);
 		c.modelScale         = glm::vec3(0.01f);
-		c.sightRange         = 80.0f;
+		c.sightRange         = 280.0f;
 		c.sightFovDeg        = 180.0f; // all-around (no cone check)
 		c.alertRadius        = 100.0f;
-		c.patrolWanderRadius = 50.0f;
+		c.patrolWanderRadius = 250.0f;
 		return c;
 	}
 
@@ -101,10 +101,10 @@ struct EnemyConfig {
 		c.accuracy           = 80.0f;
 		c.aabbScale          = glm::vec3(5.0f, 5.0f, 5.0f);
 		c.modelScale         = glm::vec3(0.1f);
-		c.sightRange         = 100.0f;
+		c.sightRange         = 200.0f;
 		c.sightFovDeg        = 45.0f;
 		c.alertRadius        = 120.0f;
-		c.patrolWanderRadius = 40.0f;
+		c.patrolWanderRadius = 100.0f;
 		return c;
 	}
 };

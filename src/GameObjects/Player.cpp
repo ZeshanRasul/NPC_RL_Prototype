@@ -43,7 +43,9 @@ void Player::SetupGLTFMeshes(tinygltf::Model* model)
 
 					for (int i = 0; i < numPositionEntries; i++)
 					{
-						gltfPrim.verts.push_back(glm::vec3(positions[i * 3 + 0], positions[i * 3 + 1], positions[i * 3 + 2]));
+						glm::vec3 v(positions[i * 3 + 0], positions[i * 3 + 1], positions[i * 3 + 2]);
+						gltfPrim.verts.push_back(v);
+						m_verts.push_back(v);
 						gltfPrim.vertexCount++;
 					}
 				}
@@ -392,7 +394,7 @@ void Player::DrawObject(glm::mat4 viewMat, glm::mat4 proj, bool shadowMap, glm::
 
 void Player::Update(float dt, bool isPaused, bool isTimeScaled)
 {
-	//UpdateAabb();
+	UpdateAabb();
 	ComputeAudioWorldTransform();
 	UpdateComponents(dt);
 
@@ -693,13 +695,14 @@ void Player::Shoot()
 
 void Player::SetUpAABB()
 {
-	//m_aabb = new AABB();
-	//m_aabb->CalculateAABB(playerModel->GetVertices());
-	//m_aabb->SetShader(m_aabbShader);
-	//m_aabb->SetUpMesh();
-	//m_aabb->SetOwner(this);
-	//m_aabb->SetIsPlayer(true);
-	//UpdateAabb();
+	m_aabb = new AABB();
+	m_aabb->CalculateAABB(m_verts);
+	m_aabb->SetShader(m_aabbShader);
+	m_aabb->SetUpMesh();
+	m_aabb->SetOwner(this);
+	m_aabb->SetIsPlayer(true);
+	m_gameManager->GetPhysicsWorld()->AddCollider(GetAABB());
+	UpdateAabb();
 }
 
 void Player::OnHit()
