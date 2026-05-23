@@ -1,8 +1,7 @@
-﻿  Ground.cpp
-D:\dev\Gameplay\NPC_RL_Prototype\src\GameObjects\Ground.cpp(93,29): warning C4267: 'argument': conversion from 'size_t' to 'GLsizei', possible loss of data
-D:\dev\Gameplay\NPC_RL_Prototype\src\GameObjects\Ground.cpp(324,67): warning C4244: 'argument': conversion from 'const double' to 'float', possible loss of data
-D:\dev\Gameplay\NPC_RL_Prototype\src\GameObjects\Ground.cpp(325,68): warning C4244: 'argument': conversion from 'const double' to 'float', possible loss of data
-D:\dev\Gameplay\NPC_RL_Prototype\src\GameObjects\Ground.cpp(464,29): warning C4267: 'argument': conversion from 'size_t' to 'GLsizei', possible loss of data
+﻿  Player.cpp
+D:\dev\Gameplay\NPC_RL_Prototype\src\GameObjects\Player.cpp(73,29): warning C4267: 'argument': conversion from 'size_t' to 'GLsizei', possible loss of data
+D:\dev\Gameplay\NPC_RL_Prototype\src\GameObjects\Player.cpp(289,67): warning C4244: 'argument': conversion from 'const double' to 'float', possible loss of data
+D:\dev\Gameplay\NPC_RL_Prototype\src\GameObjects\Player.cpp(290,68): warning C4244: 'argument': conversion from 'const double' to 'float', possible loss of data
 glfw3.lib(window.obj) : warning LNK4099: PDB 'glfw3.pdb' was not found with 'glfw3.lib(window.obj)' or at 'D:\dev\Gameplay\NPC_RL_Prototype\build\Release\glfw3.pdb'; linking object as if no debug info
 glfw3.lib(input.obj) : warning LNK4099: PDB 'glfw3.pdb' was not found with 'glfw3.lib(input.obj)' or at 'D:\dev\Gameplay\NPC_RL_Prototype\build\Release\glfw3.pdb'; linking object as if no debug info
 glfw3.lib(init.obj) : warning LNK4099: PDB 'glfw3.pdb' was not found with 'glfw3.lib(init.obj)' or at 'D:\dev\Gameplay\NPC_RL_Prototype\build\Release\glfw3.pdb'; linking object as if no debug info

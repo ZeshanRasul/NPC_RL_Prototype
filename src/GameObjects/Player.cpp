@@ -523,7 +523,7 @@ void Player::PlayerProcessKeyboard(CameraMovement direction, float deltaTime)
 	glm::vec3 desiredDirection = GetPlayerFront();
 	float t;
 
-	glm::vec3 orOffset = glm::vec3(0.0f, 1.5f, 0.0f);
+	glm::vec3 orOffset = glm::vec3(0.0f, 3.5f, 0.0f);
 
 	int nextAnim = -1;
 	if (direction == CameraMovement::FORWARD)
