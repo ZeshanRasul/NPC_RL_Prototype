@@ -1387,15 +1387,15 @@ void GameManager::Render(bool isMinimapRenderPass, bool isShadowMapRenderPass, b
 
 	RenderPlayerCrosshairAndMuzzleFlash(isMainRenderPass);
 
+
+#ifdef _DEBUG
 	if (isMainRenderPass)
 	{
 		m_renderer->DrawMinimap(m_minimapQuad, &m_minimapShader);
 	}
-
-	m_renderer->DrawShadowMap(m_shadowMapQuad, &m_shadowMapQuadShader);
-#ifdef _DEBUG
 	if (isMainRenderPass)
 	{
+		m_renderer->DrawShadowMap(m_shadowMapQuad, &m_shadowMapQuadShader);
 	}
 #endif
 

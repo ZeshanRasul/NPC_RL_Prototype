@@ -200,8 +200,8 @@ private:
 	int  m_selectedLightIndex = -1;   // index into pointLights or spotLights
 	bool m_selectedLightIsSpot = false;
 	int  m_pendingEnemyType = 0;       // index into EnemyType enum for "Add Enemy" dropdown
-	bool m_editMode    = false;
-	bool m_showNavMesh = true;
+	bool m_editMode    = true;
+	bool m_showNavMesh = false;
 
 	bool m_useEdbt = true;
 
