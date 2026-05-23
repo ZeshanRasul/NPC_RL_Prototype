@@ -176,6 +176,7 @@ private:
 	void ShowSceneOutliner();
 	void ShowEntityInspector();
 	void ShowLightingPanel();
+	void ShowLightsPanel();
 	void ShowCameraPanel();
 	void ShowAIDebugPanel();
 	void ShowPerformanceWindow();
@@ -193,6 +194,8 @@ private:
 	float blendFac = 1.0f;
 	bool m_camSwitchedToAim = false;
 	int  m_selectedEnemyIndex = -1;
+	int  m_selectedLightIndex = -1;   // index into pointLights or spotLights
+	bool m_selectedLightIsSpot = false;
 	bool m_editMode    = false;
 	bool m_showNavMesh = true;
 

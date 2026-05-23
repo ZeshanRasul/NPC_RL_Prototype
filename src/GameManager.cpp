@@ -10,8 +10,36 @@
 #include <glm/gtc/type_ptr.hpp>
 
 #include <fstream>
+#include <algorithm>
+#include <cmath>
+#include <cstring>
 
 static const std::string SCENE_SETTINGS_PATH = NPC_SCENE_ROOT "/scene_settings.json";
+
+static void UploadLightsToShader(LightingSystem& lighting, Shader& shader)
+{
+    shader.Use();
+    int np = std::min((int)lighting.pointLights.size(), MAX_POINT_LIGHTS);
+    shader.SetInt("u_numPointLights", np);
+    for (int i = 0; i < np; ++i) {
+        std::string b = "u_pointLights[" + std::to_string(i) + "].";
+        shader.SetVec3(b + "position",  lighting.pointLights[i].position);
+        shader.SetVec3(b + "color",     lighting.pointLights[i].color);
+        shader.SetFloat(b + "intensity", lighting.pointLights[i].intensity);
+    }
+    int ns = std::min((int)lighting.spotLights.size(), MAX_SPOT_LIGHTS);
+    shader.SetInt("u_numSpotLights", ns);
+    for (int i = 0; i < ns; ++i) {
+        std::string b = "u_spotLights[" + std::to_string(i) + "].";
+        SceneSpotLight& sl = lighting.spotLights[i];
+        shader.SetVec3(b + "position",    sl.position);
+        shader.SetVec3(b + "direction",   sl.direction);
+        shader.SetVec3(b + "color",       sl.color);
+        shader.SetFloat(b + "intensity",  sl.intensity);
+        shader.SetFloat(b + "innerCutoff", std::cos(glm::radians(sl.innerAngle)));
+        shader.SetFloat(b + "outerCutoff", std::cos(glm::radians(sl.outerAngle)));
+    }
+}
 
 GameManager::GameManager(Window* window, unsigned int width, unsigned int height)
 	: m_window(window), m_screenWidth(width), m_screenHeight(height)
@@ -438,6 +466,7 @@ void GameManager::ShowDebugUi()
 	ShowSceneOutliner();
 	ShowEntityInspector();
 	ShowLightingPanel();
+	ShowLightsPanel();
 	ShowCameraPanel();
 	ShowAIDebugPanel();
 	ShowPerformanceWindow();
@@ -574,6 +603,117 @@ void GameManager::ShowEntityInspector()
 	else if (!m_editMode)
 	{
 		ImGui::TextDisabled("(gizmo disabled in play mode)");
+	}
+}
+
+void GameManager::ShowLightsPanel()
+{
+	auto& pls = m_lighting.pointLights;
+	auto& sls = m_lighting.spotLights;
+
+	ImGui::Begin("Lights");
+
+	// ---- Point lights -------------------------------------------------------
+	ImGui::SeparatorText("Point Lights");
+	if (ImGui::Button("+ Add Point Light")) {
+		ScenePointLight pl;
+		pl.position = m_camera->GetPosition();
+		pl.name     = "Point Light " + std::to_string(pls.size() + 1);
+		pls.push_back(pl);
+		m_selectedLightIndex  = (int)pls.size() - 1;
+		m_selectedLightIsSpot = false;
+	}
+
+	for (int i = 0; i < (int)pls.size(); ++i) {
+		bool sel = (!m_selectedLightIsSpot && m_selectedLightIndex == i);
+		ImGui::PushID(i);
+		if (ImGui::Selectable(pls[i].name.c_str(), sel)) {
+			m_selectedLightIndex  = sel ? -1 : i;
+			m_selectedLightIsSpot = false;
+		}
+		ImGui::SameLine();
+		if (ImGui::SmallButton("X")) {
+			pls.erase(pls.begin() + i);
+			if (m_selectedLightIndex == i) m_selectedLightIndex = -1;
+			ImGui::PopID();
+			break;
+		}
+		ImGui::PopID();
+	}
+
+	if (!m_selectedLightIsSpot && m_selectedLightIndex >= 0 && m_selectedLightIndex < (int)pls.size()) {
+		ScenePointLight& pl = pls[m_selectedLightIndex];
+		ImGui::Separator();
+		char nameBuf[64]; std::strncpy(nameBuf, pl.name.c_str(), sizeof(nameBuf));
+		if (ImGui::InputText("Name##pl", nameBuf, sizeof(nameBuf))) pl.name = nameBuf;
+		ImGui::DragFloat3("Position##pl",  glm::value_ptr(pl.position),  0.5f);
+		ImGui::ColorEdit3("Color##pl",     glm::value_ptr(pl.color));
+		ImGui::DragFloat("Intensity##pl",  &pl.intensity, 0.5f, 0.0f, 10000.0f);
+	}
+
+	// ---- Spot lights --------------------------------------------------------
+	ImGui::SeparatorText("Spot Lights");
+	if (ImGui::Button("+ Add Spot Light")) {
+		SceneSpotLight sl;
+		sl.position = m_camera->GetPosition();
+		sl.name     = "Spot Light " + std::to_string(sls.size() + 1);
+		sls.push_back(sl);
+		m_selectedLightIndex  = (int)sls.size() - 1;
+		m_selectedLightIsSpot = true;
+	}
+
+	for (int i = 0; i < (int)sls.size(); ++i) {
+		bool sel = (m_selectedLightIsSpot && m_selectedLightIndex == i);
+		ImGui::PushID(1000 + i);
+		if (ImGui::Selectable(sls[i].name.c_str(), sel)) {
+			m_selectedLightIndex  = sel ? -1 : i;
+			m_selectedLightIsSpot = true;
+		}
+		ImGui::SameLine();
+		if (ImGui::SmallButton("X")) {
+			sls.erase(sls.begin() + i);
+			if (m_selectedLightIndex == i) m_selectedLightIndex = -1;
+			ImGui::PopID();
+			break;
+		}
+		ImGui::PopID();
+	}
+
+	if (m_selectedLightIsSpot && m_selectedLightIndex >= 0 && m_selectedLightIndex < (int)sls.size()) {
+		SceneSpotLight& sl = sls[m_selectedLightIndex];
+		ImGui::Separator();
+		char nameBuf[64]; std::strncpy(nameBuf, sl.name.c_str(), sizeof(nameBuf));
+		if (ImGui::InputText("Name##sl",      nameBuf, sizeof(nameBuf))) sl.name = nameBuf;
+		ImGui::DragFloat3("Position##sl",  glm::value_ptr(sl.position),  0.5f);
+		ImGui::DragFloat3("Direction##sl", glm::value_ptr(sl.direction), 0.01f, -1.0f, 1.0f);
+		if (ImGui::Button("Normalize Dir")) sl.direction = glm::normalize(sl.direction);
+		ImGui::ColorEdit3("Color##sl",     glm::value_ptr(sl.color));
+		ImGui::DragFloat("Intensity##sl",  &sl.intensity,  0.5f, 0.0f, 10000.0f);
+		ImGui::DragFloat("Inner Angle",    &sl.innerAngle, 0.1f, 1.0f, 89.0f);
+		ImGui::DragFloat("Outer Angle",    &sl.outerAngle, 0.1f, sl.innerAngle, 90.0f);
+	}
+
+	ImGui::End();
+
+	// ImGuizmo translate gizmo for selected light (edit mode only)
+	if (m_editMode && m_selectedLightIndex >= 0) {
+		glm::vec3* lightPos = nullptr;
+		if (!m_selectedLightIsSpot && m_selectedLightIndex < (int)pls.size())
+			lightPos = &pls[m_selectedLightIndex].position;
+		else if (m_selectedLightIsSpot && m_selectedLightIndex < (int)sls.size())
+			lightPos = &sls[m_selectedLightIndex].position;
+
+		if (lightPos) {
+			glm::mat4 model = glm::translate(glm::mat4(1.0f), *lightPos);
+			ImGuizmo::SetDrawlist(ImGui::GetBackgroundDrawList());
+			ImGuizmo::Manipulate(
+				glm::value_ptr(m_view), glm::value_ptr(m_projection),
+				ImGuizmo::TRANSLATE, ImGuizmo::WORLD,
+				glm::value_ptr(model)
+			);
+			if (ImGuizmo::IsUsing())
+				*lightPos = glm::vec3(model[3]);
+		}
 	}
 }
 
@@ -741,6 +881,9 @@ void GameManager::SaveSceneSettings()
 		if (e) s.enemySpawns.push_back({ e->GetID(), e->GetPosition() });
 	}
 
+	s.pointLights = m_lighting.pointLights;
+	s.spotLights  = m_lighting.spotLights;
+
 	s.Save(SCENE_SETTINGS_PATH);
 }
 
@@ -769,6 +912,9 @@ void GameManager::LoadSceneSettings()
 	m_minimapCenter = s.minimapCenter;
 	m_minimapHeight = s.minimapHeight;
 	m_minimapExtent = s.minimapExtent;
+
+	if (!s.pointLights.empty()) m_lighting.pointLights = s.pointLights;
+	if (!s.spotLights.empty())  m_lighting.spotLights  = s.spotLights;
 
 	for (const EnemySpawn& es : s.enemySpawns)
 	{
@@ -1105,6 +1251,14 @@ void GameManager::Render(bool isMinimapRenderPass, bool isShadowMapRenderPass, b
 		m_renderer->BindShadowMapFbo(SHADOW_WIDTH, SHADOW_HEIGHT);
 
 
+
+	// Upload dynamic lights to every shader that has point/spot light uniforms
+	if (!isShadowMapRenderPass) {
+		UploadLightsToShader(m_lighting, groundShader);
+		UploadLightsToShader(m_lighting, playerShader);
+		UploadLightsToShader(m_lighting, enemyShader);
+		UploadLightsToShader(m_lighting, enemyShader2);
+	}
 
 	for (auto obj : m_gameObjects) {
 		if (obj->IsDestroyed())

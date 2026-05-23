@@ -7,6 +7,7 @@
 // Use the nlohmann json bundled with tinygltf
 #include "src/tinygltf/json.hpp"
 #include "LightingSystem.h"
+#include "SceneLights.h"
 
 using json = nlohmann::json;
 
@@ -71,6 +72,10 @@ struct SceneSettings
     // Enemy spawns (populated from live enemy list)
     std::vector<EnemySpawn> enemySpawns;
 
+    // Scene lights
+    std::vector<ScenePointLight> pointLights;
+    std::vector<SceneSpotLight>  spotLights;
+
     // ------------------------------------------------------------------
     void Save(const std::string& path) const
     {
@@ -104,6 +109,24 @@ struct SceneSettings
             spawns.push_back(entry);
         }
         j["enemies"] = spawns;
+
+        json jpl = json::array();
+        for (const auto& pl : pointLights) {
+            json e; e["name"] = pl.name; e["pos"] = vec3ToJson(pl.position);
+            e["color"] = vec3ToJson(pl.color); e["intensity"] = pl.intensity;
+            jpl.push_back(e);
+        }
+        j["pointLights"] = jpl;
+
+        json jsl = json::array();
+        for (const auto& sl : spotLights) {
+            json e; e["name"] = sl.name; e["pos"] = vec3ToJson(sl.position);
+            e["dir"] = vec3ToJson(sl.direction); e["color"] = vec3ToJson(sl.color);
+            e["intensity"] = sl.intensity; e["innerAngle"] = sl.innerAngle;
+            e["outerAngle"] = sl.outerAngle;
+            jsl.push_back(e);
+        }
+        j["spotLights"] = jsl;
 
         std::ofstream f(path);
         f << j.dump(4);
@@ -159,6 +182,33 @@ struct SceneSettings
                 es.id       = e.value("id", -1);
                 es.position = jsonToVec3(e["pos"]);
                 enemySpawns.push_back(es);
+            }
+        }
+
+        if (j.contains("pointLights") && j["pointLights"].is_array()) {
+            pointLights.clear();
+            for (auto& e : j["pointLights"]) {
+                ScenePointLight pl;
+                pl.name      = e.value("name", pl.name);
+                pl.position  = jsonToVec3(e["pos"]);
+                pl.color     = jsonToVec3(e["color"]);
+                pl.intensity = e.value("intensity", pl.intensity);
+                pointLights.push_back(pl);
+            }
+        }
+
+        if (j.contains("spotLights") && j["spotLights"].is_array()) {
+            spotLights.clear();
+            for (auto& e : j["spotLights"]) {
+                SceneSpotLight sl;
+                sl.name       = e.value("name", sl.name);
+                sl.position   = jsonToVec3(e["pos"]);
+                sl.direction  = jsonToVec3(e["dir"]);
+                sl.color      = jsonToVec3(e["color"]);
+                sl.intensity  = e.value("intensity",   sl.intensity);
+                sl.innerAngle = e.value("innerAngle",  sl.innerAngle);
+                sl.outerAngle = e.value("outerAngle",  sl.outerAngle);
+                spotLights.push_back(sl);
             }
         }
 
