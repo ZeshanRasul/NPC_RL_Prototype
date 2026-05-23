@@ -14,9 +14,13 @@ struct EnemyConfig {
 	EnemyType   type;
 	std::string modelPath;
 	std::string texturePath  = "src\\Assets\\Models\\New_Enemies\\Armour7\\armor7_painter_armor7_mat_BaseColor.png";
+	// Directory prefix used to derive all PBR map filenames for this enemy type.
+	// Maps: _BaseColor[2-4].png (random), _Metallic.png, _Roughness.png, _Normal.png, _Emissive.png
+	std::string textureBasePath = "src/Assets/Models/New_Enemies/Armour7/armor7_painter_armor7_mat_";
 	bool        hasSkin      = true;
 	bool        rotateOnDraw = false;
 	bool        useAltShader = false; // true → enemyShader2 (vertex.glsl/fragment.glsl)
+	float       metallicScale = 1.0f; // multiplied into sampled metallic; lower to recover diffuse without IBL
 	glm::vec3 rotationAxis = glm::vec3(0.0f, 1.0f, 0.0f);
 	float rotationAngle = 0.0f;
 	float maxHealth   = 100.0f;
@@ -53,10 +57,11 @@ struct EnemyConfig {
 	static EnemyConfig Scout()
 	{
 		EnemyConfig c;
-		c.type      = EnemyType::SCOUT;
-		c.modelPath = "src/Assets/Models/New_Enemies/Armour7/Scout.glb";
+		c.type         = EnemyType::SCOUT;
+		c.modelPath    = "src/Assets/Models/New_Enemies/Armour7/Scout.glb";
 		c.rotateOnDraw = true;
 		c.rotationAngle = -90.0f;
+		c.metallicScale = 0.2f; // Substance Painter metallic maps are ~1.0; scale down so diffuse is visible without IBL
 		return c;
 	}
 
@@ -71,6 +76,7 @@ struct EnemyConfig {
 		c.sightFovDeg      = 60.0f;
 		c.alertRadius      = 70.0f;
 		c.patrolWanderRadius = 325.0f;
+		c.useAltShader = true;
 		c.rotateOnDraw	   = true;
 		c.rotationAngle    = -90.0f;
 		return c;

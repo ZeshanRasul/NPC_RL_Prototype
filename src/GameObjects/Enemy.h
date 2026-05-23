@@ -292,11 +292,14 @@ private:
 	void HasDealtDamage() override;
 	void HasKilledPlayer() override;
 
+	Texture m_albedo{};
 	Texture m_normal{};
 	Texture m_metallic{};
 	Texture m_roughness{};
 	Texture m_ao{};
 	Texture m_emissive{};
+
+	void LoadPBRTextures();
 
 	glm::vec3 m_initialPosition = glm::vec3(0.0f, 0.0f, 0.0f);
 

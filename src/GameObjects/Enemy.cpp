@@ -54,12 +54,33 @@ Enemy::Enemy(glm::vec3 pos, glm::vec3 scale, Shader* sdr, Shader* shadowMapShade
 	m_deathAc = new AudioComponent(this);
 	m_shootAc = new AudioComponent(this);
 
+	LoadPBRTextures();
 	BuildBehaviorTree();
 
 	m_eventManager.Subscribe<PlayerDetectedEvent>([this](const Event& e) { OnEvent(e); });
 	m_eventManager.Subscribe<NPCDamagedEvent>([this](const Event& e) { OnEvent(e); });
 	m_eventManager.Subscribe<NPCDiedEvent>([this](const Event& e) { OnEvent(e); });
 	m_eventManager.Subscribe<NPCTakingCoverEvent>([this](const Event& e) { OnEvent(e); });
+}
+
+void Enemy::LoadPBRTextures()
+{
+	if (m_config.useAltShader) return; // Drone/Mech use textures embedded in the GLB
+
+	const std::string& base = m_config.textureBasePath;
+
+	// Pick a random base colour variant (1–4); variant 1 has no numeric suffix
+	std::mt19937 gen{ std::random_device{}() };
+	std::uniform_int_distribution<int> dist(1, 4);
+	int variant = dist(gen);
+	std::string suffix = (variant == 1) ? "" : std::to_string(variant);
+	m_albedo.LoadTexture(base + "BaseColor" + suffix + ".png", false);
+
+	// All other maps are shared across variants
+	m_metallic.LoadTexture( base + "Metallic.png",  false);
+	m_roughness.LoadTexture(base + "Roughness.png", false);
+	m_normal.LoadTexture(   base + "Normal.png",    false);
+	m_emissive.LoadTexture( base + "Emissive.png",  false);
 }
 
 void Enemy::SetUpModel()
@@ -298,106 +319,79 @@ std::vector<GLuint> Enemy::LoadGLTFTextures(tinygltf::Model* model) {
 
 void Enemy::DrawGLTFModel(glm::mat4 viewMat, glm::mat4 projMat, glm::vec3 camPos) {
 	glDisable(GL_CULL_FACE);
-	int texIndex = 1;
-	for (size_t meshIndex = 0; meshIndex < meshData.size(); ++meshIndex) {
-		for (size_t primIndex = 0; primIndex < meshData[meshIndex].primitives.size(); ++primIndex) {
-			const GLTFPrimitive& prim = meshData[meshIndex].primitives[primIndex];
 
-			glm::mat4 modelMat = glm::mat4(1.0f);
-			modelMat = glm::translate(modelMat, m_position);
-			if (m_config.rotateOnDraw)
-				modelMat = glm::rotate(modelMat, glm::radians(m_config.rotationAngle), m_config.rotationAxis);
-			
-			modelMat = glm::scale(modelMat, m_scale);
-			m_aabb->Render(viewMat, projMat, modelMat, glm::vec3(1.0f, 1.0f, 0.0f));
+	glm::mat4 modelMat = glm::mat4(1.0f);
+	modelMat = glm::translate(modelMat, m_position);
+	if (m_config.rotateOnDraw)
+		modelMat = glm::rotate(modelMat, glm::radians(m_config.rotationAngle), m_config.rotationAxis);
+	modelMat = glm::scale(modelMat, m_scale);
 
-			m_shader->Use();
-			std::vector<glm::mat4> matrixData;
-			matrixData.push_back(viewMat);
-			matrixData.push_back(projMat);
-			matrixData.push_back(modelMat);
-			m_uniformBuffer.UploadUboData(matrixData, 0);
-			m_shader->SetVec3("cameraPos", camPos);
+	m_aabb->Render(viewMat, projMat, modelMat, glm::vec3(1.0f, 1.0f, 0.0f));
 
-			m_enemyDualQuatSsBuffer.UploadSsboData(getJointDualQuats(), 2);
+	m_shader->Use();
 
-			bool hasTexture = false;
-			glBindVertexArray(prim.vao);
-			int matIndex = prim.material;
-			if (matIndex >= 0 && matIndex < static_cast<int>(m_skinnedMesh.GetModel()->materials.size())) {
-				const tinygltf::Material& mat = m_skinnedMesh.GetModel()->materials[matIndex];
-				if (mat.pbrMetallicRoughness.baseColorTexture.index >= 0) {
-					hasTexture = true;
-					texIndex = mat.pbrMetallicRoughness.baseColorTexture.index;
+	std::vector<glm::mat4> matrixData = { viewMat, projMat, modelMat };
+	m_uniformBuffer.UploadUboData(matrixData, 0);
+	m_shader->SetVec3("cameraPos", camPos);
+	m_enemyDualQuatSsBuffer.UploadSsboData(getJointDualQuats(), 2);
+
+	if (m_config.useAltShader)
+	{
+		// Drone / Mech: simple Phong shader (fragment.glsl) expects only "tex" at slot 0.
+		// Look up the GLB base-color texture per primitive via the material index.
+		tinygltf::Model* model = m_skinnedMesh.GetModel();
+
+		for (size_t meshIndex = 0; meshIndex < meshData.size(); ++meshIndex) {
+			for (size_t primIndex = 0; primIndex < meshData[meshIndex].primitives.size(); ++primIndex) {
+				const GLTFPrimitive& prim = meshData[meshIndex].primitives[primIndex];
+
+				// Resolve base-color texture for this primitive's material
+				GLuint texID = glTextures.empty() ? 0 : glTextures[0];
+				if (model && prim.material >= 0 && prim.material < static_cast<int>(model->materials.size()))
+				{
+					int texIdx = model->materials[prim.material].pbrMetallicRoughness.baseColorTexture.index;
+					if (texIdx >= 0 && texIdx < static_cast<int>(glTextures.size()))
+						texID = glTextures[texIdx];
 				}
 
-				if (mat.pbrMetallicRoughness.baseColorTexture.index >= 0) {
-					texIndex = mat.pbrMetallicRoughness.baseColorTexture.index;
+				if (texID)
+				{
 					glActiveTexture(GL_TEXTURE0);
-					glBindTexture(GL_TEXTURE_2D, glTextures[texIndex]);
-					m_shader->SetInt("albedoMap", 0);
-					m_shader->SetBool("useAlbedo", mat.pbrMetallicRoughness.baseColorTexture.index >= 0);
-					m_shader->SetVec3("baseColour", 1.0f, 1.0f, 1.0f);
-				}
-				else {
-					glm::vec3 baseColor = glm::vec3(mat.pbrMetallicRoughness.baseColorFactor[0], mat.pbrMetallicRoughness.baseColorFactor[1], mat.pbrMetallicRoughness.baseColorFactor[2]);
-					m_shader->SetBool("useAlbedo", mat.pbrMetallicRoughness.baseColorTexture.index >= 0);
-					m_shader->SetVec3("baseColour", baseColor);
+					glBindTexture(GL_TEXTURE_2D, texID);
+					m_shader->SetInt("tex", 0);
 				}
 
-
-				if (mat.pbrMetallicRoughness.metallicRoughnessTexture.index >= 0) {
-					glActiveTexture(GL_TEXTURE1);
-					glBindTexture(GL_TEXTURE_2D, glTextures[mat.pbrMetallicRoughness.metallicRoughnessTexture.index]);
-					m_shader->SetInt("metallicRoughnessMap", 1);
-					m_shader->SetBool("useMetallicRoughness", mat.pbrMetallicRoughness.baseColorTexture.index >= 0);
-
-				}
-				else {
-					m_shader->SetBool("useMetallicRoughness", mat.pbrMetallicRoughness.baseColorTexture.index >= 0);
-					m_shader->SetFloat("metallicFactor", mat.pbrMetallicRoughness.metallicFactor);
-					m_shader->SetFloat("roughnessFactor", mat.pbrMetallicRoughness.roughnessFactor);
-				}
-
-				if (mat.normalTexture.index >= 0) {
-					glActiveTexture(GL_TEXTURE2);
-					glBindTexture(GL_TEXTURE_2D, glTextures[mat.normalTexture.index]);
-					m_shader->SetInt("normalMap", 2);
-					m_shader->SetBool("useNormalMap", mat.normalTexture.index >= 0);
-				}
-				else {
-					m_shader->SetBool("useNormalMap", false);
-				}
-
-				if (mat.occlusionTexture.index >= 0) {
-					glActiveTexture(GL_TEXTURE3);
-					glBindTexture(GL_TEXTURE_2D, glTextures[mat.occlusionTexture.index]);
-					m_shader->SetInt("occlusionTex", 3);
-					m_shader->SetBool("useOcclusionMap", mat.occlusionTexture.index >= 0);
-				}
-				else {
-					m_shader->SetInt("occlusionTex", 3);
-					m_shader->SetBool("useOcclusionMap", false);
-				}
-
-				m_shader->SetBool("useEmissiveFactor", false);
-				m_shader->SetVec3("emissiveFactor", 0.0f, 0.0f, 0.0f);
-				m_shader->SetFloat("emissiveStrength", 0.0f);
+				glBindVertexArray(prim.vao);
+				if (prim.indexBuffer)
+					glDrawElements(GL_TRIANGLES, prim.indexCount, GL_UNSIGNED_INT, 0);
+				else
+					glDrawArrays(prim.mode, 0, prim.vertexCount);
+				glBindVertexArray(0);
 			}
-
-			if (prim.indexBuffer) {
-				glDrawElements(GL_TRIANGLES, prim.indexCount, GL_UNSIGNED_INT, 0);
-			}
-			else {
-				glDrawArrays(prim.mode, 0, prim.vertexCount);
-			}
-
-			glBindVertexArray(0);
-
 		}
+	}
+	else
+	{
+		// Scout / HeavyScout: full PBR shader (pbr_fragment_emissive.glsl) with external textures.
+		m_albedo.Bind(0);    m_shader->SetInt("albedoMap",    0); m_shader->SetBool("useAlbedo",       true);
+		m_metallic.Bind(1);  m_shader->SetInt("metallicMap",  1); m_shader->SetBool("useMetallicMap",  true);
+		m_roughness.Bind(2); m_shader->SetInt("roughnessMap", 2); m_shader->SetBool("useRoughnessMap", true);
+		m_normal.Bind(3);    m_shader->SetInt("normalMap",    3); m_shader->SetBool("useNormalMap",    true);
+		m_emissive.Bind(4);  m_shader->SetInt("emissiveMap",  4); m_shader->SetBool("useEmissiveMap",  true);
+		m_shader->SetBool("useOcclusionMap", false);
+		m_shader->SetFloat("u_metallicScale", m_config.metallicScale);
 
-		if (texIndex < glTextures.size() - 3)
-			texIndex += 3;
+		for (size_t meshIndex = 0; meshIndex < meshData.size(); ++meshIndex) {
+			for (size_t primIndex = 0; primIndex < meshData[meshIndex].primitives.size(); ++primIndex) {
+				const GLTFPrimitive& prim = meshData[meshIndex].primitives[primIndex];
+				glBindVertexArray(prim.vao);
+				if (prim.indexBuffer)
+					glDrawElements(GL_TRIANGLES, prim.indexCount, GL_UNSIGNED_INT, 0);
+				else
+					glDrawArrays(prim.mode, 0, prim.vertexCount);
+				glBindVertexArray(0);
+			}
+		}
 	}
 }
 
