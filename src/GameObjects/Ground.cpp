@@ -170,6 +170,15 @@ void Ground::SetupGLTFMeshes(tinygltf::Model* model)
 	//		SetUpAABB();
 			continue;
 		}
+		const tinygltf::Value& val3 = mesh.extras.Get("isPlane");
+		const tinygltf::Value& val4 = mesh.extras.Get("isCollider");
+
+		if (val3.IsInt() && val3.Get<int>() == 1 && val4.IsInt() && val4.Get<int>() == 1) {
+			Logger::Log(1, "Mesh is a plane collider, setting up AABB\n");
+			planeData.push_back(gltfMesh);
+	//		SetUpAABB();
+			continue;
+		}
 
 		meshData[meshIndex] = gltfMesh;
 
@@ -573,10 +582,9 @@ Ground::Ground(glm::vec3 pos, glm::vec3 scale, Shader* shdr, Shader* shadowMapSh
 	CreatePlaneColliders();
 
 	for (auto& planeCol : planeColliders)
-	{		
+	{
 		debugPlanes.push_back(MakeDebugPlane(planeCol));
 	}
-
 
 	//model->loadModelNoAnim(modelFilename);
 	//model->uploadVertexBuffersNoAnimations();
@@ -604,19 +612,19 @@ void Ground::DrawObject(glm::mat4 viewMat, glm::mat4 proj, bool shadowMap, glm::
 		glUseProgram(0);
 	}
 
-	for (AABB* aabb : m_aabbs)
-	{
-		m_aabbShader->Use();
-		glm::mat4 modelMat = glm::mat4(1.0f);
-		modelMat = glm::translate(modelMat, glm::vec3(0.0f, -354.6f, 0.0f));
-		//modelMat = glm::rotate(modelMat, glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-		modelMat = glm::scale(modelMat, m_scale);
-		glm::mat4 modelMatrix = glm::scale(glm::mat4(1.0f), m_scale);
-		aabb->Update(modelMatrix);
-		glDisable(GL_DEPTH_TEST);
-		aabb->Render(viewMat, proj, modelMat, glm::vec3(0.0f, 1.0f, 0.0f));
-		glEnable(GL_DEPTH_TEST);
-	}
+	//for (AABB* aabb : m_aabbs)
+	//{
+	//	m_aabbShader->Use();
+	//	glm::mat4 modelMat = glm::mat4(1.0f);
+	//	modelMat = glm::translate(modelMat, glm::vec3(0.0f, -354.6f, 0.0f));
+	//	//modelMat = glm::rotate(modelMat, glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+	//	modelMat = glm::scale(modelMat, m_scale);
+	//	glm::mat4 modelMatrix = glm::scale(glm::mat4(1.0f), m_scale);
+	//	aabb->Update(modelMatrix);
+	//	glDisable(GL_DEPTH_TEST);
+	//	aabb->Render(viewMat, proj, modelMat, glm::vec3(0.0f, 1.0f, 0.0f));
+	//	glEnable(GL_DEPTH_TEST);
+	//}
 }	
 
 void Ground::ComputeAudioWorldTransform()

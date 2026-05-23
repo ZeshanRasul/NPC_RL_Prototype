@@ -189,7 +189,9 @@ private:
 	float speedDivider = 1.0f;
 	float blendFac = 1.0f;
 	bool m_camSwitchedToAim = false;
-	int m_selectedEnemyIndex = -1;
+	int  m_selectedEnemyIndex = -1;
+	bool m_editMode    = false;
+	bool m_showNavMesh = true;
 
 	bool m_useEdbt = true;
 

@@ -437,6 +437,31 @@ void GameManager::ShowSceneOutliner()
 {
 	ImGui::Begin("Scene Outliner");
 
+	// Edit / Play toggle
+	if (m_editMode)
+	{
+		ImGui::PushStyleColor(ImGuiCol_Button,        ImVec4(0.8f, 0.4f, 0.0f, 1.0f));
+		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.9f, 0.5f, 0.1f, 1.0f));
+		ImGui::PushStyleColor(ImGuiCol_ButtonActive,  ImVec4(0.7f, 0.3f, 0.0f, 1.0f));
+		if (ImGui::Button("  EDIT MODE  "))
+			m_editMode = false;
+		ImGui::PopStyleColor(3);
+		ImGui::SameLine();
+		ImGui::TextDisabled("(AI paused)");
+	}
+	else
+	{
+		ImGui::PushStyleColor(ImGuiCol_Button,        ImVec4(0.1f, 0.5f, 0.1f, 1.0f));
+		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.2f, 0.6f, 0.2f, 1.0f));
+		ImGui::PushStyleColor(ImGuiCol_ButtonActive,  ImVec4(0.0f, 0.4f, 0.0f, 1.0f));
+		if (ImGui::Button("  PLAY MODE  "))
+			m_editMode = true;
+		ImGui::PopStyleColor(3);
+	}
+
+	ImGui::Checkbox("Show NavMesh", &m_showNavMesh);
+
+	ImGui::Separator();
 	ImGui::Text("Player");
 	ImGui::SameLine();
 	ImGui::Text("HP: %.0f", m_player->GetHealth());
@@ -506,8 +531,8 @@ void GameManager::ShowEntityInspector()
 
 	ImGui::End();
 
-	// ImGuizmo translate gizmo in world space over the selected enemy
-	if (!e->IsDestroyed())
+	// ImGuizmo translate gizmo — only in edit mode (play mode has AI overriding position)
+	if (m_editMode && !e->IsDestroyed())
 	{
 		glm::mat4 model = glm::translate(glm::mat4(1.0f), e->GetPosition());
 		ImGuizmo::SetDrawlist(ImGui::GetBackgroundDrawList());
@@ -520,6 +545,10 @@ void GameManager::ShowEntityInspector()
 		);
 		if (ImGuizmo::IsUsing())
 			e->SetPosition(glm::vec3(model[3]));
+	}
+	else if (!m_editMode)
+	{
+		ImGui::TextDisabled("(gizmo disabled in play mode)");
 	}
 }
 
@@ -930,16 +959,19 @@ void GameManager::Update(float deltaTime)
 	m_dt = scaledDeltaTime;
 
 
-	for (Enemy* e : m_enemies)
+	if (!m_editMode)
 	{
-		if (e == nullptr || e->IsDead())
-			continue;
+		for (Enemy* e : m_enemies)
+		{
+			if (e == nullptr || e->IsDead())
+				continue;
 
-		e->SetDeltaTime(deltaTime);
-		e->Update(true, false, false);
+			e->SetDeltaTime(deltaTime);
+			e->Update(true, false, false);
+		}
+
+		m_navMeshManager->Update(deltaTime, m_enemies, m_player->GetPosition());
 	}
-
-	m_navMeshManager->Update(deltaTime, m_enemies, m_player->GetPosition());
 	m_audioManager->Update(scaledDeltaTime);
 	m_audioSystem->Update(scaledDeltaTime);
 
@@ -985,7 +1017,8 @@ void GameManager::Render(bool isMinimapRenderPass, bool isShadowMapRenderPass, b
 		}
 	}
 
-	m_navMeshManager->RenderDebug(m_view, m_projection);
+	if (m_showNavMesh)
+		m_navMeshManager->RenderDebug(m_view, m_projection);
 
 	if (m_camSwitchedToAim)
 		m_camSwitchedToAim = false;
