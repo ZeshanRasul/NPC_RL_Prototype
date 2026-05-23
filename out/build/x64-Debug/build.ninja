@@ -51,7 +51,7 @@ build cmake_object_order_depends_target_NPC_RL_Prototype: phony || .
 
 build CMakeFiles\NPC_RL_Prototype.dir\src\main.cpp.obj: CXX_COMPILER__NPC_RL_Prototype_unscanned_Debug D$:\dev\Gameplay\NPC_RL_Prototype\src\main.cpp || cmake_object_order_depends_target_NPC_RL_Prototype
   CONFIG = Debug
-  DEFINES = -DGLM_ENABLE_EXPERIMENTAL -DUNICODE -D_CRT_SECURE_NO_WARNINGS -D_DEBUG -D_UNICODE
+  DEFINES = -DGLM_ENABLE_EXPERIMENTAL -DNPC_SCENE_ROOT=\"D:/dev/Gameplay/NPC_RL_Prototype\" -DUNICODE -D_CRT_SECURE_NO_WARNINGS -D_DEBUG -D_UNICODE
   FLAGS = /DWIN32 /D_WINDOWS /EHsc /Zi /Ob0 /Od /RTC1 -std:c++20 -MDd /W3 /MP /permissive- /Zi /sdl
   INCLUDES = -ID:\dev\Gameplay\NPC_RL_Prototype -ID:\dev\Gameplay\NPC_RL_Prototype\src -ID:\dev\Gameplay\NPC_RL_Prototype\include -ID:\dev\Gameplay\NPC_RL_Prototype\include\imgui -ID:\dev\Gameplay\NPC_RL_Prototype\src\tinygltf -ID:\dev\Gameplay\NPC_RL_Prototype\src\OpenGL -ID:\dev\Gameplay\NPC_RL_Prototype\src\Tools -ID:\dev\Gameplay\NPC_RL_Prototype\src\NavMesh -ID:\dev\Gameplay\NPC_RL_Prototype\include\Recast\Include -ID:\dev\Gameplay\NPC_RL_Prototype\include\Detour\Include -ID:\dev\Gameplay\NPC_RL_Prototype\include\DetourCrowd\Include -I"C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\studio\inc" -I"C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\lowlevel\inc" -I"C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\core\inc"
   OBJECT_DIR = CMakeFiles\NPC_RL_Prototype.dir
@@ -62,7 +62,7 @@ build CMakeFiles\NPC_RL_Prototype.dir\src\main.cpp.obj: CXX_COMPILER__NPC_RL_Pro
 
 build CMakeFiles\NPC_RL_Prototype.dir\src\App.cpp.obj: CXX_COMPILER__NPC_RL_Prototype_unscanned_Debug D$:\dev\Gameplay\NPC_RL_Prototype\src\App.cpp || cmake_object_order_depends_target_NPC_RL_Prototype
   CONFIG = Debug
-  DEFINES = -DGLM_ENABLE_EXPERIMENTAL -DUNICODE -D_CRT_SECURE_NO_WARNINGS -D_DEBUG -D_UNICODE
+  DEFINES = -DGLM_ENABLE_EXPERIMENTAL -DNPC_SCENE_ROOT=\"D:/dev/Gameplay/NPC_RL_Prototype\" -DUNICODE -D_CRT_SECURE_NO_WARNINGS -D_DEBUG -D_UNICODE
   FLAGS = /DWIN32 /D_WINDOWS /EHsc /Zi /Ob0 /Od /RTC1 -std:c++20 -MDd /W3 /MP /permissive- /Zi /sdl
   INCLUDES = -ID:\dev\Gameplay\NPC_RL_Prototype -ID:\dev\Gameplay\NPC_RL_Prototype\src -ID:\dev\Gameplay\NPC_RL_Prototype\include -ID:\dev\Gameplay\NPC_RL_Prototype\include\imgui -ID:\dev\Gameplay\NPC_RL_Prototype\src\tinygltf -ID:\dev\Gameplay\NPC_RL_Prototype\src\OpenGL -ID:\dev\Gameplay\NPC_RL_Prototype\src\Tools -ID:\dev\Gameplay\NPC_RL_Prototype\src\NavMesh -ID:\dev\Gameplay\NPC_RL_Prototype\include\Recast\Include -ID:\dev\Gameplay\NPC_RL_Prototype\include\Detour\Include -ID:\dev\Gameplay\NPC_RL_Prototype\include\DetourCrowd\Include -I"C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\studio\inc" -I"C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\lowlevel\inc" -I"C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\core\inc"
   OBJECT_DIR = CMakeFiles\NPC_RL_Prototype.dir
@@ -73,7 +73,7 @@ build CMakeFiles\NPC_RL_Prototype.dir\src\App.cpp.obj: CXX_COMPILER__NPC_RL_Prot
 
 build CMakeFiles\NPC_RL_Prototype.dir\src\GameManager.cpp.obj: CXX_COMPILER__NPC_RL_Prototype_unscanned_Debug D$:\dev\Gameplay\NPC_RL_Prototype\src\GameManager.cpp || cmake_object_order_depends_target_NPC_RL_Prototype
   CONFIG = Debug
-  DEFINES = -DGLM_ENABLE_EXPERIMENTAL -DUNICODE -D_CRT_SECURE_NO_WARNINGS -D_DEBUG -D_UNICODE
+  DEFINES = -DGLM_ENABLE_EXPERIMENTAL -DNPC_SCENE_ROOT=\"D:/dev/Gameplay/NPC_RL_Prototype\" -DUNICODE -D_CRT_SECURE_NO_WARNINGS -D_DEBUG -D_UNICODE
   FLAGS = /DWIN32 /D_WINDOWS /EHsc /Zi /Ob0 /Od /RTC1 -std:c++20 -MDd /W3 /MP /permissive- /Zi /sdl
   INCLUDES = -ID:\dev\Gameplay\NPC_RL_Prototype -ID:\dev\Gameplay\NPC_RL_Prototype\src -ID:\dev\Gameplay\NPC_RL_Prototype\include -ID:\dev\Gameplay\NPC_RL_Prototype\include\imgui -ID:\dev\Gameplay\NPC_RL_Prototype\src\tinygltf -ID:\dev\Gameplay\NPC_RL_Prototype\src\OpenGL -ID:\dev\Gameplay\NPC_RL_Prototype\src\Tools -ID:\dev\Gameplay\NPC_RL_Prototype\src\NavMesh -ID:\dev\Gameplay\NPC_RL_Prototype\include\Recast\Include -ID:\dev\Gameplay\NPC_RL_Prototype\include\Detour\Include -ID:\dev\Gameplay\NPC_RL_Prototype\include\DetourCrowd\Include -I"C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\studio\inc" -I"C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\lowlevel\inc" -I"C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\core\inc"
   OBJECT_DIR = CMakeFiles\NPC_RL_Prototype.dir
@@ -84,7 +84,7 @@ build CMakeFiles\NPC_RL_Prototype.dir\src\GameManager.cpp.obj: CXX_COMPILER__NPC
 
 build CMakeFiles\NPC_RL_Prototype.dir\src\Camera.cpp.obj: CXX_COMPILER__NPC_RL_Prototype_unscanned_Debug D$:\dev\Gameplay\NPC_RL_Prototype\src\Camera.cpp || cmake_object_order_depends_target_NPC_RL_Prototype
   CONFIG = Debug
-  DEFINES = -DGLM_ENABLE_EXPERIMENTAL -DUNICODE -D_CRT_SECURE_NO_WARNINGS -D_DEBUG -D_UNICODE
+  DEFINES = -DGLM_ENABLE_EXPERIMENTAL -DNPC_SCENE_ROOT=\"D:/dev/Gameplay/NPC_RL_Prototype\" -DUNICODE -D_CRT_SECURE_NO_WARNINGS -D_DEBUG -D_UNICODE
   FLAGS = /DWIN32 /D_WINDOWS /EHsc /Zi /Ob0 /Od /RTC1 -std:c++20 -MDd /W3 /MP /permissive- /Zi /sdl
   INCLUDES = -ID:\dev\Gameplay\NPC_RL_Prototype -ID:\dev\Gameplay\NPC_RL_Prototype\src -ID:\dev\Gameplay\NPC_RL_Prototype\include -ID:\dev\Gameplay\NPC_RL_Prototype\include\imgui -ID:\dev\Gameplay\NPC_RL_Prototype\src\tinygltf -ID:\dev\Gameplay\NPC_RL_Prototype\src\OpenGL -ID:\dev\Gameplay\NPC_RL_Prototype\src\Tools -ID:\dev\Gameplay\NPC_RL_Prototype\src\NavMesh -ID:\dev\Gameplay\NPC_RL_Prototype\include\Recast\Include -ID:\dev\Gameplay\NPC_RL_Prototype\include\Detour\Include -ID:\dev\Gameplay\NPC_RL_Prototype\include\DetourCrowd\Include -I"C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\studio\inc" -I"C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\lowlevel\inc" -I"C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\core\inc"
   OBJECT_DIR = CMakeFiles\NPC_RL_Prototype.dir
@@ -95,7 +95,7 @@ build CMakeFiles\NPC_RL_Prototype.dir\src\Camera.cpp.obj: CXX_COMPILER__NPC_RL_P
 
 build CMakeFiles\NPC_RL_Prototype.dir\src\InputManager.cpp.obj: CXX_COMPILER__NPC_RL_Prototype_unscanned_Debug D$:\dev\Gameplay\NPC_RL_Prototype\src\InputManager.cpp || cmake_object_order_depends_target_NPC_RL_Prototype
   CONFIG = Debug
-  DEFINES = -DGLM_ENABLE_EXPERIMENTAL -DUNICODE -D_CRT_SECURE_NO_WARNINGS -D_DEBUG -D_UNICODE
+  DEFINES = -DGLM_ENABLE_EXPERIMENTAL -DNPC_SCENE_ROOT=\"D:/dev/Gameplay/NPC_RL_Prototype\" -DUNICODE -D_CRT_SECURE_NO_WARNINGS -D_DEBUG -D_UNICODE
   FLAGS = /DWIN32 /D_WINDOWS /EHsc /Zi /Ob0 /Od /RTC1 -std:c++20 -MDd /W3 /MP /permissive- /Zi /sdl
   INCLUDES = -ID:\dev\Gameplay\NPC_RL_Prototype -ID:\dev\Gameplay\NPC_RL_Prototype\src -ID:\dev\Gameplay\NPC_RL_Prototype\include -ID:\dev\Gameplay\NPC_RL_Prototype\include\imgui -ID:\dev\Gameplay\NPC_RL_Prototype\src\tinygltf -ID:\dev\Gameplay\NPC_RL_Prototype\src\OpenGL -ID:\dev\Gameplay\NPC_RL_Prototype\src\Tools -ID:\dev\Gameplay\NPC_RL_Prototype\src\NavMesh -ID:\dev\Gameplay\NPC_RL_Prototype\include\Recast\Include -ID:\dev\Gameplay\NPC_RL_Prototype\include\Detour\Include -ID:\dev\Gameplay\NPC_RL_Prototype\include\DetourCrowd\Include -I"C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\studio\inc" -I"C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\lowlevel\inc" -I"C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\core\inc"
   OBJECT_DIR = CMakeFiles\NPC_RL_Prototype.dir
@@ -106,7 +106,7 @@ build CMakeFiles\NPC_RL_Prototype.dir\src\InputManager.cpp.obj: CXX_COMPILER__NP
 
 build CMakeFiles\NPC_RL_Prototype.dir\src\Tunables.cpp.obj: CXX_COMPILER__NPC_RL_Prototype_unscanned_Debug D$:\dev\Gameplay\NPC_RL_Prototype\src\Tunables.cpp || cmake_object_order_depends_target_NPC_RL_Prototype
   CONFIG = Debug
-  DEFINES = -DGLM_ENABLE_EXPERIMENTAL -DUNICODE -D_CRT_SECURE_NO_WARNINGS -D_DEBUG -D_UNICODE
+  DEFINES = -DGLM_ENABLE_EXPERIMENTAL -DNPC_SCENE_ROOT=\"D:/dev/Gameplay/NPC_RL_Prototype\" -DUNICODE -D_CRT_SECURE_NO_WARNINGS -D_DEBUG -D_UNICODE
   FLAGS = /DWIN32 /D_WINDOWS /EHsc /Zi /Ob0 /Od /RTC1 -std:c++20 -MDd /W3 /MP /permissive- /Zi /sdl
   INCLUDES = -ID:\dev\Gameplay\NPC_RL_Prototype -ID:\dev\Gameplay\NPC_RL_Prototype\src -ID:\dev\Gameplay\NPC_RL_Prototype\include -ID:\dev\Gameplay\NPC_RL_Prototype\include\imgui -ID:\dev\Gameplay\NPC_RL_Prototype\src\tinygltf -ID:\dev\Gameplay\NPC_RL_Prototype\src\OpenGL -ID:\dev\Gameplay\NPC_RL_Prototype\src\Tools -ID:\dev\Gameplay\NPC_RL_Prototype\src\NavMesh -ID:\dev\Gameplay\NPC_RL_Prototype\include\Recast\Include -ID:\dev\Gameplay\NPC_RL_Prototype\include\Detour\Include -ID:\dev\Gameplay\NPC_RL_Prototype\include\DetourCrowd\Include -I"C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\studio\inc" -I"C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\lowlevel\inc" -I"C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\core\inc"
   OBJECT_DIR = CMakeFiles\NPC_RL_Prototype.dir
@@ -117,7 +117,7 @@ build CMakeFiles\NPC_RL_Prototype.dir\src\Tunables.cpp.obj: CXX_COMPILER__NPC_RL
 
 build CMakeFiles\NPC_RL_Prototype.dir\src\Window\Window.cpp.obj: CXX_COMPILER__NPC_RL_Prototype_unscanned_Debug D$:\dev\Gameplay\NPC_RL_Prototype\src\Window\Window.cpp || cmake_object_order_depends_target_NPC_RL_Prototype
   CONFIG = Debug
-  DEFINES = -DGLM_ENABLE_EXPERIMENTAL -DUNICODE -D_CRT_SECURE_NO_WARNINGS -D_DEBUG -D_UNICODE
+  DEFINES = -DGLM_ENABLE_EXPERIMENTAL -DNPC_SCENE_ROOT=\"D:/dev/Gameplay/NPC_RL_Prototype\" -DUNICODE -D_CRT_SECURE_NO_WARNINGS -D_DEBUG -D_UNICODE
   FLAGS = /DWIN32 /D_WINDOWS /EHsc /Zi /Ob0 /Od /RTC1 -std:c++20 -MDd /W3 /MP /permissive- /Zi /sdl
   INCLUDES = -ID:\dev\Gameplay\NPC_RL_Prototype -ID:\dev\Gameplay\NPC_RL_Prototype\src -ID:\dev\Gameplay\NPC_RL_Prototype\include -ID:\dev\Gameplay\NPC_RL_Prototype\include\imgui -ID:\dev\Gameplay\NPC_RL_Prototype\src\tinygltf -ID:\dev\Gameplay\NPC_RL_Prototype\src\OpenGL -ID:\dev\Gameplay\NPC_RL_Prototype\src\Tools -ID:\dev\Gameplay\NPC_RL_Prototype\src\NavMesh -ID:\dev\Gameplay\NPC_RL_Prototype\include\Recast\Include -ID:\dev\Gameplay\NPC_RL_Prototype\include\Detour\Include -ID:\dev\Gameplay\NPC_RL_Prototype\include\DetourCrowd\Include -I"C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\studio\inc" -I"C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\lowlevel\inc" -I"C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\core\inc"
   OBJECT_DIR = CMakeFiles\NPC_RL_Prototype.dir
@@ -128,7 +128,7 @@ build CMakeFiles\NPC_RL_Prototype.dir\src\Window\Window.cpp.obj: CXX_COMPILER__N
 
 build CMakeFiles\NPC_RL_Prototype.dir\src\OpenGL\Renderer.cpp.obj: CXX_COMPILER__NPC_RL_Prototype_unscanned_Debug D$:\dev\Gameplay\NPC_RL_Prototype\src\OpenGL\Renderer.cpp || cmake_object_order_depends_target_NPC_RL_Prototype
   CONFIG = Debug
-  DEFINES = -DGLM_ENABLE_EXPERIMENTAL -DUNICODE -D_CRT_SECURE_NO_WARNINGS -D_DEBUG -D_UNICODE
+  DEFINES = -DGLM_ENABLE_EXPERIMENTAL -DNPC_SCENE_ROOT=\"D:/dev/Gameplay/NPC_RL_Prototype\" -DUNICODE -D_CRT_SECURE_NO_WARNINGS -D_DEBUG -D_UNICODE
   FLAGS = /DWIN32 /D_WINDOWS /EHsc /Zi /Ob0 /Od /RTC1 -std:c++20 -MDd /W3 /MP /permissive- /Zi /sdl
   INCLUDES = -ID:\dev\Gameplay\NPC_RL_Prototype -ID:\dev\Gameplay\NPC_RL_Prototype\src -ID:\dev\Gameplay\NPC_RL_Prototype\include -ID:\dev\Gameplay\NPC_RL_Prototype\include\imgui -ID:\dev\Gameplay\NPC_RL_Prototype\src\tinygltf -ID:\dev\Gameplay\NPC_RL_Prototype\src\OpenGL -ID:\dev\Gameplay\NPC_RL_Prototype\src\Tools -ID:\dev\Gameplay\NPC_RL_Prototype\src\NavMesh -ID:\dev\Gameplay\NPC_RL_Prototype\include\Recast\Include -ID:\dev\Gameplay\NPC_RL_Prototype\include\Detour\Include -ID:\dev\Gameplay\NPC_RL_Prototype\include\DetourCrowd\Include -I"C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\studio\inc" -I"C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\lowlevel\inc" -I"C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\core\inc"
   OBJECT_DIR = CMakeFiles\NPC_RL_Prototype.dir
@@ -139,7 +139,7 @@ build CMakeFiles\NPC_RL_Prototype.dir\src\OpenGL\Renderer.cpp.obj: CXX_COMPILER_
 
 build CMakeFiles\NPC_RL_Prototype.dir\src\OpenGL\Shader.cpp.obj: CXX_COMPILER__NPC_RL_Prototype_unscanned_Debug D$:\dev\Gameplay\NPC_RL_Prototype\src\OpenGL\Shader.cpp || cmake_object_order_depends_target_NPC_RL_Prototype
   CONFIG = Debug
-  DEFINES = -DGLM_ENABLE_EXPERIMENTAL -DUNICODE -D_CRT_SECURE_NO_WARNINGS -D_DEBUG -D_UNICODE
+  DEFINES = -DGLM_ENABLE_EXPERIMENTAL -DNPC_SCENE_ROOT=\"D:/dev/Gameplay/NPC_RL_Prototype\" -DUNICODE -D_CRT_SECURE_NO_WARNINGS -D_DEBUG -D_UNICODE
   FLAGS = /DWIN32 /D_WINDOWS /EHsc /Zi /Ob0 /Od /RTC1 -std:c++20 -MDd /W3 /MP /permissive- /Zi /sdl
   INCLUDES = -ID:\dev\Gameplay\NPC_RL_Prototype -ID:\dev\Gameplay\NPC_RL_Prototype\src -ID:\dev\Gameplay\NPC_RL_Prototype\include -ID:\dev\Gameplay\NPC_RL_Prototype\include\imgui -ID:\dev\Gameplay\NPC_RL_Prototype\src\tinygltf -ID:\dev\Gameplay\NPC_RL_Prototype\src\OpenGL -ID:\dev\Gameplay\NPC_RL_Prototype\src\Tools -ID:\dev\Gameplay\NPC_RL_Prototype\src\NavMesh -ID:\dev\Gameplay\NPC_RL_Prototype\include\Recast\Include -ID:\dev\Gameplay\NPC_RL_Prototype\include\Detour\Include -ID:\dev\Gameplay\NPC_RL_Prototype\include\DetourCrowd\Include -I"C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\studio\inc" -I"C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\lowlevel\inc" -I"C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\core\inc"
   OBJECT_DIR = CMakeFiles\NPC_RL_Prototype.dir
@@ -150,7 +150,7 @@ build CMakeFiles\NPC_RL_Prototype.dir\src\OpenGL\Shader.cpp.obj: CXX_COMPILER__N
 
 build CMakeFiles\NPC_RL_Prototype.dir\src\OpenGL\Texture.cpp.obj: CXX_COMPILER__NPC_RL_Prototype_unscanned_Debug D$:\dev\Gameplay\NPC_RL_Prototype\src\OpenGL\Texture.cpp || cmake_object_order_depends_target_NPC_RL_Prototype
   CONFIG = Debug
-  DEFINES = -DGLM_ENABLE_EXPERIMENTAL -DUNICODE -D_CRT_SECURE_NO_WARNINGS -D_DEBUG -D_UNICODE
+  DEFINES = -DGLM_ENABLE_EXPERIMENTAL -DNPC_SCENE_ROOT=\"D:/dev/Gameplay/NPC_RL_Prototype\" -DUNICODE -D_CRT_SECURE_NO_WARNINGS -D_DEBUG -D_UNICODE
   FLAGS = /DWIN32 /D_WINDOWS /EHsc /Zi /Ob0 /Od /RTC1 -std:c++20 -MDd /W3 /MP /permissive- /Zi /sdl
   INCLUDES = -ID:\dev\Gameplay\NPC_RL_Prototype -ID:\dev\Gameplay\NPC_RL_Prototype\src -ID:\dev\Gameplay\NPC_RL_Prototype\include -ID:\dev\Gameplay\NPC_RL_Prototype\include\imgui -ID:\dev\Gameplay\NPC_RL_Prototype\src\tinygltf -ID:\dev\Gameplay\NPC_RL_Prototype\src\OpenGL -ID:\dev\Gameplay\NPC_RL_Prototype\src\Tools -ID:\dev\Gameplay\NPC_RL_Prototype\src\NavMesh -ID:\dev\Gameplay\NPC_RL_Prototype\include\Recast\Include -ID:\dev\Gameplay\NPC_RL_Prototype\include\Detour\Include -ID:\dev\Gameplay\NPC_RL_Prototype\include\DetourCrowd\Include -I"C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\studio\inc" -I"C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\lowlevel\inc" -I"C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\core\inc"
   OBJECT_DIR = CMakeFiles\NPC_RL_Prototype.dir
@@ -161,7 +161,7 @@ build CMakeFiles\NPC_RL_Prototype.dir\src\OpenGL\Texture.cpp.obj: CXX_COMPILER__
 
 build CMakeFiles\NPC_RL_Prototype.dir\src\OpenGL\VertexBuffer.cpp.obj: CXX_COMPILER__NPC_RL_Prototype_unscanned_Debug D$:\dev\Gameplay\NPC_RL_Prototype\src\OpenGL\VertexBuffer.cpp || cmake_object_order_depends_target_NPC_RL_Prototype
   CONFIG = Debug
-  DEFINES = -DGLM_ENABLE_EXPERIMENTAL -DUNICODE -D_CRT_SECURE_NO_WARNINGS -D_DEBUG -D_UNICODE
+  DEFINES = -DGLM_ENABLE_EXPERIMENTAL -DNPC_SCENE_ROOT=\"D:/dev/Gameplay/NPC_RL_Prototype\" -DUNICODE -D_CRT_SECURE_NO_WARNINGS -D_DEBUG -D_UNICODE
   FLAGS = /DWIN32 /D_WINDOWS /EHsc /Zi /Ob0 /Od /RTC1 -std:c++20 -MDd /W3 /MP /permissive- /Zi /sdl
   INCLUDES = -ID:\dev\Gameplay\NPC_RL_Prototype -ID:\dev\Gameplay\NPC_RL_Prototype\src -ID:\dev\Gameplay\NPC_RL_Prototype\include -ID:\dev\Gameplay\NPC_RL_Prototype\include\imgui -ID:\dev\Gameplay\NPC_RL_Prototype\src\tinygltf -ID:\dev\Gameplay\NPC_RL_Prototype\src\OpenGL -ID:\dev\Gameplay\NPC_RL_Prototype\src\Tools -ID:\dev\Gameplay\NPC_RL_Prototype\src\NavMesh -ID:\dev\Gameplay\NPC_RL_Prototype\include\Recast\Include -ID:\dev\Gameplay\NPC_RL_Prototype\include\Detour\Include -ID:\dev\Gameplay\NPC_RL_Prototype\include\DetourCrowd\Include -I"C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\studio\inc" -I"C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\lowlevel\inc" -I"C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\core\inc"
   OBJECT_DIR = CMakeFiles\NPC_RL_Prototype.dir
@@ -172,7 +172,7 @@ build CMakeFiles\NPC_RL_Prototype.dir\src\OpenGL\VertexBuffer.cpp.obj: CXX_COMPI
 
 build CMakeFiles\NPC_RL_Prototype.dir\src\OpenGL\UniformBuffer.cpp.obj: CXX_COMPILER__NPC_RL_Prototype_unscanned_Debug D$:\dev\Gameplay\NPC_RL_Prototype\src\OpenGL\UniformBuffer.cpp || cmake_object_order_depends_target_NPC_RL_Prototype
   CONFIG = Debug
-  DEFINES = -DGLM_ENABLE_EXPERIMENTAL -DUNICODE -D_CRT_SECURE_NO_WARNINGS -D_DEBUG -D_UNICODE
+  DEFINES = -DGLM_ENABLE_EXPERIMENTAL -DNPC_SCENE_ROOT=\"D:/dev/Gameplay/NPC_RL_Prototype\" -DUNICODE -D_CRT_SECURE_NO_WARNINGS -D_DEBUG -D_UNICODE
   FLAGS = /DWIN32 /D_WINDOWS /EHsc /Zi /Ob0 /Od /RTC1 -std:c++20 -MDd /W3 /MP /permissive- /Zi /sdl
   INCLUDES = -ID:\dev\Gameplay\NPC_RL_Prototype -ID:\dev\Gameplay\NPC_RL_Prototype\src -ID:\dev\Gameplay\NPC_RL_Prototype\include -ID:\dev\Gameplay\NPC_RL_Prototype\include\imgui -ID:\dev\Gameplay\NPC_RL_Prototype\src\tinygltf -ID:\dev\Gameplay\NPC_RL_Prototype\src\OpenGL -ID:\dev\Gameplay\NPC_RL_Prototype\src\Tools -ID:\dev\Gameplay\NPC_RL_Prototype\src\NavMesh -ID:\dev\Gameplay\NPC_RL_Prototype\include\Recast\Include -ID:\dev\Gameplay\NPC_RL_Prototype\include\Detour\Include -ID:\dev\Gameplay\NPC_RL_Prototype\include\DetourCrowd\Include -I"C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\studio\inc" -I"C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\lowlevel\inc" -I"C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\core\inc"
   OBJECT_DIR = CMakeFiles\NPC_RL_Prototype.dir
@@ -183,7 +183,7 @@ build CMakeFiles\NPC_RL_Prototype.dir\src\OpenGL\UniformBuffer.cpp.obj: CXX_COMP
 
 build CMakeFiles\NPC_RL_Prototype.dir\src\OpenGL\ShaderStorageBuffer.cpp.obj: CXX_COMPILER__NPC_RL_Prototype_unscanned_Debug D$:\dev\Gameplay\NPC_RL_Prototype\src\OpenGL\ShaderStorageBuffer.cpp || cmake_object_order_depends_target_NPC_RL_Prototype
   CONFIG = Debug
-  DEFINES = -DGLM_ENABLE_EXPERIMENTAL -DUNICODE -D_CRT_SECURE_NO_WARNINGS -D_DEBUG -D_UNICODE
+  DEFINES = -DGLM_ENABLE_EXPERIMENTAL -DNPC_SCENE_ROOT=\"D:/dev/Gameplay/NPC_RL_Prototype\" -DUNICODE -D_CRT_SECURE_NO_WARNINGS -D_DEBUG -D_UNICODE
   FLAGS = /DWIN32 /D_WINDOWS /EHsc /Zi /Ob0 /Od /RTC1 -std:c++20 -MDd /W3 /MP /permissive- /Zi /sdl
   INCLUDES = -ID:\dev\Gameplay\NPC_RL_Prototype -ID:\dev\Gameplay\NPC_RL_Prototype\src -ID:\dev\Gameplay\NPC_RL_Prototype\include -ID:\dev\Gameplay\NPC_RL_Prototype\include\imgui -ID:\dev\Gameplay\NPC_RL_Prototype\src\tinygltf -ID:\dev\Gameplay\NPC_RL_Prototype\src\OpenGL -ID:\dev\Gameplay\NPC_RL_Prototype\src\Tools -ID:\dev\Gameplay\NPC_RL_Prototype\src\NavMesh -ID:\dev\Gameplay\NPC_RL_Prototype\include\Recast\Include -ID:\dev\Gameplay\NPC_RL_Prototype\include\Detour\Include -ID:\dev\Gameplay\NPC_RL_Prototype\include\DetourCrowd\Include -I"C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\studio\inc" -I"C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\lowlevel\inc" -I"C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\core\inc"
   OBJECT_DIR = CMakeFiles\NPC_RL_Prototype.dir
@@ -194,7 +194,7 @@ build CMakeFiles\NPC_RL_Prototype.dir\src\OpenGL\ShaderStorageBuffer.cpp.obj: CX
 
 build CMakeFiles\NPC_RL_Prototype.dir\src\OpenGL\Cubemap.cpp.obj: CXX_COMPILER__NPC_RL_Prototype_unscanned_Debug D$:\dev\Gameplay\NPC_RL_Prototype\src\OpenGL\Cubemap.cpp || cmake_object_order_depends_target_NPC_RL_Prototype
   CONFIG = Debug
-  DEFINES = -DGLM_ENABLE_EXPERIMENTAL -DUNICODE -D_CRT_SECURE_NO_WARNINGS -D_DEBUG -D_UNICODE
+  DEFINES = -DGLM_ENABLE_EXPERIMENTAL -DNPC_SCENE_ROOT=\"D:/dev/Gameplay/NPC_RL_Prototype\" -DUNICODE -D_CRT_SECURE_NO_WARNINGS -D_DEBUG -D_UNICODE
   FLAGS = /DWIN32 /D_WINDOWS /EHsc /Zi /Ob0 /Od /RTC1 -std:c++20 -MDd /W3 /MP /permissive- /Zi /sdl
   INCLUDES = -ID:\dev\Gameplay\NPC_RL_Prototype -ID:\dev\Gameplay\NPC_RL_Prototype\src -ID:\dev\Gameplay\NPC_RL_Prototype\include -ID:\dev\Gameplay\NPC_RL_Prototype\include\imgui -ID:\dev\Gameplay\NPC_RL_Prototype\src\tinygltf -ID:\dev\Gameplay\NPC_RL_Prototype\src\OpenGL -ID:\dev\Gameplay\NPC_RL_Prototype\src\Tools -ID:\dev\Gameplay\NPC_RL_Prototype\src\NavMesh -ID:\dev\Gameplay\NPC_RL_Prototype\include\Recast\Include -ID:\dev\Gameplay\NPC_RL_Prototype\include\Detour\Include -ID:\dev\Gameplay\NPC_RL_Prototype\include\DetourCrowd\Include -I"C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\studio\inc" -I"C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\lowlevel\inc" -I"C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\core\inc"
   OBJECT_DIR = CMakeFiles\NPC_RL_Prototype.dir
@@ -205,7 +205,7 @@ build CMakeFiles\NPC_RL_Prototype.dir\src\OpenGL\Cubemap.cpp.obj: CXX_COMPILER__
 
 build CMakeFiles\NPC_RL_Prototype.dir\src\GameObjects\Player.cpp.obj: CXX_COMPILER__NPC_RL_Prototype_unscanned_Debug D$:\dev\Gameplay\NPC_RL_Prototype\src\GameObjects\Player.cpp || cmake_object_order_depends_target_NPC_RL_Prototype
   CONFIG = Debug
-  DEFINES = -DGLM_ENABLE_EXPERIMENTAL -DUNICODE -D_CRT_SECURE_NO_WARNINGS -D_DEBUG -D_UNICODE
+  DEFINES = -DGLM_ENABLE_EXPERIMENTAL -DNPC_SCENE_ROOT=\"D:/dev/Gameplay/NPC_RL_Prototype\" -DUNICODE -D_CRT_SECURE_NO_WARNINGS -D_DEBUG -D_UNICODE
   FLAGS = /DWIN32 /D_WINDOWS /EHsc /Zi /Ob0 /Od /RTC1 -std:c++20 -MDd /W3 /MP /permissive- /Zi /sdl
   INCLUDES = -ID:\dev\Gameplay\NPC_RL_Prototype -ID:\dev\Gameplay\NPC_RL_Prototype\src -ID:\dev\Gameplay\NPC_RL_Prototype\include -ID:\dev\Gameplay\NPC_RL_Prototype\include\imgui -ID:\dev\Gameplay\NPC_RL_Prototype\src\tinygltf -ID:\dev\Gameplay\NPC_RL_Prototype\src\OpenGL -ID:\dev\Gameplay\NPC_RL_Prototype\src\Tools -ID:\dev\Gameplay\NPC_RL_Prototype\src\NavMesh -ID:\dev\Gameplay\NPC_RL_Prototype\include\Recast\Include -ID:\dev\Gameplay\NPC_RL_Prototype\include\Detour\Include -ID:\dev\Gameplay\NPC_RL_Prototype\include\DetourCrowd\Include -I"C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\studio\inc" -I"C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\lowlevel\inc" -I"C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\core\inc"
   OBJECT_DIR = CMakeFiles\NPC_RL_Prototype.dir
@@ -216,7 +216,7 @@ build CMakeFiles\NPC_RL_Prototype.dir\src\GameObjects\Player.cpp.obj: CXX_COMPIL
 
 build CMakeFiles\NPC_RL_Prototype.dir\src\GameObjects\Enemy.cpp.obj: CXX_COMPILER__NPC_RL_Prototype_unscanned_Debug D$:\dev\Gameplay\NPC_RL_Prototype\src\GameObjects\Enemy.cpp || cmake_object_order_depends_target_NPC_RL_Prototype
   CONFIG = Debug
-  DEFINES = -DGLM_ENABLE_EXPERIMENTAL -DUNICODE -D_CRT_SECURE_NO_WARNINGS -D_DEBUG -D_UNICODE
+  DEFINES = -DGLM_ENABLE_EXPERIMENTAL -DNPC_SCENE_ROOT=\"D:/dev/Gameplay/NPC_RL_Prototype\" -DUNICODE -D_CRT_SECURE_NO_WARNINGS -D_DEBUG -D_UNICODE
   FLAGS = /DWIN32 /D_WINDOWS /EHsc /Zi /Ob0 /Od /RTC1 -std:c++20 -MDd /W3 /MP /permissive- /Zi /sdl
   INCLUDES = -ID:\dev\Gameplay\NPC_RL_Prototype -ID:\dev\Gameplay\NPC_RL_Prototype\src -ID:\dev\Gameplay\NPC_RL_Prototype\include -ID:\dev\Gameplay\NPC_RL_Prototype\include\imgui -ID:\dev\Gameplay\NPC_RL_Prototype\src\tinygltf -ID:\dev\Gameplay\NPC_RL_Prototype\src\OpenGL -ID:\dev\Gameplay\NPC_RL_Prototype\src\Tools -ID:\dev\Gameplay\NPC_RL_Prototype\src\NavMesh -ID:\dev\Gameplay\NPC_RL_Prototype\include\Recast\Include -ID:\dev\Gameplay\NPC_RL_Prototype\include\Detour\Include -ID:\dev\Gameplay\NPC_RL_Prototype\include\DetourCrowd\Include -I"C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\studio\inc" -I"C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\lowlevel\inc" -I"C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\core\inc"
   OBJECT_DIR = CMakeFiles\NPC_RL_Prototype.dir
@@ -227,7 +227,7 @@ build CMakeFiles\NPC_RL_Prototype.dir\src\GameObjects\Enemy.cpp.obj: CXX_COMPILE
 
 build CMakeFiles\NPC_RL_Prototype.dir\src\GameObjects\Ground.cpp.obj: CXX_COMPILER__NPC_RL_Prototype_unscanned_Debug D$:\dev\Gameplay\NPC_RL_Prototype\src\GameObjects\Ground.cpp || cmake_object_order_depends_target_NPC_RL_Prototype
   CONFIG = Debug
-  DEFINES = -DGLM_ENABLE_EXPERIMENTAL -DUNICODE -D_CRT_SECURE_NO_WARNINGS -D_DEBUG -D_UNICODE
+  DEFINES = -DGLM_ENABLE_EXPERIMENTAL -DNPC_SCENE_ROOT=\"D:/dev/Gameplay/NPC_RL_Prototype\" -DUNICODE -D_CRT_SECURE_NO_WARNINGS -D_DEBUG -D_UNICODE
   FLAGS = /DWIN32 /D_WINDOWS /EHsc /Zi /Ob0 /Od /RTC1 -std:c++20 -MDd /W3 /MP /permissive- /Zi /sdl
   INCLUDES = -ID:\dev\Gameplay\NPC_RL_Prototype -ID:\dev\Gameplay\NPC_RL_Prototype\src -ID:\dev\Gameplay\NPC_RL_Prototype\include -ID:\dev\Gameplay\NPC_RL_Prototype\include\imgui -ID:\dev\Gameplay\NPC_RL_Prototype\src\tinygltf -ID:\dev\Gameplay\NPC_RL_Prototype\src\OpenGL -ID:\dev\Gameplay\NPC_RL_Prototype\src\Tools -ID:\dev\Gameplay\NPC_RL_Prototype\src\NavMesh -ID:\dev\Gameplay\NPC_RL_Prototype\include\Recast\Include -ID:\dev\Gameplay\NPC_RL_Prototype\include\Detour\Include -ID:\dev\Gameplay\NPC_RL_Prototype\include\DetourCrowd\Include -I"C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\studio\inc" -I"C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\lowlevel\inc" -I"C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\core\inc"
   OBJECT_DIR = CMakeFiles\NPC_RL_Prototype.dir
@@ -238,7 +238,7 @@ build CMakeFiles\NPC_RL_Prototype.dir\src\GameObjects\Ground.cpp.obj: CXX_COMPIL
 
 build CMakeFiles\NPC_RL_Prototype.dir\src\GameObjects\Crosshair.cpp.obj: CXX_COMPILER__NPC_RL_Prototype_unscanned_Debug D$:\dev\Gameplay\NPC_RL_Prototype\src\GameObjects\Crosshair.cpp || cmake_object_order_depends_target_NPC_RL_Prototype
   CONFIG = Debug
-  DEFINES = -DGLM_ENABLE_EXPERIMENTAL -DUNICODE -D_CRT_SECURE_NO_WARNINGS -D_DEBUG -D_UNICODE
+  DEFINES = -DGLM_ENABLE_EXPERIMENTAL -DNPC_SCENE_ROOT=\"D:/dev/Gameplay/NPC_RL_Prototype\" -DUNICODE -D_CRT_SECURE_NO_WARNINGS -D_DEBUG -D_UNICODE
   FLAGS = /DWIN32 /D_WINDOWS /EHsc /Zi /Ob0 /Od /RTC1 -std:c++20 -MDd /W3 /MP /permissive- /Zi /sdl
   INCLUDES = -ID:\dev\Gameplay\NPC_RL_Prototype -ID:\dev\Gameplay\NPC_RL_Prototype\src -ID:\dev\Gameplay\NPC_RL_Prototype\include -ID:\dev\Gameplay\NPC_RL_Prototype\include\imgui -ID:\dev\Gameplay\NPC_RL_Prototype\src\tinygltf -ID:\dev\Gameplay\NPC_RL_Prototype\src\OpenGL -ID:\dev\Gameplay\NPC_RL_Prototype\src\Tools -ID:\dev\Gameplay\NPC_RL_Prototype\src\NavMesh -ID:\dev\Gameplay\NPC_RL_Prototype\include\Recast\Include -ID:\dev\Gameplay\NPC_RL_Prototype\include\Detour\Include -ID:\dev\Gameplay\NPC_RL_Prototype\include\DetourCrowd\Include -I"C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\studio\inc" -I"C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\lowlevel\inc" -I"C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\core\inc"
   OBJECT_DIR = CMakeFiles\NPC_RL_Prototype.dir
@@ -249,7 +249,7 @@ build CMakeFiles\NPC_RL_Prototype.dir\src\GameObjects\Crosshair.cpp.obj: CXX_COM
 
 build CMakeFiles\NPC_RL_Prototype.dir\src\GameObjects\Line.cpp.obj: CXX_COMPILER__NPC_RL_Prototype_unscanned_Debug D$:\dev\Gameplay\NPC_RL_Prototype\src\GameObjects\Line.cpp || cmake_object_order_depends_target_NPC_RL_Prototype
   CONFIG = Debug
-  DEFINES = -DGLM_ENABLE_EXPERIMENTAL -DUNICODE -D_CRT_SECURE_NO_WARNINGS -D_DEBUG -D_UNICODE
+  DEFINES = -DGLM_ENABLE_EXPERIMENTAL -DNPC_SCENE_ROOT=\"D:/dev/Gameplay/NPC_RL_Prototype\" -DUNICODE -D_CRT_SECURE_NO_WARNINGS -D_DEBUG -D_UNICODE
   FLAGS = /DWIN32 /D_WINDOWS /EHsc /Zi /Ob0 /Od /RTC1 -std:c++20 -MDd /W3 /MP /permissive- /Zi /sdl
   INCLUDES = -ID:\dev\Gameplay\NPC_RL_Prototype -ID:\dev\Gameplay\NPC_RL_Prototype\src -ID:\dev\Gameplay\NPC_RL_Prototype\include -ID:\dev\Gameplay\NPC_RL_Prototype\include\imgui -ID:\dev\Gameplay\NPC_RL_Prototype\src\tinygltf -ID:\dev\Gameplay\NPC_RL_Prototype\src\OpenGL -ID:\dev\Gameplay\NPC_RL_Prototype\src\Tools -ID:\dev\Gameplay\NPC_RL_Prototype\src\NavMesh -ID:\dev\Gameplay\NPC_RL_Prototype\include\Recast\Include -ID:\dev\Gameplay\NPC_RL_Prototype\include\Detour\Include -ID:\dev\Gameplay\NPC_RL_Prototype\include\DetourCrowd\Include -I"C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\studio\inc" -I"C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\lowlevel\inc" -I"C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\core\inc"
   OBJECT_DIR = CMakeFiles\NPC_RL_Prototype.dir
@@ -260,7 +260,7 @@ build CMakeFiles\NPC_RL_Prototype.dir\src\GameObjects\Line.cpp.obj: CXX_COMPILER
 
 build CMakeFiles\NPC_RL_Prototype.dir\src\Model\GltfModel.cpp.obj: CXX_COMPILER__NPC_RL_Prototype_unscanned_Debug D$:\dev\Gameplay\NPC_RL_Prototype\src\Model\GltfModel.cpp || cmake_object_order_depends_target_NPC_RL_Prototype
   CONFIG = Debug
-  DEFINES = -DGLM_ENABLE_EXPERIMENTAL -DUNICODE -D_CRT_SECURE_NO_WARNINGS -D_DEBUG -D_UNICODE
+  DEFINES = -DGLM_ENABLE_EXPERIMENTAL -DNPC_SCENE_ROOT=\"D:/dev/Gameplay/NPC_RL_Prototype\" -DUNICODE -D_CRT_SECURE_NO_WARNINGS -D_DEBUG -D_UNICODE
   FLAGS = /DWIN32 /D_WINDOWS /EHsc /Zi /Ob0 /Od /RTC1 -std:c++20 -MDd /W3 /MP /permissive- /Zi /sdl
   INCLUDES = -ID:\dev\Gameplay\NPC_RL_Prototype -ID:\dev\Gameplay\NPC_RL_Prototype\src -ID:\dev\Gameplay\NPC_RL_Prototype\include -ID:\dev\Gameplay\NPC_RL_Prototype\include\imgui -ID:\dev\Gameplay\NPC_RL_Prototype\src\tinygltf -ID:\dev\Gameplay\NPC_RL_Prototype\src\OpenGL -ID:\dev\Gameplay\NPC_RL_Prototype\src\Tools -ID:\dev\Gameplay\NPC_RL_Prototype\src\NavMesh -ID:\dev\Gameplay\NPC_RL_Prototype\include\Recast\Include -ID:\dev\Gameplay\NPC_RL_Prototype\include\Detour\Include -ID:\dev\Gameplay\NPC_RL_Prototype\include\DetourCrowd\Include -I"C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\studio\inc" -I"C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\lowlevel\inc" -I"C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\core\inc"
   OBJECT_DIR = CMakeFiles\NPC_RL_Prototype.dir
@@ -271,7 +271,7 @@ build CMakeFiles\NPC_RL_Prototype.dir\src\Model\GltfModel.cpp.obj: CXX_COMPILER_
 
 build CMakeFiles\NPC_RL_Prototype.dir\src\Model\GltfNode.cpp.obj: CXX_COMPILER__NPC_RL_Prototype_unscanned_Debug D$:\dev\Gameplay\NPC_RL_Prototype\src\Model\GltfNode.cpp || cmake_object_order_depends_target_NPC_RL_Prototype
   CONFIG = Debug
-  DEFINES = -DGLM_ENABLE_EXPERIMENTAL -DUNICODE -D_CRT_SECURE_NO_WARNINGS -D_DEBUG -D_UNICODE
+  DEFINES = -DGLM_ENABLE_EXPERIMENTAL -DNPC_SCENE_ROOT=\"D:/dev/Gameplay/NPC_RL_Prototype\" -DUNICODE -D_CRT_SECURE_NO_WARNINGS -D_DEBUG -D_UNICODE
   FLAGS = /DWIN32 /D_WINDOWS /EHsc /Zi /Ob0 /Od /RTC1 -std:c++20 -MDd /W3 /MP /permissive- /Zi /sdl
   INCLUDES = -ID:\dev\Gameplay\NPC_RL_Prototype -ID:\dev\Gameplay\NPC_RL_Prototype\src -ID:\dev\Gameplay\NPC_RL_Prototype\include -ID:\dev\Gameplay\NPC_RL_Prototype\include\imgui -ID:\dev\Gameplay\NPC_RL_Prototype\src\tinygltf -ID:\dev\Gameplay\NPC_RL_Prototype\src\OpenGL -ID:\dev\Gameplay\NPC_RL_Prototype\src\Tools -ID:\dev\Gameplay\NPC_RL_Prototype\src\NavMesh -ID:\dev\Gameplay\NPC_RL_Prototype\include\Recast\Include -ID:\dev\Gameplay\NPC_RL_Prototype\include\Detour\Include -ID:\dev\Gameplay\NPC_RL_Prototype\include\DetourCrowd\Include -I"C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\studio\inc" -I"C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\lowlevel\inc" -I"C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\core\inc"
   OBJECT_DIR = CMakeFiles\NPC_RL_Prototype.dir
@@ -282,7 +282,7 @@ build CMakeFiles\NPC_RL_Prototype.dir\src\Model\GltfNode.cpp.obj: CXX_COMPILER__
 
 build CMakeFiles\NPC_RL_Prototype.dir\src\Model\GltfAnimationClip.cpp.obj: CXX_COMPILER__NPC_RL_Prototype_unscanned_Debug D$:\dev\Gameplay\NPC_RL_Prototype\src\Model\GltfAnimationClip.cpp || cmake_object_order_depends_target_NPC_RL_Prototype
   CONFIG = Debug
-  DEFINES = -DGLM_ENABLE_EXPERIMENTAL -DUNICODE -D_CRT_SECURE_NO_WARNINGS -D_DEBUG -D_UNICODE
+  DEFINES = -DGLM_ENABLE_EXPERIMENTAL -DNPC_SCENE_ROOT=\"D:/dev/Gameplay/NPC_RL_Prototype\" -DUNICODE -D_CRT_SECURE_NO_WARNINGS -D_DEBUG -D_UNICODE
   FLAGS = /DWIN32 /D_WINDOWS /EHsc /Zi /Ob0 /Od /RTC1 -std:c++20 -MDd /W3 /MP /permissive- /Zi /sdl
   INCLUDES = -ID:\dev\Gameplay\NPC_RL_Prototype -ID:\dev\Gameplay\NPC_RL_Prototype\src -ID:\dev\Gameplay\NPC_RL_Prototype\include -ID:\dev\Gameplay\NPC_RL_Prototype\include\imgui -ID:\dev\Gameplay\NPC_RL_Prototype\src\tinygltf -ID:\dev\Gameplay\NPC_RL_Prototype\src\OpenGL -ID:\dev\Gameplay\NPC_RL_Prototype\src\Tools -ID:\dev\Gameplay\NPC_RL_Prototype\src\NavMesh -ID:\dev\Gameplay\NPC_RL_Prototype\include\Recast\Include -ID:\dev\Gameplay\NPC_RL_Prototype\include\Detour\Include -ID:\dev\Gameplay\NPC_RL_Prototype\include\DetourCrowd\Include -I"C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\studio\inc" -I"C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\lowlevel\inc" -I"C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\core\inc"
   OBJECT_DIR = CMakeFiles\NPC_RL_Prototype.dir
@@ -293,7 +293,7 @@ build CMakeFiles\NPC_RL_Prototype.dir\src\Model\GltfAnimationClip.cpp.obj: CXX_C
 
 build CMakeFiles\NPC_RL_Prototype.dir\src\Model\GltfAnimationChannel.cpp.obj: CXX_COMPILER__NPC_RL_Prototype_unscanned_Debug D$:\dev\Gameplay\NPC_RL_Prototype\src\Model\GltfAnimationChannel.cpp || cmake_object_order_depends_target_NPC_RL_Prototype
   CONFIG = Debug
-  DEFINES = -DGLM_ENABLE_EXPERIMENTAL -DUNICODE -D_CRT_SECURE_NO_WARNINGS -D_DEBUG -D_UNICODE
+  DEFINES = -DGLM_ENABLE_EXPERIMENTAL -DNPC_SCENE_ROOT=\"D:/dev/Gameplay/NPC_RL_Prototype\" -DUNICODE -D_CRT_SECURE_NO_WARNINGS -D_DEBUG -D_UNICODE
   FLAGS = /DWIN32 /D_WINDOWS /EHsc /Zi /Ob0 /Od /RTC1 -std:c++20 -MDd /W3 /MP /permissive- /Zi /sdl
   INCLUDES = -ID:\dev\Gameplay\NPC_RL_Prototype -ID:\dev\Gameplay\NPC_RL_Prototype\src -ID:\dev\Gameplay\NPC_RL_Prototype\include -ID:\dev\Gameplay\NPC_RL_Prototype\include\imgui -ID:\dev\Gameplay\NPC_RL_Prototype\src\tinygltf -ID:\dev\Gameplay\NPC_RL_Prototype\src\OpenGL -ID:\dev\Gameplay\NPC_RL_Prototype\src\Tools -ID:\dev\Gameplay\NPC_RL_Prototype\src\NavMesh -ID:\dev\Gameplay\NPC_RL_Prototype\include\Recast\Include -ID:\dev\Gameplay\NPC_RL_Prototype\include\Detour\Include -ID:\dev\Gameplay\NPC_RL_Prototype\include\DetourCrowd\Include -I"C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\studio\inc" -I"C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\lowlevel\inc" -I"C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\core\inc"
   OBJECT_DIR = CMakeFiles\NPC_RL_Prototype.dir
@@ -304,7 +304,7 @@ build CMakeFiles\NPC_RL_Prototype.dir\src\Model\GltfAnimationChannel.cpp.obj: CX
 
 build CMakeFiles\NPC_RL_Prototype.dir\src\Components\Component.cpp.obj: CXX_COMPILER__NPC_RL_Prototype_unscanned_Debug D$:\dev\Gameplay\NPC_RL_Prototype\src\Components\Component.cpp || cmake_object_order_depends_target_NPC_RL_Prototype
   CONFIG = Debug
-  DEFINES = -DGLM_ENABLE_EXPERIMENTAL -DUNICODE -D_CRT_SECURE_NO_WARNINGS -D_DEBUG -D_UNICODE
+  DEFINES = -DGLM_ENABLE_EXPERIMENTAL -DNPC_SCENE_ROOT=\"D:/dev/Gameplay/NPC_RL_Prototype\" -DUNICODE -D_CRT_SECURE_NO_WARNINGS -D_DEBUG -D_UNICODE
   FLAGS = /DWIN32 /D_WINDOWS /EHsc /Zi /Ob0 /Od /RTC1 -std:c++20 -MDd /W3 /MP /permissive- /Zi /sdl
   INCLUDES = -ID:\dev\Gameplay\NPC_RL_Prototype -ID:\dev\Gameplay\NPC_RL_Prototype\src -ID:\dev\Gameplay\NPC_RL_Prototype\include -ID:\dev\Gameplay\NPC_RL_Prototype\include\imgui -ID:\dev\Gameplay\NPC_RL_Prototype\src\tinygltf -ID:\dev\Gameplay\NPC_RL_Prototype\src\OpenGL -ID:\dev\Gameplay\NPC_RL_Prototype\src\Tools -ID:\dev\Gameplay\NPC_RL_Prototype\src\NavMesh -ID:\dev\Gameplay\NPC_RL_Prototype\include\Recast\Include -ID:\dev\Gameplay\NPC_RL_Prototype\include\Detour\Include -ID:\dev\Gameplay\NPC_RL_Prototype\include\DetourCrowd\Include -I"C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\studio\inc" -I"C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\lowlevel\inc" -I"C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\core\inc"
   OBJECT_DIR = CMakeFiles\NPC_RL_Prototype.dir
@@ -315,7 +315,7 @@ build CMakeFiles\NPC_RL_Prototype.dir\src\Components\Component.cpp.obj: CXX_COMP
 
 build CMakeFiles\NPC_RL_Prototype.dir\src\Components\AudioComponent.cpp.obj: CXX_COMPILER__NPC_RL_Prototype_unscanned_Debug D$:\dev\Gameplay\NPC_RL_Prototype\src\Components\AudioComponent.cpp || cmake_object_order_depends_target_NPC_RL_Prototype
   CONFIG = Debug
-  DEFINES = -DGLM_ENABLE_EXPERIMENTAL -DUNICODE -D_CRT_SECURE_NO_WARNINGS -D_DEBUG -D_UNICODE
+  DEFINES = -DGLM_ENABLE_EXPERIMENTAL -DNPC_SCENE_ROOT=\"D:/dev/Gameplay/NPC_RL_Prototype\" -DUNICODE -D_CRT_SECURE_NO_WARNINGS -D_DEBUG -D_UNICODE
   FLAGS = /DWIN32 /D_WINDOWS /EHsc /Zi /Ob0 /Od /RTC1 -std:c++20 -MDd /W3 /MP /permissive- /Zi /sdl
   INCLUDES = -ID:\dev\Gameplay\NPC_RL_Prototype -ID:\dev\Gameplay\NPC_RL_Prototype\src -ID:\dev\Gameplay\NPC_RL_Prototype\include -ID:\dev\Gameplay\NPC_RL_Prototype\include\imgui -ID:\dev\Gameplay\NPC_RL_Prototype\src\tinygltf -ID:\dev\Gameplay\NPC_RL_Prototype\src\OpenGL -ID:\dev\Gameplay\NPC_RL_Prototype\src\Tools -ID:\dev\Gameplay\NPC_RL_Prototype\src\NavMesh -ID:\dev\Gameplay\NPC_RL_Prototype\include\Recast\Include -ID:\dev\Gameplay\NPC_RL_Prototype\include\Detour\Include -ID:\dev\Gameplay\NPC_RL_Prototype\include\DetourCrowd\Include -I"C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\studio\inc" -I"C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\lowlevel\inc" -I"C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\core\inc"
   OBJECT_DIR = CMakeFiles\NPC_RL_Prototype.dir
@@ -326,7 +326,7 @@ build CMakeFiles\NPC_RL_Prototype.dir\src\Components\AudioComponent.cpp.obj: CXX
 
 build CMakeFiles\NPC_RL_Prototype.dir\src\Components\SkinnedMeshComponent.cpp.obj: CXX_COMPILER__NPC_RL_Prototype_unscanned_Debug D$:\dev\Gameplay\NPC_RL_Prototype\src\Components\SkinnedMeshComponent.cpp || cmake_object_order_depends_target_NPC_RL_Prototype
   CONFIG = Debug
-  DEFINES = -DGLM_ENABLE_EXPERIMENTAL -DUNICODE -D_CRT_SECURE_NO_WARNINGS -D_DEBUG -D_UNICODE
+  DEFINES = -DGLM_ENABLE_EXPERIMENTAL -DNPC_SCENE_ROOT=\"D:/dev/Gameplay/NPC_RL_Prototype\" -DUNICODE -D_CRT_SECURE_NO_WARNINGS -D_DEBUG -D_UNICODE
   FLAGS = /DWIN32 /D_WINDOWS /EHsc /Zi /Ob0 /Od /RTC1 -std:c++20 -MDd /W3 /MP /permissive- /Zi /sdl
   INCLUDES = -ID:\dev\Gameplay\NPC_RL_Prototype -ID:\dev\Gameplay\NPC_RL_Prototype\src -ID:\dev\Gameplay\NPC_RL_Prototype\include -ID:\dev\Gameplay\NPC_RL_Prototype\include\imgui -ID:\dev\Gameplay\NPC_RL_Prototype\src\tinygltf -ID:\dev\Gameplay\NPC_RL_Prototype\src\OpenGL -ID:\dev\Gameplay\NPC_RL_Prototype\src\Tools -ID:\dev\Gameplay\NPC_RL_Prototype\src\NavMesh -ID:\dev\Gameplay\NPC_RL_Prototype\include\Recast\Include -ID:\dev\Gameplay\NPC_RL_Prototype\include\Detour\Include -ID:\dev\Gameplay\NPC_RL_Prototype\include\DetourCrowd\Include -I"C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\studio\inc" -I"C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\lowlevel\inc" -I"C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\core\inc"
   OBJECT_DIR = CMakeFiles\NPC_RL_Prototype.dir
@@ -337,7 +337,7 @@ build CMakeFiles\NPC_RL_Prototype.dir\src\Components\SkinnedMeshComponent.cpp.ob
 
 build CMakeFiles\NPC_RL_Prototype.dir\src\NavMesh\NavMeshManager.cpp.obj: CXX_COMPILER__NPC_RL_Prototype_unscanned_Debug D$:\dev\Gameplay\NPC_RL_Prototype\src\NavMesh\NavMeshManager.cpp || cmake_object_order_depends_target_NPC_RL_Prototype
   CONFIG = Debug
-  DEFINES = -DGLM_ENABLE_EXPERIMENTAL -DUNICODE -D_CRT_SECURE_NO_WARNINGS -D_DEBUG -D_UNICODE
+  DEFINES = -DGLM_ENABLE_EXPERIMENTAL -DNPC_SCENE_ROOT=\"D:/dev/Gameplay/NPC_RL_Prototype\" -DUNICODE -D_CRT_SECURE_NO_WARNINGS -D_DEBUG -D_UNICODE
   FLAGS = /DWIN32 /D_WINDOWS /EHsc /Zi /Ob0 /Od /RTC1 -std:c++20 -MDd /W3 /MP /permissive- /Zi /sdl
   INCLUDES = -ID:\dev\Gameplay\NPC_RL_Prototype -ID:\dev\Gameplay\NPC_RL_Prototype\src -ID:\dev\Gameplay\NPC_RL_Prototype\include -ID:\dev\Gameplay\NPC_RL_Prototype\include\imgui -ID:\dev\Gameplay\NPC_RL_Prototype\src\tinygltf -ID:\dev\Gameplay\NPC_RL_Prototype\src\OpenGL -ID:\dev\Gameplay\NPC_RL_Prototype\src\Tools -ID:\dev\Gameplay\NPC_RL_Prototype\src\NavMesh -ID:\dev\Gameplay\NPC_RL_Prototype\include\Recast\Include -ID:\dev\Gameplay\NPC_RL_Prototype\include\Detour\Include -ID:\dev\Gameplay\NPC_RL_Prototype\include\DetourCrowd\Include -I"C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\studio\inc" -I"C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\lowlevel\inc" -I"C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\core\inc"
   OBJECT_DIR = CMakeFiles\NPC_RL_Prototype.dir
@@ -348,7 +348,7 @@ build CMakeFiles\NPC_RL_Prototype.dir\src\NavMesh\NavMeshManager.cpp.obj: CXX_CO
 
 build CMakeFiles\NPC_RL_Prototype.dir\src\Physics\AABB.cpp.obj: CXX_COMPILER__NPC_RL_Prototype_unscanned_Debug D$:\dev\Gameplay\NPC_RL_Prototype\src\Physics\AABB.cpp || cmake_object_order_depends_target_NPC_RL_Prototype
   CONFIG = Debug
-  DEFINES = -DGLM_ENABLE_EXPERIMENTAL -DUNICODE -D_CRT_SECURE_NO_WARNINGS -D_DEBUG -D_UNICODE
+  DEFINES = -DGLM_ENABLE_EXPERIMENTAL -DNPC_SCENE_ROOT=\"D:/dev/Gameplay/NPC_RL_Prototype\" -DUNICODE -D_CRT_SECURE_NO_WARNINGS -D_DEBUG -D_UNICODE
   FLAGS = /DWIN32 /D_WINDOWS /EHsc /Zi /Ob0 /Od /RTC1 -std:c++20 -MDd /W3 /MP /permissive- /Zi /sdl
   INCLUDES = -ID:\dev\Gameplay\NPC_RL_Prototype -ID:\dev\Gameplay\NPC_RL_Prototype\src -ID:\dev\Gameplay\NPC_RL_Prototype\include -ID:\dev\Gameplay\NPC_RL_Prototype\include\imgui -ID:\dev\Gameplay\NPC_RL_Prototype\src\tinygltf -ID:\dev\Gameplay\NPC_RL_Prototype\src\OpenGL -ID:\dev\Gameplay\NPC_RL_Prototype\src\Tools -ID:\dev\Gameplay\NPC_RL_Prototype\src\NavMesh -ID:\dev\Gameplay\NPC_RL_Prototype\include\Recast\Include -ID:\dev\Gameplay\NPC_RL_Prototype\include\Detour\Include -ID:\dev\Gameplay\NPC_RL_Prototype\include\DetourCrowd\Include -I"C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\studio\inc" -I"C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\lowlevel\inc" -I"C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\core\inc"
   OBJECT_DIR = CMakeFiles\NPC_RL_Prototype.dir
@@ -359,7 +359,7 @@ build CMakeFiles\NPC_RL_Prototype.dir\src\Physics\AABB.cpp.obj: CXX_COMPILER__NP
 
 build CMakeFiles\NPC_RL_Prototype.dir\src\Physics\PhysicsWorld.cpp.obj: CXX_COMPILER__NPC_RL_Prototype_unscanned_Debug D$:\dev\Gameplay\NPC_RL_Prototype\src\Physics\PhysicsWorld.cpp || cmake_object_order_depends_target_NPC_RL_Prototype
   CONFIG = Debug
-  DEFINES = -DGLM_ENABLE_EXPERIMENTAL -DUNICODE -D_CRT_SECURE_NO_WARNINGS -D_DEBUG -D_UNICODE
+  DEFINES = -DGLM_ENABLE_EXPERIMENTAL -DNPC_SCENE_ROOT=\"D:/dev/Gameplay/NPC_RL_Prototype\" -DUNICODE -D_CRT_SECURE_NO_WARNINGS -D_DEBUG -D_UNICODE
   FLAGS = /DWIN32 /D_WINDOWS /EHsc /Zi /Ob0 /Od /RTC1 -std:c++20 -MDd /W3 /MP /permissive- /Zi /sdl
   INCLUDES = -ID:\dev\Gameplay\NPC_RL_Prototype -ID:\dev\Gameplay\NPC_RL_Prototype\src -ID:\dev\Gameplay\NPC_RL_Prototype\include -ID:\dev\Gameplay\NPC_RL_Prototype\include\imgui -ID:\dev\Gameplay\NPC_RL_Prototype\src\tinygltf -ID:\dev\Gameplay\NPC_RL_Prototype\src\OpenGL -ID:\dev\Gameplay\NPC_RL_Prototype\src\Tools -ID:\dev\Gameplay\NPC_RL_Prototype\src\NavMesh -ID:\dev\Gameplay\NPC_RL_Prototype\include\Recast\Include -ID:\dev\Gameplay\NPC_RL_Prototype\include\Detour\Include -ID:\dev\Gameplay\NPC_RL_Prototype\include\DetourCrowd\Include -I"C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\studio\inc" -I"C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\lowlevel\inc" -I"C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\core\inc"
   OBJECT_DIR = CMakeFiles\NPC_RL_Prototype.dir
@@ -370,7 +370,7 @@ build CMakeFiles\NPC_RL_Prototype.dir\src\Physics\PhysicsWorld.cpp.obj: CXX_COMP
 
 build CMakeFiles\NPC_RL_Prototype.dir\src\Audio\AudioSystem.cpp.obj: CXX_COMPILER__NPC_RL_Prototype_unscanned_Debug D$:\dev\Gameplay\NPC_RL_Prototype\src\Audio\AudioSystem.cpp || cmake_object_order_depends_target_NPC_RL_Prototype
   CONFIG = Debug
-  DEFINES = -DGLM_ENABLE_EXPERIMENTAL -DUNICODE -D_CRT_SECURE_NO_WARNINGS -D_DEBUG -D_UNICODE
+  DEFINES = -DGLM_ENABLE_EXPERIMENTAL -DNPC_SCENE_ROOT=\"D:/dev/Gameplay/NPC_RL_Prototype\" -DUNICODE -D_CRT_SECURE_NO_WARNINGS -D_DEBUG -D_UNICODE
   FLAGS = /DWIN32 /D_WINDOWS /EHsc /Zi /Ob0 /Od /RTC1 -std:c++20 -MDd /W3 /MP /permissive- /Zi /sdl
   INCLUDES = -ID:\dev\Gameplay\NPC_RL_Prototype -ID:\dev\Gameplay\NPC_RL_Prototype\src -ID:\dev\Gameplay\NPC_RL_Prototype\include -ID:\dev\Gameplay\NPC_RL_Prototype\include\imgui -ID:\dev\Gameplay\NPC_RL_Prototype\src\tinygltf -ID:\dev\Gameplay\NPC_RL_Prototype\src\OpenGL -ID:\dev\Gameplay\NPC_RL_Prototype\src\Tools -ID:\dev\Gameplay\NPC_RL_Prototype\src\NavMesh -ID:\dev\Gameplay\NPC_RL_Prototype\include\Recast\Include -ID:\dev\Gameplay\NPC_RL_Prototype\include\Detour\Include -ID:\dev\Gameplay\NPC_RL_Prototype\include\DetourCrowd\Include -I"C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\studio\inc" -I"C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\lowlevel\inc" -I"C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\core\inc"
   OBJECT_DIR = CMakeFiles\NPC_RL_Prototype.dir
@@ -381,7 +381,7 @@ build CMakeFiles\NPC_RL_Prototype.dir\src\Audio\AudioSystem.cpp.obj: CXX_COMPILE
 
 build CMakeFiles\NPC_RL_Prototype.dir\src\Audio\AudioManager.cpp.obj: CXX_COMPILER__NPC_RL_Prototype_unscanned_Debug D$:\dev\Gameplay\NPC_RL_Prototype\src\Audio\AudioManager.cpp || cmake_object_order_depends_target_NPC_RL_Prototype
   CONFIG = Debug
-  DEFINES = -DGLM_ENABLE_EXPERIMENTAL -DUNICODE -D_CRT_SECURE_NO_WARNINGS -D_DEBUG -D_UNICODE
+  DEFINES = -DGLM_ENABLE_EXPERIMENTAL -DNPC_SCENE_ROOT=\"D:/dev/Gameplay/NPC_RL_Prototype\" -DUNICODE -D_CRT_SECURE_NO_WARNINGS -D_DEBUG -D_UNICODE
   FLAGS = /DWIN32 /D_WINDOWS /EHsc /Zi /Ob0 /Od /RTC1 -std:c++20 -MDd /W3 /MP /permissive- /Zi /sdl
   INCLUDES = -ID:\dev\Gameplay\NPC_RL_Prototype -ID:\dev\Gameplay\NPC_RL_Prototype\src -ID:\dev\Gameplay\NPC_RL_Prototype\include -ID:\dev\Gameplay\NPC_RL_Prototype\include\imgui -ID:\dev\Gameplay\NPC_RL_Prototype\src\tinygltf -ID:\dev\Gameplay\NPC_RL_Prototype\src\OpenGL -ID:\dev\Gameplay\NPC_RL_Prototype\src\Tools -ID:\dev\Gameplay\NPC_RL_Prototype\src\NavMesh -ID:\dev\Gameplay\NPC_RL_Prototype\include\Recast\Include -ID:\dev\Gameplay\NPC_RL_Prototype\include\Detour\Include -ID:\dev\Gameplay\NPC_RL_Prototype\include\DetourCrowd\Include -I"C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\studio\inc" -I"C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\lowlevel\inc" -I"C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\core\inc"
   OBJECT_DIR = CMakeFiles\NPC_RL_Prototype.dir
@@ -392,7 +392,7 @@ build CMakeFiles\NPC_RL_Prototype.dir\src\Audio\AudioManager.cpp.obj: CXX_COMPIL
 
 build CMakeFiles\NPC_RL_Prototype.dir\src\Audio\SoundEvent.cpp.obj: CXX_COMPILER__NPC_RL_Prototype_unscanned_Debug D$:\dev\Gameplay\NPC_RL_Prototype\src\Audio\SoundEvent.cpp || cmake_object_order_depends_target_NPC_RL_Prototype
   CONFIG = Debug
-  DEFINES = -DGLM_ENABLE_EXPERIMENTAL -DUNICODE -D_CRT_SECURE_NO_WARNINGS -D_DEBUG -D_UNICODE
+  DEFINES = -DGLM_ENABLE_EXPERIMENTAL -DNPC_SCENE_ROOT=\"D:/dev/Gameplay/NPC_RL_Prototype\" -DUNICODE -D_CRT_SECURE_NO_WARNINGS -D_DEBUG -D_UNICODE
   FLAGS = /DWIN32 /D_WINDOWS /EHsc /Zi /Ob0 /Od /RTC1 -std:c++20 -MDd /W3 /MP /permissive- /Zi /sdl
   INCLUDES = -ID:\dev\Gameplay\NPC_RL_Prototype -ID:\dev\Gameplay\NPC_RL_Prototype\src -ID:\dev\Gameplay\NPC_RL_Prototype\include -ID:\dev\Gameplay\NPC_RL_Prototype\include\imgui -ID:\dev\Gameplay\NPC_RL_Prototype\src\tinygltf -ID:\dev\Gameplay\NPC_RL_Prototype\src\OpenGL -ID:\dev\Gameplay\NPC_RL_Prototype\src\Tools -ID:\dev\Gameplay\NPC_RL_Prototype\src\NavMesh -ID:\dev\Gameplay\NPC_RL_Prototype\include\Recast\Include -ID:\dev\Gameplay\NPC_RL_Prototype\include\Detour\Include -ID:\dev\Gameplay\NPC_RL_Prototype\include\DetourCrowd\Include -I"C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\studio\inc" -I"C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\lowlevel\inc" -I"C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\core\inc"
   OBJECT_DIR = CMakeFiles\NPC_RL_Prototype.dir
@@ -403,7 +403,7 @@ build CMakeFiles\NPC_RL_Prototype.dir\src\Audio\SoundEvent.cpp.obj: CXX_COMPILER
 
 build CMakeFiles\NPC_RL_Prototype.dir\src\Tools\Logger.cpp.obj: CXX_COMPILER__NPC_RL_Prototype_unscanned_Debug D$:\dev\Gameplay\NPC_RL_Prototype\src\Tools\Logger.cpp || cmake_object_order_depends_target_NPC_RL_Prototype
   CONFIG = Debug
-  DEFINES = -DGLM_ENABLE_EXPERIMENTAL -DUNICODE -D_CRT_SECURE_NO_WARNINGS -D_DEBUG -D_UNICODE
+  DEFINES = -DGLM_ENABLE_EXPERIMENTAL -DNPC_SCENE_ROOT=\"D:/dev/Gameplay/NPC_RL_Prototype\" -DUNICODE -D_CRT_SECURE_NO_WARNINGS -D_DEBUG -D_UNICODE
   FLAGS = /DWIN32 /D_WINDOWS /EHsc /Zi /Ob0 /Od /RTC1 -std:c++20 -MDd /W3 /MP /permissive- /Zi /sdl
   INCLUDES = -ID:\dev\Gameplay\NPC_RL_Prototype -ID:\dev\Gameplay\NPC_RL_Prototype\src -ID:\dev\Gameplay\NPC_RL_Prototype\include -ID:\dev\Gameplay\NPC_RL_Prototype\include\imgui -ID:\dev\Gameplay\NPC_RL_Prototype\src\tinygltf -ID:\dev\Gameplay\NPC_RL_Prototype\src\OpenGL -ID:\dev\Gameplay\NPC_RL_Prototype\src\Tools -ID:\dev\Gameplay\NPC_RL_Prototype\src\NavMesh -ID:\dev\Gameplay\NPC_RL_Prototype\include\Recast\Include -ID:\dev\Gameplay\NPC_RL_Prototype\include\Detour\Include -ID:\dev\Gameplay\NPC_RL_Prototype\include\DetourCrowd\Include -I"C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\studio\inc" -I"C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\lowlevel\inc" -I"C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\core\inc"
   OBJECT_DIR = CMakeFiles\NPC_RL_Prototype.dir
@@ -414,7 +414,7 @@ build CMakeFiles\NPC_RL_Prototype.dir\src\Tools\Logger.cpp.obj: CXX_COMPILER__NP
 
 build CMakeFiles\NPC_RL_Prototype.dir\src\glad.c.obj: C_COMPILER__NPC_RL_Prototype_unscanned_Debug D$:\dev\Gameplay\NPC_RL_Prototype\src\glad.c || cmake_object_order_depends_target_NPC_RL_Prototype
   CONFIG = Debug
-  DEFINES = -DGLM_ENABLE_EXPERIMENTAL -DUNICODE -D_CRT_SECURE_NO_WARNINGS -D_DEBUG -D_UNICODE
+  DEFINES = -DGLM_ENABLE_EXPERIMENTAL -DNPC_SCENE_ROOT=\"D:/dev/Gameplay/NPC_RL_Prototype\" -DUNICODE -D_CRT_SECURE_NO_WARNINGS -D_DEBUG -D_UNICODE
   FLAGS = /DWIN32 /D_WINDOWS /Zi /Ob0 /Od /RTC1 -MDd /W3 /MP /permissive- /Zi /sdl
   INCLUDES = -ID:\dev\Gameplay\NPC_RL_Prototype -ID:\dev\Gameplay\NPC_RL_Prototype\src -ID:\dev\Gameplay\NPC_RL_Prototype\include -ID:\dev\Gameplay\NPC_RL_Prototype\include\imgui -ID:\dev\Gameplay\NPC_RL_Prototype\src\tinygltf -ID:\dev\Gameplay\NPC_RL_Prototype\src\OpenGL -ID:\dev\Gameplay\NPC_RL_Prototype\src\Tools -ID:\dev\Gameplay\NPC_RL_Prototype\src\NavMesh -ID:\dev\Gameplay\NPC_RL_Prototype\include\Recast\Include -ID:\dev\Gameplay\NPC_RL_Prototype\include\Detour\Include -ID:\dev\Gameplay\NPC_RL_Prototype\include\DetourCrowd\Include -I"C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\studio\inc" -I"C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\lowlevel\inc" -I"C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\core\inc"
   OBJECT_DIR = CMakeFiles\NPC_RL_Prototype.dir
@@ -425,7 +425,7 @@ build CMakeFiles\NPC_RL_Prototype.dir\src\glad.c.obj: C_COMPILER__NPC_RL_Prototy
 
 build CMakeFiles\NPC_RL_Prototype.dir\src\tinygltf\tiny_gltf.cc.obj: CXX_COMPILER__NPC_RL_Prototype_unscanned_Debug D$:\dev\Gameplay\NPC_RL_Prototype\src\tinygltf\tiny_gltf.cc || cmake_object_order_depends_target_NPC_RL_Prototype
   CONFIG = Debug
-  DEFINES = -DGLM_ENABLE_EXPERIMENTAL -DUNICODE -D_CRT_SECURE_NO_WARNINGS -D_DEBUG -D_UNICODE
+  DEFINES = -DGLM_ENABLE_EXPERIMENTAL -DNPC_SCENE_ROOT=\"D:/dev/Gameplay/NPC_RL_Prototype\" -DUNICODE -D_CRT_SECURE_NO_WARNINGS -D_DEBUG -D_UNICODE
   FLAGS = /DWIN32 /D_WINDOWS /EHsc /Zi /Ob0 /Od /RTC1 -std:c++20 -MDd /W3 /MP /permissive- /Zi /sdl
   INCLUDES = -ID:\dev\Gameplay\NPC_RL_Prototype -ID:\dev\Gameplay\NPC_RL_Prototype\src -ID:\dev\Gameplay\NPC_RL_Prototype\include -ID:\dev\Gameplay\NPC_RL_Prototype\include\imgui -ID:\dev\Gameplay\NPC_RL_Prototype\src\tinygltf -ID:\dev\Gameplay\NPC_RL_Prototype\src\OpenGL -ID:\dev\Gameplay\NPC_RL_Prototype\src\Tools -ID:\dev\Gameplay\NPC_RL_Prototype\src\NavMesh -ID:\dev\Gameplay\NPC_RL_Prototype\include\Recast\Include -ID:\dev\Gameplay\NPC_RL_Prototype\include\Detour\Include -ID:\dev\Gameplay\NPC_RL_Prototype\include\DetourCrowd\Include -I"C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\studio\inc" -I"C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\lowlevel\inc" -I"C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\core\inc"
   OBJECT_DIR = CMakeFiles\NPC_RL_Prototype.dir
@@ -436,7 +436,7 @@ build CMakeFiles\NPC_RL_Prototype.dir\src\tinygltf\tiny_gltf.cc.obj: CXX_COMPILE
 
 build CMakeFiles\NPC_RL_Prototype.dir\include\imgui\imgui.cpp.obj: CXX_COMPILER__NPC_RL_Prototype_unscanned_Debug D$:\dev\Gameplay\NPC_RL_Prototype\include\imgui\imgui.cpp || cmake_object_order_depends_target_NPC_RL_Prototype
   CONFIG = Debug
-  DEFINES = -DGLM_ENABLE_EXPERIMENTAL -DUNICODE -D_CRT_SECURE_NO_WARNINGS -D_DEBUG -D_UNICODE
+  DEFINES = -DGLM_ENABLE_EXPERIMENTAL -DNPC_SCENE_ROOT=\"D:/dev/Gameplay/NPC_RL_Prototype\" -DUNICODE -D_CRT_SECURE_NO_WARNINGS -D_DEBUG -D_UNICODE
   FLAGS = /DWIN32 /D_WINDOWS /EHsc /Zi /Ob0 /Od /RTC1 -std:c++20 -MDd /W3 /MP /permissive- /Zi /sdl
   INCLUDES = -ID:\dev\Gameplay\NPC_RL_Prototype -ID:\dev\Gameplay\NPC_RL_Prototype\src -ID:\dev\Gameplay\NPC_RL_Prototype\include -ID:\dev\Gameplay\NPC_RL_Prototype\include\imgui -ID:\dev\Gameplay\NPC_RL_Prototype\src\tinygltf -ID:\dev\Gameplay\NPC_RL_Prototype\src\OpenGL -ID:\dev\Gameplay\NPC_RL_Prototype\src\Tools -ID:\dev\Gameplay\NPC_RL_Prototype\src\NavMesh -ID:\dev\Gameplay\NPC_RL_Prototype\include\Recast\Include -ID:\dev\Gameplay\NPC_RL_Prototype\include\Detour\Include -ID:\dev\Gameplay\NPC_RL_Prototype\include\DetourCrowd\Include -I"C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\studio\inc" -I"C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\lowlevel\inc" -I"C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\core\inc"
   OBJECT_DIR = CMakeFiles\NPC_RL_Prototype.dir
@@ -447,7 +447,7 @@ build CMakeFiles\NPC_RL_Prototype.dir\include\imgui\imgui.cpp.obj: CXX_COMPILER_
 
 build CMakeFiles\NPC_RL_Prototype.dir\include\imgui\imgui_demo.cpp.obj: CXX_COMPILER__NPC_RL_Prototype_unscanned_Debug D$:\dev\Gameplay\NPC_RL_Prototype\include\imgui\imgui_demo.cpp || cmake_object_order_depends_target_NPC_RL_Prototype
   CONFIG = Debug
-  DEFINES = -DGLM_ENABLE_EXPERIMENTAL -DUNICODE -D_CRT_SECURE_NO_WARNINGS -D_DEBUG -D_UNICODE
+  DEFINES = -DGLM_ENABLE_EXPERIMENTAL -DNPC_SCENE_ROOT=\"D:/dev/Gameplay/NPC_RL_Prototype\" -DUNICODE -D_CRT_SECURE_NO_WARNINGS -D_DEBUG -D_UNICODE
   FLAGS = /DWIN32 /D_WINDOWS /EHsc /Zi /Ob0 /Od /RTC1 -std:c++20 -MDd /W3 /MP /permissive- /Zi /sdl
   INCLUDES = -ID:\dev\Gameplay\NPC_RL_Prototype -ID:\dev\Gameplay\NPC_RL_Prototype\src -ID:\dev\Gameplay\NPC_RL_Prototype\include -ID:\dev\Gameplay\NPC_RL_Prototype\include\imgui -ID:\dev\Gameplay\NPC_RL_Prototype\src\tinygltf -ID:\dev\Gameplay\NPC_RL_Prototype\src\OpenGL -ID:\dev\Gameplay\NPC_RL_Prototype\src\Tools -ID:\dev\Gameplay\NPC_RL_Prototype\src\NavMesh -ID:\dev\Gameplay\NPC_RL_Prototype\include\Recast\Include -ID:\dev\Gameplay\NPC_RL_Prototype\include\Detour\Include -ID:\dev\Gameplay\NPC_RL_Prototype\include\DetourCrowd\Include -I"C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\studio\inc" -I"C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\lowlevel\inc" -I"C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\core\inc"
   OBJECT_DIR = CMakeFiles\NPC_RL_Prototype.dir
@@ -458,7 +458,7 @@ build CMakeFiles\NPC_RL_Prototype.dir\include\imgui\imgui_demo.cpp.obj: CXX_COMP
 
 build CMakeFiles\NPC_RL_Prototype.dir\include\imgui\imgui_draw.cpp.obj: CXX_COMPILER__NPC_RL_Prototype_unscanned_Debug D$:\dev\Gameplay\NPC_RL_Prototype\include\imgui\imgui_draw.cpp || cmake_object_order_depends_target_NPC_RL_Prototype
   CONFIG = Debug
-  DEFINES = -DGLM_ENABLE_EXPERIMENTAL -DUNICODE -D_CRT_SECURE_NO_WARNINGS -D_DEBUG -D_UNICODE
+  DEFINES = -DGLM_ENABLE_EXPERIMENTAL -DNPC_SCENE_ROOT=\"D:/dev/Gameplay/NPC_RL_Prototype\" -DUNICODE -D_CRT_SECURE_NO_WARNINGS -D_DEBUG -D_UNICODE
   FLAGS = /DWIN32 /D_WINDOWS /EHsc /Zi /Ob0 /Od /RTC1 -std:c++20 -MDd /W3 /MP /permissive- /Zi /sdl
   INCLUDES = -ID:\dev\Gameplay\NPC_RL_Prototype -ID:\dev\Gameplay\NPC_RL_Prototype\src -ID:\dev\Gameplay\NPC_RL_Prototype\include -ID:\dev\Gameplay\NPC_RL_Prototype\include\imgui -ID:\dev\Gameplay\NPC_RL_Prototype\src\tinygltf -ID:\dev\Gameplay\NPC_RL_Prototype\src\OpenGL -ID:\dev\Gameplay\NPC_RL_Prototype\src\Tools -ID:\dev\Gameplay\NPC_RL_Prototype\src\NavMesh -ID:\dev\Gameplay\NPC_RL_Prototype\include\Recast\Include -ID:\dev\Gameplay\NPC_RL_Prototype\include\Detour\Include -ID:\dev\Gameplay\NPC_RL_Prototype\include\DetourCrowd\Include -I"C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\studio\inc" -I"C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\lowlevel\inc" -I"C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\core\inc"
   OBJECT_DIR = CMakeFiles\NPC_RL_Prototype.dir
@@ -469,7 +469,7 @@ build CMakeFiles\NPC_RL_Prototype.dir\include\imgui\imgui_draw.cpp.obj: CXX_COMP
 
 build CMakeFiles\NPC_RL_Prototype.dir\include\imgui\imgui_tables.cpp.obj: CXX_COMPILER__NPC_RL_Prototype_unscanned_Debug D$:\dev\Gameplay\NPC_RL_Prototype\include\imgui\imgui_tables.cpp || cmake_object_order_depends_target_NPC_RL_Prototype
   CONFIG = Debug
-  DEFINES = -DGLM_ENABLE_EXPERIMENTAL -DUNICODE -D_CRT_SECURE_NO_WARNINGS -D_DEBUG -D_UNICODE
+  DEFINES = -DGLM_ENABLE_EXPERIMENTAL -DNPC_SCENE_ROOT=\"D:/dev/Gameplay/NPC_RL_Prototype\" -DUNICODE -D_CRT_SECURE_NO_WARNINGS -D_DEBUG -D_UNICODE
   FLAGS = /DWIN32 /D_WINDOWS /EHsc /Zi /Ob0 /Od /RTC1 -std:c++20 -MDd /W3 /MP /permissive- /Zi /sdl
   INCLUDES = -ID:\dev\Gameplay\NPC_RL_Prototype -ID:\dev\Gameplay\NPC_RL_Prototype\src -ID:\dev\Gameplay\NPC_RL_Prototype\include -ID:\dev\Gameplay\NPC_RL_Prototype\include\imgui -ID:\dev\Gameplay\NPC_RL_Prototype\src\tinygltf -ID:\dev\Gameplay\NPC_RL_Prototype\src\OpenGL -ID:\dev\Gameplay\NPC_RL_Prototype\src\Tools -ID:\dev\Gameplay\NPC_RL_Prototype\src\NavMesh -ID:\dev\Gameplay\NPC_RL_Prototype\include\Recast\Include -ID:\dev\Gameplay\NPC_RL_Prototype\include\Detour\Include -ID:\dev\Gameplay\NPC_RL_Prototype\include\DetourCrowd\Include -I"C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\studio\inc" -I"C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\lowlevel\inc" -I"C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\core\inc"
   OBJECT_DIR = CMakeFiles\NPC_RL_Prototype.dir
@@ -480,7 +480,7 @@ build CMakeFiles\NPC_RL_Prototype.dir\include\imgui\imgui_tables.cpp.obj: CXX_CO
 
 build CMakeFiles\NPC_RL_Prototype.dir\include\imgui\imgui_widgets.cpp.obj: CXX_COMPILER__NPC_RL_Prototype_unscanned_Debug D$:\dev\Gameplay\NPC_RL_Prototype\include\imgui\imgui_widgets.cpp || cmake_object_order_depends_target_NPC_RL_Prototype
   CONFIG = Debug
-  DEFINES = -DGLM_ENABLE_EXPERIMENTAL -DUNICODE -D_CRT_SECURE_NO_WARNINGS -D_DEBUG -D_UNICODE
+  DEFINES = -DGLM_ENABLE_EXPERIMENTAL -DNPC_SCENE_ROOT=\"D:/dev/Gameplay/NPC_RL_Prototype\" -DUNICODE -D_CRT_SECURE_NO_WARNINGS -D_DEBUG -D_UNICODE
   FLAGS = /DWIN32 /D_WINDOWS /EHsc /Zi /Ob0 /Od /RTC1 -std:c++20 -MDd /W3 /MP /permissive- /Zi /sdl
   INCLUDES = -ID:\dev\Gameplay\NPC_RL_Prototype -ID:\dev\Gameplay\NPC_RL_Prototype\src -ID:\dev\Gameplay\NPC_RL_Prototype\include -ID:\dev\Gameplay\NPC_RL_Prototype\include\imgui -ID:\dev\Gameplay\NPC_RL_Prototype\src\tinygltf -ID:\dev\Gameplay\NPC_RL_Prototype\src\OpenGL -ID:\dev\Gameplay\NPC_RL_Prototype\src\Tools -ID:\dev\Gameplay\NPC_RL_Prototype\src\NavMesh -ID:\dev\Gameplay\NPC_RL_Prototype\include\Recast\Include -ID:\dev\Gameplay\NPC_RL_Prototype\include\Detour\Include -ID:\dev\Gameplay\NPC_RL_Prototype\include\DetourCrowd\Include -I"C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\studio\inc" -I"C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\lowlevel\inc" -I"C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\core\inc"
   OBJECT_DIR = CMakeFiles\NPC_RL_Prototype.dir
@@ -491,7 +491,7 @@ build CMakeFiles\NPC_RL_Prototype.dir\include\imgui\imgui_widgets.cpp.obj: CXX_C
 
 build CMakeFiles\NPC_RL_Prototype.dir\include\imgui\backend\imgui_impl_glfw.cpp.obj: CXX_COMPILER__NPC_RL_Prototype_unscanned_Debug D$:\dev\Gameplay\NPC_RL_Prototype\include\imgui\backend\imgui_impl_glfw.cpp || cmake_object_order_depends_target_NPC_RL_Prototype
   CONFIG = Debug
-  DEFINES = -DGLM_ENABLE_EXPERIMENTAL -DUNICODE -D_CRT_SECURE_NO_WARNINGS -D_DEBUG -D_UNICODE
+  DEFINES = -DGLM_ENABLE_EXPERIMENTAL -DNPC_SCENE_ROOT=\"D:/dev/Gameplay/NPC_RL_Prototype\" -DUNICODE -D_CRT_SECURE_NO_WARNINGS -D_DEBUG -D_UNICODE
   FLAGS = /DWIN32 /D_WINDOWS /EHsc /Zi /Ob0 /Od /RTC1 -std:c++20 -MDd /W3 /MP /permissive- /Zi /sdl
   INCLUDES = -ID:\dev\Gameplay\NPC_RL_Prototype -ID:\dev\Gameplay\NPC_RL_Prototype\src -ID:\dev\Gameplay\NPC_RL_Prototype\include -ID:\dev\Gameplay\NPC_RL_Prototype\include\imgui -ID:\dev\Gameplay\NPC_RL_Prototype\src\tinygltf -ID:\dev\Gameplay\NPC_RL_Prototype\src\OpenGL -ID:\dev\Gameplay\NPC_RL_Prototype\src\Tools -ID:\dev\Gameplay\NPC_RL_Prototype\src\NavMesh -ID:\dev\Gameplay\NPC_RL_Prototype\include\Recast\Include -ID:\dev\Gameplay\NPC_RL_Prototype\include\Detour\Include -ID:\dev\Gameplay\NPC_RL_Prototype\include\DetourCrowd\Include -I"C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\studio\inc" -I"C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\lowlevel\inc" -I"C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\core\inc"
   OBJECT_DIR = CMakeFiles\NPC_RL_Prototype.dir
@@ -502,7 +502,7 @@ build CMakeFiles\NPC_RL_Prototype.dir\include\imgui\backend\imgui_impl_glfw.cpp.
 
 build CMakeFiles\NPC_RL_Prototype.dir\include\imgui\backend\imgui_impl_opengl3.cpp.obj: CXX_COMPILER__NPC_RL_Prototype_unscanned_Debug D$:\dev\Gameplay\NPC_RL_Prototype\include\imgui\backend\imgui_impl_opengl3.cpp || cmake_object_order_depends_target_NPC_RL_Prototype
   CONFIG = Debug
-  DEFINES = -DGLM_ENABLE_EXPERIMENTAL -DUNICODE -D_CRT_SECURE_NO_WARNINGS -D_DEBUG -D_UNICODE
+  DEFINES = -DGLM_ENABLE_EXPERIMENTAL -DNPC_SCENE_ROOT=\"D:/dev/Gameplay/NPC_RL_Prototype\" -DUNICODE -D_CRT_SECURE_NO_WARNINGS -D_DEBUG -D_UNICODE
   FLAGS = /DWIN32 /D_WINDOWS /EHsc /Zi /Ob0 /Od /RTC1 -std:c++20 -MDd /W3 /MP /permissive- /Zi /sdl
   INCLUDES = -ID:\dev\Gameplay\NPC_RL_Prototype -ID:\dev\Gameplay\NPC_RL_Prototype\src -ID:\dev\Gameplay\NPC_RL_Prototype\include -ID:\dev\Gameplay\NPC_RL_Prototype\include\imgui -ID:\dev\Gameplay\NPC_RL_Prototype\src\tinygltf -ID:\dev\Gameplay\NPC_RL_Prototype\src\OpenGL -ID:\dev\Gameplay\NPC_RL_Prototype\src\Tools -ID:\dev\Gameplay\NPC_RL_Prototype\src\NavMesh -ID:\dev\Gameplay\NPC_RL_Prototype\include\Recast\Include -ID:\dev\Gameplay\NPC_RL_Prototype\include\Detour\Include -ID:\dev\Gameplay\NPC_RL_Prototype\include\DetourCrowd\Include -I"C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\studio\inc" -I"C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\lowlevel\inc" -I"C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\core\inc"
   OBJECT_DIR = CMakeFiles\NPC_RL_Prototype.dir
@@ -513,7 +513,7 @@ build CMakeFiles\NPC_RL_Prototype.dir\include\imgui\backend\imgui_impl_opengl3.c
 
 build CMakeFiles\NPC_RL_Prototype.dir\include\imgui\ImGuizmo.cpp.obj: CXX_COMPILER__NPC_RL_Prototype_unscanned_Debug D$:\dev\Gameplay\NPC_RL_Prototype\include\imgui\ImGuizmo.cpp || cmake_object_order_depends_target_NPC_RL_Prototype
   CONFIG = Debug
-  DEFINES = -DGLM_ENABLE_EXPERIMENTAL -DUNICODE -D_CRT_SECURE_NO_WARNINGS -D_DEBUG -D_UNICODE
+  DEFINES = -DGLM_ENABLE_EXPERIMENTAL -DNPC_SCENE_ROOT=\"D:/dev/Gameplay/NPC_RL_Prototype\" -DUNICODE -D_CRT_SECURE_NO_WARNINGS -D_DEBUG -D_UNICODE
   FLAGS = /DWIN32 /D_WINDOWS /EHsc /Zi /Ob0 /Od /RTC1 -std:c++20 -MDd /W3 /MP /permissive- /Zi /sdl
   INCLUDES = -ID:\dev\Gameplay\NPC_RL_Prototype -ID:\dev\Gameplay\NPC_RL_Prototype\src -ID:\dev\Gameplay\NPC_RL_Prototype\include -ID:\dev\Gameplay\NPC_RL_Prototype\include\imgui -ID:\dev\Gameplay\NPC_RL_Prototype\src\tinygltf -ID:\dev\Gameplay\NPC_RL_Prototype\src\OpenGL -ID:\dev\Gameplay\NPC_RL_Prototype\src\Tools -ID:\dev\Gameplay\NPC_RL_Prototype\src\NavMesh -ID:\dev\Gameplay\NPC_RL_Prototype\include\Recast\Include -ID:\dev\Gameplay\NPC_RL_Prototype\include\Detour\Include -ID:\dev\Gameplay\NPC_RL_Prototype\include\DetourCrowd\Include -I"C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\studio\inc" -I"C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\lowlevel\inc" -I"C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\core\inc"
   OBJECT_DIR = CMakeFiles\NPC_RL_Prototype.dir
@@ -524,7 +524,7 @@ build CMakeFiles\NPC_RL_Prototype.dir\include\imgui\ImGuizmo.cpp.obj: CXX_COMPIL
 
 build CMakeFiles\NPC_RL_Prototype.dir\include\Recast\Source\Recast.cpp.obj: CXX_COMPILER__NPC_RL_Prototype_unscanned_Debug D$:\dev\Gameplay\NPC_RL_Prototype\include\Recast\Source\Recast.cpp || cmake_object_order_depends_target_NPC_RL_Prototype
   CONFIG = Debug
-  DEFINES = -DGLM_ENABLE_EXPERIMENTAL -DUNICODE -D_CRT_SECURE_NO_WARNINGS -D_DEBUG -D_UNICODE
+  DEFINES = -DGLM_ENABLE_EXPERIMENTAL -DNPC_SCENE_ROOT=\"D:/dev/Gameplay/NPC_RL_Prototype\" -DUNICODE -D_CRT_SECURE_NO_WARNINGS -D_DEBUG -D_UNICODE
   FLAGS = /DWIN32 /D_WINDOWS /EHsc /Zi /Ob0 /Od /RTC1 -std:c++20 -MDd /W3 /MP /permissive- /Zi /sdl
   INCLUDES = -ID:\dev\Gameplay\NPC_RL_Prototype -ID:\dev\Gameplay\NPC_RL_Prototype\src -ID:\dev\Gameplay\NPC_RL_Prototype\include -ID:\dev\Gameplay\NPC_RL_Prototype\include\imgui -ID:\dev\Gameplay\NPC_RL_Prototype\src\tinygltf -ID:\dev\Gameplay\NPC_RL_Prototype\src\OpenGL -ID:\dev\Gameplay\NPC_RL_Prototype\src\Tools -ID:\dev\Gameplay\NPC_RL_Prototype\src\NavMesh -ID:\dev\Gameplay\NPC_RL_Prototype\include\Recast\Include -ID:\dev\Gameplay\NPC_RL_Prototype\include\Detour\Include -ID:\dev\Gameplay\NPC_RL_Prototype\include\DetourCrowd\Include -I"C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\studio\inc" -I"C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\lowlevel\inc" -I"C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\core\inc"
   OBJECT_DIR = CMakeFiles\NPC_RL_Prototype.dir
@@ -535,7 +535,7 @@ build CMakeFiles\NPC_RL_Prototype.dir\include\Recast\Source\Recast.cpp.obj: CXX_
 
 build CMakeFiles\NPC_RL_Prototype.dir\include\Recast\Source\RecastAlloc.cpp.obj: CXX_COMPILER__NPC_RL_Prototype_unscanned_Debug D$:\dev\Gameplay\NPC_RL_Prototype\include\Recast\Source\RecastAlloc.cpp || cmake_object_order_depends_target_NPC_RL_Prototype
   CONFIG = Debug
-  DEFINES = -DGLM_ENABLE_EXPERIMENTAL -DUNICODE -D_CRT_SECURE_NO_WARNINGS -D_DEBUG -D_UNICODE
+  DEFINES = -DGLM_ENABLE_EXPERIMENTAL -DNPC_SCENE_ROOT=\"D:/dev/Gameplay/NPC_RL_Prototype\" -DUNICODE -D_CRT_SECURE_NO_WARNINGS -D_DEBUG -D_UNICODE
   FLAGS = /DWIN32 /D_WINDOWS /EHsc /Zi /Ob0 /Od /RTC1 -std:c++20 -MDd /W3 /MP /permissive- /Zi /sdl
   INCLUDES = -ID:\dev\Gameplay\NPC_RL_Prototype -ID:\dev\Gameplay\NPC_RL_Prototype\src -ID:\dev\Gameplay\NPC_RL_Prototype\include -ID:\dev\Gameplay\NPC_RL_Prototype\include\imgui -ID:\dev\Gameplay\NPC_RL_Prototype\src\tinygltf -ID:\dev\Gameplay\NPC_RL_Prototype\src\OpenGL -ID:\dev\Gameplay\NPC_RL_Prototype\src\Tools -ID:\dev\Gameplay\NPC_RL_Prototype\src\NavMesh -ID:\dev\Gameplay\NPC_RL_Prototype\include\Recast\Include -ID:\dev\Gameplay\NPC_RL_Prototype\include\Detour\Include -ID:\dev\Gameplay\NPC_RL_Prototype\include\DetourCrowd\Include -I"C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\studio\inc" -I"C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\lowlevel\inc" -I"C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\core\inc"
   OBJECT_DIR = CMakeFiles\NPC_RL_Prototype.dir
@@ -546,7 +546,7 @@ build CMakeFiles\NPC_RL_Prototype.dir\include\Recast\Source\RecastAlloc.cpp.obj:
 
 build CMakeFiles\NPC_RL_Prototype.dir\include\Recast\Source\RecastArea.cpp.obj: CXX_COMPILER__NPC_RL_Prototype_unscanned_Debug D$:\dev\Gameplay\NPC_RL_Prototype\include\Recast\Source\RecastArea.cpp || cmake_object_order_depends_target_NPC_RL_Prototype
   CONFIG = Debug
-  DEFINES = -DGLM_ENABLE_EXPERIMENTAL -DUNICODE -D_CRT_SECURE_NO_WARNINGS -D_DEBUG -D_UNICODE
+  DEFINES = -DGLM_ENABLE_EXPERIMENTAL -DNPC_SCENE_ROOT=\"D:/dev/Gameplay/NPC_RL_Prototype\" -DUNICODE -D_CRT_SECURE_NO_WARNINGS -D_DEBUG -D_UNICODE
   FLAGS = /DWIN32 /D_WINDOWS /EHsc /Zi /Ob0 /Od /RTC1 -std:c++20 -MDd /W3 /MP /permissive- /Zi /sdl
   INCLUDES = -ID:\dev\Gameplay\NPC_RL_Prototype -ID:\dev\Gameplay\NPC_RL_Prototype\src -ID:\dev\Gameplay\NPC_RL_Prototype\include -ID:\dev\Gameplay\NPC_RL_Prototype\include\imgui -ID:\dev\Gameplay\NPC_RL_Prototype\src\tinygltf -ID:\dev\Gameplay\NPC_RL_Prototype\src\OpenGL -ID:\dev\Gameplay\NPC_RL_Prototype\src\Tools -ID:\dev\Gameplay\NPC_RL_Prototype\src\NavMesh -ID:\dev\Gameplay\NPC_RL_Prototype\include\Recast\Include -ID:\dev\Gameplay\NPC_RL_Prototype\include\Detour\Include -ID:\dev\Gameplay\NPC_RL_Prototype\include\DetourCrowd\Include -I"C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\studio\inc" -I"C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\lowlevel\inc" -I"C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\core\inc"
   OBJECT_DIR = CMakeFiles\NPC_RL_Prototype.dir
@@ -557,7 +557,7 @@ build CMakeFiles\NPC_RL_Prototype.dir\include\Recast\Source\RecastArea.cpp.obj: 
 
 build CMakeFiles\NPC_RL_Prototype.dir\include\Recast\Source\RecastAssert.cpp.obj: CXX_COMPILER__NPC_RL_Prototype_unscanned_Debug D$:\dev\Gameplay\NPC_RL_Prototype\include\Recast\Source\RecastAssert.cpp || cmake_object_order_depends_target_NPC_RL_Prototype
   CONFIG = Debug
-  DEFINES = -DGLM_ENABLE_EXPERIMENTAL -DUNICODE -D_CRT_SECURE_NO_WARNINGS -D_DEBUG -D_UNICODE
+  DEFINES = -DGLM_ENABLE_EXPERIMENTAL -DNPC_SCENE_ROOT=\"D:/dev/Gameplay/NPC_RL_Prototype\" -DUNICODE -D_CRT_SECURE_NO_WARNINGS -D_DEBUG -D_UNICODE
   FLAGS = /DWIN32 /D_WINDOWS /EHsc /Zi /Ob0 /Od /RTC1 -std:c++20 -MDd /W3 /MP /permissive- /Zi /sdl
   INCLUDES = -ID:\dev\Gameplay\NPC_RL_Prototype -ID:\dev\Gameplay\NPC_RL_Prototype\src -ID:\dev\Gameplay\NPC_RL_Prototype\include -ID:\dev\Gameplay\NPC_RL_Prototype\include\imgui -ID:\dev\Gameplay\NPC_RL_Prototype\src\tinygltf -ID:\dev\Gameplay\NPC_RL_Prototype\src\OpenGL -ID:\dev\Gameplay\NPC_RL_Prototype\src\Tools -ID:\dev\Gameplay\NPC_RL_Prototype\src\NavMesh -ID:\dev\Gameplay\NPC_RL_Prototype\include\Recast\Include -ID:\dev\Gameplay\NPC_RL_Prototype\include\Detour\Include -ID:\dev\Gameplay\NPC_RL_Prototype\include\DetourCrowd\Include -I"C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\studio\inc" -I"C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\lowlevel\inc" -I"C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\core\inc"
   OBJECT_DIR = CMakeFiles\NPC_RL_Prototype.dir
@@ -568,7 +568,7 @@ build CMakeFiles\NPC_RL_Prototype.dir\include\Recast\Source\RecastAssert.cpp.obj
 
 build CMakeFiles\NPC_RL_Prototype.dir\include\Recast\Source\RecastContour.cpp.obj: CXX_COMPILER__NPC_RL_Prototype_unscanned_Debug D$:\dev\Gameplay\NPC_RL_Prototype\include\Recast\Source\RecastContour.cpp || cmake_object_order_depends_target_NPC_RL_Prototype
   CONFIG = Debug
-  DEFINES = -DGLM_ENABLE_EXPERIMENTAL -DUNICODE -D_CRT_SECURE_NO_WARNINGS -D_DEBUG -D_UNICODE
+  DEFINES = -DGLM_ENABLE_EXPERIMENTAL -DNPC_SCENE_ROOT=\"D:/dev/Gameplay/NPC_RL_Prototype\" -DUNICODE -D_CRT_SECURE_NO_WARNINGS -D_DEBUG -D_UNICODE
   FLAGS = /DWIN32 /D_WINDOWS /EHsc /Zi /Ob0 /Od /RTC1 -std:c++20 -MDd /W3 /MP /permissive- /Zi /sdl
   INCLUDES = -ID:\dev\Gameplay\NPC_RL_Prototype -ID:\dev\Gameplay\NPC_RL_Prototype\src -ID:\dev\Gameplay\NPC_RL_Prototype\include -ID:\dev\Gameplay\NPC_RL_Prototype\include\imgui -ID:\dev\Gameplay\NPC_RL_Prototype\src\tinygltf -ID:\dev\Gameplay\NPC_RL_Prototype\src\OpenGL -ID:\dev\Gameplay\NPC_RL_Prototype\src\Tools -ID:\dev\Gameplay\NPC_RL_Prototype\src\NavMesh -ID:\dev\Gameplay\NPC_RL_Prototype\include\Recast\Include -ID:\dev\Gameplay\NPC_RL_Prototype\include\Detour\Include -ID:\dev\Gameplay\NPC_RL_Prototype\include\DetourCrowd\Include -I"C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\studio\inc" -I"C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\lowlevel\inc" -I"C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\core\inc"
   OBJECT_DIR = CMakeFiles\NPC_RL_Prototype.dir
@@ -579,7 +579,7 @@ build CMakeFiles\NPC_RL_Prototype.dir\include\Recast\Source\RecastContour.cpp.ob
 
 build CMakeFiles\NPC_RL_Prototype.dir\include\Recast\Source\RecastFilter.cpp.obj: CXX_COMPILER__NPC_RL_Prototype_unscanned_Debug D$:\dev\Gameplay\NPC_RL_Prototype\include\Recast\Source\RecastFilter.cpp || cmake_object_order_depends_target_NPC_RL_Prototype
   CONFIG = Debug
-  DEFINES = -DGLM_ENABLE_EXPERIMENTAL -DUNICODE -D_CRT_SECURE_NO_WARNINGS -D_DEBUG -D_UNICODE
+  DEFINES = -DGLM_ENABLE_EXPERIMENTAL -DNPC_SCENE_ROOT=\"D:/dev/Gameplay/NPC_RL_Prototype\" -DUNICODE -D_CRT_SECURE_NO_WARNINGS -D_DEBUG -D_UNICODE
   FLAGS = /DWIN32 /D_WINDOWS /EHsc /Zi /Ob0 /Od /RTC1 -std:c++20 -MDd /W3 /MP /permissive- /Zi /sdl
   INCLUDES = -ID:\dev\Gameplay\NPC_RL_Prototype -ID:\dev\Gameplay\NPC_RL_Prototype\src -ID:\dev\Gameplay\NPC_RL_Prototype\include -ID:\dev\Gameplay\NPC_RL_Prototype\include\imgui -ID:\dev\Gameplay\NPC_RL_Prototype\src\tinygltf -ID:\dev\Gameplay\NPC_RL_Prototype\src\OpenGL -ID:\dev\Gameplay\NPC_RL_Prototype\src\Tools -ID:\dev\Gameplay\NPC_RL_Prototype\src\NavMesh -ID:\dev\Gameplay\NPC_RL_Prototype\include\Recast\Include -ID:\dev\Gameplay\NPC_RL_Prototype\include\Detour\Include -ID:\dev\Gameplay\NPC_RL_Prototype\include\DetourCrowd\Include -I"C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\studio\inc" -I"C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\lowlevel\inc" -I"C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\core\inc"
   OBJECT_DIR = CMakeFiles\NPC_RL_Prototype.dir
@@ -590,7 +590,7 @@ build CMakeFiles\NPC_RL_Prototype.dir\include\Recast\Source\RecastFilter.cpp.obj
 
 build CMakeFiles\NPC_RL_Prototype.dir\include\Recast\Source\RecastLayers.cpp.obj: CXX_COMPILER__NPC_RL_Prototype_unscanned_Debug D$:\dev\Gameplay\NPC_RL_Prototype\include\Recast\Source\RecastLayers.cpp || cmake_object_order_depends_target_NPC_RL_Prototype
   CONFIG = Debug
-  DEFINES = -DGLM_ENABLE_EXPERIMENTAL -DUNICODE -D_CRT_SECURE_NO_WARNINGS -D_DEBUG -D_UNICODE
+  DEFINES = -DGLM_ENABLE_EXPERIMENTAL -DNPC_SCENE_ROOT=\"D:/dev/Gameplay/NPC_RL_Prototype\" -DUNICODE -D_CRT_SECURE_NO_WARNINGS -D_DEBUG -D_UNICODE
   FLAGS = /DWIN32 /D_WINDOWS /EHsc /Zi /Ob0 /Od /RTC1 -std:c++20 -MDd /W3 /MP /permissive- /Zi /sdl
   INCLUDES = -ID:\dev\Gameplay\NPC_RL_Prototype -ID:\dev\Gameplay\NPC_RL_Prototype\src -ID:\dev\Gameplay\NPC_RL_Prototype\include -ID:\dev\Gameplay\NPC_RL_Prototype\include\imgui -ID:\dev\Gameplay\NPC_RL_Prototype\src\tinygltf -ID:\dev\Gameplay\NPC_RL_Prototype\src\OpenGL -ID:\dev\Gameplay\NPC_RL_Prototype\src\Tools -ID:\dev\Gameplay\NPC_RL_Prototype\src\NavMesh -ID:\dev\Gameplay\NPC_RL_Prototype\include\Recast\Include -ID:\dev\Gameplay\NPC_RL_Prototype\include\Detour\Include -ID:\dev\Gameplay\NPC_RL_Prototype\include\DetourCrowd\Include -I"C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\studio\inc" -I"C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\lowlevel\inc" -I"C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\core\inc"
   OBJECT_DIR = CMakeFiles\NPC_RL_Prototype.dir
@@ -601,7 +601,7 @@ build CMakeFiles\NPC_RL_Prototype.dir\include\Recast\Source\RecastLayers.cpp.obj
 
 build CMakeFiles\NPC_RL_Prototype.dir\include\Recast\Source\RecastMesh.cpp.obj: CXX_COMPILER__NPC_RL_Prototype_unscanned_Debug D$:\dev\Gameplay\NPC_RL_Prototype\include\Recast\Source\RecastMesh.cpp || cmake_object_order_depends_target_NPC_RL_Prototype
   CONFIG = Debug
-  DEFINES = -DGLM_ENABLE_EXPERIMENTAL -DUNICODE -D_CRT_SECURE_NO_WARNINGS -D_DEBUG -D_UNICODE
+  DEFINES = -DGLM_ENABLE_EXPERIMENTAL -DNPC_SCENE_ROOT=\"D:/dev/Gameplay/NPC_RL_Prototype\" -DUNICODE -D_CRT_SECURE_NO_WARNINGS -D_DEBUG -D_UNICODE
   FLAGS = /DWIN32 /D_WINDOWS /EHsc /Zi /Ob0 /Od /RTC1 -std:c++20 -MDd /W3 /MP /permissive- /Zi /sdl
   INCLUDES = -ID:\dev\Gameplay\NPC_RL_Prototype -ID:\dev\Gameplay\NPC_RL_Prototype\src -ID:\dev\Gameplay\NPC_RL_Prototype\include -ID:\dev\Gameplay\NPC_RL_Prototype\include\imgui -ID:\dev\Gameplay\NPC_RL_Prototype\src\tinygltf -ID:\dev\Gameplay\NPC_RL_Prototype\src\OpenGL -ID:\dev\Gameplay\NPC_RL_Prototype\src\Tools -ID:\dev\Gameplay\NPC_RL_Prototype\src\NavMesh -ID:\dev\Gameplay\NPC_RL_Prototype\include\Recast\Include -ID:\dev\Gameplay\NPC_RL_Prototype\include\Detour\Include -ID:\dev\Gameplay\NPC_RL_Prototype\include\DetourCrowd\Include -I"C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\studio\inc" -I"C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\lowlevel\inc" -I"C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\core\inc"
   OBJECT_DIR = CMakeFiles\NPC_RL_Prototype.dir
@@ -612,7 +612,7 @@ build CMakeFiles\NPC_RL_Prototype.dir\include\Recast\Source\RecastMesh.cpp.obj: 
 
 build CMakeFiles\NPC_RL_Prototype.dir\include\Recast\Source\RecastMeshDetail.cpp.obj: CXX_COMPILER__NPC_RL_Prototype_unscanned_Debug D$:\dev\Gameplay\NPC_RL_Prototype\include\Recast\Source\RecastMeshDetail.cpp || cmake_object_order_depends_target_NPC_RL_Prototype
   CONFIG = Debug
-  DEFINES = -DGLM_ENABLE_EXPERIMENTAL -DUNICODE -D_CRT_SECURE_NO_WARNINGS -D_DEBUG -D_UNICODE
+  DEFINES = -DGLM_ENABLE_EXPERIMENTAL -DNPC_SCENE_ROOT=\"D:/dev/Gameplay/NPC_RL_Prototype\" -DUNICODE -D_CRT_SECURE_NO_WARNINGS -D_DEBUG -D_UNICODE
   FLAGS = /DWIN32 /D_WINDOWS /EHsc /Zi /Ob0 /Od /RTC1 -std:c++20 -MDd /W3 /MP /permissive- /Zi /sdl
   INCLUDES = -ID:\dev\Gameplay\NPC_RL_Prototype -ID:\dev\Gameplay\NPC_RL_Prototype\src -ID:\dev\Gameplay\NPC_RL_Prototype\include -ID:\dev\Gameplay\NPC_RL_Prototype\include\imgui -ID:\dev\Gameplay\NPC_RL_Prototype\src\tinygltf -ID:\dev\Gameplay\NPC_RL_Prototype\src\OpenGL -ID:\dev\Gameplay\NPC_RL_Prototype\src\Tools -ID:\dev\Gameplay\NPC_RL_Prototype\src\NavMesh -ID:\dev\Gameplay\NPC_RL_Prototype\include\Recast\Include -ID:\dev\Gameplay\NPC_RL_Prototype\include\Detour\Include -ID:\dev\Gameplay\NPC_RL_Prototype\include\DetourCrowd\Include -I"C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\studio\inc" -I"C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\lowlevel\inc" -I"C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\core\inc"
   OBJECT_DIR = CMakeFiles\NPC_RL_Prototype.dir
@@ -623,7 +623,7 @@ build CMakeFiles\NPC_RL_Prototype.dir\include\Recast\Source\RecastMeshDetail.cpp
 
 build CMakeFiles\NPC_RL_Prototype.dir\include\Recast\Source\RecastRasterization.cpp.obj: CXX_COMPILER__NPC_RL_Prototype_unscanned_Debug D$:\dev\Gameplay\NPC_RL_Prototype\include\Recast\Source\RecastRasterization.cpp || cmake_object_order_depends_target_NPC_RL_Prototype
   CONFIG = Debug
-  DEFINES = -DGLM_ENABLE_EXPERIMENTAL -DUNICODE -D_CRT_SECURE_NO_WARNINGS -D_DEBUG -D_UNICODE
+  DEFINES = -DGLM_ENABLE_EXPERIMENTAL -DNPC_SCENE_ROOT=\"D:/dev/Gameplay/NPC_RL_Prototype\" -DUNICODE -D_CRT_SECURE_NO_WARNINGS -D_DEBUG -D_UNICODE
   FLAGS = /DWIN32 /D_WINDOWS /EHsc /Zi /Ob0 /Od /RTC1 -std:c++20 -MDd /W3 /MP /permissive- /Zi /sdl
   INCLUDES = -ID:\dev\Gameplay\NPC_RL_Prototype -ID:\dev\Gameplay\NPC_RL_Prototype\src -ID:\dev\Gameplay\NPC_RL_Prototype\include -ID:\dev\Gameplay\NPC_RL_Prototype\include\imgui -ID:\dev\Gameplay\NPC_RL_Prototype\src\tinygltf -ID:\dev\Gameplay\NPC_RL_Prototype\src\OpenGL -ID:\dev\Gameplay\NPC_RL_Prototype\src\Tools -ID:\dev\Gameplay\NPC_RL_Prototype\src\NavMesh -ID:\dev\Gameplay\NPC_RL_Prototype\include\Recast\Include -ID:\dev\Gameplay\NPC_RL_Prototype\include\Detour\Include -ID:\dev\Gameplay\NPC_RL_Prototype\include\DetourCrowd\Include -I"C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\studio\inc" -I"C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\lowlevel\inc" -I"C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\core\inc"
   OBJECT_DIR = CMakeFiles\NPC_RL_Prototype.dir
@@ -634,7 +634,7 @@ build CMakeFiles\NPC_RL_Prototype.dir\include\Recast\Source\RecastRasterization.
 
 build CMakeFiles\NPC_RL_Prototype.dir\include\Recast\Source\RecastRegion.cpp.obj: CXX_COMPILER__NPC_RL_Prototype_unscanned_Debug D$:\dev\Gameplay\NPC_RL_Prototype\include\Recast\Source\RecastRegion.cpp || cmake_object_order_depends_target_NPC_RL_Prototype
   CONFIG = Debug
-  DEFINES = -DGLM_ENABLE_EXPERIMENTAL -DUNICODE -D_CRT_SECURE_NO_WARNINGS -D_DEBUG -D_UNICODE
+  DEFINES = -DGLM_ENABLE_EXPERIMENTAL -DNPC_SCENE_ROOT=\"D:/dev/Gameplay/NPC_RL_Prototype\" -DUNICODE -D_CRT_SECURE_NO_WARNINGS -D_DEBUG -D_UNICODE
   FLAGS = /DWIN32 /D_WINDOWS /EHsc /Zi /Ob0 /Od /RTC1 -std:c++20 -MDd /W3 /MP /permissive- /Zi /sdl
   INCLUDES = -ID:\dev\Gameplay\NPC_RL_Prototype -ID:\dev\Gameplay\NPC_RL_Prototype\src -ID:\dev\Gameplay\NPC_RL_Prototype\include -ID:\dev\Gameplay\NPC_RL_Prototype\include\imgui -ID:\dev\Gameplay\NPC_RL_Prototype\src\tinygltf -ID:\dev\Gameplay\NPC_RL_Prototype\src\OpenGL -ID:\dev\Gameplay\NPC_RL_Prototype\src\Tools -ID:\dev\Gameplay\NPC_RL_Prototype\src\NavMesh -ID:\dev\Gameplay\NPC_RL_Prototype\include\Recast\Include -ID:\dev\Gameplay\NPC_RL_Prototype\include\Detour\Include -ID:\dev\Gameplay\NPC_RL_Prototype\include\DetourCrowd\Include -I"C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\studio\inc" -I"C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\lowlevel\inc" -I"C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\core\inc"
   OBJECT_DIR = CMakeFiles\NPC_RL_Prototype.dir
@@ -645,7 +645,7 @@ build CMakeFiles\NPC_RL_Prototype.dir\include\Recast\Source\RecastRegion.cpp.obj
 
 build CMakeFiles\NPC_RL_Prototype.dir\include\Detour\Source\DetourAlloc.cpp.obj: CXX_COMPILER__NPC_RL_Prototype_unscanned_Debug D$:\dev\Gameplay\NPC_RL_Prototype\include\Detour\Source\DetourAlloc.cpp || cmake_object_order_depends_target_NPC_RL_Prototype
   CONFIG = Debug
-  DEFINES = -DGLM_ENABLE_EXPERIMENTAL -DUNICODE -D_CRT_SECURE_NO_WARNINGS -D_DEBUG -D_UNICODE
+  DEFINES = -DGLM_ENABLE_EXPERIMENTAL -DNPC_SCENE_ROOT=\"D:/dev/Gameplay/NPC_RL_Prototype\" -DUNICODE -D_CRT_SECURE_NO_WARNINGS -D_DEBUG -D_UNICODE
   FLAGS = /DWIN32 /D_WINDOWS /EHsc /Zi /Ob0 /Od /RTC1 -std:c++20 -MDd /W3 /MP /permissive- /Zi /sdl
   INCLUDES = -ID:\dev\Gameplay\NPC_RL_Prototype -ID:\dev\Gameplay\NPC_RL_Prototype\src -ID:\dev\Gameplay\NPC_RL_Prototype\include -ID:\dev\Gameplay\NPC_RL_Prototype\include\imgui -ID:\dev\Gameplay\NPC_RL_Prototype\src\tinygltf -ID:\dev\Gameplay\NPC_RL_Prototype\src\OpenGL -ID:\dev\Gameplay\NPC_RL_Prototype\src\Tools -ID:\dev\Gameplay\NPC_RL_Prototype\src\NavMesh -ID:\dev\Gameplay\NPC_RL_Prototype\include\Recast\Include -ID:\dev\Gameplay\NPC_RL_Prototype\include\Detour\Include -ID:\dev\Gameplay\NPC_RL_Prototype\include\DetourCrowd\Include -I"C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\studio\inc" -I"C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\lowlevel\inc" -I"C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\core\inc"
   OBJECT_DIR = CMakeFiles\NPC_RL_Prototype.dir
@@ -656,7 +656,7 @@ build CMakeFiles\NPC_RL_Prototype.dir\include\Detour\Source\DetourAlloc.cpp.obj:
 
 build CMakeFiles\NPC_RL_Prototype.dir\include\Detour\Source\DetourAssert.cpp.obj: CXX_COMPILER__NPC_RL_Prototype_unscanned_Debug D$:\dev\Gameplay\NPC_RL_Prototype\include\Detour\Source\DetourAssert.cpp || cmake_object_order_depends_target_NPC_RL_Prototype
   CONFIG = Debug
-  DEFINES = -DGLM_ENABLE_EXPERIMENTAL -DUNICODE -D_CRT_SECURE_NO_WARNINGS -D_DEBUG -D_UNICODE
+  DEFINES = -DGLM_ENABLE_EXPERIMENTAL -DNPC_SCENE_ROOT=\"D:/dev/Gameplay/NPC_RL_Prototype\" -DUNICODE -D_CRT_SECURE_NO_WARNINGS -D_DEBUG -D_UNICODE
   FLAGS = /DWIN32 /D_WINDOWS /EHsc /Zi /Ob0 /Od /RTC1 -std:c++20 -MDd /W3 /MP /permissive- /Zi /sdl
   INCLUDES = -ID:\dev\Gameplay\NPC_RL_Prototype -ID:\dev\Gameplay\NPC_RL_Prototype\src -ID:\dev\Gameplay\NPC_RL_Prototype\include -ID:\dev\Gameplay\NPC_RL_Prototype\include\imgui -ID:\dev\Gameplay\NPC_RL_Prototype\src\tinygltf -ID:\dev\Gameplay\NPC_RL_Prototype\src\OpenGL -ID:\dev\Gameplay\NPC_RL_Prototype\src\Tools -ID:\dev\Gameplay\NPC_RL_Prototype\src\NavMesh -ID:\dev\Gameplay\NPC_RL_Prototype\include\Recast\Include -ID:\dev\Gameplay\NPC_RL_Prototype\include\Detour\Include -ID:\dev\Gameplay\NPC_RL_Prototype\include\DetourCrowd\Include -I"C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\studio\inc" -I"C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\lowlevel\inc" -I"C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\core\inc"
   OBJECT_DIR = CMakeFiles\NPC_RL_Prototype.dir
@@ -667,7 +667,7 @@ build CMakeFiles\NPC_RL_Prototype.dir\include\Detour\Source\DetourAssert.cpp.obj
 
 build CMakeFiles\NPC_RL_Prototype.dir\include\Detour\Source\DetourCommon.cpp.obj: CXX_COMPILER__NPC_RL_Prototype_unscanned_Debug D$:\dev\Gameplay\NPC_RL_Prototype\include\Detour\Source\DetourCommon.cpp || cmake_object_order_depends_target_NPC_RL_Prototype
   CONFIG = Debug
-  DEFINES = -DGLM_ENABLE_EXPERIMENTAL -DUNICODE -D_CRT_SECURE_NO_WARNINGS -D_DEBUG -D_UNICODE
+  DEFINES = -DGLM_ENABLE_EXPERIMENTAL -DNPC_SCENE_ROOT=\"D:/dev/Gameplay/NPC_RL_Prototype\" -DUNICODE -D_CRT_SECURE_NO_WARNINGS -D_DEBUG -D_UNICODE
   FLAGS = /DWIN32 /D_WINDOWS /EHsc /Zi /Ob0 /Od /RTC1 -std:c++20 -MDd /W3 /MP /permissive- /Zi /sdl
   INCLUDES = -ID:\dev\Gameplay\NPC_RL_Prototype -ID:\dev\Gameplay\NPC_RL_Prototype\src -ID:\dev\Gameplay\NPC_RL_Prototype\include -ID:\dev\Gameplay\NPC_RL_Prototype\include\imgui -ID:\dev\Gameplay\NPC_RL_Prototype\src\tinygltf -ID:\dev\Gameplay\NPC_RL_Prototype\src\OpenGL -ID:\dev\Gameplay\NPC_RL_Prototype\src\Tools -ID:\dev\Gameplay\NPC_RL_Prototype\src\NavMesh -ID:\dev\Gameplay\NPC_RL_Prototype\include\Recast\Include -ID:\dev\Gameplay\NPC_RL_Prototype\include\Detour\Include -ID:\dev\Gameplay\NPC_RL_Prototype\include\DetourCrowd\Include -I"C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\studio\inc" -I"C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\lowlevel\inc" -I"C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\core\inc"
   OBJECT_DIR = CMakeFiles\NPC_RL_Prototype.dir
@@ -678,7 +678,7 @@ build CMakeFiles\NPC_RL_Prototype.dir\include\Detour\Source\DetourCommon.cpp.obj
 
 build CMakeFiles\NPC_RL_Prototype.dir\include\Detour\Source\DetourNavMesh.cpp.obj: CXX_COMPILER__NPC_RL_Prototype_unscanned_Debug D$:\dev\Gameplay\NPC_RL_Prototype\include\Detour\Source\DetourNavMesh.cpp || cmake_object_order_depends_target_NPC_RL_Prototype
   CONFIG = Debug
-  DEFINES = -DGLM_ENABLE_EXPERIMENTAL -DUNICODE -D_CRT_SECURE_NO_WARNINGS -D_DEBUG -D_UNICODE
+  DEFINES = -DGLM_ENABLE_EXPERIMENTAL -DNPC_SCENE_ROOT=\"D:/dev/Gameplay/NPC_RL_Prototype\" -DUNICODE -D_CRT_SECURE_NO_WARNINGS -D_DEBUG -D_UNICODE
   FLAGS = /DWIN32 /D_WINDOWS /EHsc /Zi /Ob0 /Od /RTC1 -std:c++20 -MDd /W3 /MP /permissive- /Zi /sdl
   INCLUDES = -ID:\dev\Gameplay\NPC_RL_Prototype -ID:\dev\Gameplay\NPC_RL_Prototype\src -ID:\dev\Gameplay\NPC_RL_Prototype\include -ID:\dev\Gameplay\NPC_RL_Prototype\include\imgui -ID:\dev\Gameplay\NPC_RL_Prototype\src\tinygltf -ID:\dev\Gameplay\NPC_RL_Prototype\src\OpenGL -ID:\dev\Gameplay\NPC_RL_Prototype\src\Tools -ID:\dev\Gameplay\NPC_RL_Prototype\src\NavMesh -ID:\dev\Gameplay\NPC_RL_Prototype\include\Recast\Include -ID:\dev\Gameplay\NPC_RL_Prototype\include\Detour\Include -ID:\dev\Gameplay\NPC_RL_Prototype\include\DetourCrowd\Include -I"C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\studio\inc" -I"C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\lowlevel\inc" -I"C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\core\inc"
   OBJECT_DIR = CMakeFiles\NPC_RL_Prototype.dir
@@ -689,7 +689,7 @@ build CMakeFiles\NPC_RL_Prototype.dir\include\Detour\Source\DetourNavMesh.cpp.ob
 
 build CMakeFiles\NPC_RL_Prototype.dir\include\Detour\Source\DetourNavMeshBuilder.cpp.obj: CXX_COMPILER__NPC_RL_Prototype_unscanned_Debug D$:\dev\Gameplay\NPC_RL_Prototype\include\Detour\Source\DetourNavMeshBuilder.cpp || cmake_object_order_depends_target_NPC_RL_Prototype
   CONFIG = Debug
-  DEFINES = -DGLM_ENABLE_EXPERIMENTAL -DUNICODE -D_CRT_SECURE_NO_WARNINGS -D_DEBUG -D_UNICODE
+  DEFINES = -DGLM_ENABLE_EXPERIMENTAL -DNPC_SCENE_ROOT=\"D:/dev/Gameplay/NPC_RL_Prototype\" -DUNICODE -D_CRT_SECURE_NO_WARNINGS -D_DEBUG -D_UNICODE
   FLAGS = /DWIN32 /D_WINDOWS /EHsc /Zi /Ob0 /Od /RTC1 -std:c++20 -MDd /W3 /MP /permissive- /Zi /sdl
   INCLUDES = -ID:\dev\Gameplay\NPC_RL_Prototype -ID:\dev\Gameplay\NPC_RL_Prototype\src -ID:\dev\Gameplay\NPC_RL_Prototype\include -ID:\dev\Gameplay\NPC_RL_Prototype\include\imgui -ID:\dev\Gameplay\NPC_RL_Prototype\src\tinygltf -ID:\dev\Gameplay\NPC_RL_Prototype\src\OpenGL -ID:\dev\Gameplay\NPC_RL_Prototype\src\Tools -ID:\dev\Gameplay\NPC_RL_Prototype\src\NavMesh -ID:\dev\Gameplay\NPC_RL_Prototype\include\Recast\Include -ID:\dev\Gameplay\NPC_RL_Prototype\include\Detour\Include -ID:\dev\Gameplay\NPC_RL_Prototype\include\DetourCrowd\Include -I"C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\studio\inc" -I"C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\lowlevel\inc" -I"C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\core\inc"
   OBJECT_DIR = CMakeFiles\NPC_RL_Prototype.dir
@@ -700,7 +700,7 @@ build CMakeFiles\NPC_RL_Prototype.dir\include\Detour\Source\DetourNavMeshBuilder
 
 build CMakeFiles\NPC_RL_Prototype.dir\include\Detour\Source\DetourNavMeshQuery.cpp.obj: CXX_COMPILER__NPC_RL_Prototype_unscanned_Debug D$:\dev\Gameplay\NPC_RL_Prototype\include\Detour\Source\DetourNavMeshQuery.cpp || cmake_object_order_depends_target_NPC_RL_Prototype
   CONFIG = Debug
-  DEFINES = -DGLM_ENABLE_EXPERIMENTAL -DUNICODE -D_CRT_SECURE_NO_WARNINGS -D_DEBUG -D_UNICODE
+  DEFINES = -DGLM_ENABLE_EXPERIMENTAL -DNPC_SCENE_ROOT=\"D:/dev/Gameplay/NPC_RL_Prototype\" -DUNICODE -D_CRT_SECURE_NO_WARNINGS -D_DEBUG -D_UNICODE
   FLAGS = /DWIN32 /D_WINDOWS /EHsc /Zi /Ob0 /Od /RTC1 -std:c++20 -MDd /W3 /MP /permissive- /Zi /sdl
   INCLUDES = -ID:\dev\Gameplay\NPC_RL_Prototype -ID:\dev\Gameplay\NPC_RL_Prototype\src -ID:\dev\Gameplay\NPC_RL_Prototype\include -ID:\dev\Gameplay\NPC_RL_Prototype\include\imgui -ID:\dev\Gameplay\NPC_RL_Prototype\src\tinygltf -ID:\dev\Gameplay\NPC_RL_Prototype\src\OpenGL -ID:\dev\Gameplay\NPC_RL_Prototype\src\Tools -ID:\dev\Gameplay\NPC_RL_Prototype\src\NavMesh -ID:\dev\Gameplay\NPC_RL_Prototype\include\Recast\Include -ID:\dev\Gameplay\NPC_RL_Prototype\include\Detour\Include -ID:\dev\Gameplay\NPC_RL_Prototype\include\DetourCrowd\Include -I"C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\studio\inc" -I"C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\lowlevel\inc" -I"C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\core\inc"
   OBJECT_DIR = CMakeFiles\NPC_RL_Prototype.dir
@@ -711,7 +711,7 @@ build CMakeFiles\NPC_RL_Prototype.dir\include\Detour\Source\DetourNavMeshQuery.c
 
 build CMakeFiles\NPC_RL_Prototype.dir\include\Detour\Source\DetourNode.cpp.obj: CXX_COMPILER__NPC_RL_Prototype_unscanned_Debug D$:\dev\Gameplay\NPC_RL_Prototype\include\Detour\Source\DetourNode.cpp || cmake_object_order_depends_target_NPC_RL_Prototype
   CONFIG = Debug
-  DEFINES = -DGLM_ENABLE_EXPERIMENTAL -DUNICODE -D_CRT_SECURE_NO_WARNINGS -D_DEBUG -D_UNICODE
+  DEFINES = -DGLM_ENABLE_EXPERIMENTAL -DNPC_SCENE_ROOT=\"D:/dev/Gameplay/NPC_RL_Prototype\" -DUNICODE -D_CRT_SECURE_NO_WARNINGS -D_DEBUG -D_UNICODE
   FLAGS = /DWIN32 /D_WINDOWS /EHsc /Zi /Ob0 /Od /RTC1 -std:c++20 -MDd /W3 /MP /permissive- /Zi /sdl
   INCLUDES = -ID:\dev\Gameplay\NPC_RL_Prototype -ID:\dev\Gameplay\NPC_RL_Prototype\src -ID:\dev\Gameplay\NPC_RL_Prototype\include -ID:\dev\Gameplay\NPC_RL_Prototype\include\imgui -ID:\dev\Gameplay\NPC_RL_Prototype\src\tinygltf -ID:\dev\Gameplay\NPC_RL_Prototype\src\OpenGL -ID:\dev\Gameplay\NPC_RL_Prototype\src\Tools -ID:\dev\Gameplay\NPC_RL_Prototype\src\NavMesh -ID:\dev\Gameplay\NPC_RL_Prototype\include\Recast\Include -ID:\dev\Gameplay\NPC_RL_Prototype\include\Detour\Include -ID:\dev\Gameplay\NPC_RL_Prototype\include\DetourCrowd\Include -I"C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\studio\inc" -I"C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\lowlevel\inc" -I"C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\core\inc"
   OBJECT_DIR = CMakeFiles\NPC_RL_Prototype.dir
@@ -722,7 +722,7 @@ build CMakeFiles\NPC_RL_Prototype.dir\include\Detour\Source\DetourNode.cpp.obj: 
 
 build CMakeFiles\NPC_RL_Prototype.dir\include\DetourCrowd\Source\DetourCrowd.cpp.obj: CXX_COMPILER__NPC_RL_Prototype_unscanned_Debug D$:\dev\Gameplay\NPC_RL_Prototype\include\DetourCrowd\Source\DetourCrowd.cpp || cmake_object_order_depends_target_NPC_RL_Prototype
   CONFIG = Debug
-  DEFINES = -DGLM_ENABLE_EXPERIMENTAL -DUNICODE -D_CRT_SECURE_NO_WARNINGS -D_DEBUG -D_UNICODE
+  DEFINES = -DGLM_ENABLE_EXPERIMENTAL -DNPC_SCENE_ROOT=\"D:/dev/Gameplay/NPC_RL_Prototype\" -DUNICODE -D_CRT_SECURE_NO_WARNINGS -D_DEBUG -D_UNICODE
   FLAGS = /DWIN32 /D_WINDOWS /EHsc /Zi /Ob0 /Od /RTC1 -std:c++20 -MDd /W3 /MP /permissive- /Zi /sdl
   INCLUDES = -ID:\dev\Gameplay\NPC_RL_Prototype -ID:\dev\Gameplay\NPC_RL_Prototype\src -ID:\dev\Gameplay\NPC_RL_Prototype\include -ID:\dev\Gameplay\NPC_RL_Prototype\include\imgui -ID:\dev\Gameplay\NPC_RL_Prototype\src\tinygltf -ID:\dev\Gameplay\NPC_RL_Prototype\src\OpenGL -ID:\dev\Gameplay\NPC_RL_Prototype\src\Tools -ID:\dev\Gameplay\NPC_RL_Prototype\src\NavMesh -ID:\dev\Gameplay\NPC_RL_Prototype\include\Recast\Include -ID:\dev\Gameplay\NPC_RL_Prototype\include\Detour\Include -ID:\dev\Gameplay\NPC_RL_Prototype\include\DetourCrowd\Include -I"C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\studio\inc" -I"C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\lowlevel\inc" -I"C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\core\inc"
   OBJECT_DIR = CMakeFiles\NPC_RL_Prototype.dir
@@ -733,7 +733,7 @@ build CMakeFiles\NPC_RL_Prototype.dir\include\DetourCrowd\Source\DetourCrowd.cpp
 
 build CMakeFiles\NPC_RL_Prototype.dir\include\DetourCrowd\Source\DetourLocalBoundary.cpp.obj: CXX_COMPILER__NPC_RL_Prototype_unscanned_Debug D$:\dev\Gameplay\NPC_RL_Prototype\include\DetourCrowd\Source\DetourLocalBoundary.cpp || cmake_object_order_depends_target_NPC_RL_Prototype
   CONFIG = Debug
-  DEFINES = -DGLM_ENABLE_EXPERIMENTAL -DUNICODE -D_CRT_SECURE_NO_WARNINGS -D_DEBUG -D_UNICODE
+  DEFINES = -DGLM_ENABLE_EXPERIMENTAL -DNPC_SCENE_ROOT=\"D:/dev/Gameplay/NPC_RL_Prototype\" -DUNICODE -D_CRT_SECURE_NO_WARNINGS -D_DEBUG -D_UNICODE
   FLAGS = /DWIN32 /D_WINDOWS /EHsc /Zi /Ob0 /Od /RTC1 -std:c++20 -MDd /W3 /MP /permissive- /Zi /sdl
   INCLUDES = -ID:\dev\Gameplay\NPC_RL_Prototype -ID:\dev\Gameplay\NPC_RL_Prototype\src -ID:\dev\Gameplay\NPC_RL_Prototype\include -ID:\dev\Gameplay\NPC_RL_Prototype\include\imgui -ID:\dev\Gameplay\NPC_RL_Prototype\src\tinygltf -ID:\dev\Gameplay\NPC_RL_Prototype\src\OpenGL -ID:\dev\Gameplay\NPC_RL_Prototype\src\Tools -ID:\dev\Gameplay\NPC_RL_Prototype\src\NavMesh -ID:\dev\Gameplay\NPC_RL_Prototype\include\Recast\Include -ID:\dev\Gameplay\NPC_RL_Prototype\include\Detour\Include -ID:\dev\Gameplay\NPC_RL_Prototype\include\DetourCrowd\Include -I"C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\studio\inc" -I"C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\lowlevel\inc" -I"C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\core\inc"
   OBJECT_DIR = CMakeFiles\NPC_RL_Prototype.dir
@@ -744,7 +744,7 @@ build CMakeFiles\NPC_RL_Prototype.dir\include\DetourCrowd\Source\DetourLocalBoun
 
 build CMakeFiles\NPC_RL_Prototype.dir\include\DetourCrowd\Source\DetourObstacleAvoidance.cpp.obj: CXX_COMPILER__NPC_RL_Prototype_unscanned_Debug D$:\dev\Gameplay\NPC_RL_Prototype\include\DetourCrowd\Source\DetourObstacleAvoidance.cpp || cmake_object_order_depends_target_NPC_RL_Prototype
   CONFIG = Debug
-  DEFINES = -DGLM_ENABLE_EXPERIMENTAL -DUNICODE -D_CRT_SECURE_NO_WARNINGS -D_DEBUG -D_UNICODE
+  DEFINES = -DGLM_ENABLE_EXPERIMENTAL -DNPC_SCENE_ROOT=\"D:/dev/Gameplay/NPC_RL_Prototype\" -DUNICODE -D_CRT_SECURE_NO_WARNINGS -D_DEBUG -D_UNICODE
   FLAGS = /DWIN32 /D_WINDOWS /EHsc /Zi /Ob0 /Od /RTC1 -std:c++20 -MDd /W3 /MP /permissive- /Zi /sdl
   INCLUDES = -ID:\dev\Gameplay\NPC_RL_Prototype -ID:\dev\Gameplay\NPC_RL_Prototype\src -ID:\dev\Gameplay\NPC_RL_Prototype\include -ID:\dev\Gameplay\NPC_RL_Prototype\include\imgui -ID:\dev\Gameplay\NPC_RL_Prototype\src\tinygltf -ID:\dev\Gameplay\NPC_RL_Prototype\src\OpenGL -ID:\dev\Gameplay\NPC_RL_Prototype\src\Tools -ID:\dev\Gameplay\NPC_RL_Prototype\src\NavMesh -ID:\dev\Gameplay\NPC_RL_Prototype\include\Recast\Include -ID:\dev\Gameplay\NPC_RL_Prototype\include\Detour\Include -ID:\dev\Gameplay\NPC_RL_Prototype\include\DetourCrowd\Include -I"C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\studio\inc" -I"C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\lowlevel\inc" -I"C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\core\inc"
   OBJECT_DIR = CMakeFiles\NPC_RL_Prototype.dir
@@ -755,7 +755,7 @@ build CMakeFiles\NPC_RL_Prototype.dir\include\DetourCrowd\Source\DetourObstacleA
 
 build CMakeFiles\NPC_RL_Prototype.dir\include\DetourCrowd\Source\DetourPathCorridor.cpp.obj: CXX_COMPILER__NPC_RL_Prototype_unscanned_Debug D$:\dev\Gameplay\NPC_RL_Prototype\include\DetourCrowd\Source\DetourPathCorridor.cpp || cmake_object_order_depends_target_NPC_RL_Prototype
   CONFIG = Debug
-  DEFINES = -DGLM_ENABLE_EXPERIMENTAL -DUNICODE -D_CRT_SECURE_NO_WARNINGS -D_DEBUG -D_UNICODE
+  DEFINES = -DGLM_ENABLE_EXPERIMENTAL -DNPC_SCENE_ROOT=\"D:/dev/Gameplay/NPC_RL_Prototype\" -DUNICODE -D_CRT_SECURE_NO_WARNINGS -D_DEBUG -D_UNICODE
   FLAGS = /DWIN32 /D_WINDOWS /EHsc /Zi /Ob0 /Od /RTC1 -std:c++20 -MDd /W3 /MP /permissive- /Zi /sdl
   INCLUDES = -ID:\dev\Gameplay\NPC_RL_Prototype -ID:\dev\Gameplay\NPC_RL_Prototype\src -ID:\dev\Gameplay\NPC_RL_Prototype\include -ID:\dev\Gameplay\NPC_RL_Prototype\include\imgui -ID:\dev\Gameplay\NPC_RL_Prototype\src\tinygltf -ID:\dev\Gameplay\NPC_RL_Prototype\src\OpenGL -ID:\dev\Gameplay\NPC_RL_Prototype\src\Tools -ID:\dev\Gameplay\NPC_RL_Prototype\src\NavMesh -ID:\dev\Gameplay\NPC_RL_Prototype\include\Recast\Include -ID:\dev\Gameplay\NPC_RL_Prototype\include\Detour\Include -ID:\dev\Gameplay\NPC_RL_Prototype\include\DetourCrowd\Include -I"C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\studio\inc" -I"C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\lowlevel\inc" -I"C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\core\inc"
   OBJECT_DIR = CMakeFiles\NPC_RL_Prototype.dir
@@ -766,7 +766,7 @@ build CMakeFiles\NPC_RL_Prototype.dir\include\DetourCrowd\Source\DetourPathCorri
 
 build CMakeFiles\NPC_RL_Prototype.dir\include\DetourCrowd\Source\DetourPathQueue.cpp.obj: CXX_COMPILER__NPC_RL_Prototype_unscanned_Debug D$:\dev\Gameplay\NPC_RL_Prototype\include\DetourCrowd\Source\DetourPathQueue.cpp || cmake_object_order_depends_target_NPC_RL_Prototype
   CONFIG = Debug
-  DEFINES = -DGLM_ENABLE_EXPERIMENTAL -DUNICODE -D_CRT_SECURE_NO_WARNINGS -D_DEBUG -D_UNICODE
+  DEFINES = -DGLM_ENABLE_EXPERIMENTAL -DNPC_SCENE_ROOT=\"D:/dev/Gameplay/NPC_RL_Prototype\" -DUNICODE -D_CRT_SECURE_NO_WARNINGS -D_DEBUG -D_UNICODE
   FLAGS = /DWIN32 /D_WINDOWS /EHsc /Zi /Ob0 /Od /RTC1 -std:c++20 -MDd /W3 /MP /permissive- /Zi /sdl
   INCLUDES = -ID:\dev\Gameplay\NPC_RL_Prototype -ID:\dev\Gameplay\NPC_RL_Prototype\src -ID:\dev\Gameplay\NPC_RL_Prototype\include -ID:\dev\Gameplay\NPC_RL_Prototype\include\imgui -ID:\dev\Gameplay\NPC_RL_Prototype\src\tinygltf -ID:\dev\Gameplay\NPC_RL_Prototype\src\OpenGL -ID:\dev\Gameplay\NPC_RL_Prototype\src\Tools -ID:\dev\Gameplay\NPC_RL_Prototype\src\NavMesh -ID:\dev\Gameplay\NPC_RL_Prototype\include\Recast\Include -ID:\dev\Gameplay\NPC_RL_Prototype\include\Detour\Include -ID:\dev\Gameplay\NPC_RL_Prototype\include\DetourCrowd\Include -I"C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\studio\inc" -I"C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\lowlevel\inc" -I"C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\core\inc"
   OBJECT_DIR = CMakeFiles\NPC_RL_Prototype.dir
@@ -777,7 +777,7 @@ build CMakeFiles\NPC_RL_Prototype.dir\include\DetourCrowd\Source\DetourPathQueue
 
 build CMakeFiles\NPC_RL_Prototype.dir\include\DetourCrowd\Source\DetourProximityGrid.cpp.obj: CXX_COMPILER__NPC_RL_Prototype_unscanned_Debug D$:\dev\Gameplay\NPC_RL_Prototype\include\DetourCrowd\Source\DetourProximityGrid.cpp || cmake_object_order_depends_target_NPC_RL_Prototype
   CONFIG = Debug
-  DEFINES = -DGLM_ENABLE_EXPERIMENTAL -DUNICODE -D_CRT_SECURE_NO_WARNINGS -D_DEBUG -D_UNICODE
+  DEFINES = -DGLM_ENABLE_EXPERIMENTAL -DNPC_SCENE_ROOT=\"D:/dev/Gameplay/NPC_RL_Prototype\" -DUNICODE -D_CRT_SECURE_NO_WARNINGS -D_DEBUG -D_UNICODE
   FLAGS = /DWIN32 /D_WINDOWS /EHsc /Zi /Ob0 /Od /RTC1 -std:c++20 -MDd /W3 /MP /permissive- /Zi /sdl
   INCLUDES = -ID:\dev\Gameplay\NPC_RL_Prototype -ID:\dev\Gameplay\NPC_RL_Prototype\src -ID:\dev\Gameplay\NPC_RL_Prototype\include -ID:\dev\Gameplay\NPC_RL_Prototype\include\imgui -ID:\dev\Gameplay\NPC_RL_Prototype\src\tinygltf -ID:\dev\Gameplay\NPC_RL_Prototype\src\OpenGL -ID:\dev\Gameplay\NPC_RL_Prototype\src\Tools -ID:\dev\Gameplay\NPC_RL_Prototype\src\NavMesh -ID:\dev\Gameplay\NPC_RL_Prototype\include\Recast\Include -ID:\dev\Gameplay\NPC_RL_Prototype\include\Detour\Include -ID:\dev\Gameplay\NPC_RL_Prototype\include\DetourCrowd\Include -I"C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\studio\inc" -I"C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\lowlevel\inc" -I"C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\core\inc"
   OBJECT_DIR = CMakeFiles\NPC_RL_Prototype.dir

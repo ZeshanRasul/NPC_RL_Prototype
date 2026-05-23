@@ -504,6 +504,40 @@ void NavMeshManager::Update(float deltaTime,
     }
 }
 
+glm::vec3 NavMeshManager::TeleportAgent(int agentIdx, const glm::vec3& newPos)
+{
+    if (!m_crowd || !m_navMeshQuery) return newPos;
+
+    // Snap the desired position onto the navmesh
+    float searchPos[3] = { newPos.x, newPos.y, newPos.z };
+    float snapped[3]   = { newPos.x, newPos.y, newPos.z };
+    dtPolyRef poly     = 0;
+    m_navMeshQuery->findNearestPoly(searchPos, m_halfExtents, &m_filter, &poly, snapped);
+
+    // Remove the existing agent so its slot is freed
+    m_crowd->removeAgent(agentIdx);
+
+    // Rebuild the same params used in InitCrowd
+    dtCrowdAgentParams ap{};
+    ap.radius                = AGENT_RADIUS;
+    ap.height                = 1.0f;
+    ap.maxSpeed              = 4.0f;
+    ap.maxAcceleration       = 12.0f;
+    ap.collisionQueryRange   = AGENT_RADIUS * 6.0f;
+    ap.pathOptimizationRange = AGENT_RADIUS * 15.0f;
+    ap.updateFlags           = DT_CROWD_ANTICIPATE_TURNS
+                             | DT_CROWD_OPTIMIZE_VIS
+                             | DT_CROWD_OPTIMIZE_TOPO
+                             | DT_CROWD_SEPARATION;
+    ap.separationWeight = 0.5f;
+
+    // Re-add at the snapped position — dtCrowd reuses the freed slot first,
+    // so the returned ID will equal agentIdx as long as we add immediately.
+    m_crowd->addAgent(snapped, &ap);
+
+    return glm::vec3(snapped[0], snapped[1], snapped[2]);
+}
+
 void NavMeshManager::RenderDebug(const glm::mat4& view, const glm::mat4& projection)
 {
     if (!m_vao) return;

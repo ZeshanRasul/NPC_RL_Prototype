@@ -43,6 +43,11 @@ public:
     bool SnapToNavMesh(const glm::vec3& pos, glm::vec3& outPos,
                        float xzExtent = 2.0f, float yExtent = 10.0f) const;
 
+    // Remove the crowd agent at agentIdx and re-add it at newPos (snapped to navmesh).
+    // Used in edit mode to keep the agent in sync with gizmo-dragged positions.
+    // Returns the snapped world position written back to the enemy.
+    glm::vec3 TeleportAgent(int agentIdx, const glm::vec3& newPos);
+
     dtNavMeshQuery*    GetQuery()       const { return m_navMeshQuery; }
     dtCrowd*           GetCrowd()       const { return m_crowd; }
     const dtQueryFilter& GetFilter()    const { return m_filter; }

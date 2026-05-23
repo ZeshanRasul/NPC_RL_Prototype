@@ -6,13 +6,12 @@
   Enemy.cpp
   Ground.cpp
   Player.cpp
-  PhysicsWorld.cpp
   main.cpp
 D:\dev\Gameplay\NPC_RL_Prototype\src\GameObjects\Ground.cpp(93,29): warning C4267: 'argument': conversion from 'size_t' to 'GLsizei', possible loss of data
-D:\dev\Gameplay\NPC_RL_Prototype\src\GameObjects\Player.cpp(73,29): warning C4267: 'argument': conversion from 'size_t' to 'GLsizei', possible loss of data
 D:\dev\Gameplay\NPC_RL_Prototype\src\GameObjects\Ground.cpp(329,67): warning C4244: 'argument': conversion from 'const double' to 'float', possible loss of data
 D:\dev\Gameplay\NPC_RL_Prototype\src\GameObjects\Ground.cpp(330,68): warning C4244: 'argument': conversion from 'const double' to 'float', possible loss of data
 D:\dev\Gameplay\NPC_RL_Prototype\src\GameObjects\Ground.cpp(469,29): warning C4267: 'argument': conversion from 'size_t' to 'GLsizei', possible loss of data
+D:\dev\Gameplay\NPC_RL_Prototype\src\GameObjects\Player.cpp(73,29): warning C4267: 'argument': conversion from 'size_t' to 'GLsizei', possible loss of data
 D:\dev\Gameplay\NPC_RL_Prototype\src\GameObjects\Player.cpp(289,67): warning C4244: 'argument': conversion from 'const double' to 'float', possible loss of data
 D:\dev\Gameplay\NPC_RL_Prototype\src\GameObjects\Player.cpp(290,68): warning C4244: 'argument': conversion from 'const double' to 'float', possible loss of data
 D:\dev\Gameplay\NPC_RL_Prototype\src\GameObjects\Enemy.cpp(157,30): warning C4267: 'argument': conversion from 'size_t' to 'GLsizei', possible loss of data

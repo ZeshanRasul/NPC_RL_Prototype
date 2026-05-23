@@ -165,6 +165,9 @@ target_compile_definitions(NPC_RL_Prototype PRIVATE
     $<$<CONFIG:Debug>:_DEBUG>
     $<$<CONFIG:Release>:NDEBUG>
     $<$<CONFIG:Profile>:NDEBUG>
+    # Absolute project root so scene_settings.json is always written there,
+    # regardless of the working directory the exe is launched from.
+    "NPC_SCENE_ROOT=\"${CMAKE_SOURCE_DIR}\""
 )
 
 if(NPC_RL_QLEARNING)

@@ -1387,8 +1387,8 @@ events:
     checks:
       - "Detecting C compiler ABI info"
     directories:
-      source: "D:/dev/Gameplay/NPC_RL_Prototype/out/build/x64-Debug/CMakeFiles/CMakeScratch/TryCompile-mgzj8o"
-      binary: "D:/dev/Gameplay/NPC_RL_Prototype/out/build/x64-Debug/CMakeFiles/CMakeScratch/TryCompile-mgzj8o"
+      source: "D:/dev/Gameplay/NPC_RL_Prototype/out/build/x64-Debug/CMakeFiles/CMakeScratch/TryCompile-mkbl89"
+      binary: "D:/dev/Gameplay/NPC_RL_Prototype/out/build/x64-Debug/CMakeFiles/CMakeScratch/TryCompile-mkbl89"
     cmakeVariables:
       CMAKE_C_FLAGS: "/DWIN32 /D_WINDOWS"
       CMAKE_C_FLAGS_DEBUG: "/Zi /Ob0 /Od /RTC1"
@@ -1397,11 +1397,11 @@ events:
       variable: "CMAKE_C_ABI_COMPILED"
       cached: true
       stdout: |
-        Change Dir: 'D:/dev/Gameplay/NPC_RL_Prototype/out/build/x64-Debug/CMakeFiles/CMakeScratch/TryCompile-mgzj8o'
+        Change Dir: 'D:/dev/Gameplay/NPC_RL_Prototype/out/build/x64-Debug/CMakeFiles/CMakeScratch/TryCompile-mkbl89'
         
-        Run Build Command(s): "C:/Program Files/Microsoft Visual Studio/18/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/Ninja/ninja.exe" -v cmTC_a7eb0
-        [1/2] C:\\PROGRA~1\\MICROS~1\\18\\COMMUN~1\\VC\\Tools\\MSVC\\1451~1.362\\bin\\Hostx64\\x64\\cl.exe  /nologo -D_MBCS  /DWIN32 /D_WINDOWS  /Zi /Ob0 /Od /RTC1 -MDd /showIncludes /FoCMakeFiles\\cmTC_a7eb0.dir\\CMakeCCompilerABI.c.obj /FdCMakeFiles\\cmTC_a7eb0.dir\\ /FS -c "C:\\Program Files\\Microsoft Visual Studio\\18\\Community\\Common7\\IDE\\CommonExtensions\\Microsoft\\CMake\\CMake\\share\\cmake-4.2\\Modules\\CMakeCCompilerABI.c"
-        [2/2] C:\\Windows\\system32\\cmd.exe /C "cd . && "C:\\Program Files\\Microsoft Visual Studio\\18\\Community\\Common7\\IDE\\CommonExtensions\\Microsoft\\CMake\\CMake\\bin\\cmake.exe" -E vs_link_exe --msvc-ver=1951 --intdir=CMakeFiles\\cmTC_a7eb0.dir --rc=C:\\PROGRA~2\\WI3CF2~1\\10\\bin\\100261~1.0\\x64\\rc.exe --mt=C:\\PROGRA~2\\WI3CF2~1\\10\\bin\\100261~1.0\\x64\\mt.exe --manifests  -- C:\\PROGRA~1\\MICROS~1\\18\\COMMUN~1\\VC\\Tools\\MSVC\\1451~1.362\\bin\\Hostx64\\x64\\link.exe /nologo CMakeFiles\\cmTC_a7eb0.dir\\CMakeCCompilerABI.c.obj  /out:cmTC_a7eb0.exe /implib:cmTC_a7eb0.lib /pdb:cmTC_a7eb0.pdb /version:0.0 /machine:x64  /debug /INCREMENTAL /subsystem:console  kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib && cd ."
+        Run Build Command(s): "C:/Program Files/Microsoft Visual Studio/18/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/Ninja/ninja.exe" -v cmTC_df75b
+        [1/2] C:\\PROGRA~1\\MICROS~1\\18\\COMMUN~1\\VC\\Tools\\MSVC\\1451~1.362\\bin\\Hostx64\\x64\\cl.exe  /nologo -D_MBCS  /DWIN32 /D_WINDOWS  /Zi /Ob0 /Od /RTC1 -MDd /showIncludes /FoCMakeFiles\\cmTC_df75b.dir\\CMakeCCompilerABI.c.obj /FdCMakeFiles\\cmTC_df75b.dir\\ /FS -c "C:\\Program Files\\Microsoft Visual Studio\\18\\Community\\Common7\\IDE\\CommonExtensions\\Microsoft\\CMake\\CMake\\share\\cmake-4.2\\Modules\\CMakeCCompilerABI.c"
+        [2/2] C:\\Windows\\system32\\cmd.exe /C "cd . && "C:\\Program Files\\Microsoft Visual Studio\\18\\Community\\Common7\\IDE\\CommonExtensions\\Microsoft\\CMake\\CMake\\bin\\cmake.exe" -E vs_link_exe --msvc-ver=1951 --intdir=CMakeFiles\\cmTC_df75b.dir --rc=C:\\PROGRA~2\\WI3CF2~1\\10\\bin\\100261~1.0\\x64\\rc.exe --mt=C:\\PROGRA~2\\WI3CF2~1\\10\\bin\\100261~1.0\\x64\\mt.exe --manifests  -- C:\\PROGRA~1\\MICROS~1\\18\\COMMUN~1\\VC\\Tools\\MSVC\\1451~1.362\\bin\\Hostx64\\x64\\link.exe /nologo CMakeFiles\\cmTC_df75b.dir\\CMakeCCompilerABI.c.obj  /out:cmTC_df75b.exe /implib:cmTC_df75b.lib /pdb:cmTC_df75b.pdb /version:0.0 /machine:x64  /debug /INCREMENTAL /subsystem:console  kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib && cd ."
         
       exitCode: 0
   -
@@ -1441,8 +1441,8 @@ events:
     checks:
       - "Detecting CXX compiler ABI info"
     directories:
-      source: "D:/dev/Gameplay/NPC_RL_Prototype/out/build/x64-Debug/CMakeFiles/CMakeScratch/TryCompile-muo4kb"
-      binary: "D:/dev/Gameplay/NPC_RL_Prototype/out/build/x64-Debug/CMakeFiles/CMakeScratch/TryCompile-muo4kb"
+      source: "D:/dev/Gameplay/NPC_RL_Prototype/out/build/x64-Debug/CMakeFiles/CMakeScratch/TryCompile-2xfydr"
+      binary: "D:/dev/Gameplay/NPC_RL_Prototype/out/build/x64-Debug/CMakeFiles/CMakeScratch/TryCompile-2xfydr"
     cmakeVariables:
       CMAKE_CXX_FLAGS: "/DWIN32 /D_WINDOWS /EHsc"
       CMAKE_CXX_FLAGS_DEBUG: "/Zi /Ob0 /Od /RTC1"
@@ -1452,11 +1452,11 @@ events:
       variable: "CMAKE_CXX_ABI_COMPILED"
       cached: true
       stdout: |
-        Change Dir: 'D:/dev/Gameplay/NPC_RL_Prototype/out/build/x64-Debug/CMakeFiles/CMakeScratch/TryCompile-muo4kb'
+        Change Dir: 'D:/dev/Gameplay/NPC_RL_Prototype/out/build/x64-Debug/CMakeFiles/CMakeScratch/TryCompile-2xfydr'
         
-        Run Build Command(s): "C:/Program Files/Microsoft Visual Studio/18/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/Ninja/ninja.exe" -v cmTC_6c297
-        [1/2] C:\\PROGRA~1\\MICROS~1\\18\\COMMUN~1\\VC\\Tools\\MSVC\\1451~1.362\\bin\\Hostx64\\x64\\cl.exe  /nologo /TP -D_MBCS  /DWIN32 /D_WINDOWS /EHsc  /Zi /Ob0 /Od /RTC1 -MDd /showIncludes /FoCMakeFiles\\cmTC_6c297.dir\\CMakeCXXCompilerABI.cpp.obj /FdCMakeFiles\\cmTC_6c297.dir\\ /FS -c "C:\\Program Files\\Microsoft Visual Studio\\18\\Community\\Common7\\IDE\\CommonExtensions\\Microsoft\\CMake\\CMake\\share\\cmake-4.2\\Modules\\CMakeCXXCompilerABI.cpp"
-        [2/2] C:\\Windows\\system32\\cmd.exe /C "cd . && "C:\\Program Files\\Microsoft Visual Studio\\18\\Community\\Common7\\IDE\\CommonExtensions\\Microsoft\\CMake\\CMake\\bin\\cmake.exe" -E vs_link_exe --msvc-ver=1951 --intdir=CMakeFiles\\cmTC_6c297.dir --rc=C:\\PROGRA~2\\WI3CF2~1\\10\\bin\\100261~1.0\\x64\\rc.exe --mt=C:\\PROGRA~2\\WI3CF2~1\\10\\bin\\100261~1.0\\x64\\mt.exe --manifests  -- C:\\PROGRA~1\\MICROS~1\\18\\COMMUN~1\\VC\\Tools\\MSVC\\1451~1.362\\bin\\Hostx64\\x64\\link.exe /nologo CMakeFiles\\cmTC_6c297.dir\\CMakeCXXCompilerABI.cpp.obj  /out:cmTC_6c297.exe /implib:cmTC_6c297.lib /pdb:cmTC_6c297.pdb /version:0.0 /machine:x64  /debug /INCREMENTAL /subsystem:console  kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib && cd ."
+        Run Build Command(s): "C:/Program Files/Microsoft Visual Studio/18/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/Ninja/ninja.exe" -v cmTC_f929c
+        [1/2] C:\\PROGRA~1\\MICROS~1\\18\\COMMUN~1\\VC\\Tools\\MSVC\\1451~1.362\\bin\\Hostx64\\x64\\cl.exe  /nologo /TP -D_MBCS  /DWIN32 /D_WINDOWS /EHsc  /Zi /Ob0 /Od /RTC1 -MDd /showIncludes /FoCMakeFiles\\cmTC_f929c.dir\\CMakeCXXCompilerABI.cpp.obj /FdCMakeFiles\\cmTC_f929c.dir\\ /FS -c "C:\\Program Files\\Microsoft Visual Studio\\18\\Community\\Common7\\IDE\\CommonExtensions\\Microsoft\\CMake\\CMake\\share\\cmake-4.2\\Modules\\CMakeCXXCompilerABI.cpp"
+        [2/2] C:\\Windows\\system32\\cmd.exe /C "cd . && "C:\\Program Files\\Microsoft Visual Studio\\18\\Community\\Common7\\IDE\\CommonExtensions\\Microsoft\\CMake\\CMake\\bin\\cmake.exe" -E vs_link_exe --msvc-ver=1951 --intdir=CMakeFiles\\cmTC_f929c.dir --rc=C:\\PROGRA~2\\WI3CF2~1\\10\\bin\\100261~1.0\\x64\\rc.exe --mt=C:\\PROGRA~2\\WI3CF2~1\\10\\bin\\100261~1.0\\x64\\mt.exe --manifests  -- C:\\PROGRA~1\\MICROS~1\\18\\COMMUN~1\\VC\\Tools\\MSVC\\1451~1.362\\bin\\Hostx64\\x64\\link.exe /nologo CMakeFiles\\cmTC_f929c.dir\\CMakeCXXCompilerABI.cpp.obj  /out:cmTC_f929c.exe /implib:cmTC_f929c.lib /pdb:cmTC_f929c.pdb /version:0.0 /machine:x64  /debug /INCREMENTAL /subsystem:console  kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib && cd ."
         
       exitCode: 0
   -

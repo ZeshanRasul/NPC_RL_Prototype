@@ -1,5 +1,6 @@
 #include "GameManager.h"
 #include "Components/AudioComponent.h"
+#include "SceneSettings.h"
 
 #include "imgui/imgui.h"
 #include "imgui/backend/imgui_impl_glfw.h"
@@ -9,6 +10,8 @@
 #include <glm/gtc/type_ptr.hpp>
 
 #include <fstream>
+
+static const std::string SCENE_SETTINGS_PATH = NPC_SCENE_ROOT "/scene_settings.json";
 
 GameManager::GameManager(Window* window, unsigned int width, unsigned int height)
 	: m_window(window), m_screenWidth(width), m_screenHeight(height)
@@ -249,6 +252,8 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 	if (m_navMeshManager->SnapToNavMesh(m_player->GetPosition(), playerSnapped))
 		m_player->SetPosition(playerSnapped);
 
+	LoadSceneSettings();
+
 	m_navMeshManager->InitCrowd(m_enemies);
 }
 
@@ -453,6 +458,12 @@ void GameManager::ShowSceneOutliner()
 		ImGui::PopStyleColor(3);
 		ImGui::SameLine();
 		ImGui::TextDisabled("(AI paused)");
+
+		ImGui::SameLine();
+		if (ImGui::Button("Save Scene"))
+			SaveSceneSettings();
+		ImGui::SameLine();
+		ImGui::TextDisabled("scene_settings.json");
 	}
 	else
 	{
@@ -460,7 +471,10 @@ void GameManager::ShowSceneOutliner()
 		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.2f, 0.6f, 0.2f, 1.0f));
 		ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.0f, 0.4f, 0.0f, 1.0f));
 		if (ImGui::Button("  PLAY MODE  "))
+		{
+			SaveSceneSettings();
 			m_editMode = true;
+		}
 		ImGui::PopStyleColor(3);
 	}
 
@@ -518,7 +532,10 @@ void GameManager::ShowEntityInspector()
 	ImGui::Separator();
 	glm::vec3 pos = e->GetPosition();
 	if (ImGui::DragFloat3("Position", glm::value_ptr(pos), 0.5f))
-		e->SetPosition(pos);
+	{
+		glm::vec3 snapped = m_navMeshManager->TeleportAgent(e->GetID(), pos);
+		e->SetPosition(snapped);
+	}
 
 	float health = e->GetHealth();
 	float maxHP = cfg.maxHealth;
@@ -549,7 +566,10 @@ void GameManager::ShowEntityInspector()
 			glm::value_ptr(model)
 		);
 		if (ImGuizmo::IsUsing())
-			e->SetPosition(glm::vec3(model[3]));
+		{
+			glm::vec3 snapped = m_navMeshManager->TeleportAgent(e->GetID(), glm::vec3(model[3]));
+			e->SetPosition(snapped);
+		}
 	}
 	else if (!m_editMode)
 	{
@@ -691,6 +711,76 @@ void GameManager::ShowPerformanceWindow()
 	ImGui::Text("Elapsed: %.1f s", m_elapsedTime);
 
 	ImGui::End();
+}
+
+void GameManager::SaveSceneSettings()
+{
+	SceneSettings s;
+
+	s.lightDirection = m_lighting.dirLight.m_direction;
+	s.lightAmbient   = m_lighting.dirLight.m_ambient;
+	s.lightDiffuse   = m_lighting.dirLight.m_diffuse;
+	s.lightSpecular  = m_lighting.dirLight.m_specular;
+	s.pbrColor       = m_lighting.pbrColor;
+
+	s.sceneCenter   = m_lighting.sceneCenter;
+	s.lightDistance = m_lighting.lightDistance;
+	s.orthoLeft     = m_lighting.orthoLeft;
+	s.orthoRight    = m_lighting.orthoRight;
+	s.orthoBottom   = m_lighting.orthoBottom;
+	s.orthoTop      = m_lighting.orthoTop;
+	s.nearPlane     = m_lighting.nearPlane;
+	s.farPlane      = m_lighting.farPlane;
+
+	s.minimapCenter = m_minimapCenter;
+	s.minimapHeight = m_minimapHeight;
+	s.minimapExtent = m_minimapExtent;
+
+	for (Enemy* e : m_enemies)
+	{
+		if (e) s.enemySpawns.push_back({ e->GetID(), e->GetPosition() });
+	}
+
+	s.Save(SCENE_SETTINGS_PATH);
+}
+
+void GameManager::LoadSceneSettings()
+{
+	SceneSettings s;
+	if (!s.Load(SCENE_SETTINGS_PATH))
+		return; // No saved file yet — keep coded defaults
+
+	m_lighting.dirLight.m_direction = s.lightDirection;
+	m_lighting.dirLight.m_ambient   = s.lightAmbient;
+	m_lighting.dirLight.m_diffuse   = s.lightDiffuse;
+	m_lighting.dirLight.m_specular  = s.lightSpecular;
+	m_lighting.pbrColor             = s.pbrColor;
+
+	m_lighting.sceneCenter   = s.sceneCenter;
+	m_lighting.lightDistance = s.lightDistance;
+	m_lighting.orthoLeft     = s.orthoLeft;
+	m_lighting.orthoRight    = s.orthoRight;
+	m_lighting.orthoBottom   = s.orthoBottom;
+	m_lighting.orthoTop      = s.orthoTop;
+	m_lighting.nearPlane     = s.nearPlane;
+	m_lighting.farPlane      = s.farPlane;
+	m_lighting.UpdateLightSpaceMatrix();
+
+	m_minimapCenter = s.minimapCenter;
+	m_minimapHeight = s.minimapHeight;
+	m_minimapExtent = s.minimapExtent;
+
+	for (const EnemySpawn& es : s.enemySpawns)
+	{
+		for (Enemy* e : m_enemies)
+		{
+			if (e && e->GetID() == es.id)
+			{
+				e->SetPosition(es.position);
+				break;
+			}
+		}
+	}
 }
 
 void GameManager::CalculatePerformance(float deltaTime)

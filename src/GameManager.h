@@ -180,6 +180,9 @@ private:
 	void ShowAIDebugPanel();
 	void ShowPerformanceWindow();
 
+	void SaveSceneSettings();
+	void LoadSceneSettings();
+
 	void CalculatePerformance(float deltaTime);
 
 	EventManager& GetEventManager() { return m_eventManager; }
