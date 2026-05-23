@@ -202,6 +202,7 @@ Player::Player(glm::vec3 pos, glm::vec3 scale, Shader* shdr, Shader* shadowMapSh
 	: GameObject(pos, scale, yaw, shdr, shadowMapShader, applySkinning, gameMgr)
 {
 	SetInitialPos(pos);
+	SetHealth(100000.0f);
 	m_initialYaw = yaw;
 
 	m_skinnedMesh.Load("src/Assets/Models/Soldier/Animations.glb");

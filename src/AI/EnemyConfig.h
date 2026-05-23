@@ -17,7 +17,8 @@ struct EnemyConfig {
 	bool        hasSkin      = true;
 	bool        rotateOnDraw = false;
 	bool        useAltShader = false; // true → enemyShader2 (vertex.glsl/fragment.glsl)
-
+	glm::vec3 rotationAxis = glm::vec3(0.0f, 1.0f, 0.0f);
+	float rotationAngle = 0.0f;
 	float maxHealth   = 100.0f;
 	float accuracy    = 60.0f;
 	float moveSpeed   = 7.5f;
@@ -27,7 +28,7 @@ struct EnemyConfig {
 	float sightFovDeg        = 65.0f;  // half-angle of forward cone; >= 180 = all-around
 	float alertRadius        = 80.0f;  // PlayerDetectedEvent only reaches allies within this distance
 	float alertTimeout       = 10.0f;  // seconds before resetting to patrol once LOS is lost
-	float patrolWanderRadius = 180.0f;  // max wander radius from spawn position
+	float patrolWanderRadius = 380.0f;  // max wander radius from spawn position
 
 	int animIdle       = 1;
 	int animWalk       = 5;
@@ -54,6 +55,8 @@ struct EnemyConfig {
 		EnemyConfig c;
 		c.type      = EnemyType::SCOUT;
 		c.modelPath = "src/Assets/Models/New_Enemies/Armour7/Scout.glb";
+		c.rotateOnDraw = true;
+		c.rotationAngle = -90.0f;
 		return c;
 	}
 
@@ -67,7 +70,9 @@ struct EnemyConfig {
 		c.sightRange       = 250.0f;
 		c.sightFovDeg      = 60.0f;
 		c.alertRadius      = 70.0f;
-		c.patrolWanderRadius = 125.0f;
+		c.patrolWanderRadius = 325.0f;
+		c.rotateOnDraw	   = true;
+		c.rotationAngle    = -90.0f;
 		return c;
 	}
 
@@ -78,6 +83,8 @@ struct EnemyConfig {
 		c.modelPath          = "src/Assets/Models/New_Enemies/Drone/Drone.glb";
 		c.hasSkin            = false;
 		c.rotateOnDraw       = true;
+		c.rotationAxis       = glm::vec3(1.0f, 0.0f, 0.0f);
+		c.rotationAngle		 = 90.0f;
 		c.useAltShader       = true;
 		c.accuracy           = 40.0f;
 		c.aabbScale          = glm::vec3(2.5f, 2.5f, 2.5f);
@@ -85,7 +92,7 @@ struct EnemyConfig {
 		c.sightRange         = 280.0f;
 		c.sightFovDeg        = 180.0f; // all-around (no cone check)
 		c.alertRadius        = 100.0f;
-		c.patrolWanderRadius = 250.0f;
+		c.patrolWanderRadius = 350.0f;
 		return c;
 	}
 

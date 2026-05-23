@@ -758,24 +758,29 @@ void GameManager::ShowLightingPanel()
 
 	ImGui::End();
 
-	// ImGuizmo: translate a "light anchor" at -dir*80; dragging it changes direction
-	const float LIGHT_DIST = 80.0f;
-	glm::vec3 anchor = -glm::normalize(m_lighting.dirLight.m_direction) * LIGHT_DIST;
-	glm::mat4 lightMat = glm::translate(glm::mat4(1.0f), anchor);
-
-	ImGuizmo::SetDrawlist(ImGui::GetBackgroundDrawList());
-	ImGuizmo::Manipulate(
-		glm::value_ptr(m_view),
-		glm::value_ptr(m_projection),
-		ImGuizmo::TRANSLATE,
-		ImGuizmo::WORLD,
-		glm::value_ptr(lightMat)
-	);
-	if (ImGuizmo::IsUsing())
+	// ImGuizmo: translate a "light anchor" at -dir*80; dragging it changes direction.
+	// Only active in edit mode when no entity or point/spot-light gizmo is selected,
+	// so that ImGuizmo::IsUsing() (global state) never fires for the wrong gizmo.
+	if (m_editMode && m_selectedEnemyIndex < 0 && m_selectedLightIndex < 0)
 	{
-		glm::vec3 newAnchor = glm::vec3(lightMat[3]);
-		if (glm::length(newAnchor) > 0.001f)
-			m_lighting.dirLight.m_direction = glm::normalize(-newAnchor);
+		const float LIGHT_DIST = 80.0f;
+		glm::vec3 anchor = -glm::normalize(m_lighting.dirLight.m_direction) * LIGHT_DIST;
+		glm::mat4 lightMat = glm::translate(glm::mat4(1.0f), anchor);
+
+		ImGuizmo::SetDrawlist(ImGui::GetBackgroundDrawList());
+		ImGuizmo::Manipulate(
+			glm::value_ptr(m_view),
+			glm::value_ptr(m_projection),
+			ImGuizmo::TRANSLATE,
+			ImGuizmo::WORLD,
+			glm::value_ptr(lightMat)
+		);
+		if (ImGuizmo::IsUsing())
+		{
+			glm::vec3 newAnchor = glm::vec3(lightMat[3]);
+			if (glm::length(newAnchor) > 0.001f)
+				m_lighting.dirLight.m_direction = glm::normalize(-newAnchor);
+		}
 	}
 }
 
