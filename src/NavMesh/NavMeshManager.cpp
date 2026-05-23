@@ -456,29 +456,19 @@ void NavMeshManager::Update(float deltaTime,
     for (Enemy* e : enemies) {
         if (!e || e->IsDead()) continue;
 
-        float offset = 5.0f;
-        float targetPos[3] = {
-            playerPos.x + (e->GetID() % 3 - 1) * offset,
-            playerPos.y,
-            playerPos.z + ((e->GetID() / 3) % 3 - 1) * offset
-        };
+        // Behaviour tree sets the target each frame; skip if enemy wants to stand still
+        if (!e->HasMovementTarget()) continue;
 
-        float jitterX = ((rand() % 100) / 100.0f - 0.5f) * 10.0f;
-        float jitterZ = ((rand() % 100) / 100.0f - 0.5f) * 10.0f;
+        glm::vec3 t = e->GetMovementTarget();
+        float targetPos[3] = { t.x, t.y, t.z };
 
-        dtPolyRef targetPoly = 0;
+        dtPolyRef targetPoly    = 0;
         float     targetOnMesh[3] = {};
 
         dtStatus st = m_navMeshQuery->findNearestPoly(
             targetPos, halfExtents, &m_filter, &targetPoly, targetOnMesh);
 
-        if (dtStatusFailed(st)) continue;
-
-        float jitteredTarget[3] = {
-            targetOnMesh[0] + jitterX,
-            targetOnMesh[1],
-            targetOnMesh[2] + jitterZ
-        };
+        if (dtStatusFailed(st) || targetPoly == 0) continue;
 
         m_crowd->requestMoveTarget(e->GetID(), targetPoly, targetOnMesh);
     }
@@ -488,14 +478,19 @@ void NavMeshManager::Update(float deltaTime,
     // Push crowd positions back to enemies
     for (Enemy* e : enemies) {
         const dtCrowdAgent* agent = m_crowd->getAgent(e->GetID());
-        if (!agent) continue;
+        if (!agent || !agent->active) continue;
 
         float agentPos[3];
         dtVcopy(agentPos, agent->npos);
 
-        float playerPosArr[3] = { playerPos.x, playerPos.y, playerPos.z };
-        if ((agent->npos - playerPosArr) < glm::abs(5.0f))
-            m_crowd->resetMoveTarget(e->GetID());
+        // Stop the agent when it is close enough to its target so it doesn't
+        // keep jittering in place once the behaviour tree clears the target.
+        if (e->HasMovementTarget()) {
+            glm::vec3 tgt = e->GetMovementTarget();
+            float dx = agentPos[0] - tgt.x, dz = agentPos[2] - tgt.z;
+            if (dx * dx + dz * dz < 2.25f) // 1.5 unit radius
+                m_crowd->resetMoveTarget(e->GetID());
+        }
 
         if (e->GetID() == 6)
             e->SetPosition(glm::vec3(agentPos[0], agentPos[1] + 2.0f, agentPos[2]));

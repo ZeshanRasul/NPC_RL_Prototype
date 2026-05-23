@@ -155,6 +155,13 @@ public:
 
 	glm::vec3 GetInitialPosition() const { return m_initialPosition; }
 
+	// Navmesh movement target set each frame by the behaviour tree
+	glm::vec3 GetMovementTarget()  const { return m_movementTarget; }
+	bool      HasMovementTarget()  const { return m_hasMovementTarget; }
+
+	bool IsPlayerDetectedPublic() const { return m_isPlayerDetected; }
+	bool IsSearchingPublic()      const { return m_isSearching; }
+
 	void SetPosition(glm::vec3 newPos);
 
 	void ComputeAudioWorldTransform() override;
@@ -317,6 +324,25 @@ private:
 	bool m_provideSuppressionFire = false;
 	bool m_allyHasDied = false;
 
+	// Detection state
+	bool      m_isSearching         = false;
+	float     m_losLostTimer        = 0.0f;
+	glm::vec3 m_lastKnownPlayerPos  = glm::vec3(0.0f);
+
+	// Patrol wander state
+	glm::vec3 m_patrolWanderTarget    = glm::vec3(0.0f);
+	float     m_patrolWaitTimer       = 0.0f;
+	bool      m_isPatrolWaiting       = false;
+	bool      m_hasPatrolWanderTarget = false;
+
+	// Search wander state
+	glm::vec3 m_searchWanderTarget    = glm::vec3(0.0f);
+	bool      m_hasSearchWanderTarget = false;
+
+	// Desired navmesh movement target, set by behaviour tree, consumed by NavMeshManager
+	glm::vec3 m_movementTarget    = glm::vec3(0.0f);
+	bool      m_hasMovementTarget = false;
+
 	int m_numDeadAllies = 0;
 
 	std::vector<glm::ivec2> m_currentPath;
@@ -387,6 +413,7 @@ private:
 	void BuildBehaviorTree();
 
 	void DetectPlayer();
+	bool CanSeePlayer();
 
 	bool IsHealthZeroOrBelow();
 	bool IsTakingDamage();
@@ -399,6 +426,7 @@ private:
 	bool IsInCover();
 	bool IsAttacking();
 	bool IsPatrolling();
+	bool IsSearching();
 	bool ShouldProvideSuppressionFire();
 
 	NodeStatus EnterDyingState();
@@ -409,6 +437,7 @@ private:
 	NodeStatus TakeCover();
 	NodeStatus EnterInCoverState();
 	NodeStatus Patrol();
+	NodeStatus Search();
 	NodeStatus InCoverAction();
 	NodeStatus Die();
 

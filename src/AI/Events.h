@@ -1,14 +1,14 @@
 #pragma once
 #include "Event.h"
+#include <glm/glm.hpp>
 
 class PlayerDetectedEvent : public Event
 {
 public:
-	PlayerDetectedEvent(int id) : m_npcId(id)
-	{
-	}
+	PlayerDetectedEvent(int id, glm::vec3 pos) : m_npcId(id), m_detectorPos(pos) {}
 
-	int m_npcId;
+	int       m_npcId;
+	glm::vec3 m_detectorPos;
 };
 
 class NPCDamagedEvent : public Event

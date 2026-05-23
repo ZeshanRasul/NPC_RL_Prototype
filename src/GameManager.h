@@ -150,6 +150,7 @@ public:
 	PhysicsWorld* GetPhysicsWorld() const { return m_physicsWorld; }
 	Camera* GetCamera() const { return m_camera; }
 	AudioManager* GetAudioManager() const { return m_audioManager; }
+	NavMeshManager* GetNavMeshManager() const { return m_navMeshManager.get(); }
 
 	void CheckGameOver();
 	void ResetGame();

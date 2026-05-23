@@ -415,11 +415,30 @@ void Enemy::Update(bool shouldUseEDBT, bool isPaused, bool isTimeScaled)
 #ifdef TRACY_ENABLE
 			ZoneScopedN("EDBT Update");
 #endif
-			float playerEnemyDistance = glm::distance(GetPosition(), m_player.GetPosition());
-			if (playerEnemyDistance < 35.0f && !IsPlayerDetected())
+			// --- Detection state machine ---
+			if (CanSeePlayer())
 			{
-				DetectPlayer();
+				m_lastKnownPlayerPos = m_player.GetPosition();
+				m_losLostTimer       = 0.0f;
+				m_isSearching        = false;
+				if (!m_isPlayerDetected)
+					DetectPlayer();
 			}
+			else if (m_isPlayerDetected)
+			{
+				m_losLostTimer += m_dt;
+				m_isSearching   = true;
+				if (m_losLostTimer >= m_config.alertTimeout)
+				{
+					m_isPlayerDetected    = false;
+					m_isSearching         = false;
+					m_losLostTimer        = 0.0f;
+					m_hasSearchWanderTarget = false;
+				}
+			}
+
+			// Clear movement target each frame; behaviour tree will re-set it if needed
+			m_hasMovementTarget = false;
 
 			m_behaviorTree->Tick();
 
@@ -504,8 +523,16 @@ void Enemy::OnEvent(const Event& event)
 	{
 		if (e->m_npcId != m_id)
 		{
-			m_isPlayerDetected = true;
-			Logger::Log(1, "Player detected by enemy %d\n", m_id);
+			float dist = glm::distance(GetPosition(), e->m_detectorPos);
+			if (dist <= m_config.alertRadius)
+			{
+				m_isPlayerDetected      = true;
+				m_lastKnownPlayerPos    = m_player.GetPosition();
+				m_losLostTimer          = 0.0f;
+				m_isSearching           = false;
+				Logger::Log(1, "[Alert] Enemy %d alerted by enemy %d (dist %.1f)\n",
+				            m_id, e->m_npcId, dist);
+			}
 		}
 	}
 	else if (auto e = dynamic_cast<const NPCDamagedEvent*>(&event))
@@ -1110,10 +1137,11 @@ void Enemy::BuildBehaviorTree()
 	// Attack Selector
 	auto attackSelector = std::make_shared<SelectorNode>();
 
-	// Player detected sequence
+	// Player detected sequence (attack — only when actively seeing or recently saw player, NOT searching)
 	auto playerDetectedSequence = std::make_shared<SequenceNode>();
 	playerDetectedSequence->AddChild(std::make_shared<ConditionNode>([this]() { return !IsHealthZeroOrBelow(); }));
 	playerDetectedSequence->AddChild(std::make_shared<ConditionNode>([this]() { return IsPlayerDetected(); }));
+	playerDetectedSequence->AddChild(std::make_shared<ConditionNode>([this]() { return !IsSearching(); }));
 
 	// Suppression Fire sequence
 	auto suppressionFireSequence = std::make_shared<SequenceNode>();
@@ -1162,12 +1190,18 @@ void Enemy::BuildBehaviorTree()
 	inCoverSequence->AddChild(playerVisibleSequence);
 	inCoverSequence->AddChild(playerNotVisibleSequence);
 
-	// Patrol action
+	// Search sequence — wander near last known position while alert timer ticks down
+	auto searchSequence = std::make_shared<SequenceNode>();
+	searchSequence->AddChild(std::make_shared<ConditionNode>([this]() { return !IsHealthZeroOrBelow(); }));
+	searchSequence->AddChild(std::make_shared<ConditionNode>([this]() { return IsSearching(); }));
+	searchSequence->AddChild(std::make_shared<ActionNode>([this]() { return Search(); }));
+
+	// Patrol action — random navmesh wander when fully unalerted
 	auto patrolSequence = std::make_shared<SequenceNode>();
 	patrolSequence->AddChild(std::make_shared<ConditionNode>([this]() { return !IsHealthZeroOrBelow(); }));
-	patrolSequence->AddChild(std::make_shared<ConditionNode>([this]() { return !IsPlayerInRange(); }));
+	patrolSequence->AddChild(std::make_shared<ConditionNode>([this]() { return !IsPlayerDetected(); }));
+	patrolSequence->AddChild(std::make_shared<ConditionNode>([this]() { return !IsSearching(); }));
 	patrolSequence->AddChild(std::make_shared<ConditionNode>([this]() { return !IsHealthBelowThreshold(); }));
-	patrolSequence->AddChild(std::make_shared<ConditionNode>([this]() { return !IsAttacking(); }));
 	patrolSequence->AddChild(std::make_shared<ActionNode>([this]() { return Patrol(); }));
 
 	// Add the Player Visible and Not Visible sequences to the Player Detected Selector
@@ -1184,8 +1218,9 @@ void Enemy::BuildBehaviorTree()
 	// Add the Suppression Fire Selector to the Suppression Fire Sequence
 	suppressionFireSequence->AddChild(suppressionFireSelector);
 
-	// Add sequences to attack selector
+	// Add sequences to attack selector: attack → search → patrol
 	attackSelector->AddChild(playerDetectedSequence);
+	attackSelector->AddChild(searchSequence);
 	attackSelector->AddChild(patrolSequence);
 
 	takingDamageSequence->AddChild(attackSelector);
@@ -1197,7 +1232,6 @@ void Enemy::BuildBehaviorTree()
 	root->AddChild(inCoverSequence);
 	root->AddChild(suppressionFireSequence);
 	root->AddChild(attackSelector);
-	root->AddChild(patrolSequence);
 
 	m_behaviorTree = root;
 }
@@ -1226,7 +1260,7 @@ void Enemy::DetectPlayer()
 		std::to_string(randomIndex);
 	Speak(clipName, 5.0f, randomFloat);
 
-	m_eventManager.Publish(PlayerDetectedEvent{ m_id });
+	m_eventManager.Publish(PlayerDetectedEvent{ m_id, GetPosition() });
 }
 
 bool Enemy::IsDead()
@@ -1249,16 +1283,39 @@ bool Enemy::IsPlayerDetected()
 	return m_isPlayerDetected;
 }
 
+bool Enemy::CanSeePlayer()
+{
+	glm::vec3 toPlayer = m_player.GetPosition() - GetPosition();
+	float dist = glm::length(toPlayer);
+
+	if (dist > m_config.sightRange) return false;
+
+	// FOV cone check — skipped when sightFovDeg >= 180 (all-around, e.g. Drone)
+	if (m_config.sightFovDeg < 180.0f)
+	{
+		glm::vec3 flatFront = glm::vec3(m_front.x, 0.0f, m_front.z);
+		if (glm::length(flatFront) < 0.001f) flatFront = glm::vec3(1.0f, 0.0f, 0.0f);
+		flatFront = glm::normalize(flatFront);
+
+		glm::vec3 flatDir = glm::vec3(toPlayer.x, 0.0f, toPlayer.z);
+		if (glm::length(flatDir) < 0.001f) return false;
+		flatDir = glm::normalize(flatDir);
+
+		float cosAngle = glm::dot(flatFront, flatDir);
+		if (cosAngle < std::cos(glm::radians(m_config.sightFovDeg)))
+			return false;
+	}
+
+	// Line-of-sight raycast through AABB colliders
+	glm::vec3 rayOrigin = GetPosition() + glm::vec3(0.0f, 2.5f, 0.0f);
+	glm::vec3 rayDir    = glm::normalize(m_player.GetPosition() - rayOrigin);
+	glm::vec3 hitPoint;
+	return m_gameManager->GetPhysicsWorld()->CheckPlayerVisibility(rayOrigin, rayDir, hitPoint, m_aabb);
+}
+
 bool Enemy::IsPlayerVisible()
 {
-	glm::vec3 tempEnemyShootPos = GetPosition() + glm::vec3(0.0f, 2.5f, 0.0f);
-	glm::vec3 tempEnemyShootDir = normalize(m_player.GetPosition() - GetPosition());
-	auto hitPoint = glm::vec3(0.0f);
-
-
-	m_isPlayerVisible = m_gameManager->GetPhysicsWorld()->CheckPlayerVisibility(
-		tempEnemyShootPos, tempEnemyShootDir, hitPoint, m_aabb);
-
+	m_isPlayerVisible = CanSeePlayer();
 	return m_isPlayerVisible;
 }
 
@@ -1287,6 +1344,11 @@ bool Enemy::IsPlayerInRange()
 	}
 
 	return m_isPlayerInRange;
+}
+
+bool Enemy::IsSearching()
+{
+	return m_isSearching;
 }
 
 bool Enemy::IsTakingCover()
@@ -1428,23 +1490,29 @@ NodeStatus Enemy::AttackShoot()
 NodeStatus Enemy::AttackChasePlayer()
 {
 	m_state = "Chasing Player";
-
-
 	m_isAttacking = true;
 
-	//for (glm::ivec2& cell : m_currentPath)
-	//{
-	//	if (cell.x >= 0 && cell.x < m_grid->GetGridSize() && cell.y >= 0 && cell.y < m_grid->GetGridSize() && m_grid->GetGrid()[cell.x][cell.y].IsOccupied())
-	//		m_currentPath = m_grid->FindPath(
-	//			glm::ivec2(GetPosition().x / m_grid->GetCellSize(), GetPosition().z / m_grid->GetCellSize()),
-	//			glm::ivec2(m_player.GetPosition().x / m_grid->GetCellSize(), m_player.GetPosition().z / m_grid->GetCellSize()),
-	//			m_grid->GetGrid(),
-	//			m_id
-	//		);
-	//}
+	// Drive the crowd agent toward the last known player position
+	m_movementTarget    = m_lastKnownPlayerPos;
+	m_hasMovementTarget = true;
 
+	// Face the movement direction
+	glm::vec3 dir = m_lastKnownPlayerPos - GetPosition();
+	if (glm::length(dir) > 0.1f)
+	{
+		dir  = glm::normalize(dir);
+		m_yaw = glm::degrees(glm::atan(dir.z, dir.x));
+		UpdateEnemyVectors();
+	}
 
-	MoveEnemy(m_currentPath, m_dt, 1.0f, false);
+	// Walk animation
+	if (!m_resetBlend && m_destAnim != m_config.animWalk)
+	{
+		SetSourceAnimNum(m_destAnim);
+		SetDestAnimNum(m_config.animWalk);
+		m_blendAnim = true;
+		m_resetBlend = true;
+	}
 
 
 	if (!IsPlayerVisible())
@@ -1587,50 +1655,143 @@ NodeStatus Enemy::EnterInCoverState()
 
 NodeStatus Enemy::Patrol()
 {
-	m_state = "Patrolling";
-	m_isAttacking = false;
+	m_state        = "Patrolling";
+	m_isAttacking  = false;
 	m_isPatrolling = true;
 
-	if (m_reachedDestination == false)
+	// --- Waiting at waypoint ---
+	if (m_isPatrolWaiting)
 	{
+		m_patrolWaitTimer -= m_dt;
+		m_hasMovementTarget = false;
 
-		VacatePreviousCell();
+		if (!m_resetBlend && m_destAnim != m_config.animIdle)
+		{
+			SetSourceAnimNum(m_destAnim);
+			SetDestAnimNum(m_config.animIdle);
+			m_blendAnim  = true;
+			m_resetBlend = true;
+		}
 
-		//for (glm::ivec2& cell : m_currentPath)
-		//{
-		//	if (m_grid->GetGrid()[cell.x][cell.y].IsOccupied())
-		//		m_currentPath = m_grid->FindPath(
-		//			glm::ivec2(GetPosition().x / m_grid->GetCellSize(), GetPosition().z / m_grid->GetCellSize()),
-		//			glm::ivec2(m_currentWaypoint.x / m_grid->GetCellSize(), m_currentWaypoint.z / m_grid->GetCellSize()),
-		//			m_grid->GetGrid(),
-		//			m_id
-		//		);
-		//}
-
-
-		MoveEnemy(m_currentPath, m_dt, 1.0f, false);
+		if (m_patrolWaitTimer <= 0.0f)
+		{
+			m_isPatrolWaiting       = false;
+			m_hasPatrolWanderTarget = false;
+		}
+		return NodeStatus::Running;
 	}
-	else
+
+	// --- Pick a new wander target if needed ---
+	if (!m_hasPatrolWanderTarget)
 	{
+		std::mt19937 gen{ std::random_device{}() };
+		std::uniform_real_distribution<float> angleDist(0.0f, 2.0f * 3.14159265f);
+		std::uniform_real_distribution<float> radiusDist(5.0f, m_config.patrolWanderRadius);
 
-		VacatePreviousCell();
+		float     angle     = angleDist(gen);
+		float     radius    = radiusDist(gen);
+		glm::vec3 candidate = m_initialPosition +
+		                      glm::vec3(std::cos(angle) * radius, 0.0f, std::sin(angle) * radius);
 
-		m_reachedDestination = false;
-
-		//for (glm::ivec2& cell : m_currentPath)
-		//{
-		//	if (m_grid->GetGrid()[cell.x][cell.y].IsOccupied())
-		//		m_currentPath = m_grid->FindPath(
-		//			glm::ivec2(GetPosition().x / m_grid->GetCellSize(), GetPosition().z / m_grid->GetCellSize()),
-		//			glm::ivec2(m_currentWaypoint.x / m_grid->GetCellSize(), m_currentWaypoint.z / m_grid->GetCellSize()),
-		//			m_grid->GetGrid(),
-		//			m_id
-		//		);
-		//}
-
-
-		MoveEnemy(m_currentPath, m_dt, 1.0f, false);
+		glm::vec3 snapped;
+		if (m_gameManager->GetNavMeshManager()->SnapToNavMesh(candidate, snapped, 10.0f, 20.0f))
+		{
+			m_patrolWanderTarget    = snapped;
+			m_hasPatrolWanderTarget = true;
+		}
+		else
+		{
+			// No navmesh poly found — stand idle and try again next frame
+			m_hasMovementTarget = false;
+			return NodeStatus::Running;
+		}
 	}
+
+	// --- Check if we've reached the target ---
+	glm::vec3 flatPos    = glm::vec3(GetPosition().x,         0.0f, GetPosition().z);
+	glm::vec3 flatTarget = glm::vec3(m_patrolWanderTarget.x,  0.0f, m_patrolWanderTarget.z);
+	if (glm::distance(flatPos, flatTarget) < 3.0f)
+	{
+		std::mt19937 gen{ std::random_device{}() };
+		std::uniform_real_distribution<float> waitDist(1.0f, 3.0f);
+		m_patrolWaitTimer       = waitDist(gen);
+		m_isPatrolWaiting       = true;
+		m_hasPatrolWanderTarget = false;
+		m_hasMovementTarget     = false;
+		return NodeStatus::Running;
+	}
+
+	// --- Walk toward target ---
+	m_movementTarget    = m_patrolWanderTarget;
+	m_hasMovementTarget = true;
+
+	glm::vec3 dir = glm::normalize(m_patrolWanderTarget - GetPosition());
+	m_yaw = glm::degrees(glm::atan(dir.z, dir.x));
+	UpdateEnemyVectors();
+
+	if (!m_resetBlend && m_destAnim != m_config.animWalk)
+	{
+		SetSourceAnimNum(m_destAnim);
+		SetDestAnimNum(m_config.animWalk);
+		m_blendAnim  = true;
+		m_resetBlend = true;
+	}
+
+	return NodeStatus::Running;
+}
+
+NodeStatus Enemy::Search()
+{
+	m_state       = "Searching";
+	m_isAttacking = false;
+
+	// Pick a new wander point near the last known player position when needed
+	glm::vec3 flatPos    = glm::vec3(GetPosition().x,          0.0f, GetPosition().z);
+	glm::vec3 flatTarget = glm::vec3(m_searchWanderTarget.x,   0.0f, m_searchWanderTarget.z);
+	bool needTarget = !m_hasSearchWanderTarget ||
+	                  glm::distance(flatPos, flatTarget) < 2.5f;
+
+	if (needTarget)
+	{
+		std::mt19937 gen{ std::random_device{}() };
+		std::uniform_real_distribution<float> angleDist(0.0f, 2.0f * 3.14159265f);
+		float searchRadius = m_config.sightRange * 0.5f;
+		std::uniform_real_distribution<float> radiusDist(3.0f, searchRadius);
+
+		float     angle     = angleDist(gen);
+		float     radius    = radiusDist(gen);
+		glm::vec3 candidate = m_lastKnownPlayerPos +
+		                      glm::vec3(std::cos(angle) * radius, 0.0f, std::sin(angle) * radius);
+
+		glm::vec3 snapped;
+		if (m_gameManager->GetNavMeshManager()->SnapToNavMesh(candidate, snapped, 10.0f, 20.0f))
+		{
+			m_searchWanderTarget    = snapped;
+			m_hasSearchWanderTarget = true;
+		}
+		else
+		{
+			m_hasMovementTarget = false;
+			return NodeStatus::Running;
+		}
+	}
+
+	// Walk toward wander target
+	m_movementTarget    = m_searchWanderTarget;
+	m_hasMovementTarget = true;
+
+	glm::vec3 dir = glm::normalize(m_searchWanderTarget - GetPosition());
+	m_yaw = glm::degrees(glm::atan(dir.z, dir.x));
+	UpdateEnemyVectors();
+
+	if (!m_resetBlend && m_destAnim != m_config.animWalk)
+	{
+		SetSourceAnimNum(m_destAnim);
+		SetDestAnimNum(m_config.animWalk);
+		m_blendAnim  = true;
+		m_resetBlend = true;
+	}
+
 	return NodeStatus::Running;
 }
 

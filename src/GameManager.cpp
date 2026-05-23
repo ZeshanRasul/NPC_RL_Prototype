@@ -837,13 +837,15 @@ void GameManager::ShowAIDebugPanel()
 	for (Enemy* e : m_enemies)
 	{
 		if (!e || e->IsDestroyed()) continue;
-		float hp = e->GetHealth();
+		float hp    = e->GetHealth();
 		float maxHP = e->GetConfig().maxHealth;
-		ImGui::Text("[%d] %-12s  %-16s  HP %.0f/%.0f",
+		ImGui::Text("[%d] %-12s  %-16s  HP %.0f/%.0f  %s%s",
 			e->GetID(),
 			EnemyTypeName(e->GetConfig().type),
 			e->GetEDBTState().c_str(),
-			hp, maxHP);
+			hp, maxHP,
+			e->IsPlayerDetectedPublic() ? "DET " : "",
+			e->IsSearchingPublic()      ? "SRCH" : "");
 	}
 
 	ImGui::End();
