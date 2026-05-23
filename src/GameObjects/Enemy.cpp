@@ -326,7 +326,7 @@ void Enemy::DrawGLTFModel(glm::mat4 viewMat, glm::mat4 projMat, glm::vec3 camPos
 		modelMat = glm::rotate(modelMat, glm::radians(m_config.rotationAngle), m_config.rotationAxis);
 	modelMat = glm::scale(modelMat, m_scale);
 
-	m_aabb->Render(viewMat, projMat, modelMat, glm::vec3(1.0f, 1.0f, 0.0f));
+//	m_aabb->Render(viewMat, projMat, modelMat, glm::vec3(1.0f, 1.0f, 0.0f));
 
 	m_shader->Use();
 
