@@ -13,8 +13,10 @@ enum EnemyType
 struct EnemyConfig {
 	EnemyType   type;
 	std::string modelPath;
+	std::string texturePath  = "src\\Assets\\Models\\New_Enemies\\Armour7\\armor7_painter_armor7_mat_BaseColor.png";
 	bool        hasSkin      = true;
 	bool        rotateOnDraw = false;
+	bool        useAltShader = false; // true → enemyShader2 (vertex.glsl/fragment.glsl)
 
 	float maxHealth   = 100.0f;
 	float accuracy    = 60.0f;
@@ -26,7 +28,19 @@ struct EnemyConfig {
 	int animTakeDamage = 3;
 	int animDeath      = 0;
 
-	glm::vec3 aabbScale = glm::vec3(3.8f, 3.3f, 3.5f);
+	glm::vec3 aabbScale  = glm::vec3(3.8f, 3.3f, 3.5f);
+	glm::vec3 modelScale = glm::vec3(5.0f);
+
+	static EnemyConfig FromType(EnemyType t)
+	{
+		switch (t) {
+		case SCOUT:       return Scout();
+		case HEAVY_SCOUT: return HeavyScout();
+		case DRONE:       return Drone();
+		case MECH:        return Mech();
+		default:          return Scout();
+		}
+	}
 
 	static EnemyConfig Scout()
 	{
@@ -53,21 +67,25 @@ struct EnemyConfig {
 		c.modelPath    = "src/Assets/Models/New_Enemies/Drone/Drone.glb";
 		c.hasSkin      = false;
 		c.rotateOnDraw = true;
+		c.useAltShader = true;
 		c.accuracy     = 40.0f;
 		c.aabbScale    = glm::vec3(2.5f, 2.5f, 2.5f);
+		c.modelScale   = glm::vec3(0.01f);
 		return c;
 	}
 
 	static EnemyConfig Mech()
 	{
 		EnemyConfig c;
-		c.type      = EnemyType::MECH;
-		c.modelPath = "src/Assets/Models/New_Enemies/MechStandard/Mecha-HM4_Rigged+Anim.glb";
-		c.hasSkin   = false;
-		c.maxHealth = 300.0f;
-		c.moveSpeed = 4.0f;
-		c.accuracy  = 80.0f;
-		c.aabbScale = glm::vec3(5.0f, 5.0f, 5.0f);
+		c.type         = EnemyType::MECH;
+		c.modelPath    = "src/Assets/Models/New_Enemies/MechStandard/Mecha-HM4_Rigged+Anim.glb";
+		c.hasSkin      = false;
+		c.useAltShader = true;
+		c.maxHealth    = 300.0f;
+		c.moveSpeed    = 4.0f;
+		c.accuracy     = 80.0f;
+		c.aabbScale    = glm::vec3(5.0f, 5.0f, 5.0f);
+		c.modelScale   = glm::vec3(0.1f);
 		return c;
 	}
 };

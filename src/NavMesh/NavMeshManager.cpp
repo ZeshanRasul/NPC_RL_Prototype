@@ -410,7 +410,7 @@ void NavMeshManager::Build(const std::vector<float>& vertices,
 void NavMeshManager::InitCrowd(const std::vector<Enemy*>& enemies)
 {
     m_crowd = dtAllocCrowd();
-    m_crowd->init((int)enemies.size(), AGENT_RADIUS, m_navMesh);
+    m_crowd->init(64, AGENT_RADIUS, m_navMesh);
 
     for (Enemy* e : enemies) {
         dtCrowdAgentParams ap{};
@@ -536,6 +536,35 @@ glm::vec3 NavMeshManager::TeleportAgent(int agentIdx, const glm::vec3& newPos)
     m_crowd->addAgent(snapped, &ap);
 
     return glm::vec3(snapped[0], snapped[1], snapped[2]);
+}
+
+int NavMeshManager::RegisterCrowdAgent(const glm::vec3& pos, glm::vec3& outSnappedPos)
+{
+    if (!m_crowd || !m_navMeshQuery) { outSnappedPos = pos; return -1; }
+
+    float searchPos[3] = { pos.x, pos.y, pos.z };
+    float snapped[3]   = { pos.x, pos.y, pos.z };
+    dtPolyRef poly     = 0;
+    m_navMeshQuery->findNearestPoly(searchPos, m_halfExtents, &m_filter, &poly, snapped);
+
+    dtCrowdAgentParams ap{};
+    ap.radius                = AGENT_RADIUS;
+    ap.height                = 1.0f;
+    ap.maxSpeed              = 4.0f;
+    ap.maxAcceleration       = 12.0f;
+    ap.collisionQueryRange   = AGENT_RADIUS * 6.0f;
+    ap.pathOptimizationRange = AGENT_RADIUS * 15.0f;
+    ap.updateFlags           = DT_CROWD_ANTICIPATE_TURNS
+                             | DT_CROWD_OPTIMIZE_VIS
+                             | DT_CROWD_OPTIMIZE_TOPO
+                             | DT_CROWD_SEPARATION;
+    ap.separationWeight = 0.5f;
+
+    int idx = m_crowd->addAgent(snapped, &ap);
+    outSnappedPos = glm::vec3(snapped[0], snapped[1], snapped[2]);
+    Logger::Log(1, "[NavMesh] RegisterCrowdAgent: slot %d at (%.2f, %.2f, %.2f)\n",
+                idx, snapped[0], snapped[1], snapped[2]);
+    return idx;
 }
 
 void NavMeshManager::RenderDebug(const glm::mat4& view, const glm::mat4& projection)

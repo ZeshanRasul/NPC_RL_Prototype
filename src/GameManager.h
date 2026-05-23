@@ -184,6 +184,8 @@ private:
 	void SaveSceneSettings();
 	void LoadSceneSettings();
 
+	void SpawnEnemy(EnemyType type, glm::vec3 position);
+
 	void CalculatePerformance(float deltaTime);
 
 	EventManager& GetEventManager() { return m_eventManager; }
@@ -196,6 +198,7 @@ private:
 	int  m_selectedEnemyIndex = -1;
 	int  m_selectedLightIndex = -1;   // index into pointLights or spotLights
 	bool m_selectedLightIsSpot = false;
+	int  m_pendingEnemyType = 0;       // index into EnemyType enum for "Add Enemy" dropdown
 	bool m_editMode    = false;
 	bool m_showNavMesh = true;
 

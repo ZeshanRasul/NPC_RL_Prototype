@@ -30,6 +30,10 @@ public:
     // Spawn dtCrowd agents for each enemy at their current positions.
     void InitCrowd(const std::vector<Enemy*>& enemies);
 
+    // Add a new crowd agent at pos (snapped to navmesh) and return the slot index.
+    // outSnappedPos receives the snapped world position.
+    int RegisterCrowdAgent(const glm::vec3& pos, glm::vec3& outSnappedPos);
+
     // Advance crowd simulation and push new positions back to enemies.
     void Update(float deltaTime,
                 const std::vector<Enemy*>& enemies,

@@ -517,6 +517,20 @@ void GameManager::ShowSceneOutliner()
 	ImGui::Separator();
 	ImGui::Text("Enemies");
 
+	if (m_editMode)
+	{
+		static const char* enemyTypeNames[] = { "Scout", "Heavy Scout", "Drone", "Mech" };
+		ImGui::SetNextItemWidth(120.0f);
+		ImGui::Combo("##EnemyType", &m_pendingEnemyType, enemyTypeNames, IM_ARRAYSIZE(enemyTypeNames));
+		ImGui::SameLine();
+		if (ImGui::Button("Add Enemy"))
+		{
+			EnemyType type = static_cast<EnemyType>(m_pendingEnemyType);
+			glm::vec3 spawnPos = m_camera->GetPosition() + m_camera->GetFront() * 20.0f;
+			SpawnEnemy(type, spawnPos);
+		}
+	}
+
 	for (int i = 0; i < (int)m_enemies.size(); i++)
 	{
 		Enemy* e = m_enemies[i];
@@ -853,6 +867,64 @@ void GameManager::ShowPerformanceWindow()
 	ImGui::End();
 }
 
+void GameManager::SpawnEnemy(EnemyType type, glm::vec3 position)
+{
+    EnemyConfig cfg = EnemyConfig::FromType(type);
+
+    int newId = 0;
+    for (Enemy* e : m_enemies)
+        newId = std::max(newId, e->GetID() + 1);
+
+    Shader* shader = cfg.useAltShader ? &enemyShader2 : &enemyShader;
+
+    Enemy* newEnemy = new Enemy(
+        position,
+        cfg.modelScale,
+        shader,
+        &enemyShadowMapShader,
+        cfg.hasSkin,
+        this,
+        cfg.texturePath,
+        newId,
+        GetEventManager(),
+        *m_player,
+        cfg
+    );
+    newEnemy->SetAABBShader(&aabbShader);
+    newEnemy->SetUpAABB();
+
+    // Extend per-enemy muzzle flash state (indexed by enemy ID)
+    m_renderEnemyMuzzleFlash.push_back(false);
+    m_enemyMuzzleFlashStartTimes.push_back(0.0f);
+    m_enemyMuzzleTimesSinceStart.push_back(0.0f);
+    m_enemyMuzzleFlashDurations.push_back(0.1f);
+    m_enemyMuzzleAlphas.push_back(0.0f);
+    m_enemyMuzzleFlashTints.push_back({1.0f, 1.0f, 1.0f});
+    m_enemyMuzzleFlashScales.push_back(1.0f);
+    m_enemyMuzzleModelMatrices.push_back(glm::mat4(1.0f));
+
+    // Extend per-enemy tracer state (indexed by enemy ID)
+    m_renderEnemyTracer.push_back(false);
+    m_enemyTracerStartTimes.push_back(0.0f);
+    m_enemyTracerTimesSinceStart.push_back(0.0f);
+    m_enemyTracerDurations.push_back(0.1f);
+    m_enemyTracerAlphas.push_back(0.0f);
+    m_enemyTracerTints.push_back({1.0f, 1.0f, 1.0f});
+    m_enemyTracerScales.push_back(1.0f);
+    m_enemyTracerModelMatrices.push_back(glm::mat4(1.0f));
+
+    // Register navmesh crowd agent
+    glm::vec3 snapped;
+    m_navMeshManager->RegisterCrowdAgent(position, snapped);
+    newEnemy->SetPosition(snapped);
+
+    m_enemies.push_back(newEnemy);
+    m_gameObjects.push_back(newEnemy);
+
+    Logger::Log(1, "[SpawnEnemy] Spawned %s as ID %d at (%.1f, %.1f, %.1f)\n",
+                EnemyTypeName(type), newId, snapped.x, snapped.y, snapped.z);
+}
+
 void GameManager::SaveSceneSettings()
 {
 	SceneSettings s;
@@ -878,7 +950,7 @@ void GameManager::SaveSceneSettings()
 
 	for (Enemy* e : m_enemies)
 	{
-		if (e) s.enemySpawns.push_back({ e->GetID(), e->GetPosition() });
+		if (e) s.enemySpawns.push_back({ e->GetID(), e->GetPosition(), EnemyTypeName(e->GetConfig().type) });
 	}
 
 	s.pointLights = m_lighting.pointLights;
@@ -918,13 +990,28 @@ void GameManager::LoadSceneSettings()
 
 	for (const EnemySpawn& es : s.enemySpawns)
 	{
+		bool found = false;
 		for (Enemy* e : m_enemies)
 		{
 			if (e && e->GetID() == es.id)
 			{
 				e->SetPosition(es.position);
+				found = true;
 				break;
 			}
+		}
+		if (!found)
+		{
+			// Runtime-spawned enemy — recreate it
+			static const std::unordered_map<std::string, EnemyType> typeMap = {
+				{"Scout",       SCOUT},
+				{"Heavy Scout", HEAVY_SCOUT},
+				{"Drone",       DRONE},
+				{"Mech",        MECH},
+			};
+			auto it = typeMap.find(es.typeName);
+			EnemyType t = (it != typeMap.end()) ? it->second : SCOUT;
+			SpawnEnemy(t, es.position);
 		}
 	}
 }

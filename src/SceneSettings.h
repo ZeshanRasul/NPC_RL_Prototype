@@ -36,8 +36,9 @@ inline glm::vec2 jsonToVec2(const json& j, glm::vec2 fallback = glm::vec2(0.0f))
 // ------------------------------------------------------------------
 struct EnemySpawn
 {
-    int       id;
-    glm::vec3 position;
+    int         id;
+    glm::vec3   position;
+    std::string typeName = "Scout";
 };
 
 // ------------------------------------------------------------------
@@ -104,8 +105,9 @@ struct SceneSettings
         for (const auto& s : enemySpawns)
         {
             json entry;
-            entry["id"]  = s.id;
-            entry["pos"] = vec3ToJson(s.position);
+            entry["id"]       = s.id;
+            entry["pos"]      = vec3ToJson(s.position);
+            entry["typeName"] = s.typeName;
             spawns.push_back(entry);
         }
         j["enemies"] = spawns;
@@ -181,6 +183,7 @@ struct SceneSettings
                 EnemySpawn es;
                 es.id       = e.value("id", -1);
                 es.position = jsonToVec3(e["pos"]);
+                es.typeName = e.value("typeName", "Scout");
                 enemySpawns.push_back(es);
             }
         }

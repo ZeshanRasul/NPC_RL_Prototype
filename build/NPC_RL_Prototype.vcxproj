@@ -113,12 +113,12 @@
       <TreatWChar_tAsBuiltInType></TreatWChar_tAsBuiltInType>
       <UseFullPaths>false</UseFullPaths>
       <WarningLevel>Level3</WarningLevel>
-      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;_CRT_SECURE_NO_WARNINGS;GLM_ENABLE_EXPERIMENTAL;UNICODE;_UNICODE;_DEBUG;CMAKE_INTDIR="Debug"</PreprocessorDefinitions>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;_CRT_SECURE_NO_WARNINGS;GLM_ENABLE_EXPERIMENTAL;UNICODE;_UNICODE;_DEBUG;NPC_SCENE_ROOT="D:/dev/Gameplay/NPC_RL_Prototype";CMAKE_INTDIR="Debug"</PreprocessorDefinitions>
       <ObjectFileName>$(IntDir)</ObjectFileName>
       <ScanSourceForModuleDependencies>false</ScanSourceForModuleDependencies>
     </ClCompile>
     <ResourceCompile>
-      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_DEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;GLM_ENABLE_EXPERIMENTAL;UNICODE;_UNICODE;CMAKE_INTDIR=\"Debug\"</PreprocessorDefinitions>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_DEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;GLM_ENABLE_EXPERIMENTAL;UNICODE;_UNICODE;NPC_SCENE_ROOT=\"D:/dev/Gameplay/NPC_RL_Prototype\";CMAKE_INTDIR=\"Debug\"</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>D:\dev\Gameplay\NPC_RL_Prototype;D:\dev\Gameplay\NPC_RL_Prototype\src;D:\dev\Gameplay\NPC_RL_Prototype\include;D:\dev\Gameplay\NPC_RL_Prototype\include\imgui;D:\dev\Gameplay\NPC_RL_Prototype\src\tinygltf;D:\dev\Gameplay\NPC_RL_Prototype\src\OpenGL;D:\dev\Gameplay\NPC_RL_Prototype\src\Tools;D:\dev\Gameplay\NPC_RL_Prototype\src\NavMesh;D:\dev\Gameplay\NPC_RL_Prototype\include\Recast\Include;D:\dev\Gameplay\NPC_RL_Prototype\include\Detour\Include;D:\dev\Gameplay\NPC_RL_Prototype\include\DetourCrowd\Include;C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\studio\inc;C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\lowlevel\inc;C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\core\inc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <Midl>
@@ -186,14 +186,14 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
       <TreatWChar_tAsBuiltInType></TreatWChar_tAsBuiltInType>
       <UseFullPaths>false</UseFullPaths>
       <WarningLevel>Level3</WarningLevel>
-      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;_CRT_SECURE_NO_WARNINGS;GLM_ENABLE_EXPERIMENTAL;UNICODE;_UNICODE;CMAKE_INTDIR="Release"</PreprocessorDefinitions>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;_CRT_SECURE_NO_WARNINGS;GLM_ENABLE_EXPERIMENTAL;UNICODE;_UNICODE;NPC_SCENE_ROOT="D:/dev/Gameplay/NPC_RL_Prototype";CMAKE_INTDIR="Release"</PreprocessorDefinitions>
       <ObjectFileName>$(IntDir)</ObjectFileName>
       <DebugInformationFormat>
       </DebugInformationFormat>
       <ScanSourceForModuleDependencies>false</ScanSourceForModuleDependencies>
     </ClCompile>
     <ResourceCompile>
-      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;_CRT_SECURE_NO_WARNINGS;GLM_ENABLE_EXPERIMENTAL;UNICODE;_UNICODE;CMAKE_INTDIR=\"Release\"</PreprocessorDefinitions>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;_CRT_SECURE_NO_WARNINGS;GLM_ENABLE_EXPERIMENTAL;UNICODE;_UNICODE;NPC_SCENE_ROOT=\"D:/dev/Gameplay/NPC_RL_Prototype\";CMAKE_INTDIR=\"Release\"</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>D:\dev\Gameplay\NPC_RL_Prototype;D:\dev\Gameplay\NPC_RL_Prototype\src;D:\dev\Gameplay\NPC_RL_Prototype\include;D:\dev\Gameplay\NPC_RL_Prototype\include\imgui;D:\dev\Gameplay\NPC_RL_Prototype\src\tinygltf;D:\dev\Gameplay\NPC_RL_Prototype\src\OpenGL;D:\dev\Gameplay\NPC_RL_Prototype\src\Tools;D:\dev\Gameplay\NPC_RL_Prototype\src\NavMesh;D:\dev\Gameplay\NPC_RL_Prototype\include\Recast\Include;D:\dev\Gameplay\NPC_RL_Prototype\include\Detour\Include;D:\dev\Gameplay\NPC_RL_Prototype\include\DetourCrowd\Include;C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\studio\inc;C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\lowlevel\inc;C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\core\inc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <Midl>
@@ -261,14 +261,14 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
       <TreatWChar_tAsBuiltInType></TreatWChar_tAsBuiltInType>
       <UseFullPaths>false</UseFullPaths>
       <WarningLevel>Level3</WarningLevel>
-      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;_CRT_SECURE_NO_WARNINGS;GLM_ENABLE_EXPERIMENTAL;UNICODE;_UNICODE;CMAKE_INTDIR="MinSizeRel"</PreprocessorDefinitions>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;_CRT_SECURE_NO_WARNINGS;GLM_ENABLE_EXPERIMENTAL;UNICODE;_UNICODE;NPC_SCENE_ROOT="D:/dev/Gameplay/NPC_RL_Prototype";CMAKE_INTDIR="MinSizeRel"</PreprocessorDefinitions>
       <ObjectFileName>$(IntDir)</ObjectFileName>
       <DebugInformationFormat>
       </DebugInformationFormat>
       <ScanSourceForModuleDependencies>false</ScanSourceForModuleDependencies>
     </ClCompile>
     <ResourceCompile>
-      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;_CRT_SECURE_NO_WARNINGS;GLM_ENABLE_EXPERIMENTAL;UNICODE;_UNICODE;CMAKE_INTDIR=\"MinSizeRel\"</PreprocessorDefinitions>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;_CRT_SECURE_NO_WARNINGS;GLM_ENABLE_EXPERIMENTAL;UNICODE;_UNICODE;NPC_SCENE_ROOT=\"D:/dev/Gameplay/NPC_RL_Prototype\";CMAKE_INTDIR=\"MinSizeRel\"</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>D:\dev\Gameplay\NPC_RL_Prototype;D:\dev\Gameplay\NPC_RL_Prototype\src;D:\dev\Gameplay\NPC_RL_Prototype\include;D:\dev\Gameplay\NPC_RL_Prototype\include\imgui;D:\dev\Gameplay\NPC_RL_Prototype\src\tinygltf;D:\dev\Gameplay\NPC_RL_Prototype\src\OpenGL;D:\dev\Gameplay\NPC_RL_Prototype\src\Tools;D:\dev\Gameplay\NPC_RL_Prototype\src\NavMesh;D:\dev\Gameplay\NPC_RL_Prototype\include\Recast\Include;D:\dev\Gameplay\NPC_RL_Prototype\include\Detour\Include;D:\dev\Gameplay\NPC_RL_Prototype\include\DetourCrowd\Include;C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\studio\inc;C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\lowlevel\inc;C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\core\inc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <Midl>
@@ -337,12 +337,12 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
       <TreatWChar_tAsBuiltInType></TreatWChar_tAsBuiltInType>
       <UseFullPaths>false</UseFullPaths>
       <WarningLevel>Level3</WarningLevel>
-      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;_CRT_SECURE_NO_WARNINGS;GLM_ENABLE_EXPERIMENTAL;UNICODE;_UNICODE;CMAKE_INTDIR="RelWithDebInfo"</PreprocessorDefinitions>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;_CRT_SECURE_NO_WARNINGS;GLM_ENABLE_EXPERIMENTAL;UNICODE;_UNICODE;NPC_SCENE_ROOT="D:/dev/Gameplay/NPC_RL_Prototype";CMAKE_INTDIR="RelWithDebInfo"</PreprocessorDefinitions>
       <ObjectFileName>$(IntDir)</ObjectFileName>
       <ScanSourceForModuleDependencies>false</ScanSourceForModuleDependencies>
     </ClCompile>
     <ResourceCompile>
-      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;_CRT_SECURE_NO_WARNINGS;GLM_ENABLE_EXPERIMENTAL;UNICODE;_UNICODE;CMAKE_INTDIR=\"RelWithDebInfo\"</PreprocessorDefinitions>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;_CRT_SECURE_NO_WARNINGS;GLM_ENABLE_EXPERIMENTAL;UNICODE;_UNICODE;NPC_SCENE_ROOT=\"D:/dev/Gameplay/NPC_RL_Prototype\";CMAKE_INTDIR=\"RelWithDebInfo\"</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>D:\dev\Gameplay\NPC_RL_Prototype;D:\dev\Gameplay\NPC_RL_Prototype\src;D:\dev\Gameplay\NPC_RL_Prototype\include;D:\dev\Gameplay\NPC_RL_Prototype\include\imgui;D:\dev\Gameplay\NPC_RL_Prototype\src\tinygltf;D:\dev\Gameplay\NPC_RL_Prototype\src\OpenGL;D:\dev\Gameplay\NPC_RL_Prototype\src\Tools;D:\dev\Gameplay\NPC_RL_Prototype\src\NavMesh;D:\dev\Gameplay\NPC_RL_Prototype\include\Recast\Include;D:\dev\Gameplay\NPC_RL_Prototype\include\Detour\Include;D:\dev\Gameplay\NPC_RL_Prototype\include\DetourCrowd\Include;C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\studio\inc;C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\lowlevel\inc;C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\core\inc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <Midl>
