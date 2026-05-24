@@ -173,6 +173,7 @@ public:
 private:
 	void RenderEnemyLineAndMuzzleFlash(bool isMainPass, bool isMinimapPass, bool isShadowPass);
 	void RenderPlayerCrosshairAndMuzzleFlash(bool isMainPass);
+	void ApplyCameraCollision(const glm::vec3& pivot);
 
 	void ShowSceneOutliner();
 	void ShowEntityInspector();

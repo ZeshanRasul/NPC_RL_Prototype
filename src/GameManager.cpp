@@ -285,6 +285,24 @@ GameManager::GameManager(Window* window, unsigned int width, unsigned int height
 	m_navMeshManager->InitCrowd(m_enemies);
 }
 
+void GameManager::ApplyCameraCollision(const glm::vec3& pivot)
+{
+	glm::vec3 idealPos = m_camera->GetPosition();
+	glm::vec3 toIdeal  = idealPos - pivot;
+	float idealDist    = glm::length(toIdeal);
+	if (idealDist < 0.001f) return;
+
+	glm::vec3 dir = toIdeal / idealDist;
+	glm::vec3 hitPoint;
+	float hitDist = m_physicsWorld->RaycastStaticOnly(pivot, dir, hitPoint);
+	if (hitDist < idealDist)
+	{
+		// Pull the camera to just inside the wall with a small clearance
+		float safeDist = std::max(hitDist - 0.1f, 0.0f);
+		m_camera->SetPosition(pivot + dir * safeDist);
+	}
+}
+
 void GameManager::SetupCamera(unsigned int width, unsigned int height, float deltaTime)
 {
 	m_camera->SetZoom(45.0f);
@@ -305,9 +323,12 @@ void GameManager::SetupCamera(unsigned int width, unsigned int height, float del
 		}
 		else {
 			//m_camera->SetPitch(45.0f);
-			m_camera->FollowTarget(m_player->GetPosition() + (m_player->GetPlayerFront() * m_camera->GetPlayerPosOffset()), m_player->GetPlayerFront(), m_camera->GetPlayerCamRearOffset(), m_camera->GetPlayerCamHeightOffset());
+			glm::vec3 followPivot = m_player->GetPosition() + (m_player->GetPlayerFront() * m_camera->GetPlayerPosOffset());
+			m_camera->FollowTarget(followPivot, m_player->GetPlayerFront(), m_camera->GetPlayerCamRearOffset(), m_camera->GetPlayerCamHeightOffset());
 			if (m_camera->HasSwitched())
-				m_camera->StorePrevCam(m_camera->GetPosition() + (glm::vec3(0.0f, 1.0f, 0.0f) * m_camera->GetPlayerCamHeightOffset()), m_player->GetPosition() + (m_player->GetPlayerFront() * m_camera->GetPlayerPosOffset()));
+				m_camera->StorePrevCam(m_camera->GetPosition() + (glm::vec3(0.0f, 1.0f, 0.0f) * m_camera->GetPlayerCamHeightOffset()), followPivot);
+
+			ApplyCameraCollision(followPivot);
 
 			glm::vec3 camPos = m_camera->GetPosition();
 			if (camPos.y < 0.0f)
@@ -316,7 +337,7 @@ void GameManager::SetupCamera(unsigned int width, unsigned int height, float del
 				m_camera->SetPosition(camPos);
 			}
 
-			m_view = m_camera->GetViewMatrixPlayerFollow(m_player->GetPosition() + (m_player->GetPlayerFront() * m_camera->GetPlayerPosOffset()), glm::vec3(0.0f, 1.0f, 0.0f));
+			m_view = m_camera->GetViewMatrixPlayerFollow(followPivot, glm::vec3(0.0f, 1.0f, 0.0f));
 		}
 
 	}
@@ -386,12 +407,16 @@ void GameManager::SetupCamera(unsigned int width, unsigned int height, float del
 		else {
 
 			glm::vec3 camPos = m_camera->GetPosition();
+			glm::vec3 aimPivot = m_player->GetPosition()
+				+ (m_player->GetPlayerFront() * m_camera->GetPlayerPosOffset())
+				+ (m_player->GetPlayerRight() * m_camera->GetPlayerAimRightOffset());
 
-			m_camera->FollowTarget(m_player->GetPosition() + (m_player->GetPlayerFront() * m_camera->GetPlayerPosOffset()) + (m_player->GetPlayerRight() * m_camera->GetPlayerAimRightOffset()),
-				m_player->GetPlayerFront(), m_camera->GetPlayerAimCamRearOffset(), m_camera->GetPlayerAimCamHeightOffset());
+			m_camera->FollowTarget(aimPivot, m_player->GetPlayerFront(), m_camera->GetPlayerAimCamRearOffset(), m_camera->GetPlayerAimCamHeightOffset());
 
 			if (m_camera->HasSwitched())
-				m_camera->StorePrevCam(m_camera->GetPosition() + m_player->GetPlayerAimUp() * m_camera->GetPlayerAimCamHeightOffset(), m_player->GetPosition() + (m_player->GetPlayerFront() * m_camera->GetPlayerPosOffset()) + (m_player->GetPlayerRight() * m_camera->GetPlayerAimRightOffset()) + (m_player->GetPlayerAimUp() * m_camera->GetPlayerAimCamHeightOffset()));
+				m_camera->StorePrevCam(m_camera->GetPosition() + m_player->GetPlayerAimUp() * m_camera->GetPlayerAimCamHeightOffset(), aimPivot + (m_player->GetPlayerAimUp() * m_camera->GetPlayerAimCamHeightOffset()));
+
+			ApplyCameraCollision(aimPivot);
 
 			//if (camPos.y <= m_player->GetPosition().y)
 			//{

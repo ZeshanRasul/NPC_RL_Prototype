@@ -409,7 +409,7 @@ private:
 	glm::vec3 m_enemyShootDir = glm::vec3(0.0f);
 	glm::vec3 m_enemyHitPoint = glm::vec3(0.0f);
 	float m_enemyShootDistance = 100000.0f;
-	float m_enemyRayDebugRenderTimer = 0.1f;
+	float m_enemyRayDebugRenderTimer = 0.4f;
 	bool m_playerIsVisible = false;
 
 	bool m_startingSuppressionFire = true;

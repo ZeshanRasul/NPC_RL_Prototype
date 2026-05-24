@@ -17,6 +17,7 @@ struct EnemyConfig {
 	// Directory prefix used to derive all PBR map filenames for this enemy type.
 	// Maps: _BaseColor[2-4].png (random), _Metallic.png, _Roughness.png, _Normal.png, _Emissive.png
 	std::string textureBasePath = "src/Assets/Models/New_Enemies/Armour7/armor7_painter_armor7_mat_";
+	bool loadPBRTextures = true; // false → use embedded GLB textures (Drone/Mech)
 	bool        hasSkin      = true;
 	bool        rotateOnDraw = false;
 	bool        useAltShader = false; // true → enemyShader2 (vertex.glsl/fragment.glsl)
@@ -70,15 +71,17 @@ struct EnemyConfig {
 		EnemyConfig c;
 		c.type             = EnemyType::HEAVY_SCOUT;
 		c.modelPath        = "src/Assets/Models/New_Enemies/Armour9/Heavy_Scout.glb";
+		c.textureBasePath  = "src/Assets/Models/New_Enemies/Armour9/BlueMetallic/PBR_MetalRough/armor9_painter_armor9_mat_";
 		c.maxHealth        = 150.0f;
 		c.moveSpeed        = 5.0f;
 		c.sightRange       = 250.0f;
 		c.sightFovDeg      = 60.0f;
 		c.alertRadius      = 70.0f;
 		c.patrolWanderRadius = 325.0f;
-		c.useAltShader = true;
+		c.useAltShader	   = false;
 		c.rotateOnDraw	   = true;
 		c.rotationAngle    = -90.0f;
+		c.metallicScale = 0.2f; // Substance Painter metallic maps are ~1.0; scale down so diffuse is visible without IBL
 		return c;
 	}
 
@@ -87,11 +90,12 @@ struct EnemyConfig {
 		EnemyConfig c;
 		c.type               = EnemyType::DRONE;
 		c.modelPath          = "src/Assets/Models/New_Enemies/Drone/Drone.glb";
+		c.textureBasePath    = "src/Assets/Models/New_Enemies/Drone/War_Drone_Main_Body1_"; // single texture for entire model (no PBR)
 		c.hasSkin            = false;
 		c.rotateOnDraw       = true;
 		c.rotationAxis       = glm::vec3(1.0f, 0.0f, 0.0f);
 		c.rotationAngle		 = 90.0f;
-		c.useAltShader       = true;
+		c.useAltShader       = false;
 		c.accuracy           = 40.0f;
 		c.aabbScale          = glm::vec3(2.5f, 2.5f, 2.5f);
 		c.modelScale         = glm::vec3(0.01f);
@@ -114,6 +118,7 @@ struct EnemyConfig {
 		c.accuracy           = 80.0f;
 		c.aabbScale          = glm::vec3(5.0f, 5.0f, 5.0f);
 		c.modelScale         = glm::vec3(0.1f);
+		c.loadPBRTextures = false; // use embedded GLB textures
 		c.sightRange         = 200.0f;
 		c.sightFovDeg        = 45.0f;
 		c.alertRadius        = 120.0f;

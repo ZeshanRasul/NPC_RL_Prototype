@@ -149,8 +149,9 @@ void main()
         ? pow(texture(albedoMap, TexCoords).rgb, vec3(2.2))
         : pow(baseColour, vec3(2.2));
 
-    float metallic  = useMetallicMap  ? texture(metallicMap,  TexCoords).r : metallicFactor;
-    float roughness = useRoughnessMap ? texture(roughnessMap, TexCoords).r : roughnessFactor;
+    // GLB packed metallic-roughness convention: G = roughness, B = metallic
+    float metallic  = useMetallicMap  ? texture(metallicMap,  TexCoords).b : metallicFactor;
+    float roughness = useRoughnessMap ? texture(roughnessMap, TexCoords).g : roughnessFactor;
     metallic  = clamp(metallic * u_metallicScale, 0.0, 1.0);
     roughness = clamp(roughness, 0.04, 1.0); // prevent GGX singularity
 

@@ -249,6 +249,26 @@ bool PhysicsWorld::CheckPlayerVisibility(const glm::vec3& rayOrigin, const glm::
 	return false;
 }
 
+float PhysicsWorld::RaycastStaticOnly(const glm::vec3& origin, const glm::vec3& dir, glm::vec3& hitPoint)
+{
+	float closestDist = std::numeric_limits<float>::max();
+	for (AABB* collider : m_colliders)
+	{
+		if (collider->GetIsPlayer() || collider->GetIsEnemy()) continue;
+		glm::vec3 tempHit;
+		if (RayAABBIntersect(origin, dir, collider, tempHit))
+		{
+			float d = glm::length(tempHit - origin);
+			if (d < closestDist)
+			{
+				closestDist = d;
+				hitPoint = tempHit;
+			}
+		}
+	}
+	return closestDist;
+}
+
 glm::vec3 PhysicsWorld::RaycastPlane(const glm::vec3& ro, const glm::vec3& rd, float& tOut, glm::vec3& desiredDir)
 {
 	desiredDir = glm::normalize(desiredDir);

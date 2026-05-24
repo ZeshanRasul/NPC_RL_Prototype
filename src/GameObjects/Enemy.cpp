@@ -74,7 +74,7 @@ void Enemy::LoadPBRTextures()
 	std::uniform_int_distribution<int> dist(1, 4);
 	int variant = dist(gen);
 	std::string suffix = (variant == 1) ? "" : std::to_string(variant);
-	m_albedo.LoadTexture(base + "BaseColor" + suffix + ".png", false);
+	m_albedo.LoadTexture(base + "BaseColor.png", false);
 
 	// All other maps are shared across variants
 	m_metallic.LoadTexture( base + "Metallic.png",  false);
